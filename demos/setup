@@ -1,0 +1,3 @@
+diary('xxx')
+!tail -f xxx > /dev/tty1 &
+!tail -f xxx > /dev/tty2 &

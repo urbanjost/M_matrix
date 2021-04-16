@@ -1,0 +1,11 @@
+scale = s(m);
+sm = s(m)/scale; smm1 = s(m-1)/scale; emm1 = e(m-1)/scale;
+sl = s(l)/scale; el = e(l)/scale;
+b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
+c = (sm*emm1)**2;
+shift = sqrt(b**2+c); if b < 0, shift = -shift;
+shift = c/(b + shift)
+f = (sl + sm)*(sl-sm) - shift
+g = sl*el
+for k = l: m-1, exec('qrstep',ip)
+e(m-1) = f

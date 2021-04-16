@@ -1,0 +1,2 @@
+t = 0*x + eye; s = 0*eye(x); n = 1;
+while abs(s+t-s) > 0, s = s+t, t = x*t/n, n = n + 1

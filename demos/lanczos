@@ -1,0 +1,6 @@
+<n,n> = size(A);
+q1 = rand(n,1);
+ort
+alfa = <>; beta = <>;
+q = q1/norm(q1); r = A*q(:,1);
+for j = 1:n, exec('lanstep',0);

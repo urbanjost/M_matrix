@@ -1,0 +1,4 @@
+//Generate next Pascal matrix
+<k,k> = size(L);
+k = k + 1;
+L(k,1:k) = <L(k-1,:) 0> + <0 L(k-1,:)>;

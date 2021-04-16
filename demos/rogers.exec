@@ -1,0 +1,9 @@
+exec('d.boug');			// reads data
+<g,k> = size(p);		// p is matrix of gene frequencies
+wv = ncen/sum(ncen);		// ncen contains population sizes
+pbar = wv*p;			// weighted average of p
+p = p - ones(g,1)*pbar; 	// deviations from mean
+p = sqrt(diag(wv)) * p; 	// weight rows of p by sqrt of pop size
+h = diag(pbar); h = h*(eye-h);	// diagonal contains binomial variance: p*(1-p)
+r = p*inv(h)*p'/k;		// normalized covariance matrix
+eig(r)'

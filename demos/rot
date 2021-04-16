@@ -1,0 +1,10 @@
+// subexec rot(f,g,cs,sn)
+      rho = g; if abs(f) > abs(g), rho = f;
+      cs = 1.0; sn = 0.0; z = 1.0;
+      r = norm(<f g>); if rho < 0, r = -r; r
+      if r <> 0.0, cs = f/r
+      if r <> 0.0, sn = g/r
+      if abs(f) > abs(g), z = sn;
+      if abs(g) >= abs(f), if cs <> 0, z = 1/cs;
+      f = r;
+      g = z;

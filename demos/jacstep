@@ -1,0 +1,7 @@
+        d = (a(q,q)-a(p,p))*0.5/a(p,q);
+        t = 1/(abs(d)+sqrt(d*d+1));
+        if d < 0, t = -t; end;
+        c = 1/sqrt(1+t*t);  s = t*c;
+        R = eye(n); r(p,p)=c; r(q,q)=c; r(p,q)=s; r(q,p)=-s;
+        X = X*R;
+        A = R'*A*R;

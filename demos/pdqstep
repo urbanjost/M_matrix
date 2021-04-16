@@ -1,0 +1,8 @@
+t = A*q(:,j-1) - alfa(j-1)*p(:,j-1);
+   if ort>0, for i = 1:j-1, t = t - t'*p(:,i)*p(:,i);
+beta(j) = norm(t);
+p(:,j) = t/beta(j);
+t = A'*p(:,j) - beta(j)*q(:,j-1);
+   if ort>0, for i = 1:j-1, t = t - t'*q(:,i)*q(:,i);
+alfa(j) = norm(t);
+q(:,j) = t/alfa(j);

@@ -1,0 +1,7 @@
+alfa(j) = q(:,j)'*r;
+r = r - alfa(j)*q(:,j);
+if ort <> 0, for k = 1:j-1, r = r - r'*q(:,k)*q(:,k);
+beta(j) = norm(r);
+q(:,j+1) = r/beta(j);
+r = A*q(:,j+1) - beta(j)*q(:,j);
+if j > 1, T = diag(beta(1:j-1),1); T = diag(alfa) + T + T'; eig(T)

@@ -1,0 +1,15 @@
+n
+pi = 4*atan(1);
+i = sqrt(-1);
+w = exp(2*pi*i/n);
+F = <>;
+for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
+F = F/sqrt(n);
+alfa = r*pi;
+rho = exp(i*alfa);
+S = log(rho*F)/i - alfa*EYE;
+serr = norm(imag(S),1);
+S = real(S);
+serr = serr + norm(S-S',1)
+S = (S + S')/2;
+ferr = norm(F-exp(i*S),1)

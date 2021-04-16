@@ -1,0 +1,32 @@
+# TOML file for fpm as described at https://github.com/fortran-lang/fpm/blob/master/manifest-reference.md
+name = "M_matrix"
+version = "0.1.0"
+license = "Public Domain"
+author = "John S. Urban"
+maintainer = "urbanjost@comcast.net"
+copyright = "2020 John S. Urban"
+description = " matlab-like interface via procedure calls(LICENSE:PD)"
+categories = ["expression parsing"]
+keywords = ["fortran", "expression parsing", "matlab"]
+homepage = "https://github.com/urbanjost/M_matrix.git"
+
+[install]
+library="true"
+
+#[[test]]
+#name="test_suite"
+#source-dir="test"
+#main="test_suite_M_matrix.f90"
+#[test.dependencies]
+#M_msg          = { git = "https://github.com/urbanjost/M_msg.git" }
+
+#[[executable]]
+#name="mat"
+#source-dir="app"
+#main="mat.f90"
+
+[dependencies]
+M_msg          = { git = "https://github.com/urbanjost/M_msg.git" }
+M_strings      = { git = "https://github.com/urbanjost/M_strings.git" }
+M_history      = { git = "https://github.com/urbanjost/M_history.git" }
+M_CLI2         = { git = "https://github.com/urbanjost/M_CLI2.git" }

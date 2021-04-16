@@ -1,0 +1,40 @@
+//Conductivity example.
+//Parameters ---
+   rho       //radius of cylindrical inclusion
+   n         //number of terms in solution
+   m         //number of boundary points
+//initialize operation counter
+   flop = <0 0>;
+//initialize variables
+   m1 = round(m/3);   //number of points on each straight edge
+   m2 = m - m1;       //number of points with Dirichlet conditions
+   pi = 4*atan(1);
+//generate points in Cartesian coordinates
+   //right hand edge
+   for i = 1:m1, x(i) = 1; y(i) = (1-rho)*(i-1)/(m1-1);
+   //top edge
+   for i = m2+1:m, x(i) = (1-rho)*(m-i)/(m-m2-1); y(i) = 1;
+   //circular edge
+   for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); ...
+      x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);
+//convert to polar coordinates
+   for i = 1:m-1, th(i) = atan(y(i)/x(i));  ...
+      r(i) = sqrt(x(i)**2+y(i)**2);
+   th(m) = pi/2;  r(m) = 1;
+//generate matrix
+   //Dirichlet conditions
+   for i = 1:m2, for j = 1:n, k = 2*j-1; ...
+      a(i,j) = r(i)**k*cos(k*th(i));
+   //Neumann conditions
+   for i = m2+1:m, for j = 1:n, k = 2*j-1; ...
+      a(i,j) = k*r(i)**(k-1)*sin((k-1)*th(i));
+//generate right hand side
+   for i = 1:m2, b(i) = 1;
+   for i = m2+1:m, b(i) = 0;
+//solve for coefficients
+   c = A$b
+//compute effective conductivity
+   c(2:2:n) = -c(2:2:n)
+   sigma = sum(c)
+//output total operation count
+   ops = flop(2)

@@ -1,0 +1,9 @@
+alfa = <>; beta = 0; q = <>; p = p(:,1)/norm(p(:,1));
+t = A'*p(:,1);
+alfa(1) = norm(t);
+q(:,1) = t/alfa(1);
+X = p(:,1)*(alfa(1)*q(:,1))'
+e(1) = norm(A-X,1)
+for j = 2:r, exec('pdqstep',ip); ...
+   X = X + p(:,j)*(alfa(j)*q(:,j)+beta(j)*q(:,j-1))', ...
+   e(j) = norm(A-X,1)

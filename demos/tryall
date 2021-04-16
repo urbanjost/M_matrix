@@ -1,0 +1,33 @@
+diary('log.txt')
+a=magic(8)
+n=3
+exec('avg')
+b=random(8,8)
+exec('cdiv')
+exec('exp')
+exec('four')
+exec('gs')
+exec('jacobi')
+// jacstep
+exec('kron')
+exec('lanczos')
+// lanstep
+exec('longley')
+exec('mgs')
+exec('net')
+exec('pascal')
+exec('pdq')
+// pdqstep
+exec('pop')
+exec('qr')
+// qrstep
+exec('rho')
+exec('rosser')
+// rot
+exec('rqi')
+exec('setup')
+exec('sigma')
+exec('strut.mat')
+exec('w5')
+exec('rogers.exec
+exec('rogers.load

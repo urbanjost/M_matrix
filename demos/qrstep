@@ -1,0 +1,12 @@
+exec('rot');
+if k <> l, e(k-1) = f
+f = cs*s(k) + sn*e(k)
+e(k) = cs*e(k) - sn*s(k)
+g = sn*s(k+1)
+s(k+1) = cs*s(k+1)
+exec('rot');
+s(k) = f
+f = cs*e(k) + sn*s(k+1)
+s(k+1) = -sn*e(k) + cs*s(k+1)
+g = sn*e(k+1)
+e(k+1) = cs*e(k+1)
