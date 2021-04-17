@@ -1,6 +1,29 @@
 # M_matrix
+
+This module allows you to interact with a Fortran program using matlab-like commands.
+Installation requires fpm(1):
+
+download the github repository and build it with 
+fpm ( as described at [Fortran Package Manager](https://github.com/fortran-lang/fpm) )
+   
+```bash
+   git clone https://github.com/urbanjost/M_matrix.git
+   cd M_matrix
+   fpm run
+```
+   
+or if calling it from you `fpm` project just list it as a dependency in
+your fpm.toml project file.
+   
+```toml
+        [dependencies]
+        M_matrix        = { git = "https://github.com/urbanjost/M_matrix.git" }
+```
+
+---
+
 ## NAME
-   MAT88(3f) - [M_matrix] initialize and/or pass commands to matrix laboratory interpreter
+   MAT88(3f) - [M_matrix] initialize and/or pass commands to a "matrix laboratory" interpreter
 
 ## SYNOPSIS
        subroutine MAT88(init,cmd)
@@ -26,9 +49,11 @@
 ## OPTIONS
        INIT   flag indicating purpose of call
 
-              0 For ordinary first entry with reads from stdin -1 negative for silent initialization (ignores CMD) 1 positive
-              for subsequent entries, enter command mode reading commands from stdin.  2 subsequent entry , return after doing
-              CMD
+           +  0  initial entry with reads from stdin
+           + -1  for silent initialization (ignores CMD)
+           +  1  perform CMD, and enter command mode, subsequently
+                 reading commands from stdin.
+           +  2  return after doing CMD
 
        CMD    MAT88 command to perform
 

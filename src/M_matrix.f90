@@ -130,11 +130,11 @@ contains
 !!##OPTIONS
 !!    INIT   flag indicating purpose of call
 !!
-!!             0 For ordinary first entry with reads from stdin
-!!            -1 negative for silent initialization (ignores CMD)
-!!             1 positive for subsequent entries, enter command mode
-!!               reading commands from stdin.
-!!             2 subsequent entry , return after doing CMD
+!!             0  initial entry. with reads from stdin
+!!            -1  for silent initialization (ignores CMD)
+!!             1  perform CMD, and enter command mode, subsequently
+!!                reading commands from stdin.
+!!             2  return after doing CMD
 !!
 !!    CMD     MAT88 command to perform
 !!##EXAMPLE
@@ -642,7 +642,7 @@ integer,save                :: RAND(4)=  [27,10,23,13]
       RTE = 5                                         ! unit number for terminal input
       CALL mat_files(RTE,BUF)
       RIO = RTE                                       ! current file to read commands from
-      WTE = 6                                         ! unit number for terminal  output
+      WTE = 6                                         ! unit number for terminal output
       CALL mat_files(WTE,BUF)
 
       IF (INIT .GE. 0) then                           ! initializing verbose
@@ -13134,7 +13134,7 @@ DOUBLEPRECISION XR(LDX,*),XI(LDX,*),QRAUXR(*),QRAUXI(*),YR(*),     &
 !
    DO JJ = 1, JU
       J = JU - JJ + 1
-      IF (CABS1(QRAUXR(J),QRAUXI(J)) .EQ. 0.0D0) GOTO 90
+      IF (CABS1(QRAUXR(J),QRAUXI(J)) .EQ. 0.0D0) cycle
       TEMPR = XR(J,J)
       TEMPI = XI(J,J)
       XR(J,J) = QRAUXR(J)
@@ -13145,7 +13145,6 @@ DOUBLEPRECISION XR(LDX,*),XI(LDX,*),QRAUXR(*),QRAUXI(*),YR(*),     &
       CALL matX_waxpy(N-J+1,TR,TI,XR(J,J),XI(J,J),1,QYR(J), QYI(J),1)
       XR(J,J) = TEMPR
       XI(J,J) = TEMPI
-90    CONTINUE
    enddo
 110 CONTINUE
    IF (.NOT.CQTY) GOTO 140
@@ -13153,7 +13152,7 @@ DOUBLEPRECISION XR(LDX,*),XI(LDX,*),QRAUXR(*),QRAUXI(*),YR(*),     &
 !           COMPUTE CTRANS(Q)*Y.
 !
    DO J = 1, JU
-      IF (CABS1(QRAUXR(J),QRAUXI(J)) .EQ. 0.0D0) GOTO 120
+      IF (CABS1(QRAUXR(J),QRAUXI(J)) .EQ. 0.0D0) cycle
       TEMPR = XR(J,J)
       TEMPI = XI(J,J)
       XR(J,J) = QRAUXR(J)
@@ -13164,7 +13163,6 @@ DOUBLEPRECISION XR(LDX,*),XI(LDX,*),QRAUXR(*),QRAUXI(*),YR(*),     &
       CALL matX_waxpy(N-J+1,TR,TI,XR(J,J),XI(J,J),1,QTYR(J), QTYI(J),1)
       XR(J,J) = TEMPR
       XI(J,J) = TEMPI
-120   CONTINUE
    enddo
 140 CONTINUE
 !
@@ -13213,26 +13211,25 @@ DOUBLEPRECISION XR(LDX,*),XI(LDX,*),QRAUXR(*),QRAUXI(*),YR(*),     &
 !
    DO JJ = 1, JU
       J = JU - JJ + 1
-      IF (CABS1(QRAUXR(J),QRAUXI(J)) .EQ. 0.0D0) GOTO 260
+      IF (CABS1(QRAUXR(J),QRAUXI(J)) .EQ. 0.0D0) cycle
       TEMPR = XR(J,J)
       TEMPI = XI(J,J)
       XR(J,J) = QRAUXR(J)
       XI(J,J) = QRAUXI(J)
-      IF (.NOT.CR) GOTO 240
-      TR = -mat_wdotcr(N-J+1,XR(J,J),XI(J,J),1,RSDR(J), RSDI(J),1)
-      TI = -mat_wdotci(N-J+1,XR(J,J),XI(J,J),1,RSDR(J), RSDI(J),1)
-      CALL mat_wdiv(TR,TI,XR(J,J),XI(J,J),TR,TI)
-      CALL matX_waxpy(N-J+1,TR,TI,XR(J,J),XI(J,J),1,RSDR(J), RSDI(J),1)
-240   CONTINUE
-      IF (.NOT.CXB) GOTO 250
-      TR = -mat_wdotcr(N-J+1,XR(J,J),XI(J,J),1,XBR(J), XBI(J),1)
-      TI = -mat_wdotci(N-J+1,XR(J,J),XI(J,J),1,XBR(J), XBI(J),1)
-      CALL mat_wdiv(TR,TI,XR(J,J),XI(J,J),TR,TI)
-      CALL matX_waxpy(N-J+1,TR,TI,XR(J,J),XI(J,J),1,XBR(J), XBI(J),1)
-250   CONTINUE
+      IF (CR) then
+         TR = -mat_wdotcr(N-J+1,XR(J,J),XI(J,J),1,RSDR(J), RSDI(J),1)
+         TI = -mat_wdotci(N-J+1,XR(J,J),XI(J,J),1,RSDR(J), RSDI(J),1)
+         CALL mat_wdiv(TR,TI,XR(J,J),XI(J,J),TR,TI)
+         CALL matX_waxpy(N-J+1,TR,TI,XR(J,J),XI(J,J),1,RSDR(J), RSDI(J),1)
+      endif
+      IF (CXB) then
+         TR = -mat_wdotcr(N-J+1,XR(J,J),XI(J,J),1,XBR(J), XBI(J),1)
+         TI = -mat_wdotci(N-J+1,XR(J,J),XI(J,J),1,XBR(J), XBI(J),1)
+         CALL mat_wdiv(TR,TI,XR(J,J),XI(J,J),TR,TI)
+         CALL matX_waxpy(N-J+1,TR,TI,XR(J,J),XI(J,J),1,XBR(J), XBI(J),1)
+      endif
       XR(J,J) = TEMPR
       XI(J,J) = TEMPI
-260   CONTINUE
    enddo
 280 CONTINUE
 290 CONTINUE
