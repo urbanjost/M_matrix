@@ -40,90 +40,84 @@ help_text=[ CHARACTER(LEN=128) :: &
 'EXAMPLES                                                                        ',&
 '  Sample commands                                                               ',&
 '                                                                                ',&
-'   # Example 1: introductory usage:                                             ',&
-'   mat                                                                          ',&
-'   a=<1 2 3;5 4 6;7 8 9>                                                        ',&
-'   b=<5;6;7>                                                                    ',&
-'   a*b                                                                          ',&
-'   b*a                                                                          ',&
-'   det(a)                                                                       ',&
-'   quit                                                                         ',&
+'    # Example 1: introductory usage:                                            ',&
+'    mat                                                                         ',&
+'    a=<1 2 3;5 4 6;7 8 9>                                                       ',&
+'    b=<5;6;7>                                                                   ',&
+'    a*b                                                                         ',&
+'    b*a                                                                         ',&
+'    det(a)                                                                      ',&
+'    quit                                                                        ',&
 '                                                                                ',&
-'  An explanation of Example 1:                                                  ',&
+'   An explanation of Example 1:                                                 ',&
 '                                                                                ',&
-'   // For this session the <> character is the MATLAB prompt.                   ',&
-'    <> a=<1 2 3;5 4 6;7 8 9>            <---  you enter this                    ',&
-'                                                                                ',&
-'    A     =                             <---  MATLAB response                   ',&
-'                                                                                ',&
+'    // For this session the <> character is the MATLAB prompt.                  ',&
+'     <> A=<1 2 3;5 4 6;7 8 9>            <---  you enter this                   ',&
+'     A     =                             <---  MATLAB response                  ',&
 '         1.    2.    3.                                                         ',&
-'        5.    4.    6.                                                          ',&
-'        7.    8.    9.                                                          ',&
+'         5.    4.    6.                                                         ',&
+'         7.    8.    9.                                                         ',&
+'     <> b=<5;6;7>                                                               ',&
+'     b     =                                                                    ',&
+'         5.                                                                     ',&
+'         6.                                                                     ',&
+'         7.                                                                     ',&
 '                                                                                ',&
-'    <> b=<5;6;7>                        <--- you enter this                     ',&
+'     <> A*b             <--- you enter "multiply A and b"                       ',&
 '                                                                                ',&
-'    B     =                             <--- MATLAB response                    ',&
+'     ANS   =            <--- MATLAB response                                    ',&
+'        38.                                                                     ',&
+'        91.                                                                     ',&
+'       146.                                                                     ',&
 '                                                                                ',&
-'        5.                                                                      ',&
-'        6.                                                                      ',&
-'        7.                                                                      ',&
+'     <> b*A             <---you enter "multiply b and A"                        ',&
+'        /--ERROR                         <--- MATLAB response                   ',&
+'     INCOMPATIBLE FOR MULTIPLICATION                                            ',&
 '                                                                                ',&
-'    <> a*b             <--- you enter "multiply a and b"                        ',&
+'     <> det(A)         <--- Take the determinant of A                           ',&
 '                                                                                ',&
-'    ANS   =            <--- MATLAB response                                     ',&
+'     ANS   =           <---MATLAB response                                      ',&
 '                                                                                ',&
-'       38.                                                                      ',&
-'       91.                                                                      ',&
-'      146.                                                                      ',&
+'        18.                                                                     ',&
 '                                                                                ',&
-'    <> b*a             <---you enter "multiply b and a"                         ',&
-'       /--ERROR                         <--- MATLAB response                    ',&
-'    INCOMPATIBLE FOR MULTIPLICATION                                             ',&
+'     <> quit           <--- you quit MATLAB                                     ',&
 '                                                                                ',&
-'    <> det(a)         <--- Take the determinant of a                            ',&
+'     total flops        34                                                      ',&
+'     ADIOS                                                                      ',&
+'    // --------------------------------------                                   ',&
 '                                                                                ',&
-'    ANS   =           <---MATLAB response                                       ',&
+'   Example 2: Simple looping and conditionals are also available                ',&
 '                                                                                ',&
-'       18.                                                                      ',&
-'                                                                                ',&
-'    <> quit           <--- you quit MATLAB                                      ',&
-'                                                                                ',&
-'    total flops        34                                                       ',&
-'    ADIOS                                                                       ',&
-'   // ----------------------------------------------------------------------------',&
-'                                                                                ',&
-' Example 2: Simple looping and conditionals are also available                  ',&
-'                                                                                ',&
-'   mat                                                                          ',&
-'   //Eigenvalue sensitivity example. See section 8 of the Users'' Guide.        ',&
-'   B = <3 0 7; 0 2 0; 0 0 1>                                                    ',&
-'   L = <1 0 0; 2 1 0; -3 4 1>,  M = L\L''                                       ',&
-'   A = M*B/M                                                                    ',&
-'   A = round(A)                                                                 ',&
-'   <X,D> = eig(A)                                                               ',&
-'   long,  diag(D),  short                                                       ',&
-'   cond(X)                                                                      ',&
-'   X = X/diag(X(3,:)),  cond(X)                                                 ',&
-'   Y = inv(X''),  Y''*A*X                                                       ',&
-'   for j = 1:3, c(j) = norm(Y(:,j))*norm(X(:,j));                               ',&
-'   C                                                                            ',&
-'   E = -1.e-6*Y(:,1)*X(:,1)''                                                   ',&
-'   eig(A + .4*E),  eig(A + .5*E)                                                ',&
-'   r = .4;  s = .5;                                                             ',&
-'   while s-r > 1.e-14, t = (r+s)/2; d = eig(A+t*E); ...                         ',&
-'     if imag(d(1))=0, r = t; else, s = t;                                       ',&
-'   long,  t = r                                                                 ',&
-'   A+t*e,  eig(A+t*E)                                                           ',&
-'   <X,D> = eig(A+t*E);  X = X/diag(X(3,:))                                      ',&
-'   short,  cond(X)                                                             ',&
-'   // ----------------------------------------------------------------------------',&
+'    mat                                                                         ',&
+'    //Eigenvalue sensitivity example. See section 8 of the Users'' Guide.       ',&
+'    B = <3 0 7; 0 2 0; 0 0 1>                                                   ',&
+'    L = <1 0 0; 2 1 0; -3 4 1>,  M = L\L''                                      ',&
+'    A = M*B/M                                                                   ',&
+'    A = round(A)                                                                ',&
+'    <X,D> = eig(A)                                                              ',&
+'    long,  diag(D),  short                                                      ',&
+'    cond(X)                                                                     ',&
+'    X = X/diag(X(3,:)),  cond(X)                                                ',&
+'    Y = inv(X''),  Y''*A*X                                                      ',&
+'    for j = 1:3, c(j) = norm(Y(:,j))*norm(X(:,j));                              ',&
+'    C                                                                           ',&
+'    E = -1.e-6*Y(:,1)*X(:,1)''                                                  ',&
+'    eig(A + .4*E),  eig(A + .5*E)                                               ',&
+'    r = .4;  s = .5;                                                            ',&
+'    while s-r > 1.e-14, t = (r+s)/2; d = eig(A+t*E); ...                        ',&
+'      if imag(d(1))=0, r = t; else, s = t;                                      ',&
+'    long,  t = r                                                                ',&
+'    A+t*e,  eig(A+t*E)                                                          ',&
+'    <X,D> = eig(A+t*E);  X = X/diag(X(3,:))                                     ',&
+'    short,  cond(X)                                                             ',&
+'    // --------------------------------------                                   ',&
 '                                                                                ',&
 '   Use the HELP command and the DOC command for further information.            ',&
 '   For example:                                                                 ',&
 '                                                                                ',&
-'      mat                                                                       ',&
-'      <>doc(''mat.txt'')                                                        ',&
-'      <>quit                                                                    ',&
+'    mat                                                                         ',&
+'    <>doc(''mat.txt'')                                                          ',&
+'    <>quit                                                                      ',&
 '                                                                                ',&
 '   will place a User manual in the file "mat.txt".                              ',&
 '                                                                                ',&
@@ -157,90 +151,84 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!
 !!   Sample commands
 !!
-!!    # Example 1: introductory usage:
-!!    mat
-!!    a=<1 2 3;5 4 6;7 8 9>
-!!    b=<5;6;7>
-!!    a*b
-!!    b*a
-!!    det(a)
-!!    quit
+!!     # Example 1: introductory usage:
+!!     mat
+!!     a=<1 2 3;5 4 6;7 8 9>
+!!     b=<5;6;7>
+!!     a*b
+!!     b*a
+!!     det(a)
+!!     quit
 !!
-!!   An explanation of Example 1:
+!!    An explanation of Example 1:
 !!
-!!    // For this session the <> character is the MATLAB prompt.
-!!     <> a=<1 2 3;5 4 6;7 8 9>            <---  you enter this
-!!
-!!     A     =                             <---  MATLAB response
-!!
+!!     // For this session the <> character is the MATLAB prompt.
+!!      <> A=<1 2 3;5 4 6;7 8 9>            <---  you enter this
+!!      A     =                             <---  MATLAB response
 !!          1.    2.    3.
-!!         5.    4.    6.
-!!         7.    8.    9.
+!!          5.    4.    6.
+!!          7.    8.    9.
+!!      <> b=<5;6;7>
+!!      b     =
+!!          5.
+!!          6.
+!!          7.
 !!
-!!     <> b=<5;6;7>                        <--- you enter this
+!!      <> A*b             <--- you enter "multiply A and b"
 !!
-!!     B     =                             <--- MATLAB response
+!!      ANS   =            <--- MATLAB response
+!!         38.
+!!         91.
+!!        146.
 !!
-!!         5.
-!!         6.
-!!         7.
+!!      <> b*A             <---you enter "multiply b and A"
+!!         /--ERROR                         <--- MATLAB response
+!!      INCOMPATIBLE FOR MULTIPLICATION
 !!
-!!     <> a*b             <--- you enter "multiply a and b"
+!!      <> det(A)         <--- Take the determinant of A
 !!
-!!     ANS   =            <--- MATLAB response
+!!      ANS   =           <---MATLAB response
 !!
-!!        38.
-!!        91.
-!!       146.
+!!         18.
 !!
-!!     <> b*a             <---you enter "multiply b and a"
-!!        /--ERROR                         <--- MATLAB response
-!!     INCOMPATIBLE FOR MULTIPLICATION
+!!      <> quit           <--- you quit MATLAB
 !!
-!!     <> det(a)         <--- Take the determinant of a
+!!      total flops        34
+!!      ADIOS
+!!     // --------------------------------------
 !!
-!!     ANS   =           <---MATLAB response
+!!    Example 2: Simple looping and conditionals are also available
 !!
-!!        18.
-!!
-!!     <> quit           <--- you quit MATLAB
-!!
-!!     total flops        34
-!!     ADIOS
-!!    // ----------------------------------------------------------------------------
-!!
-!!  Example 2: Simple looping and conditionals are also available
-!!
-!!    mat
-!!    //Eigenvalue sensitivity example. See section 8 of the Users' Guide.
-!!    B = <3 0 7; 0 2 0; 0 0 1>
-!!    L = <1 0 0; 2 1 0; -3 4 1>,  M = L\L'
-!!    A = M*B/M
-!!    A = round(A)
-!!    <X,D> = eig(A)
-!!    long,  diag(D),  short
-!!    cond(X)
-!!    X = X/diag(X(3,:)),  cond(X)
-!!    Y = inv(X'),  Y'*A*X
-!!    for j = 1:3, c(j) = norm(Y(:,j))*norm(X(:,j));
-!!    C
-!!    E = -1.e-6*Y(:,1)*X(:,1)'
-!!    eig(A + .4*E),  eig(A + .5*E)
-!!    r = .4;  s = .5;
-!!    while s-r > 1.e-14, t = (r+s)/2; d = eig(A+t*E); ...
-!!      if imag(d(1))=0, r = t; else, s = t;
-!!    long,  t = r
-!!    A+t*e,  eig(A+t*E)
-!!    <X,D> = eig(A+t*E);  X = X/diag(X(3,:))
-!!    short,  cond(X)
-!!    // ----------------------------------------------------------------------------
+!!     mat
+!!     //Eigenvalue sensitivity example. See section 8 of the Users' Guide.
+!!     B = <3 0 7; 0 2 0; 0 0 1>
+!!     L = <1 0 0; 2 1 0; -3 4 1>,  M = L\L'
+!!     A = M*B/M
+!!     A = round(A)
+!!     <X,D> = eig(A)
+!!     long,  diag(D),  short
+!!     cond(X)
+!!     X = X/diag(X(3,:)),  cond(X)
+!!     Y = inv(X'),  Y'*A*X
+!!     for j = 1:3, c(j) = norm(Y(:,j))*norm(X(:,j));
+!!     C
+!!     E = -1.e-6*Y(:,1)*X(:,1)'
+!!     eig(A + .4*E),  eig(A + .5*E)
+!!     r = .4;  s = .5;
+!!     while s-r > 1.e-14, t = (r+s)/2; d = eig(A+t*E); ...
+!!       if imag(d(1))=0, r = t; else, s = t;
+!!     long,  t = r
+!!     A+t*e,  eig(A+t*E)
+!!     <X,D> = eig(A+t*E);  X = X/diag(X(3,:))
+!!     short,  cond(X)
+!!     // --------------------------------------
 !!
 !!    Use the HELP command and the DOC command for further information.
 !!    For example:
 !!
-!!       mat
-!!       <>doc('mat.txt')
-!!       <>quit
+!!     mat
+!!     <>doc('mat.txt')
+!!     <>quit
 !!
 !!    will place a User manual in the file "mat.txt".
 version_text=[ CHARACTER(LEN=128) :: &
