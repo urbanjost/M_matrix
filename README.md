@@ -12,8 +12,8 @@ fpm ( as described at [Fortran Package Manager](https://github.com/fortran-lang/
    fpm run
 ```
    
-or if calling it from you `fpm` project just list it as a dependency in
-your fpm.toml project file.
+or if calling it from your `fpm` project just list it as a dependency in
+the fpm.toml project file.
    
 ```toml
         [dependencies]
