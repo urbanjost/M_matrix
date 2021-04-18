@@ -69,7 +69,6 @@ module M_matrix
 use M_journal, only : journal
 implicit none
 !private
-integer,parameter :: BIGMEM=200005
 public MAT88
 public mat_matz
 public mat_str2buf
@@ -77,30 +76,28 @@ public mat_buf2str
 public test_suite_M_matrix
 ! till get rid of type mismatches, the following are public
 !==================================================================================================================================!
-character(len=1024),save :: STRINGQ
-integer,save             :: ISTRINGQ
-integer,save             :: INITQ
+character(len=1024),save :: G_STRING
+integer,save             :: G_ISTRING
+integer,save             :: G_INIT
 !==================================================================================================================================!
-INTEGER,PARAMETER        :: IALF=78
-DOUBLEPRECISION          :: STKR(BIGMEM),STKI(BIGMEM)
-INTEGER                  :: IDSTK(4,48),LSTK(48),MSTK(48),NSTK(48),VSIZE,LSIZE,BOT,TOP
-INTEGER                  :: ALFA(IALF),ALFB(IALF),alflq,CASE
-INTEGER                  :: IDS(4,32),PSTK(32),RSTK(32),PSIZE,PT,PTZ
-INTEGER                  :: DDT,G_ERR,FMT,LCT(4),LIN(1024),LPT(6),HIO,RIO,RTE,WTE,FE
-INTEGER                  :: SYM,SYN(4),BUF(1024),CHRA,FLP(2),FIN,FUN,LHS,RHS,RAN(2)
-!==================================================================================================================================!
+integer,parameter        :: G_ialf=78
+integer,parameter        :: G_eol=99
+integer,parameter        :: G_BIGMEM=200005
+doubleprecision          :: G_STKR(G_BIGMEM), G_STKI(G_BIGMEM)
+integer                  :: G_IDSTK(4, 48), G_LSTK(48), G_MSTK(48), G_NSTK(48), G_VSIZE, G_LSIZE, G_BOT, G_TOP
+integer                  :: G_ALFA(G_IALF), G_ALFB(G_IALF), G_ALFLQ
+integer                  :: G_DDT, G_ERR, G_FMT, G_LCT(4), G_LIN(1024), G_LPT(6), G_HIO, G_RIO, G_RTE, G_WTE, G_FE
+integer                  :: G_IDS(4,32), G_PSTK(32), G_RSTK(32), G_PSIZE, G_PT, G_PTZ
+integer                  :: G_SYM, G_SYN(4), G_BUF(1024), G_CHRA, G_FLOP_COUNTER(2), G_FIN, G_FUN, G_LHS, G_RHS, G_RAN(2)
 
-      !                                       0---------1---------2---------3---------4--------- 5---------6---------7-------
-      !                                       01234567890123456789012345678901234567890123456789 0123456789012345678901234567
-      character(len=ialf),parameter ::  CH_A='0123456789abcdefghijklmnopqrstuvwxyz ();:+-*/\=.,''<>ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+! CHARACTER SET                                0---------1---------2---------3---------4--------- 5---------6---------7-------
+!                                              01234567890123456789012345678901234567890123456789 0123456789012345678901234567
+character(len=G_ialf),parameter ::  G_charset='0123456789abcdefghijklmnopqrstuvwxyz ();:+-*/\=.,''<>ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-      ! ALTERNATE CHARACTER SET
-      !                                       0---------1---------2---------3---------4---------5---------6---------7-------
-      !                                       012345678901234567890123456789012345678901234567890123456789012345678901234567
-      character(len=ialf),parameter ::  CH_B='0123456789abcdefghijklmnopqrstuvwxyz {};|+-*/$=@,"[]ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+! ALTERNATE CHARACTER SET                         0---------1---------2---------3---------4---------5---------6---------7-------
+!                                                 012345678901234567890123456789012345678901234567890123456789012345678901234567
+character(len=G_ialf),parameter ::  G_alt_charset='0123456789abcdefghijklmnopqrstuvwxyz {};|+-*/$=@,"[]ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-!==================================================================================================================================!
-integer,parameter :: eol=99
 contains
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -238,9 +235,9 @@ contains
 !!      four:F = <>;
 !!      four:for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
 !!      four:F = F/sqrt(n);
-!!      four:alfa = r*pi;
-!!      four:rho = exp(i*alfa);
-!!      four:S = log(rho*F)/i - alfa*EYE;
+!!      four:G_ALFA = r*pi;
+!!      four:rho = exp(i*G_ALFA);
+!!      four:S = log(rho*F)/i - G_ALFA*EYE;
 !!      four:serr = norm(imag(S),1);
 !!      four:S = real(S);
 !!      four:serr = serr + norm(S-S',1)
@@ -285,17 +282,17 @@ contains
 !!      lanczos:<n,n> = size(A);
 !!      lanczos:q1 = rand(n,1);
 !!      lanczos:ort
-!!      lanczos:alfa = <>; beta = <>;
+!!      lanczos:G_ALFA = <>; beta = <>;
 !!      lanczos:q = q1/norm(q1); r = A*q(:,1);
 !!      lanczos:for j = 1:n, exec('lanstep',0);
 !!
-!!      lanstep:alfa(j) = q(:,j)'*r;
-!!      lanstep:r = r - alfa(j)*q(:,j);
+!!      lanstep:G_ALFA(j) = q(:,j)'*r;
+!!      lanstep:r = r - G_ALFA(j)*q(:,j);
 !!      lanstep:if ort <> 0, for k = 1:j-1, r = r - r'*q(:,k)*q(:,k);
 !!      lanstep:beta(j) = norm(r);
 !!      lanstep:q(:,j+1) = r/beta(j);
 !!      lanstep:r = A*q(:,j+1) - beta(j)*q(:,j);
-!!      lanstep:if j > 1, T = diag(beta(1:j-1),1); T = diag(alfa) + T + T'; eig(T)
+!!      lanstep:if j > 1, T = diag(beta(1:j-1),1); T = diag(G_ALFA) + T + T'; eig(T)
 !!
 !!      mgs:for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; ...
 !!      mgs:   for j = k+1:n, d = x(j,:)*x(k,:)'; x(j,:) = x(j,:) - d*x(k,:);
@@ -355,24 +352,24 @@ contains
 !!      pascal:k = k + 1;
 !!      pascal:L(k,1:k) = <L(k-1,:) 0> + <0 L(k-1,:)>;
 !!
-!!      pdq:alfa = <>; beta = 0; q = <>; p = p(:,1)/norm(p(:,1));
+!!      pdq:G_ALFA = <>; beta = 0; q = <>; p = p(:,1)/norm(p(:,1));
 !!      pdq:t = A'*p(:,1);
-!!      pdq:alfa(1) = norm(t);
-!!      pdq:q(:,1) = t/alfa(1);
-!!      pdq:X = p(:,1)*(alfa(1)*q(:,1))'
+!!      pdq:G_ALFA(1) = norm(t);
+!!      pdq:q(:,1) = t/G_ALFA(1);
+!!      pdq:X = p(:,1)*(G_ALFA(1)*q(:,1))'
 !!      pdq:e(1) = norm(A-X,1)
 !!      pdq:for j = 2:r, exec('pdqstep',ip); ...
-!!      pdq:   X = X + p(:,j)*(alfa(j)*q(:,j)+beta(j)*q(:,j-1))', ...
+!!      pdq:   X = X + p(:,j)*(G_ALFA(j)*q(:,j)+beta(j)*q(:,j-1))', ...
 !!      pdq:   e(j) = norm(A-X,1)
 !!
-!!      pdqstep:t = A*q(:,j-1) - alfa(j-1)*p(:,j-1);
+!!      pdqstep:t = A*q(:,j-1) - G_ALFA(j-1)*p(:,j-1);
 !!      pdqstep:   if ort>0, for i = 1:j-1, t = t - t'*p(:,i)*p(:,i);
 !!      pdqstep:beta(j) = norm(t);
 !!      pdqstep:p(:,j) = t/beta(j);
 !!      pdqstep:t = A'*p(:,j) - beta(j)*q(:,j-1);
 !!      pdqstep:   if ort>0, for i = 1:j-1, t = t - t'*q(:,i)*q(:,i);
-!!      pdqstep:alfa(j) = norm(t);
-!!      pdqstep:q(:,j) = t/alfa(j);
+!!      pdqstep:G_ALFA(j) = norm(t);
+!!      pdqstep:q(:,j) = t/G_ALFA(j);
 !!
 !!      pop:y = < 75.995   91.972  105.711  123.203   ...
 !!      pop:     131.669  150.697  179.323  203.212>'
@@ -631,84 +628,82 @@ integer,save                :: RAND(4)=  [27,10,23,13]
 !     8      8        I        S  RPAREN )  COMMA  ,
 !     9      9        J        T  SEMI   ;  QUOTE  '
 !----------------------------------------------------------------
-      STRINGQ=STRING0
+      G_STRING=STRING0
       ISTRING0=LEN(STRING0)
-      ISTRINGQ=len_trim(STRING0(1:ISTRING0))
-      IF(ISTRINGQ.LE.0.AND.INIT.EQ.2)THEN
-         STRINGQ='quit'
-         ISTRINGQ=4
+      G_ISTRING=len_trim(STRING0(1:ISTRING0))
+      IF(G_ISTRING.LE.0.AND.INIT.EQ.2)THEN
+         G_STRING='quit'
+         G_ISTRING=4
       ENDIF
-      INITQ=INIT
+      G_INIT=INIT
 !----------------------------------------------------------------
       IF (INIT .NE. 0 .and. INIT .ne. -1) GOTO 90     ! already initialized
-      RTE = 5                                         ! unit number for terminal input
-      CALL mat_files(RTE,BUF)
-      RIO = RTE                                       ! current file to read commands from
-      WTE = 6                                         ! unit number for terminal output
-      CALL mat_files(WTE,BUF)
+      G_RTE = 5                                         ! unit number for terminal input
+      CALL mat_files(G_RTE,G_BUF)
+      G_RIO = G_RTE                                       ! current file to read commands from
+      G_WTE = 6                                         ! unit number for terminal output
+      CALL mat_files(G_WTE,G_BUF)
 
       IF (INIT .GE. 0) then                           ! initializing verbose
          call journal('  < M A T 8 8 >')
          call journal(' based on MATLAB Version of 05/25/82')
       endif
 
-      HIO = 11                                        ! UNIT NUMBER FOR HELP FILE
-      CALL mat_files(HIO,BUF)                         ! open HELP FILE
-      RAN(1) = 0                                      ! RANDOM NUMBER SEED
-      LCT(2) = 25                                     ! INITIAL LINE LIMIT
+      G_HIO = 11                                        ! UNIT NUMBER FOR HELP FILE
+      CALL mat_files(G_HIO,G_BUF)                         ! open HELP FILE
+      G_RAN(1) = 0                                      ! RANDOM NUMBER SEED
+      G_LCT(2) = 25                                     ! INITIAL LINE LIMIT
 
-      alflq = IALF
-      CASE = 0
-!     CASE = 1 for file names in lower case
+      G_ALFLQ = G_IALF
 !------------------------------------------------------------------------
-      call mat_str2buf(ch_a,alfa,alflq) ! convert string to hollerith
-      call mat_str2buf(ch_b,alfb,alflq) ! convert string to hollerith
+      call mat_str2buf(G_charset,G_ALFA,G_ALFLQ)     ! convert string to hollerith
+      call mat_str2buf(G_alt_charset,G_ALFB,G_ALFLQ) ! convert string to hollerith
 !------------------------------------------------------------------------
 !
-      VSIZE = BIGMEM
-      LSIZE = 48
-      PSIZE = 32
-      BOT = LSIZE-3
-      CALL mat_wset(5,0.0D0,0.0D0,STKR(VSIZE-4),STKI(VSIZE-4),1)
-      CALL mat_putid(IDSTK(1,LSIZE-3),EPS)
-      LSTK(LSIZE-3) = VSIZE-4
-      MSTK(LSIZE-3) = 1
-      NSTK(LSIZE-3) = 1
+      G_VSIZE = G_BIGMEM
+      G_LSIZE = 48
+      G_PSIZE = 32
+      G_BOT = G_LSIZE-3
+      CALL mat_wset(5,0.0D0,0.0D0,G_STKR(G_VSIZE-4),G_STKI(G_VSIZE-4),1)
+      CALL mat_putid(G_IDSTK(1,G_LSIZE-3),EPS)
+      G_LSTK(G_LSIZE-3) = G_VSIZE-4
+      G_MSTK(G_LSIZE-3) = 1
+      G_NSTK(G_LSIZE-3) = 1
 
       S = 1.0D0
    30 continue
       S = S/2.0D0
       T = 1.0D0 + S
       IF (T .GT. 1.0D0) GOTO 30
-      STKR(VSIZE-4) = 2.0D0*S
+      G_STKR(G_VSIZE-4) = 2.0D0*S
 
-      CALL mat_putid(IDSTK(1,LSIZE-2),FLOPS)
-      LSTK(LSIZE-2) = VSIZE-3
-      MSTK(LSIZE-2) = 1
-      NSTK(LSIZE-2) = 2
-      CALL mat_putid(IDSTK(1,LSIZE-1), EYE)
-      LSTK(LSIZE-1) = VSIZE-1
-      MSTK(LSIZE-1) = -1
-      NSTK(LSIZE-1) = -1
-      STKR(VSIZE-1) = 1.0D0
-      CALL mat_putid(IDSTK(1,LSIZE), RAND)
-      LSTK(LSIZE) = VSIZE
-      MSTK(LSIZE) = 1
-      NSTK(LSIZE) = 1
-      FMT = 1
-      FLP(1) = 0
-      FLP(2) = 0
-      DDT = 0
-      RAN(2) = 0
-      PTZ = 0
-      PT = PTZ
+      CALL mat_putid(G_IDSTK(1,G_LSIZE-2),FLOPS)
+      G_LSTK(G_LSIZE-2) = G_VSIZE-3
+      G_MSTK(G_LSIZE-2) = 1
+      G_NSTK(G_LSIZE-2) = 2
+      CALL mat_putid(G_IDSTK(1,G_LSIZE-1), EYE)
+      G_LSTK(G_LSIZE-1) = G_VSIZE-1
+      G_MSTK(G_LSIZE-1) = -1
+      G_NSTK(G_LSIZE-1) = -1
+      G_STKR(G_VSIZE-1) = 1.0D0
+      CALL mat_putid(G_IDSTK(1,G_LSIZE), RAND)
+      G_LSTK(G_LSIZE) = G_VSIZE
+      G_MSTK(G_LSIZE) = 1
+      G_NSTK(G_LSIZE) = 1
+      G_FMT = 1
+      G_FLOP_COUNTER(1) = 0
+      G_FLOP_COUNTER(2) = 0
+      G_DDT = 0
+      G_RAN(2) = 0
+      G_PTZ = 0
+      G_PT = G_PTZ
       G_ERR = 0
       IF (INIT .EQ. -1) RETURN
 !
 90    continue
       INFINITE : do
          CALL mat_parse(INIT)
-         select case(fun)
+         select case(G_fun)
          case(1) ; call mat_matfn1()
          case(2) ; call mat_matfn2()
          case(3) ; call mat_matfn3()
@@ -745,10 +740,10 @@ integer                   :: lt
 !.......................................................................
     case(4);
       DO I = 1, 4                           ! extract variable name into buffer
-         KK = IDS(I,PT+1)
-         BUF(I) = ALFA(KK+1)
+         KK = G_IDS(I,G_PT+1)
+         G_BUF(I) = G_ALFA(KK+1)
       enddo
-      call mat_buf2str(msg,buf,4)           ! convert buffer to string
+      call mat_buf2str(msg,G_buf,4)           ! convert buffer to string
       msg='Undefined variable: '//msg(1:4)
 !.......................................................................
     case(5);  msg='Column lengths do not match'
@@ -765,10 +760,10 @@ integer                   :: lt
     case(16); msg='Improper command'
 !.......................................................................
     case(17)
-      lb = vsize - lstk(bot) + 1
-      lt = g_err + lstk(bot)
+      lb = G_VSIZE - G_LSTK(G_BOT) + 1
+      lt = g_err + G_LSTK(G_BOT)
       call journal(' Too much memory required')
-      write(msg,'(1X,I7,'' Variables,'',I7,'' Temporaries,'',I7,'' Available.'')') lb,lt,vsize
+      write(msg,'(1X,I7,'' Variables,'',I7,'' Temporaries,'',I7,'' Available.'')') lb,lt,G_VSIZE
 !.......................................................................
     case(18); msg='Too many names'
     case(19); msg='Matrix is singular to working precision'
@@ -776,7 +771,7 @@ integer                   :: lt
     case(21); msg='Subscript out of range'
 !.......................................................................
     case(22)
-      write(msg,122) (RSTK(I),I=1,PT)
+      write(msg,122) (G_RSTK(I),I=1,G_PT)
 122   format(1X,'Recursion difficulties',10I4)
 !.......................................................................
     case(23); msg='Only 1, 2 or INF norm of matrix'
@@ -803,7 +798,7 @@ integer                   :: lt
 !.......................................................................
    end select
 
-   k = max(1,lpt(2) - lpt(1)) ! number of spaces to shift arrow by
+   k = max(1,G_LPT(2) - G_LPT(1)) ! number of spaces to shift arrow by
    call journal(' '//repeat(' ',k)//'/\--ERROR:'//msg)
 
    G_err = n
@@ -817,7 +812,7 @@ integer :: lunit !  logical unit number
    ! if LUNIT = standard input, return
    ! if LUNIT = standard output, return
    ! if LUNIT is 11, open the help file
-   ! if LUNIT is -11 and HIO .ne. 0 , rewind the help file
+   ! if LUNIT is -11 and G_HIO .ne. 0 , rewind the help file
    ! if LUNIT is positive, open the unit to file name INAME
    ! if LUNIT is negative, close the unit number
 !     INAME = FILE NAME, 1 character per word
@@ -830,14 +825,14 @@ integer                      :: itemp
 integer                      :: itemp1
 !  Amiga dependent stuff squeezes the NAME from one CHAR per word to one per byte
 !.......................................................................
-   if (ddt .eq. 1) then
+   if (G_ddt .eq. 1) then
       call journal('sc','*MLFILES* LUNIT=', LUNIT)
       name(1:10)='*MLFILES* INAME='
       call mat_buf2str(name(11:),iname,256)
       call journal(name)
    endif
 !.......................................................................
-   fe=0
+   G_fe=0
    select case(lunit)
     case(0) ! error catcher
     case(5) ! if unit is standard input return
@@ -859,13 +854,13 @@ integer                      :: itemp1
          if(ios.ne.0)then                                           ! HELP FILE NOT FOUND
             call journal('HELP IS NOT AVAILABLE ON FILE ...')
             call journal(temp1(1:itemp1))
-            HIO = 0
+            G_HIO = 0
          else
             !call journal('HELP is available')
          endif
       endif
     case(:-1)
-      if( lunit .eq. -11 .and. hio .ne. 0)then                       ! SPECIAL CASE FOR HELP FILE
+      if( lunit .eq. -11 .and. G_HIO .ne. 0)then                       ! SPECIAL CASE FOR HELP FILE
          rewind (11,iostat=ios)
       elseif(lunit.eq.-8)then
          call journal('O','')                                        ! close trail file
@@ -881,8 +876,8 @@ integer                      :: itemp1
       if(ios.ne.0)then                                               ! general file open failure
          call journal('*mat_files* OPEN FILE FAILED')
          call journal(name(1:len_trim(name)))
-         fe=1                                                        ! set the I/O to terminal I/O
-         rio=rte                                                     ! set current file to read input lines from/to RTE
+         G_fe=1                                                        ! set the I/O to terminal I/O
+         G_RIO=G_RTE                                                     ! set current file to read input lines from/to G_RTE
       endif
    end select
 end subroutine mat_files
@@ -921,45 +916,45 @@ integer      :: SS
 integer      :: i
 !.......................................................................
    INFINITE : do
-      if (chra .ne. blank) exit INFINITE
+      if (G_chra .ne. blank) exit INFINITE
       call mat_getch() ! get next character
    enddo INFINITE
 !.......................................................................
-   lpt(2) = lpt(3)
-   lpt(3) = lpt(4)
-   if (chra .le. 9) goto 50                                 ! numeric character (0-9)
-   if (chra .le. z.or.(chra.ge.a2.and.chra.le.z2)) goto 30  ! alphameric (A-Z OR a-z)
+   G_LPT(2) = G_LPT(3)
+   G_LPT(3) = G_LPT(4)
+   if (G_chra .le. 9) goto 50                                 ! numeric character (0-9)
+   if (G_chra .le. z.or.(G_chra.ge.a2.and.G_chra.le.z2)) goto 30  ! alphameric (A-Z OR a-z)
 !.......................................................................
 !     special character
-   ss = sym
-   sym = chra
+   ss = G_sym
+   G_sym = G_chra
    call mat_getch() ! get next character
-   if (sym .ne. dot) goto 90
+   if (G_sym .ne. dot) goto 90
 !
 !     is dot part of number or operator
    syv = 0.0d0
-   if (chra .le. 9) goto 55  ! a number character
-   if (chra.eq.star.or.chra.eq.slash.or.chra.eq.bslash) goto 90
+   if (G_chra .le. 9) goto 55  ! a number character
+   if (G_chra.eq.star.or.G_chra.eq.slash.or.G_chra.eq.bslash) goto 90
    if (ss.eq.star .or. ss.eq.slash .or. ss.eq.bslash) goto 90
    goto 55
 !.......................................................................
 !     name
 30 continue
-   sym = name
-   syn(1) = chra
+   G_sym = name
+   G_syn(1) = G_chra
    chcnt = 1
 40 continue
    call mat_getch() ! get next character
    chcnt = chcnt+1
-   if (chra .ge. a2.and.chra.le.z2) goto  44! alternate case letter
-   if (chra .gt. z) goto 45  ! a control character not alphanumeric and not special like eol
+   if (G_chra .ge. a2.and.G_chra.le.z2) goto  44! alternate case letter
+   if (G_chra .gt. z) goto 45  ! a control character not alphanumeric and not special like eol
 44 continue
-   if (chcnt .le. 4) syn(chcnt) = chra
+   if (chcnt .le. 4) G_syn(chcnt) = G_chra
    goto 40
 45 continue
    if (chcnt .gt. 4) goto 47
    do i = chcnt, 4
-      syn(i) = blank
+      G_syn(i) = blank
    enddo
 47 continue
    goto 90
@@ -967,38 +962,38 @@ integer      :: i
 !     number
 50 continue
    call mat_getval(syv)
-   if (chra .ne. dot) goto 60
+   if (G_chra .ne. dot) goto 60
    call mat_getch() ! get next character
 55 continue
-   chcnt = lpt(4)
+   chcnt = G_LPT(4)
    call mat_getval(s)
-   chcnt = lpt(4) - chcnt
-   if (chra .eq. eol) chcnt = chcnt+1
+   chcnt = G_LPT(4) - chcnt
+   if (G_chra .eq. G_eol) chcnt = chcnt+1
    syv = syv + s/10.0d0**chcnt
 60 continue
-   if (chra.ne.d .and. chra.ne.e .and. chra.ne.d_up .and. chra.ne.e_up ) goto 70
+   if (G_chra.ne.d .and. G_chra.ne.e .and. G_chra.ne.d_up .and. G_chra.ne.e_up ) goto 70
    call mat_getch() ! get next character
-   sign = chra
+   sign = G_chra
    if (sign.eq.minus .or. sign.eq.plus) call mat_getch() ! get next character
    call mat_getval(s)
    if (sign .ne. minus) syv = syv*10.0d0**s
    if (sign .eq. minus) syv = syv/10.0d0**s
 70 continue
-   stki(vsize) = mat_flop(syv)
-   sym = num
+   G_STKI(G_VSIZE) = mat_flop(syv)
+   G_sym = num
 !
 90 continue
-   if (chra .ne. blank) goto 99
+   if (G_chra .ne. blank) goto 99
    call mat_getch() ! get next character
    goto 90
 99 continue
-   if (ddt .ne. 1) return
-   if (sym.gt.name .and. sym.lt.alflq) then
-      call journal(char(alfa(sym+1)))
+   if (G_ddt .ne. 1) return
+   if (G_sym.gt.name .and. G_sym.lt.G_ALFLQ) then
+      call journal(char(G_ALFA(G_sym+1)))
    endif
-   if (sym .ge. alflq) call journal('eol')
-   if (sym .eq. name) call mat_prntid(syn,1)
-   if (sym .eq. num) then
+   if (G_sym .ge. G_ALFLQ) call journal('eol')
+   if (G_sym .eq. name) call mat_prntid(G_syn,1)
+   if (G_sym .eq. num) then
       write(mline,'(1x,g8.2)') syv
       call journal(mline)
    endif
@@ -1108,51 +1103,51 @@ integer           :: id(4)
 doubleprecision   :: eps0,eps,s,sr,si,t
 character(len=80) :: mline
 !
-      IF (DDT .EQ. 1) call journal('sc','*MATFN6* ',FIN)
-!     FUNCTIONS/FIN
+      IF (G_DDT .EQ. 1) call journal('sc','*MATFN6* ',G_FIN)
+!     FUNCTIONS/G_FIN
 !     MAGI DIAG SUM  PROD USER EYE  RAND ONES CHOP SIZE KRON  TRIL TRIU
 !       1    2    3    4    5    6    7    8    9   10  11-13  14   15
-      L = LSTK(TOP)
-      M = MSTK(TOP)
-      N = NSTK(TOP)
-      FUN6: select case(fin)
+      L = G_LSTK(G_TOP)
+      M = G_MSTK(G_TOP)
+      N = G_NSTK(G_TOP)
+      FUN6: select case(G_fin)
 !===================================================================================================================================
 !  COMMAND::KRONECKER PRODUCT
    case(11,12,13)
-      IF (RHS .NE. 2) CALL mat_err(39)
+      IF (G_RHS .NE. 2) CALL mat_err(39)
       IF (G_ERR .GT. 0) RETURN
-      TOP = TOP - 1
-      L = LSTK(TOP)
-      MA = MSTK(TOP)
-      NA = NSTK(TOP)
+      G_TOP = G_TOP - 1
+      L = G_LSTK(G_TOP)
+      MA = G_MSTK(G_TOP)
+      NA = G_NSTK(G_TOP)
       LA = L + MAX0(M*N*MA*NA,M*N+MA*NA)
       LB = LA + MA*NA
-      G_ERR = LB + M*N - LSTK(BOT)
+      G_ERR = LB + M*N - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
 !     MOVE A AND B ABOVE RESULT
-      CALL mat_wcopy(MA*NA+M*N,STKR(L),STKI(L),1,STKR(LA),STKI(LA),1)
+      CALL mat_wcopy(MA*NA+M*N,G_STKR(L),G_STKI(L),1,G_STKR(LA),G_STKI(LA),1)
       DO JA = 1, NA
         DO J = 1, N
           LJ = LB + (J-1)*M
           DO IA = 1, MA
 !           GET J-TH COLUMN OF B
-            CALL mat_wcopy(M,STKR(LJ),STKI(LJ),1,STKR(L),STKI(L),1)
+            CALL mat_wcopy(M,G_STKR(LJ),G_STKI(LJ),1,G_STKR(L),G_STKI(L),1)
 !           ADDRESS OF A(IA,JA)
             LS = LA + IA-1 + (JA-1)*MA
             DO I = 1, M
 !             A(IA,JA) OP B(I,J)
-              IF (FIN .EQ. 11) CALL mat_wmul(STKR(LS),STKI(LS),STKR(L),STKI(L),STKR(L),STKI(L))
-              IF (FIN .EQ. 12) CALL mat_wdiv(STKR(LS),STKI(LS),STKR(L),STKI(L),STKR(L),STKI(L))
-              IF (FIN .EQ. 13) CALL mat_wdiv(STKR(L),STKI(L),STKR(LS),STKI(LS),STKR(L),STKI(L))
+              IF (G_FIN .EQ. 11) CALL mat_wmul(G_STKR(LS),G_STKI(LS),G_STKR(L),G_STKI(L),G_STKR(L),G_STKI(L))
+              IF (G_FIN .EQ. 12) CALL mat_wdiv(G_STKR(LS),G_STKI(LS),G_STKR(L),G_STKI(L),G_STKR(L),G_STKI(L))
+              IF (G_FIN .EQ. 13) CALL mat_wdiv(G_STKR(L),G_STKI(L),G_STKR(LS),G_STKI(LS),G_STKR(L),G_STKI(L))
               IF (G_ERR .GT. 0) RETURN
               L = L + 1
             ENDDO
           enddo
         enddo
       enddo
-      MSTK(TOP) = M*MA
-      NSTK(TOP) = N*NA
+      G_MSTK(G_TOP) = M*MA
+      G_NSTK(G_TOP) = N*NA
 !===================================================================================================================================
       case(9) ! COMMAND::CHOP
       EPS0 = 1.0D0
@@ -1161,9 +1156,9 @@ character(len=80) :: mline
       T = mat_flop(1.0D0 + EPS0)
       IF (T .GT. 1.0D0) GOTO 61
       EPS0 = 2.0D0*EPS0
-      FLP(2) = IDINT(STKR(L))
-      IF (SYM .NE. SEMI) then
-         WRITE(mline,'(''CHOP '',I2,'' PLACES.'')') FLP(2)
+      G_FLOP_COUNTER(2) = IDINT(G_STKR(L))
+      IF (G_SYM .NE. SEMI) then
+         WRITE(mline,'(''CHOP '',I2,'' PLACES.'')') G_FLOP_COUNTER(2)
          call journal(mline)
       endif
       EPS = 1.0D0
@@ -1172,9 +1167,9 @@ character(len=80) :: mline
       T = mat_flop(1.0D0 + EPS)
       IF (T .GT. 1.0D0) GOTO 63
       EPS = 2.0D0*EPS
-      T = STKR(VSIZE-4)
-      IF (T.LT.EPS .OR. T.EQ.EPS0) STKR(VSIZE-4) = EPS
-      MSTK(TOP) = 0
+      T = G_STKR(G_VSIZE-4)
+      IF (T.LT.EPS .OR. T.EQ.EPS0) G_STKR(G_VSIZE-4) = EPS
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(3) ! COMMAND::SUM
       SR = 0.0D0
@@ -1182,13 +1177,13 @@ character(len=80) :: mline
       MN = M*N
       DO I = 1, MN
          LS = L+I-1
-         SR = mat_flop(SR+STKR(LS))
-         SI = mat_flop(SI+STKI(LS))
+         SR = mat_flop(SR+G_STKR(LS))
+         SI = mat_flop(SI+G_STKI(LS))
       enddo
-      STKR(L) = SR
-      STKI(L) = SI
-      MSTK(TOP) = 1
-      NSTK(TOP) = 1
+      G_STKR(L) = SR
+      G_STKI(L) = SI
+      G_MSTK(G_TOP) = 1
+      G_NSTK(G_TOP) = 1
 !===================================================================================================================================
       case(4) ! COMMAND::PROD
       SR = 1.0D0
@@ -1196,89 +1191,89 @@ character(len=80) :: mline
       MN = M*N
       DO I = 1, MN
          LS = L+I-1
-         CALL mat_wmul(STKR(LS),STKI(LS),SR,SI,SR,SI)
+         CALL mat_wmul(G_STKR(LS),G_STKI(LS),SR,SI,SR,SI)
       enddo
-      STKR(L) = SR
-      STKI(L) = SI
-      MSTK(TOP) = 1
-      NSTK(TOP) = 1
+      G_STKR(L) = SR
+      G_STKI(L) = SI
+      G_MSTK(G_TOP) = 1
+      G_NSTK(G_TOP) = 1
 !===================================================================================================================================
       case(5) ! COMMAND::USER
       S = 0.0D0
       T = 0.0D0
-      IF (RHS .LT. 2) GOTO 72
-      IF (RHS .LT. 3) GOTO 71
-      T = STKR(L)
-      TOP = TOP-1
-      L = LSTK(TOP)
-      M = MSTK(TOP)
-      N = NSTK(TOP)
+      IF (G_RHS .LT. 2) GOTO 72
+      IF (G_RHS .LT. 3) GOTO 71
+      T = G_STKR(L)
+      G_TOP = G_TOP-1
+      L = G_LSTK(G_TOP)
+      M = G_MSTK(G_TOP)
+      N = G_NSTK(G_TOP)
    71 continue
-      S = STKR(L)
-      TOP = TOP-1
-      L = LSTK(TOP)
-      M = MSTK(TOP)
-      N = NSTK(TOP)
+      S = G_STKR(L)
+      G_TOP = G_TOP-1
+      L = G_LSTK(G_TOP)
+      M = G_MSTK(G_TOP)
+      N = G_NSTK(G_TOP)
    72 continue
-      CALL mat88_user(STKR(L),M,N,S,T)
-      CALL mat_rset(M*N,0.0D0,STKI(L),1)
-      MSTK(TOP) = M
-      NSTK(TOP) = N
+      CALL mat88_user(G_STKR(L),M,N,S,T)
+      CALL mat_rset(M*N,0.0D0,G_STKI(L),1)
+      G_MSTK(G_TOP) = M
+      G_NSTK(G_TOP) = N
 !===================================================================================================================================
       case(1) ! COMMAND::MAGIC
-      N = MAX0(IDINT(STKR(L)),0)
+      N = MAX0(IDINT(G_STKR(L)),0)
       IF (N .EQ. 2) N = 0
-      IF (N .GT. 0) CALL mat_magic(STKR(L),N,N)
-      CALL mat_rset(N*N,0.0D0,STKI(L),1)
-      MSTK(TOP) = N
-      NSTK(TOP) = N
+      IF (N .GT. 0) CALL mat_magic(G_STKR(L),N,N)
+      CALL mat_rset(N*N,0.0D0,G_STKI(L),1)
+      G_MSTK(G_TOP) = N
+      G_NSTK(G_TOP) = N
 !===================================================================================================================================
       case(10) ! COMMAND::SIZE
-      STKR(L) = M
-      STKR(L+1) = N
-      STKI(L) = 0.0D0
-      STKI(L+1) = 0.0D0
-      MSTK(TOP) = 1
-      NSTK(TOP) = 2
-      IF (LHS .EQ. 1) exit FUN6
-      NSTK(TOP) = 1
-      TOP = TOP + 1
-      LSTK(TOP) = L+1
-      MSTK(TOP) = 1
-      NSTK(TOP) = 1
+      G_STKR(L) = M
+      G_STKR(L+1) = N
+      G_STKI(L) = 0.0D0
+      G_STKI(L+1) = 0.0D0
+      G_MSTK(G_TOP) = 1
+      G_NSTK(G_TOP) = 2
+      IF (G_LHS .EQ. 1) exit FUN6
+      G_NSTK(G_TOP) = 1
+      G_TOP = G_TOP + 1
+      G_LSTK(G_TOP) = L+1
+      G_MSTK(G_TOP) = 1
+      G_NSTK(G_TOP) = 1
 !===================================================================================================================================
       case(2,14,15) ! COMMAND::DIAG=2 ! COMMAND::TRIL=14 ! COMMAND::TRIU=15
       K = 0
-      IF (RHS .NE. 2) GOTO 81
-         K = IDINT(STKR(L))
-         TOP = TOP-1
-         L = LSTK(TOP)
-         M = MSTK(TOP)
-         N = NSTK(TOP)
+      IF (G_RHS .NE. 2) GOTO 81
+         K = IDINT(G_STKR(L))
+         G_TOP = G_TOP-1
+         L = G_LSTK(G_TOP)
+         M = G_MSTK(G_TOP)
+         N = G_NSTK(G_TOP)
    81 continue
-      IF (FIN .GE. 14) GOTO 85
+      IF (G_FIN .GE. 14) GOTO 85
       IF (M .EQ. 1 .OR. N .EQ. 1) GOTO 83
       IF (K.GE.0) MN=MIN0(M,N-K)
       IF (K.LT.0) MN=MIN0(M+K,N)
-      MSTK(TOP) = MAX0(MN,0)
-      NSTK(TOP) = 1
+      G_MSTK(G_TOP) = MAX0(MN,0)
+      G_NSTK(G_TOP) = 1
       IF (MN .LE. 0) exit FUN6
       DO I = 1, MN
          IF (K.GE.0) LS = L+(I-1)+(I+K-1)*M
          IF (K.LT.0) LS = L+(I-K-1)+(I-1)*M
          LL = L+I-1
-         STKR(LL) = STKR(LS)
-         STKI(LL) = STKI(LS)
+         G_STKR(LL) = G_STKR(LS)
+         G_STKI(LL) = G_STKI(LS)
       enddo
       exit FUN6
 !-----------------------------------------------------------------------------------------------------------------------------------
    83 continue
       N = MAX0(M,N)+IABS(K)
-      G_ERR = L+N*N - LSTK(BOT)
+      G_ERR = L+N*N - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      MSTK(TOP) = N
-      NSTK(TOP) = N
+      G_MSTK(G_TOP) = N
+      G_NSTK(G_TOP) = N
       DO JB = 1, N
          DO IB = 1, N
             J = N+1-JB
@@ -1288,10 +1283,10 @@ character(len=80) :: mline
             IF (K.GE.0) LS = L+I-1
             IF (K.LT.0) LS = L+J-1
             LL = L+I-1+(J-1)*N
-            IF (J-I .EQ. K) SR = STKR(LS)
-            IF (J-I .EQ. K) SI = STKI(LS)
-            STKR(LL) = SR
-            STKI(LL) = SI
+            IF (J-I .EQ. K) SR = G_STKR(LS)
+            IF (J-I .EQ. K) SI = G_STKI(LS)
+            G_STKR(LL) = SR
+            G_STKI(LL) = SI
          enddo
       enddo
       exit FUN6
@@ -1300,70 +1295,70 @@ character(len=80) :: mline
    85 continue
       DO J = 1, N
          LD = L + J - K - 1 + (J-1)*M
-         IF (FIN .EQ. 14) LL = J - K - 1
-         IF (FIN .EQ. 14) LS = LD - LL
-         IF (FIN .EQ. 15) LL = M - J + K
-         IF (FIN .EQ. 15) LS = LD + 1
-         IF (LL .GT. 0) CALL mat_wset(LL,0.0D0,0.0D0,STKR(LS),STKI(LS),1)
+         IF (G_FIN .EQ. 14) LL = J - K - 1
+         IF (G_FIN .EQ. 14) LS = LD - LL
+         IF (G_FIN .EQ. 15) LL = M - J + K
+         IF (G_FIN .EQ. 15) LS = LD + 1
+         IF (LL .GT. 0) CALL mat_wset(LL,0.0D0,0.0D0,G_STKR(LS),G_STKI(LS),1)
       enddo
 !===================================================================================================================================
       case(6,7,8) ! COMMAND::EYE, COMMAND::RAND, COMMAND::ONES
-      IF (M.GT.1 .OR. RHS.EQ.0) GOTO 94
-      IF (RHS .NE. 2) GOTO 91
-        NN = IDINT(STKR(L))
-        TOP = TOP-1
-        L = LSTK(TOP)
-        N = NSTK(TOP)
+      IF (M.GT.1 .OR. G_RHS.EQ.0) GOTO 94
+      IF (G_RHS .NE. 2) GOTO 91
+        NN = IDINT(G_STKR(L))
+        G_TOP = G_TOP-1
+        L = G_LSTK(G_TOP)
+        N = G_NSTK(G_TOP)
    91 continue
-      IF (FIN.NE.7 .OR. N.LT.4) GOTO 93
+      IF (G_FIN.NE.7 .OR. N.LT.4) GOTO 93
       DO I = 1, 4
         LS = L+I-1
-        ID(I) = IDINT(STKR(LS))
+        ID(I) = IDINT(G_STKR(LS))
       enddo
       IF (mat_eqid(ID,UNIFOR).OR.mat_eqid(ID,NORMAL)) GOTO 97
       IF (mat_eqid(ID,SEED)) GOTO 98
    93 continue
       IF (N .GT. 1) GOTO 94
-      M = MAX0(IDINT(STKR(L)),0)
-      IF (RHS .EQ. 2) N = MAX0(NN,0)
-      IF (RHS .NE. 2) N = M
-      G_ERR = L+M*N - LSTK(BOT)
+      M = MAX0(IDINT(G_STKR(L)),0)
+      IF (G_RHS .EQ. 2) N = MAX0(NN,0)
+      IF (G_RHS .NE. 2) N = M
+      G_ERR = L+M*N - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      MSTK(TOP) = M
-      NSTK(TOP) = N
+      G_MSTK(G_TOP) = M
+      G_NSTK(G_TOP) = N
       IF (M*N .EQ. 0) exit FUN6
    94 continue
       DO J = 1, N
          DO I = 1, M
            LL = L+I-1+(J-1)*M
-           STKR(LL) = 0.0D0
-           STKI(LL) = 0.0D0
-           IF(I.EQ.J .OR. FIN.EQ.8) STKR(LL) = 1.0D0
-           IF(FIN.EQ.7 .AND. RAN(2).EQ.0)STKR(LL)=mat_flop(mat_urand(RAN(1)))
-           IF(FIN.NE.7 .OR. RAN(2).EQ.0) cycle
+           G_STKR(LL) = 0.0D0
+           G_STKI(LL) = 0.0D0
+           IF(I.EQ.J .OR. G_FIN.EQ.8) G_STKR(LL) = 1.0D0
+           IF(G_FIN.EQ.7 .AND. G_RAN(2).EQ.0)G_STKR(LL)=mat_flop(mat_urand(G_RAN(1)))
+           IF(G_FIN.NE.7 .OR. G_RAN(2).EQ.0) cycle
       95      continue
-              SR = 2.0D0*mat_urand(RAN(1))-1.0D0
-              SI = 2.0D0*mat_urand(RAN(1))-1.0D0
+              SR = 2.0D0*mat_urand(G_RAN(1))-1.0D0
+              SI = 2.0D0*mat_urand(G_RAN(1))-1.0D0
               T = SR*SR + SI*SI
               IF (T .GT. 1.0D0) GOTO 95
-           STKR(LL) = mat_flop(SR*DSQRT((-(2.0D0*DLOG(T)))/T))
+           G_STKR(LL) = mat_flop(SR*DSQRT((-(2.0D0*DLOG(T)))/T))
          enddo
       enddo
       exit FUN6
 !-----------------------------------------------------------------------------------------------------------------------------------
 !     SWITCH UNIFORM AND NORMAL
    97 continue
-      RAN(2) = ID(1) - UNIFOR(1)
-      MSTK(TOP) = 0
+      G_RAN(2) = ID(1) - UNIFOR(1)
+      G_MSTK(G_TOP) = 0
       exit FUN6
 !-----------------------------------------------------------------------------------------------------------------------------------
    98 continue ! COMMAND::SEED
-      IF (RHS .EQ. 2) RAN(1) = NN
-      STKR(L) = RAN(1)
-      MSTK(TOP) = 1
-      IF (RHS .EQ. 2) MSTK(TOP) = 0
-      NSTK(TOP) = 1
+      IF (G_RHS .EQ. 2) G_RAN(1) = NN
+      G_STKR(L) = G_RAN(1)
+      G_MSTK(G_TOP) = 1
+      IF (G_RHS .EQ. 2) G_MSTK(G_TOP) = 0
+      G_NSTK(G_TOP) = 1
       exit FUN6
 !===================================================================================================================================
       end select FUN6
@@ -1421,16 +1416,16 @@ integer            :: k
       if (mat_eqid(id,funn(1,k))) goto 20
    enddo
 !  function name was not found
-   fin = 0
+   G_fin = 0
    return
-!  found name so great FIN and FUN value from corresponding FUNP code
+!  found name so great G_FIN and G_FUN value from corresponding FUNP code
 
 20 continue
-   fin = mod(funp(k),100) ! which routine to call (SUBROUTINE ML_MATFN[1-6])
-   fun = funp(k)/100      ! which case to select in called procedure
+   G_fin = mod(funp(k),100) ! which routine to call (SUBROUTINE ML_MATFN[1-6])
+   G_fun = funp(k)/100      ! which case to select in called procedure
 
-   if (rhs.eq.0 .and. funp(k).eq.606) fin = 0
-   if (rhs.eq.0 .and. funp(k).eq.607) fin = 0
+   if (G_rhs.eq.0 .and. funp(k).eq.606) G_fin = 0
+   if (G_rhs.eq.0 .and. funp(k).eq.607) G_fin = 0
 end subroutine mat_funs
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1456,8 +1451,8 @@ subroutine mat_getval(s)
 doubleprecision,intent(out) :: s
       s = 0.0d0
       INFINITE: do
-         if (chra .gt. 9) exit INFINITE
-         s = 10.0d0*s + dble(chra)
+         if (G_chra .gt. 9) exit INFINITE
+         s = 10.0d0*s + dble(G_chra)
          call mat_getch() ! get next character
       enddo INFINITE
 end subroutine mat_getval
@@ -1470,9 +1465,9 @@ subroutine mat_getch()
 
 integer :: l
 
-   l = lpt(4)
-   chra = lin(l)
-   if (chra .ne. eol) lpt(4) = l + 1
+   l = G_LPT(4)
+   G_chra = G_LIN(l)
+   if (G_chra .ne. G_eol) G_LPT(4) = l + 1
 
 end subroutine mat_getch
 !==================================================================================================================================!
@@ -1742,7 +1737,7 @@ doubleprecision :: t
    q = dmin1(dabs(a),dabs(b))
 
    !------- DEBUG
-   if (ddt .eq. 25) then
+   if (G_ddt .eq. 25) then
       call journal('sc','*mat_pythag* a) P=',real(P)) ! debug 25
       call journal('sc','*mat_pythag* a) Q=',real(Q)) ! debug 25
    endif
@@ -1757,7 +1752,7 @@ doubleprecision :: t
          p = p + 2.0d0*p*s
          q = q*s
          !------- DEBUG
-         if (ddt .eq. 25) then
+         if (G_ddt .eq. 25) then
             call journal('sc','*mat_pythag* b) P=',real(P)) ! debug 25
             call journal('sc','*mat_pythag* b) Q=',real(Q)) ! debug 25
          endif
@@ -1808,23 +1803,23 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
 
 
 ! FORMAT NUMBERS AND LENGTHS
-! FMT   1       2       3       4       5
-!      SHORT   LONG   SHORT E  LONG E    Z
+! G_FMT   1       2       3       4       5
+!       SHORT   LONG   SHORT E  LONG E    Z
 ! TYP   1       2       3
 !    INTEGER  REAL   COMPLEX
 !.......................................................................
-   IF (LCT(1) .LT. 0) GOTO 99
+   IF (G_LCT(1) .LT. 0) GOTO 99
 !.......................................................................
-   L = LSTK(K)
-   M = MSTK(K)
-   N = NSTK(K)
+   L = G_LSTK(K)
+   M = G_MSTK(K)
+   N = G_NSTK(K)
    MN = M*N
    TYP = 1
    S = 0.0D0
    DO I = 1, MN
       LS = L+I-1
-      TR = STKR(LS)
-      TI = STKI(LS)
+      TR = G_STKR(LS)
+      TI = G_STKI(LS)
       S = DMAX1(S,DABS(TR),DABS(TI))
       IF (mat_round(TR) .NE. TR) TYP = MAX0(2,TYP)
       IF (TI .NE. 0.0D0) TYP = 3
@@ -1832,7 +1827,7 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
    IF (S .NE. 0.0D0) S = DLOG10(S)
    KS = IDINT(S)
    IF (-2 .LE. KS .AND. KS .LE. 1) KS = 0
-   IF (KS .EQ. 2 .AND. FMT .EQ. 1 .AND. TYP .EQ. 2) KS = 0
+   IF (KS .EQ. 2 .AND. G_FMT .EQ. 1 .AND. TYP .EQ. 2) KS = 0
 
    F=0                          ! initialize to bad value
    IF (TYP .EQ. 1 )THEN         ! if output type is integer
@@ -1844,16 +1839,16 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
    ENDIF
    IF (TYP .EQ. 1 .AND. KS .GT. 9) TYP = 2  !change type from integer to real
 
-   IF (TYP .EQ. 2) F = FMT + 2   ! if type is real
-   IF (TYP .EQ. 3) F = FMT + 6   ! if type is complex
+   IF (TYP .EQ. 2) F = G_FMT + 2   ! if type is real
+   IF (TYP .EQ. 3) F = G_FMT + 6   ! if type is complex
    if(f.eq.0)then
       call journal('*mat_print* internal error - bad type')
       goto 99
    endif
 
-   IF (MN.EQ.1 .AND. KS.NE.0 .AND. FMT.LT.3 .AND. TYP.NE.1) F = F+2
+   IF (MN.EQ.1 .AND. KS.NE.0 .AND. G_FMT.LT.3 .AND. TYP.NE.1) F = F+2
 
-   IF (FMT .EQ. 5) F = 11
+   IF (G_FMT .EQ. 5) F = 11
 
    JINC = FNL(F)
    F = FNO(F)
@@ -1862,57 +1857,57 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
    IF (F.EQ.21 .OR. F.EQ.22 .OR. F.EQ.31 .OR. F.EQ.32) S = 10.0D0**KS
    LS = ((N-1)/JINC+1)*M + 2
 !.......................................................................
-   IF (LCT(1) + LS .LE. LCT(2)) GOTO 20
-   LCT(1) = 0
+   IF (G_LCT(1) + LS .LE. G_LCT(2)) GOTO 20
+   G_LCT(1) = 0
 
    WRITE(mline,43) LS
 43 FORMAT(' AT LEAST ',I5,' MORE LINES.','  ENTER BLANK LINE TO CONTINUE OUTPUT.')
    call journal(mline)
 
-   READ(RTE,'(a1)',END=19) LS_CHAR  ! read response to pause from standard input
+   READ(G_RTE,'(a1)',END=19) LS_CHAR  ! read response to pause from standard input
    IF (LS_CHAR .EQ. ' ') GOTO 20         ! if blank or a return display the values
-   LCT(1) = -1
+   G_LCT(1) = -1
    GOTO 99
 19 CONTINUE
-   CALL mat_files(-RTE,BUF)
+   CALL mat_files(-G_RTE,G_BUF)
 20 CONTINUE
 !.......................................................................
    call journal(' ')
    CALL mat_prntid(ID,-1)
-   LCT(1) = LCT(1)+2
+   G_LCT(1) = G_LCT(1)+2
    IF (S .NE. 1.0D0)then
       WRITE(mline,'(''  '',1PD9.1," *")') S
-      if(wte.eq.6)then
+      if(G_WTE.eq.6)then
          call journal(mline)
       else
-         write(wte,'(a)')mline(1:80)
+         write(G_WTE,'(a)')mline(1:80)
       endif
    endif
    DO 80 J1 = 1, N, JINC
       J2 = MIN0(N, J1+JINC-1)
       IF (N .GT. JINC)then
          WRITE(mline,'(''     COLUMNS'',I6,'' THRU'',I6)') J1,J2
-         if(wte.eq.6)then
+         if(G_WTE.eq.6)then
             call journal(mline)
          else
-            write(wte,'(a)')mline(1:80)
+            write(G_WTE,'(a)')mline(1:80)
          endif
       endif
       DO 70 I = 1, M
          JM = J2-J1+1
          DO J = 1, JM
             LS = L+I-1+(J+J1-2)*M
-            PR(J) = STKR(LS)/S
-            PI(J) = DABS(STKI(LS)/S)
-            SIG(J) = ALFA(PLUS+1)
-            IF (STKI(LS) .LT. 0.0D0) SIG(J) = ALFA(MINUS+1)
+            PR(J) = G_STKR(LS)/S
+            PI(J) = DABS(G_STKI(LS)/S)
+            SIG(J) = G_ALFA(PLUS+1)
+            IF (G_STKI(LS) .LT. 0.0D0) SIG(J) = G_ALFA(MINUS+1)
          enddo
 
          goto(11,12)F-10
          goto(21,22,23,24)F-20
          goto(31,32,33,34)F-30
          IF (F .EQ. -1) THEN
-            CALL mat_formz(WTE,STKR(LS),STKI(LS))
+            CALL mat_formz(G_WTE,G_STKR(LS),G_STKI(LS))
             goto 71
          endif
          call journal('*internal error*')
@@ -1931,10 +1926,10 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
          J3=1
 7161     CONTINUE
          WRITE(mline,FORM)(PR(J),J=J3,MIN(J3+ISTEP-1,JM))
-         if(wte.eq.6)then
+         if(G_WTE.eq.6)then
             call journal(mline)
          else
-            write(wte,'(a)')mline(1:80)
+            write(G_WTE,'(a)')mline(1:80)
          endif
          J3=J3+ISTEP
          if(J3.le.JM)goto 7161
@@ -1961,10 +1956,10 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
          J3=1
 7141     CONTINUE
          WRITE(mline,FORM)(PR(J),J=J3,MIN(J3+ISTEP,JM))
-         if(wte.eq.6)then
+         if(G_WTE.eq.6)then
             call journal(mline)
          else
-            write(wte,'(a)')mline(1:80)
+            write(G_WTE,'(a)')mline(1:80)
          endif
          J3=J3+ISTEP
          if(J3.le.JM)goto 7141
@@ -1990,23 +1985,23 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
          J3=1
 7181     CONTINUE
          WRITE(mline,form)(PR(J),SIG(J),PI(J),J=J3,MIN(J3+ISTEP-1,JM))
-         if(wte.eq.6)then
+         if(G_WTE.eq.6)then
             call journal(mline)
          else
-            write(wte,'(a)')mline(1:80)
+            write(G_WTE,'(a)')mline(1:80)
          endif
          J3=J3+ISTEP
          if(J3.le.JM)goto 7181
          goto 71
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 71       CONTINUE
-         LCT(1) = LCT(1)+1
+         G_LCT(1) = G_LCT(1)+1
 70    CONTINUE
 80 CONTINUE
    GOTO 99
 !.......................................................................
 99 CONTINUE
-   if(wte.ne.6)flush(unit=wte,iostat=ios)
+   if(G_WTE.ne.6)flush(unit=G_WTE,iostat=ios)
 !
 END SUBROUTINE mat_print
 !==================================================================================================================================!
@@ -2087,16 +2082,16 @@ integer,intent(in) :: pause
 character(len=1)   :: dummy
 
    ! paranoid checks
-   if(wte.le.0)then
-      call journal('*mat_prompt* internal error: wte <= 0')
-   elseif(rte.lt.0)then
-      call journal('*mat_prompt* internal error: rte <= 0')
+   if(G_WTE.le.0)then
+      call journal('*mat_prompt* internal error: G_WTE <= 0')
+   elseif(G_RTE.lt.0)then
+      call journal('*mat_prompt* internal error: G_RTE <= 0')
    else
       ! write prompt using format that stays on current line
-      if(wte.eq.6)then
-         WRITE(WTE,'(''<>'')',advance='no')   ! write prompt to interactive input
+      if(G_WTE.eq.6)then
+         WRITE(G_WTE,'(''<>'')',advance='no')   ! write prompt to interactive input
       endif
-      if (pause .eq. 1) read(rte,'(a1)') dummy
+      if (pause .eq. 1) read(G_RTE,'(a1)') dummy
    endif
 
 end subroutine mat_prompt
@@ -2350,30 +2345,30 @@ integer           :: m
 integer           :: mn
 integer           :: n
 
-   IF (DDT .EQ. 1) call journal('sc','mat_stack1 ',OP)
-   L = LSTK(TOP)
-   M = MSTK(TOP)
-   N = NSTK(TOP)
+   IF (G_DDT .EQ. 1) call journal('sc','mat_stack1 ',OP)
+   L = G_LSTK(G_TOP)
+   M = G_MSTK(G_TOP)
+   N = G_NSTK(G_TOP)
    MN = M*N
    IF (MN .EQ. 0) then
    elseIF (OP .ne. QUOTE) then                                 ! UNARY MINUS
-      CALL mat_wrscal(MN,-1.0D0,STKR(L),STKI(L),1)
+      CALL mat_wrscal(MN,-1.0D0,G_STKR(L),G_STKI(L),1)
    else                                                        ! TRANSPOSE
       LL = L + MN
-      G_ERR = LL+MN - LSTK(BOT)
+      G_ERR = LL+MN - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      CALL mat_wcopy(MN,STKR(L),STKI(L),1,STKR(LL),STKI(LL),1)
-      M = NSTK(TOP)
-      N = MSTK(TOP)
-      MSTK(TOP) = M
-      NSTK(TOP) = N
+      CALL mat_wcopy(MN,G_STKR(L),G_STKI(L),1,G_STKR(LL),G_STKI(LL),1)
+      M = G_NSTK(G_TOP)
+      N = G_MSTK(G_TOP)
+      G_MSTK(G_TOP) = M
+      G_NSTK(G_TOP) = N
       DO I = 1, M
          DO J = 1, N
             LS = L+MN+(J-1)+(I-1)*N
             LL = L+(I-1)+(J-1)*M
-            STKR(LL) = STKR(LS)
-            STKI(LL) = -STKI(LS)
+            G_STKR(LL) = G_STKR(LS)
+            G_STKI(LL) = -G_STKI(LS)
          enddo
       enddo
    endif
@@ -2463,7 +2458,7 @@ integer             :: i, j, k, l
       do j = j1,min0(j1+7,iabs(argcnt))   ! copy up to eight names into buffer
          do i = 1, 4                      !    copy one name into buffer
             k = id(i,j)+1                 ! this is the kth letter of the set
-            linebuf(l) = alfa(k)
+            linebuf(l) = G_ALFA(k)
             l = l+1                       ! increment pointer into output
          enddo
          linebuf(l+0)=ade_blank           ! put two space between names
@@ -2477,10 +2472,10 @@ integer             :: i, j, k, l
       endif
       !-----------------------------------------------
       call mat_buf2str(mline,linebuf,l)   ! write LINEBUF(1:L) line to a character variable
-      if(wte.eq.6)then
+      if(G_WTE.eq.6)then
          call journal(mline)              ! print the line
       else
-         write(wte,'(a)')mline(1:80)      ! print the line
+         write(G_WTE,'(a)')mline(1:80)      ! print the line
       endif
       !-----------------------------------------------
       j1 = j1+8                           ! prepare to get up to eight more IDs
@@ -2524,21 +2519,21 @@ integer             :: n
 integer             :: nk
 integer             :: nt
 
-   if (ddt .eq. 1) then
+   if (G_ddt .eq. 1) then
       write(mline,'('' STACKP '',4i4)') id
       call journal(mline)
    endif
 
-   if (top .le. 0) call mat_err(1)
+   if (G_top .le. 0) call mat_err(1)
    if (G_err .gt. 0) return
 
    call mat_funs(id)
-   if (fin .ne. 0) call mat_err(25)
+   if (G_fin .ne. 0) call mat_err(25)
    if (G_err .gt. 0) return
 
-   m = mstk(top)
-   n = nstk(top)
-   if (m .gt. 0) l = lstk(top)
+   m = G_MSTK(G_top)
+   n = G_NSTK(G_top)
+   if (m .gt. 0) l = G_LSTK(G_top)
    if (m .lt. 0) call mat_err(14)
    if (G_err .gt. 0) return
 
@@ -2552,110 +2547,110 @@ integer             :: nt
    nt = 0
 !
 !     DOES VARIABLE ALREADY EXIST
-   call mat_putid(idstk(1,bot-1),id)
-   k = lsize+1
+   call mat_putid(G_IDSTK(1,G_BOT-1),id)
+   k = G_LSIZE+1
 05 continue
    k = k-1
-   if (.not.mat_eqid(idstk(1,k),id)) goto 05
-   if (k .eq. bot-1) goto 30
-   lk = lstk(k)
-   mk = mstk(k)
-   nk = nstk(k)
+   if (.not.mat_eqid(G_IDSTK(1,k),id)) goto 05
+   if (k .eq. G_BOT-1) goto 30
+   lk = G_LSTK(k)
+   mk = G_MSTK(k)
+   nk = G_NSTK(k)
    mnk = mk*nk
-   if (rhs .eq. 0) goto 20
-   if (rhs .gt. 2) call mat_err(15)
+   if (G_rhs .eq. 0) goto 20
+   if (G_rhs .gt. 2) call mat_err(15)
    if (G_err .gt. 0) return
    mt = mk
    nt = nk
    lt = l + mn
-   G_err = lt + mnk - lstk(bot)
+   G_err = lt + mnk - G_LSTK(G_BOT)
    if (G_err .gt. 0) call mat_err(17)
    if (G_err .gt. 0) return
-   call mat_wcopy(mnk,stkr(lk),stki(lk),1,stkr(lt),stki(lt),1)
+   call mat_wcopy(mnk,G_stkr(lk),G_STKI(lk),1,G_stkr(lt),G_STKI(lt),1)
 !
 !     DOES IT FIT
 20 continue
-   if (rhs.eq.0 .and. mn.eq.mnk) goto 40
-   if (k .ge. lsize-3) call mat_err(13)
+   if (G_rhs.eq.0 .and. mn.eq.mnk) goto 40
+   if (k .ge. G_LSIZE-3) call mat_err(13)
    if (G_err .gt. 0) return
 !
 !     SHIFT STORAGE
-   if (k .eq. bot) goto 25
-   ls = lstk(bot)
+   if (k .eq. G_BOT) goto 25
+   ls = G_LSTK(G_BOT)
    ll = ls + mnk
-   call mat_wcopy(lk-ls,stkr(ls),stki(ls),-1,stkr(ll),stki(ll),-1)
+   call mat_wcopy(lk-ls,G_stkr(ls),G_STKI(ls),-1,G_stkr(ll),G_STKI(ll),-1)
    km1 = k-1
-   do ib = bot, km1
-      i = bot+km1-ib
-      call mat_putid(idstk(1,i+1),idstk(1,i))
-      mstk(i+1) = mstk(i)
-      nstk(i+1) = nstk(i)
-      lstk(i+1) = lstk(i)+mnk
+   do ib = G_BOT, km1
+      i = G_BOT+km1-ib
+      call mat_putid(G_IDSTK(1,i+1),G_IDSTK(1,i))
+      G_MSTK(i+1) = G_MSTK(i)
+      G_NSTK(i+1) = G_NSTK(i)
+      G_LSTK(i+1) = G_LSTK(i)+mnk
    enddo
 !
 !     DESTROY OLD VARIABLE
 25 continue
-   bot = bot+1
+   G_BOT = G_BOT+1
 !
 !     CREATE NEW VARIABLE
 30 continue
    if (mn .eq. 0) goto 99
-   if (bot-2 .le. top) call mat_err(18)
+   if (G_BOT-2 .le. G_top) call mat_err(18)
    if (G_err .gt. 0) return
-   k = bot-1
-   call mat_putid(idstk(1,k), id)
-   if (rhs .eq. 1) goto 50
-   if (rhs .eq. 2) goto 55
+   k = G_BOT-1
+   call mat_putid(G_IDSTK(1,k), id)
+   if (G_rhs .eq. 1) goto 50
+   if (G_rhs .eq. 2) goto 55
 !
 !     STORE
 40 continue
-   if (k .lt. lsize) lstk(k) = lstk(k+1) - mn
-   mstk(k) = m
-   nstk(k) = n
-   lk = lstk(k)
-   call mat_wcopy(mn,stkr(l),stki(l),-1,stkr(lk),stki(lk),-1)
+   if (k .lt. G_LSIZE) G_LSTK(k) = G_LSTK(k+1) - mn
+   G_MSTK(k) = m
+   G_NSTK(k) = n
+   lk = G_LSTK(k)
+   call mat_wcopy(mn,G_stkr(l),G_STKI(l),-1,G_stkr(lk),G_STKI(lk),-1)
    goto 90
 !
 !     VECT(ARG)
 50 continue
-   if (mstk(top-1) .lt. 0) goto 59
+   if (G_MSTK(G_top-1) .lt. 0) goto 59
    mn1 = 1
    mn2 = 1
    l1 = 0
    l2 = 0
    if (n.ne.1 .or. nk.ne.1) goto 52
-   l1 = lstk(top-1)
-   m1 = mstk(top-1)
-   mn1 = m1*nstk(top-1)
+   l1 = G_LSTK(G_top-1)
+   m1 = G_MSTK(G_top-1)
+   mn1 = m1*G_NSTK(G_top-1)
    m2 = -1
    goto 60
 52 continue
    if (m.ne.1 .or. mk.ne.1) call mat_err(15)
    if (G_err .gt. 0) return
-   l2 = lstk(top-1)
-   m2 = mstk(top-1)
-   mn2 = m2*nstk(top-1)
+   l2 = G_LSTK(G_top-1)
+   m2 = G_MSTK(G_top-1)
+   mn2 = m2*G_NSTK(G_top-1)
    m1 = -1
    goto 60
 !
 !     matrix(arg,arg)
 55 continue
-   if (mstk(top-1).lt.0 .and. mstk(top-2).lt.0) goto 59
-   l2 = lstk(top-1)
-   m2 = mstk(top-1)
-   mn2 = m2*nstk(top-1)
+   if (G_MSTK(G_top-1).lt.0 .and. G_MSTK(G_top-2).lt.0) goto 59
+   l2 = G_LSTK(G_top-1)
+   m2 = G_MSTK(G_top-1)
+   mn2 = m2*G_NSTK(G_top-1)
    if (m2 .lt. 0) mn2 = n
-   l1 = lstk(top-2)
-   m1 = mstk(top-2)
-   mn1 = m1*nstk(top-2)
+   l1 = G_LSTK(G_top-2)
+   m1 = G_MSTK(G_top-2)
+   mn1 = m1*G_NSTK(G_top-2)
    if (m1 .lt. 0) mn1 = m
    goto 60
 !
 59 continue
    if (mn .ne. mnk) call mat_err(15)
    if (G_err .gt. 0) return
-   lk = lstk(k)
-   call mat_wcopy(mn,stkr(l),stki(l),-1,stkr(lk),stki(lk),-1)
+   lk = G_LSTK(k)
+   call mat_wcopy(mn,G_stkr(l),G_STKI(l),-1,G_stkr(lk),G_STKI(lk),-1)
    goto 90
 !
 60 continue
@@ -2665,59 +2660,59 @@ integer             :: nt
    if (m1 .lt. 0) goto 62
    do i = 1, mn1
       ls = l1+i-1
-      mk = max0(mk,idint(stkr(ls)))
-      ll = min0(ll,idint(stkr(ls)))
+      mk = max0(mk,idint(G_stkr(ls)))
+      ll = min0(ll,idint(G_stkr(ls)))
    enddo
 62 continue
    mk = max0(mk,m)
    if (m2 .lt. 0) goto 64
    do i = 1, mn2
       ls = l2+i-1
-      nk = max0(nk,idint(stkr(ls)))
-      ll = min0(ll,idint(stkr(ls)))
+      nk = max0(nk,idint(G_stkr(ls)))
+      ll = min0(ll,idint(G_stkr(ls)))
    enddo
 64 continue
    nk = max0(nk,n)
    if (ll .lt. 1) call mat_err(21)
    if (G_err .gt. 0) return
    mnk = mk*nk
-   lk = lstk(k+1) - mnk
+   lk = G_LSTK(k+1) - mnk
    G_err = lt + mt*nt - lk
    if (G_err .gt. 0) call mat_err(17)
    if (G_err .gt. 0) return
-   lstk(k) = lk
-   mstk(k) = mk
-   nstk(k) = nk
-   call mat_wset(mnk,0.0d0,0.0d0,stkr(lk),stki(lk),1)
+   G_LSTK(k) = lk
+   G_MSTK(k) = mk
+   G_NSTK(k) = nk
+   call mat_wset(mnk,0.0d0,0.0d0,G_stkr(lk),G_STKI(lk),1)
    if (nt .lt. 1) goto 67
    do j = 1, nt
       ls = lt+(j-1)*mt
       ll = lk+(j-1)*mk
-      call mat_wcopy(mt,stkr(ls),stki(ls),-1,stkr(ll),stki(ll),-1)
+      call mat_wcopy(mt,G_stkr(ls),G_STKI(ls),-1,G_stkr(ll),G_STKI(ll),-1)
    enddo
 67 continue
    do j = 1, n
       do i = 1, m
          li = l1+i-1
-         if (m1 .gt. 0) li = l1 + idint(stkr(li)) - 1
+         if (m1 .gt. 0) li = l1 + idint(G_stkr(li)) - 1
          lj = l2+j-1
-         if (m2 .gt. 0) lj = l2 + idint(stkr(lj)) - 1
+         if (m2 .gt. 0) lj = l2 + idint(G_stkr(lj)) - 1
          ll = lk+li-l1+(lj-l2)*mk
          ls = l+i-1+(j-1)*m
-         stkr(ll) = stkr(ls)
-         stki(ll) = stki(ls)
+         G_stkr(ll) = G_stkr(ls)
+         G_STKI(ll) = G_STKI(ls)
       enddo
    enddo
    goto 90
 !
 !     PRINT IF DESIRED AND POP STACK
 90 continue
-   if (sym.ne.semi .and. lct(3).eq.0) call mat_print(id,k)
-   if (sym.eq.semi .and. lct(3).eq.1) call mat_print(id,k)
-   if (k .eq. bot-1) bot = bot-1
+   if (G_sym.ne.semi .and. G_LCT(3).eq.0) call mat_print(id,k)
+   if (G_sym.eq.semi .and. G_LCT(3).eq.1) call mat_print(id,k)
+   if (k .eq. G_BOT-1) G_BOT = G_BOT-1
 99 continue
-   if (m .ne. 0) top = top - 1 - rhs
-   if (m .eq. 0) top = top - 1
+   if (m .ne. 0) G_top = G_top - 1 - G_rhs
+   if (m .eq. 0) G_top = G_top - 1
 end subroutine mat_stackp
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2868,167 +2863,167 @@ integer            :: n
 !
    01 CONTINUE
       R = 0
-      IF (G_ERR .GT. 0) PTZ = 0
-      IF (G_ERR.LE.0 .AND. PT.GT.PTZ) R = RSTK(PT)
-      IF (DDT .EQ. 1) THEN
-         WRITE(MLINE,'('' PARSE'',4I4)') PT,R,PTZ,G_ERR
+      IF (G_ERR .GT. 0) G_PTZ = 0
+      IF (G_ERR.LE.0 .AND. G_PT.GT.G_PTZ) R = G_RSTK(G_PT)
+      IF (G_DDT .EQ. 1) THEN
+         WRITE(MLINE,'('' PARSE'',4I4)') G_PT,R,G_PTZ,G_ERR
          CALL JOURNAL(MLINE)
       ENDIF
       IF (R.EQ.15) GOTO 93
       IF (R.EQ.16 .OR. R.EQ.17) GOTO 94
-      SYM = EOL
-      TOP = 0
-      IF (RIO .NE. RTE) CALL mat_files(-RIO,BUF)
-      RIO = RTE
-      LCT(3) = 0
-      LCT(4) = 2
-      LPT(1) = 1
+      G_SYM = G_EOL
+      G_TOP = 0
+      IF (G_RIO .NE. G_RTE) CALL mat_files(-G_RIO,G_BUF)
+      G_RIO = G_RTE
+      G_LCT(3) = 0
+      G_LCT(4) = 2
+      G_LPT(1) = 1
    10 CONTINUE
-      IF (SYM.EQ.EOL.AND.MOD(LCT(4)/2,2).EQ.1) CALL mat_prompt(LCT(4)/4)
-      IF (SYM .EQ. EOL) CALL mat_getlin()
+      IF (G_SYM.EQ.G_EOL.AND.MOD(G_LCT(4)/2,2).EQ.1) CALL mat_prompt(G_LCT(4)/4)
+      IF (G_SYM .EQ. G_EOL) CALL mat_getlin()
       G_ERR = 0
-      PT = PTZ
+      G_PT = G_PTZ
    15 CONTINUE
       EXCNT = 0
-      IF (DDT .EQ. 1) THEN
+      IF (G_DDT .EQ. 1) THEN
          MLINE='STATE'
-         CALL mat_appnum(REAL(PT),MLINE,ILEN,IERR)
-         CALL mat_appnum(REAL(TOP),MLINE,ILEN,IERR)
+         CALL mat_appnum(REAL(G_PT),MLINE,ILEN,IERR)
+         CALL mat_appnum(REAL(G_TOP),MLINE,ILEN,IERR)
          call journal(mline)
       ENDIF
-      LHS = 1
+      G_LHS = 1
       CALL mat_putid(ID,ANS)
       CALL mat_getsym()
-      IF (SYM.EQ.COLON .AND. CHRA.EQ.EOL) DDT = 1-DDT
-      IF (SYM .EQ. COLON) CALL mat_getsym()
-      IF (SYM.EQ.SEMI .OR. SYM.EQ.COMMA .OR. SYM.EQ.EOL) GOTO 80
-      IF (SYM .EQ. NAME) GOTO 20
-      IF (SYM .EQ. LESS) GOTO 40
-      IF (SYM .EQ. GREAT) GOTO 45
+      IF (G_SYM.EQ.COLON .AND. G_CHRA.EQ.G_EOL) G_DDT = 1-G_DDT
+      IF (G_SYM .EQ. COLON) CALL mat_getsym()
+      IF (G_SYM.EQ.SEMI .OR. G_SYM.EQ.COMMA .OR. G_SYM.EQ.G_EOL) GOTO 80
+      IF (G_SYM .EQ. NAME) GOTO 20
+      IF (G_SYM .EQ. LESS) GOTO 40
+      IF (G_SYM .EQ. GREAT) GOTO 45
       GOTO 50
 !.......................................................................
 !     LHS BEGINS WITH NAME
    20 CONTINUE
-      CALL mat_comand(SYN)
+      CALL mat_comand(G_SYN)
       IF (G_ERR .GT. 0) GOTO 01
-      IF (FUN .EQ. 99) GOTO 95
-      IF (FIN .EQ. -15) GOTO 80
-      IF (FIN .LT. 0) GOTO 91
-      IF (FIN .GT. 0) GOTO 70
+      IF (G_FUN .EQ. 99) GOTO 95
+      IF (G_FIN .EQ. -15) GOTO 80
+      IF (G_FIN .LT. 0) GOTO 91
+      IF (G_FIN .GT. 0) GOTO 70
 !     IF NAME IS A FUNCTION, MUST BE RHS
-      RHS = 0
-      CALL mat_funs(SYN)
-      IF (FIN .NE. 0) GOTO 50
+      G_RHS = 0
+      CALL mat_funs(G_SYN)
+      IF (G_FIN .NE. 0) GOTO 50
 !     PEEK ONE CHARACTER AHEAD
-      IF (CHRA.EQ.SEMI .OR. CHRA.EQ.COMMA .OR. CHRA.EQ.EOL) CALL mat_putid(ID,SYN)
-      IF (CHRA .EQ. EQUAL) GOTO 25
-      IF (CHRA .EQ. LPAREN) GOTO 30
+      IF (G_CHRA.EQ.SEMI .OR. G_CHRA.EQ.COMMA .OR. G_CHRA.EQ.G_EOL) CALL mat_putid(ID,G_SYN)
+      IF (G_CHRA .EQ. EQUAL) GOTO 25
+      IF (G_CHRA .EQ. LPAREN) GOTO 30
       GOTO 50
 !.......................................................................
 !     LHS IS SIMPLE VARIABLE
    25 CONTINUE
-      CALL mat_putid(ID,SYN)
+      CALL mat_putid(ID,G_SYN)
       CALL mat_getsym()
       CALL mat_getsym()
       GOTO 50
 !.......................................................................
 !     LHS IS NAME(...)
    30 CONTINUE
-      LPT(5) = LPT(4)
-      CALL mat_putid(ID,SYN)
+      G_LPT(5) = G_LPT(4)
+      CALL mat_putid(ID,G_SYN)
       CALL mat_getsym()
    32 CONTINUE
       CALL mat_getsym()
       EXCNT = EXCNT+1
-      PT = PT+1
-      CALL mat_putid(IDS(1,PT), ID)
-      PSTK(PT) = EXCNT
-      RSTK(PT) = 1
+      G_PT = G_PT+1
+      CALL mat_putid(G_IDS(1,G_PT), ID)
+      G_PSTK(G_PT) = EXCNT
+      G_RSTK(G_PT) = 1
 !     *CALL* EXPR
       GOTO 92
 !.......................................................................
    35 CONTINUE
-      CALL mat_putid(ID,IDS(1,PT))
-      EXCNT = PSTK(PT)
-      PT = PT-1
-      IF (SYM .EQ. COMMA) GOTO 32
-      IF (SYM .NE. RPAREN) CALL mat_err(3)
+      CALL mat_putid(ID,G_IDS(1,G_PT))
+      EXCNT = G_PSTK(G_PT)
+      G_PT = G_PT-1
+      IF (G_SYM .EQ. COMMA) GOTO 32
+      IF (G_SYM .NE. RPAREN) CALL mat_err(3)
       IF (G_ERR .GT. 0) GOTO 01
       IF (G_ERR .GT. 0) RETURN
-      IF (SYM .EQ. RPAREN) CALL mat_getsym()
-      IF (SYM .EQ. EQUAL) GOTO 50
+      IF (G_SYM .EQ. RPAREN) CALL mat_getsym()
+      IF (G_SYM .EQ. EQUAL) GOTO 50
 !     LHS IS REALLY RHS, FORGET SCAN JUST DONE
-      TOP = TOP - EXCNT
-      LPT(4) = LPT(5)
-      CHRA = LPAREN
-      SYM = NAME
-      CALL mat_putid(SYN,ID)
+      G_TOP = G_TOP - EXCNT
+      G_LPT(4) = G_LPT(5)
+      G_CHRA = LPAREN
+      G_SYM = NAME
+      CALL mat_putid(G_SYN,ID)
       CALL mat_putid(ID,ANS)
       EXCNT = 0
       GOTO 50
 !.......................................................................
 !     MULTIPLE LHS
    40 CONTINUE
-      LPT(5) = LPT(4)
-      PTS = PT
+      G_LPT(5) = G_LPT(4)
+      PTS = G_PT
       CALL mat_getsym()
    41 CONTINUE
-      IF (SYM .NE. NAME) GOTO 43
-      CALL mat_putid(ID,SYN)
+      IF (G_SYM .NE. NAME) GOTO 43
+      CALL mat_putid(ID,G_SYN)
       CALL mat_getsym()
-      IF (SYM .EQ. GREAT) GOTO 42
-      IF (SYM .EQ. COMMA) CALL mat_getsym()
-      PT = PT+1
-      LHS = LHS+1
-      PSTK(PT) = 0
-      CALL mat_putid(IDS(1,PT),ID)
+      IF (G_SYM .EQ. GREAT) GOTO 42
+      IF (G_SYM .EQ. COMMA) CALL mat_getsym()
+      G_PT = G_PT+1
+      G_LHS = G_LHS+1
+      G_PSTK(G_PT) = 0
+      CALL mat_putid(G_IDS(1,G_PT),ID)
       GOTO 41
    42 CONTINUE
       CALL mat_getsym()
-      IF (SYM .EQ. EQUAL) GOTO 50
+      IF (G_SYM .EQ. EQUAL) GOTO 50
    43 CONTINUE
-      LPT(4) = LPT(5)
-      PT = PTS
-      LHS = 1
-      SYM = LESS
-      CHRA = LPT(4)-1
-      CHRA = LIN(CHRA)
+      G_LPT(4) = G_LPT(5)
+      G_PT = PTS
+      G_LHS = 1
+      G_SYM = LESS
+      G_CHRA = G_LPT(4)-1
+      G_CHRA = G_LIN(G_CHRA)
       CALL mat_putid(ID,ANS)
       GOTO 50
 !.......................................................................
 !     MACRO STRING
    45 CONTINUE
       CALL mat_getsym()
-      IF (DDT .EQ. 1) THEN
+      IF (G_DDT .EQ. 1) THEN
          MLINE='MACRO'
-         CALL mat_appnum(REAL(PT),MLINE,ILEN,IERR)
-         CALL mat_appnum(REAL(TOP),MLINE,ILEN,IERR)
+         CALL mat_appnum(REAL(G_PT),MLINE,ILEN,IERR)
+         CALL mat_appnum(REAL(G_TOP),MLINE,ILEN,IERR)
       ENDIF
-      IF (SYM.EQ.LESS .AND. CHRA.EQ.EOL) CALL mat_err(28)
+      IF (G_SYM.EQ.LESS .AND. G_CHRA.EQ.G_EOL) CALL mat_err(28)
       IF (G_ERR .GT. 0) GOTO 01
-      PT = PT+1
-      RSTK(PT) = 20
+      G_PT = G_PT+1
+      G_RSTK(G_PT) = 20
 !     *CALL* EXPR
       GOTO 92
 !.......................................................................
    46 CONTINUE
-      PT = PT-1
-      IF (SYM.NE.LESS .AND. SYM.NE.EOL) CALL mat_err(37)
+      G_PT = G_PT-1
+      IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37)
       IF (G_ERR .GT. 0) GOTO 01
-      IF (SYM .EQ. LESS) CALL mat_getsym()
-      K = LPT(6)
-      LIN(K+1) = LPT(1)
-      LIN(K+2) = LPT(2)
-      LIN(K+3) = LPT(6)
-      LPT(1) = K + 4
+      IF (G_SYM .EQ. LESS) CALL mat_getsym()
+      K = G_LPT(6)
+      G_LIN(K+1) = G_LPT(1)
+      G_LIN(K+2) = G_LPT(2)
+      G_LIN(K+3) = G_LPT(6)
+      G_LPT(1) = K + 4
 !     TRANSFER STACK TO INPUT LINE
-      K = LPT(1)
-      L = LSTK(TOP)
-      N = MSTK(TOP)*NSTK(TOP)
+      K = G_LPT(1)
+      L = G_LSTK(G_TOP)
+      N = G_MSTK(G_TOP)*G_NSTK(G_TOP)
       DO J = 1, N
          LS = L + J-1
-         LIN(K) = IDINT(STKR(LS))
-         IF (LIN(K).LT.0 .OR. LIN(K).GE.IALF) CALL mat_err(37)
+         G_LIN(K) = IDINT(G_STKR(LS))
+         IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_IALF) CALL mat_err(37)
          IF (G_ERR .GT. 0) RETURN
          IF (K.LT.1024) K = K+1
          IF (K.EQ.1024) then
@@ -3037,68 +3032,68 @@ integer            :: n
           endif
       enddo
    47 FORMAT(1X,'INPUT BUFFER LIMIT IS ',I4,' CHARACTERS.')
-      TOP = TOP-1
-      LIN(K) = EOL
-      LPT(6) = K
-      LPT(4) = LPT(1)
-      LPT(3) = 0
-      LPT(2) = 0
-      LCT(1) = 0
-      CHRA = BLANK
-      PT = PT+1
-      PSTK(PT) = LPT(1)
-      RSTK(PT) = 21
+      G_TOP = G_TOP-1
+      G_LIN(K) = G_EOL
+      G_LPT(6) = K
+      G_LPT(4) = G_LPT(1)
+      G_LPT(3) = 0
+      G_LPT(2) = 0
+      G_LCT(1) = 0
+      G_CHRA = BLANK
+      G_PT = G_PT+1
+      G_PSTK(G_PT) = G_LPT(1)
+      G_RSTK(G_PT) = 21
 !     *CALL* PARSE
       GOTO 15
 !.......................................................................
    49 CONTINUE
-      PT = PT-1
-      IF (DDT .EQ. 1)then
-         WRITE(mline,'('' MACEND '',2I4)') PT,TOP
+      G_PT = G_PT-1
+      IF (G_DDT .EQ. 1)then
+         WRITE(mline,'('' MACEND '',2I4)') G_PT,G_TOP
          call journal(mline)
       endif
-      K = LPT(1) - 4
-      LPT(1) = LIN(K+1)
-      LPT(4) = LIN(K+2)
-      LPT(6) = LIN(K+3)
-      CHRA = BLANK
+      K = G_LPT(1) - 4
+      G_LPT(1) = G_LIN(K+1)
+      G_LPT(4) = G_LIN(K+2)
+      G_LPT(6) = G_LIN(K+3)
+      G_CHRA = BLANK
       CALL mat_getsym()
       GOTO 80
 !.......................................................................
 !     LHS FINISHED, START RHS
    50 CONTINUE
-      IF (SYM .EQ. EQUAL) CALL mat_getsym()
-      PT = PT+1
-      CALL mat_putid(IDS(1,PT),ID)
-      PSTK(PT) = EXCNT
-      RSTK(PT) = 2
+      IF (G_SYM .EQ. EQUAL) CALL mat_getsym()
+      G_PT = G_PT+1
+      CALL mat_putid(G_IDS(1,G_PT),ID)
+      G_PSTK(G_PT) = EXCNT
+      G_RSTK(G_PT) = 2
 !     *CALL* EXPR
       GOTO 92
    55 CONTINUE
-      IF (SYM.EQ.SEMI .OR. SYM.EQ.COMMA .OR. SYM.EQ.EOL) GOTO 60
-      IF (SYM.EQ.NAME .AND. mat_eqid(SYN,ELSE)) GOTO 60
-      IF (SYM.EQ.NAME .AND. mat_eqid(SYN,ENND)) GOTO 60
+      IF (G_SYM.EQ.SEMI .OR. G_SYM.EQ.COMMA .OR. G_SYM.EQ.G_EOL) GOTO 60
+      IF (G_SYM.EQ.NAME .AND. mat_eqid(G_SYN,ELSE)) GOTO 60
+      IF (G_SYM.EQ.NAME .AND. mat_eqid(G_SYN,ENND)) GOTO 60
       CALL mat_err(40)
       IF (G_ERR .GT. 0) GOTO 01
 !
 !     STORE RESULTS
    60 CONTINUE
-      RHS = PSTK(PT)
-      CALL mat_stackp(IDS(1,PT))
+      G_RHS = G_PSTK(G_PT)
+      CALL mat_stackp(G_IDS(1,G_PT))
       IF (G_ERR .GT. 0) GOTO 01
-      PT = PT-1
-      LHS = LHS-1
-      IF (LHS .GT. 0) GOTO 60
+      G_PT = G_PT-1
+      G_LHS = G_LHS-1
+      IF (G_LHS .GT. 0) GOTO 60
       GOTO 70
 !.......................................................................
 !
 !     UPDATE AND POSSIBLY PRINT OPERATION COUNTS
    70 CONTINUE
-      K = FLP(1)
-      IF (K .NE. 0) STKR(VSIZE-3) = dble(K)
-      STKR(VSIZE-2) = STKR(VSIZE-2) + dble(K)
-      FLP(1) = 0
-      IF (.NOT.(CHRA.EQ.COMMA .OR. (SYM.EQ.COMMA .AND. CHRA.EQ.EOL)))GOTO 80
+      K = G_FLOP_COUNTER(1)
+      IF (K .NE. 0) G_STKR(G_VSIZE-3) = dble(K)
+      G_STKR(G_VSIZE-2) = G_STKR(G_VSIZE-2) + dble(K)
+      G_FLOP_COUNTER(1) = 0
+      IF (.NOT.(G_CHRA.EQ.COMMA .OR. (G_SYM.EQ.COMMA .AND. G_CHRA.EQ.G_EOL)))GOTO 80
       CALL mat_getsym()
       I5 = 10**5
 
@@ -3117,18 +3112,18 @@ integer            :: n
 !
 !     FINISH STATEMENT
    80 CONTINUE
-      FIN = 0
+      G_FIN = 0
       P = 0
       R = 0
-      IF (PT .GT. 0) P = PSTK(PT)
-      IF (PT .GT. 0) R = RSTK(PT)
-      IF (DDT .EQ. 1)then
-         WRITE(mline,'('' FINISH'',5I4)') PT,PTZ,P,R,LPT(1)
+      IF (G_PT .GT. 0) P = G_PSTK(G_PT)
+      IF (G_PT .GT. 0) R = G_RSTK(G_PT)
+      IF (G_DDT .EQ. 1)then
+         WRITE(mline,'('' FINISH'',5I4)') G_PT,G_PTZ,P,R,G_LPT(1)
          call journal(mline)
       endif
-      IF (SYM.EQ.COMMA .OR. SYM.EQ.SEMI) GOTO 15
-      IF (R.EQ.21 .AND. P.EQ.LPT(1)) GOTO 49
-      IF (PT .GT. PTZ) GOTO 91
+      IF (G_SYM.EQ.COMMA .OR. G_SYM.EQ.SEMI) GOTO 15
+      IF (R.EQ.21 .AND. P.EQ.G_LPT(1)) GOTO 49
+      IF (G_PT .GT. G_PTZ) GOTO 91
       GOTO 10
 !.......................................................................
 !
@@ -3136,36 +3131,36 @@ integer            :: n
    91 CONTINUE
       CALL mat_clause()
       IF (G_ERR .GT. 0) GOTO 01
-      IF (PT .LE. PTZ) GOTO 15
-      R = RSTK(PT)
+      IF (G_PT .LE. G_PTZ) GOTO 15
+      R = G_RSTK(G_PT)
       IF (R .EQ. 21) GOTO 49
       GOTO (99,99,92,92,92,99,99,99,99,99,99,99,15,15,99,99,99,99,99),R
 !
    92 CONTINUE
       CALL mat_expr()
       IF (G_ERR .GT. 0) GOTO 01
-      R = RSTK(PT)
+      R = G_RSTK(G_PT)
       GOTO (35,55,91,91,91,93,93,99,99,94,94,99,99,99,99,99,99,94,94,46),R
 !
    93 CONTINUE
       CALL mat_term()
       IF (G_ERR .GT. 0) GOTO 01
-      R = RSTK(PT)
+      R = G_RSTK(G_PT)
       GOTO (99,99,99,99,99,92,92,94,94,99,99,99,99,99,95,99,99,99,99),R
 !
    94 CONTINUE
       CALL mat_factor()
       IF (G_ERR .GT. 0) GOTO 01
-      R = RSTK(PT)
+      R = G_RSTK(G_PT)
       GOTO (99,99,99,99,99,99,99,93,93,92,92,94,99,99,99,95,95,92,92),R
 !.......................................................................
 !
 !     CALL ML_MATFNS BY RETURNING TO MAT88
    95 CONTINUE
-      if(TOP.LT.1)then
-         !call journal('*mat_parse* stack emptied',top)
+      if(G_TOP.LT.1)then
+         !call journal('*mat_parse* stack emptied',G_top)
       else
-         IF (FIN.GT.0 .AND. MSTK(TOP).LT.0) CALL mat_err(14)
+         IF (G_FIN.GT.0 .AND. G_MSTK(G_TOP).LT.0) CALL mat_err(14)
       endif
       IF (G_ERR .GT. 0) GOTO 01
       RETURN
@@ -3229,64 +3224,64 @@ integer            :: l
      &  32,17,24,36, 28,17,36,36, 21,10,21,10, 28,17,14,21/
       DATA LRECL/LINELEN/
 !
-      IF (DDT .EQ. 1)call journal('COMAND')
-      FUN = 0
+      IF (G_DDT .EQ. 1)call journal('COMAND')
+      G_FUN = 0
       DO K = 1, CMDL
         IF (mat_eqid(ID,CMD(1,K))) GOTO 20
       enddo
-      FIN = 0
+      G_FIN = 0
       RETURN
 !
    20 CONTINUE
-      IF (CHRA.EQ.COMMA .OR. CHRA.EQ.SEMI .OR. CHRA.EQ.EOL) GOTO 22
-      IF ((CHRA.LE.Z.OR.(CHRA.GE.a_up.AND.CHRA.LE.z_up)) .OR. K.EQ.6)GOTO 22  ! if alphanumeric or K=6
+      IF (G_CHRA.EQ.COMMA .OR. G_CHRA.EQ.SEMI .OR. G_CHRA.EQ.G_EOL) GOTO 22
+      IF ((G_CHRA.LE.Z.OR.(G_CHRA.GE.a_up.AND.G_CHRA.LE.z_up)) .OR. K.EQ.6)GOTO 22  ! if alphanumeric or K=6
       CALL mat_err(16) ! improper command
       RETURN
 !
    22 CONTINUE
-      FIN = 1
+      G_FIN = 1
 !===================================================================================================================================
       COMAND : select case(k)
 !===================================================================================================================================
       case(1) ! COMMAND::CLEAR
-      IF ((CHRA.GE.A.AND.CHRA.LE.Z).or.(CHRA.GE.a_up.AND.CHRA.LE.z_up)) then ! alphameric character
+      IF ((G_CHRA.GE.A.AND.G_CHRA.LE.Z).or.(G_CHRA.GE.a_up.AND.G_CHRA.LE.z_up)) then ! alphameric character
          CALL mat_getsym()
-         TOP = TOP+1
-         MSTK(TOP) = 0
-         NSTK(TOP) = 0
-         RHS = 0
-         CALL mat_stackp(SYN)
+         G_TOP = G_TOP+1
+         G_MSTK(G_TOP) = 0
+         G_NSTK(G_TOP) = 0
+         G_RHS = 0
+         CALL mat_stackp(G_SYN)
          IF (G_ERR .GT. 0) RETURN
-         FIN = 1
+         G_FIN = 1
       else
-         BOT = LSIZE-3
+         G_BOT = G_LSIZE-3
       endif
 !===================================================================================================================================
 !     COMMAND::FOR, WHILE, IF, ELSE, END
    case(5)   !!   30 continue
-      FIN = -11
+      G_FIN = -11
       GOTO 99
    case(13)  !!   32 continue
-      FIN = -12
+      G_FIN = -12
       GOTO 99
    case(7)   !!   34 continue
-      FIN = -13
+      G_FIN = -13
       GOTO 99
    case(2)   !!   36 continue
-      FIN = -14
+      G_FIN = -14
       GOTO 99
    case(3)   !!   38 continue
-      FIN = -15
+      G_FIN = -15
       GOTO 99
 !===================================================================================================================================
    case(4) ! COMMAND::EXIT
-      IF (PT .GT. PTZ) FIN = -16
-      IF (PT .GT. PTZ) exit COMAND
-      K = IDINT(STKR(VSIZE-2))
+      IF (G_PT .GT. G_PTZ) G_FIN = -16
+      IF (G_PT .GT. G_PTZ) exit COMAND
+      K = IDINT(G_STKR(G_VSIZE-2))
       call journal('sc',' total flops ',k)
 
       ! for serendipity's sake
-      ii=mat_urand(RAN(1))*9
+      ii=mat_urand(G_RAN(1))*9
       select case(ii)
       case(1); call journal(' adios')
       case(2); call journal(' adieu')
@@ -3299,21 +3294,21 @@ integer            :: l
          call journal(' cheerio')
       end select
 
-      FUN = 99
+      G_FUN = 99
 !===================================================================================================================================
       case(9) ! COMMAND::QUIT
-      K = LPT(1) - 7
-      IF (K .LE. 0) FUN = 99
+      K = G_LPT(1) - 7
+      IF (K .LE. 0) G_FUN = 99
       IF (K .LE. 0) exit COMAND
-      CALL mat_files(-RIO,BUF)
-      LPT(1) = LIN(K+1)
-      LPT(4) = LIN(K+2)
-      LPT(6) = LIN(K+3)
-      PTZ = LIN(K+4)
-      RIO = LIN(K+5)
-      LCT(4) = LIN(K+6)
-      CHRA = BLANK
-      SYM = COMMA
+      CALL mat_files(-G_RIO,G_BUF)
+      G_LPT(1) = G_LIN(K+1)
+      G_LPT(4) = G_LIN(K+2)
+      G_LPT(6) = G_LIN(K+3)
+      G_PTZ = G_LIN(K+4)
+      G_RIO = G_LIN(K+5)
+      G_LCT(4) = G_LIN(K+6)
+      G_CHRA = BLANK
+      G_SYM = COMMA
       GOTO 99
 !===================================================================================================================================
       case(16) ! COMMAND::LALA
@@ -3324,23 +3319,23 @@ integer            :: l
 !===================================================================================================================================
       case(11,8) ! COMMAND::SHORT, LONG
       if(k.eq.11)then
-         FMT = 1
+         G_FMT = 1
       else
-         FMT = 2
+         G_FMT = 2
       endif
-      IF (CHRA.EQ.E .OR. CHRA.EQ.D .or. chra.eq.e_up .or. chr.eq.d_up ) FMT = FMT+2
-      IF (CHRA .EQ. Z) FMT = 5
-      IF (CHRA.EQ.E    .OR. CHRA.EQ.D    .OR. CHRA.EQ.Z   ) CALL mat_getsym()
-      IF (CHRA.EQ.E_up .OR. CHRA.EQ.D_up .OR. CHRA.EQ.Z_up) CALL mat_getsym()
+      IF (G_CHRA.EQ.E .OR. G_CHRA.EQ.D .or. G_chra.eq.e_up .or. chr.eq.d_up ) G_FMT = G_FMT+2
+      IF (G_CHRA .EQ. Z) G_FMT = 5
+      IF (G_CHRA.EQ.E    .OR. G_CHRA.EQ.D    .OR. G_CHRA.EQ.Z   ) CALL mat_getsym()
+      IF (G_CHRA.EQ.E_up .OR. G_CHRA.EQ.D_up .OR. G_CHRA.EQ.Z_up) CALL mat_getsym()
 !===================================================================================================================================
       case(10) !     COMMAND::SEMI
-      LCT(3) = 1 - LCT(3)
+      G_LCT(3) = 1 - G_LCT(3)
 !===================================================================================================================================
       case(14) !     COMMAND::WHO
       call journal(' Your current variables are...')
-      CALL mat_prntid(IDSTK(1,BOT),LSIZE-BOT+1)
-      L = VSIZE-LSTK(BOT)+1
-      WRITE(mline,161) L,VSIZE
+      CALL mat_prntid(G_IDSTK(1,G_BOT),G_LSIZE-G_BOT+1)
+      L = G_VSIZE-G_LSTK(G_BOT)+1
+      WRITE(mline,161) L,G_VSIZE
   161 FORMAT(1X,'using ',I7,' out of ',I7,' elements.')
       call journal(mline)
 !===================================================================================================================================
@@ -3352,10 +3347,10 @@ integer            :: l
 !===================================================================================================================================
       case(15) !     COMMAND::SH
                                    ! call system shell interactively or passing command
-      IF (CHRA .eq. EOL )then      ! if next character on stack is end-of-line call interactive shell
+      IF (G_CHRA .eq. G_EOL )then    ! if next character on stack is end-of-line call interactive shell
           call execute_command_line('/bin/sh',cmdstat=istat) ! call shell interactively
       else                         ! there were characters after SH on the line
-          call mat_buf2str(mline,buf(4),lrecl)                              ! pass ENTIRE line
+          call mat_buf2str(mline,G_buf(4),lrecl)                              ! pass ENTIRE line
           call execute_command_line(MLINE(:len_trim(mline)),cmdstat=istat)  ! call system shell
           CALL mat_getlin()                                                  ! start a new line because gave all of this one to shell
           if(istat.ne.0)then
@@ -3364,7 +3359,7 @@ integer            :: l
       endif
 !===================================================================================================================================
       case(6) ! COMMAND::HELP
-      IF (CHRA .EQ. EOL) THEN
+      IF (G_CHRA .EQ. G_EOL) THEN
          call journal('Type "help" followed by ...')
          call journal(' INTRO   (To get started)')
          call journal(' SAMPLE  (simple samples)')
@@ -3375,11 +3370,11 @@ integer            :: l
          J = BLANK+2
          call journal(' ans   EDIT  FILE  FUN   MACRO')
          !-------------------------------------------------
-         ! write ALFA(J) to ALFA(a_up-1) one string at a time
+         ! write G_ALFA(J) to G_ALFA(a_up-1) one string at a time
          INFINITE: do
             jj=j+16
             jj=min(jj,a_up-1)
-            WRITE(MLINE,'(1X,17(A1,1X))')(CHAR(ALFA(I)),I=J,a_up-1)
+            WRITE(MLINE,'(1X,17(A1,1X))')(CHAR(G_ALFA(I)),I=J,a_up-1)
             call journal(mline)
             IF(jj.ge.a_up-1)exit INFINITE
          enddo INFINITE
@@ -3388,25 +3383,25 @@ integer            :: l
       ENDIF
 !
       CALL mat_getsym()
-      IF (SYM .NE. NAME) THEN
-         IF (SYM .EQ. 0) SYM = DOT
-         H(1) = ALFA(SYM+1)
-         H(2) = ALFA(BLANK+1)
-         H(3) = ALFA(BLANK+1)
-         H(4) = ALFA(BLANK+1)
+      IF (G_SYM .NE. NAME) THEN
+         IF (G_SYM .EQ. 0) G_SYM = DOT
+         H(1) = G_ALFA(G_SYM+1)
+         H(2) = G_ALFA(BLANK+1)
+         H(3) = G_ALFA(BLANK+1)
+         H(4) = G_ALFA(BLANK+1)
       ELSE
          DO I = 1, 4
-           CH = SYN(I)
-           H(I) = ALFA(CH+1)
+           CH = G_SYN(I)
+           H(I) = G_ALFA(CH+1)
          enddo
       ENDIF
 
 84    CONTINUE
-      IF(HIO .NE. 0) THEN
-         READ(HIO,'(a)',END=89) mline   ! read line from help file
-         call mat_str2buf(mline,buf,lrecl)  ! convert string to ADE array
+      IF(G_HIO .NE. 0) THEN
+         READ(G_HIO,'(a)',END=89) mline   ! read line from help file
+         call mat_str2buf(mline,G_buf,lrecl)  ! convert string to ADE array
          DO I = 1, 4                 ! look for match of 4 chars of topic in first 4 chars
-            IF (H(I) .NE. BUF(I)) GOTO 84
+            IF (H(I) .NE. G_BUF(I)) GOTO 84
          enddo
          call journal(' ')
    86    CONTINUE
@@ -3417,16 +3412,16 @@ integer            :: l
          K = K - 1
          IF(K.LE.0) THEN  ! blank line
             K=1
-         ELSEIF (BUF(K) .EQ. ALFA(BLANK+1)) THEN
+         ELSEIF (G_BUF(K) .EQ. G_ALFA(BLANK+1)) THEN
             GOTO 87
          ENDIF
          !-------------------------------------------------
-         call mat_buf2str(mline,buf,k)
+         call mat_buf2str(mline,G_buf,k)
          call journal(mline(1:k))
-         READ(HIO,'(a)') mline
-         call mat_str2buf(mline,buf,lrecl)
-         IF (BUF(1) .EQ. ALFA(BLANK+1)) GOTO 86
-         CALL mat_files(-HIO,BUF)
+         READ(G_HIO,'(a)') mline
+         call mat_str2buf(mline,G_buf,lrecl)
+         IF (G_BUF(1) .EQ. G_ALFA(BLANK+1)) GOTO 86
+         CALL mat_files(-G_HIO,G_BUF)
          exit COMAND
       ENDIF
 !
@@ -3434,7 +3429,7 @@ integer            :: l
       call mat_buf2str(mline,h,4)
       mline=' SORRY, NO HELP ON '//mline(1:4)
       call journal(mline)
-      CALL mat_files(-HIO,BUF)
+      CALL mat_files(-G_HIO,G_BUF)
 !===================================================================================================================================
       end select COMAND
       CALL mat_getsym()
@@ -3512,8 +3507,8 @@ integer           :: l
    lets=0
    do i=1,k
       ch=p(i)
-      if ((ch.ge.0) .and. (ch.lt.alflq)) then
-         lets(i) = alfa(ch+1)
+      if ((ch.ge.0) .and. (ch.lt.G_ALFLQ)) then
+         lets(i) = G_ALFA(ch+1)
       endif
    enddo
    call mat_buf2str(string,lets,k)
@@ -3562,38 +3557,38 @@ integer           :: n
 integer           :: n2
 integer           :: nn
 !
-   IF (DDT .EQ. 1) call journal('sc','*MATFN1* ', FIN)
+   IF (G_DDT .EQ. 1) call journal('sc','*MATFN1* ', G_FIN)
 !
-   L = LSTK(TOP)
-   M = MSTK(TOP)
-   N = NSTK(TOP)
+   L = G_LSTK(G_TOP)
+   M = G_MSTK(G_TOP)
+   N = G_NSTK(G_TOP)
 !===================================================================================================================================
-   select case(FIN)
+   select case(G_FIN)
 !===================================================================================================================================
     case(-1) ! MATRIX RIGHT DIVISION, A/A2
-      l2 = lstk(top+1)
-      m2 = mstk(top+1)
-      n2 = nstk(top+1)
+      l2 = G_LSTK(G_top+1)
+      m2 = G_MSTK(G_top+1)
+      n2 = G_NSTK(G_top+1)
       if (m2 .ne. n2) call mat_err(20)
       if (G_err .gt. 0) return
       if (m*n .eq. 1) goto 16
       if (n .ne. n2) call mat_err(11)
       if (G_err .gt. 0) return
       l3 = l2 + m2*n2
-      G_err = l3+n2 - lstk(bot)
+      G_err = l3+n2 - G_LSTK(G_BOT)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wgeco(stkr(l2),stki(l2),m2,n2,buf,rcond,stkr(l3),stki(l3))
+      call ml_wgeco(G_stkr(l2),G_STKI(l2),m2,n2,G_buf,rcond,G_stkr(l3),G_STKI(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
-      if (t.eq.1.0d0 .and. fun.ne.21)then
+      if (t.eq.1.0d0 .and. G_fun.ne.21)then
          call journal('WARNING:')
          call journal('MATRIX IS CLOSE TO SINGULAR OR BADLY SCALED.')
          WRITE(mline,'(''RESULTS MAY BE INACCURATE. RCOND='',1PD13.4)') RCOND
          call journal(mline)
       endif
-      if (t.eq.1.0d0 .and. fun.eq.21)then
+      if (t.eq.1.0d0 .and. G_fun.eq.21)then
          call journal('WARNING')
          call journal('EIGENVECTORS ARE BADLY CONDITIONED.')
          WRITE(mline,'(''RESULTS MAY BE INACCURATE. RCOND='',1PD13.4)') RCOND
@@ -3603,51 +3598,51 @@ integer           :: nn
          do j = 1, n
             ls = l+i-1+(j-1)*m
             ll = l3+j-1
-            stkr(ll) = stkr(ls)
-            stki(ll) = -stki(ls)
+            G_stkr(ll) = G_stkr(ls)
+            G_STKI(ll) = -G_STKI(ls)
          enddo
-         call ml_wgesl(stkr(l2),stki(l2),m2,n2,buf,stkr(l3),stki(l3),1)
+         call ml_wgesl(G_stkr(l2),G_STKI(l2),m2,n2,G_buf,G_stkr(l3),G_STKI(l3),1)
          do j = 1, n
             ll = l+i-1+(j-1)*m
             ls = l3+j-1
-            stkr(ll) = stkr(ls)
-            stki(ll) = -stki(ls)
+            G_stkr(ll) = G_stkr(ls)
+            G_STKI(ll) = -G_STKI(ls)
          enddo
       enddo
-      if (fun .ne. 21) goto 99
+      if (G_fun .ne. 21) goto 99
 !
 !     CHECK FOR IMAGINARY ROUNDOFF IN MATRIX FUNCTIONS
-      sr(1) = mat_wasum(n*n,stkr(l),stkr(l),1)
-      si(1) = mat_wasum(n*n,stki(l),stki(l),1)
-      eps = stkr(vsize-4)
+      sr(1) = mat_wasum(n*n,G_stkr(l),G_stkr(l),1)
+      si(1) = mat_wasum(n*n,G_STKI(l),G_STKI(l),1)
+      eps = G_stkr(G_VSIZE-4)
       t = eps*sr(1)
-      if (ddt .eq. 18)then
-         WRITE(WTE,'('' SR,SI,EPS,T'',1P4D13.4)') SR(1),SI(1),EPS,T ! debug 18
+      if (G_ddt .eq. 18)then
+         WRITE(G_WTE,'('' SR,SI,EPS,T'',1P4D13.4)') SR(1),SI(1),EPS,T ! debug 18
       endif
-      if (si(1) .le. eps*sr(1)) call mat_rset(n*n,0.0d0,stki(l),1)
+      if (si(1) .le. eps*sr(1)) call mat_rset(n*n,0.0d0,G_STKI(l),1)
       goto 99
 !
 16    continue
-      sr(1) = stkr(l)
-      si(1) = stki(l)
+      sr(1) = G_stkr(l)
+      si(1) = G_STKI(l)
       n = n2
       m = n
-      mstk(top) = n
-      nstk(top) = n
-      call mat_wcopy(n*n,stkr(l2),stki(l2),1,stkr(l),stki(l),1)
+      G_MSTK(G_top) = n
+      G_NSTK(G_top) = n
+      call mat_wcopy(n*n,G_stkr(l2),G_STKI(l2),1,G_stkr(l),G_STKI(l),1)
 !===================================================================================================================================
     case(-2) ! MATRIX LEFT DIVISION A BACKSLASH A2
-      l2 = lstk(top+1)
-      m2 = mstk(top+1)
-      n2 = nstk(top+1)
+      l2 = G_LSTK(G_top+1)
+      m2 = G_MSTK(G_top+1)
+      n2 = G_NSTK(G_top+1)
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
       if (m2*n2 .eq. 1) goto 26
       l3 = l2 + m2*n2
-      G_err = l3+n - lstk(bot)
+      G_err = l3+n - G_LSTK(G_BOT)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wgeco(stkr(l),stki(l),m,n,buf,rcond,stkr(l3),stki(l3))
+      call ml_wgeco(G_stkr(l),G_STKI(l),m,n,G_buf,rcond,G_stkr(l3),G_STKI(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
@@ -3661,41 +3656,41 @@ integer           :: nn
       if (G_err .gt. 0) return
       do j = 1, n2
          lj = l2+(j-1)*m2
-         call ml_wgesl(stkr(l),stki(l),m,n,buf,stkr(lj),stki(lj),0)
+         call ml_wgesl(G_stkr(l),G_STKI(l),m,n,G_buf,G_stkr(lj),G_STKI(lj),0)
       enddo
-      nstk(top) = n2
-      call mat_wcopy(m2*n2,stkr(l2),stki(l2),1,stkr(l),stki(l),1)
+      G_NSTK(G_top) = n2
+      call mat_wcopy(m2*n2,G_stkr(l2),G_STKI(l2),1,G_stkr(l),G_STKI(l),1)
       goto 99
 26    continue
-      sr(1) = stkr(l2)
-      si(1) = stki(l2)
+      sr(1) = G_stkr(l2)
+      si(1) = G_STKI(l2)
 !===================================================================================================================================
    end select
 !===================================================================================================================================
-   select case(FIN)
+   select case(G_FIN)
 !===================================================================================================================================
     case(1) ! COMMAND::INV
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      if (ddt .eq. 17) goto 32
+      if (G_ddt .eq. 17) goto 32
       do j = 1, n
          do i = 1, n
             ls = l+i-1+(j-1)*n
-            t0 = stkr(ls)
+            t0 = G_stkr(ls)
             t1 = mat_flop(1.0d0/(dble(i+j-1)))
             if (t0 .ne. t1) goto 32
          enddo
       enddo
-      call mat_hilber(stkr(l),n,n)
-      call mat_rset(n*n,0.0d0,stki(l),1)
-      if (fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),stkr(l),stki(l),1)
+      call mat_hilber(G_stkr(l),n,n)
+      call mat_rset(n*n,0.0d0,G_STKI(l),1)
+      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_stkr(l),G_STKI(l),1)
       goto 99
 32    continue
       l3 = l + n*n
-      G_err = l3+n - lstk(bot)
+      G_err = l3+n - G_LSTK(G_BOT)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wgeco(stkr(l),stki(l),m,n,buf,rcond,stkr(l3),stki(l3))
+      call ml_wgeco(G_stkr(l),G_STKI(l),m,n,G_buf,rcond,G_stkr(l3),G_STKI(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
@@ -3705,15 +3700,15 @@ integer           :: nn
          write(mline,'(''results may be inaccurate. rcond='',1pd13.4)') rcond
          call journal(mline)
       endif
-      call ml_wgedi(stkr(l),stki(l),m,n,buf,dtr,dti,stkr(l3),stki(l3),1)
-      if (fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),stkr(l),stki(l),1)
+      call ml_wgedi(G_stkr(l),G_STKI(l),m,n,G_buf,dtr,dti,G_stkr(l3),G_STKI(l3),1)
+      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_stkr(l),G_STKI(l),1)
 !===================================================================================================================================
     case (2) ! COMMAND::DET
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call ml_wgefa(stkr(l),stki(l),m,n,buf,info)
+      call ml_wgefa(G_stkr(l),G_STKI(l),m,n,G_buf,info)
       !SUBROUTINE ML_WGEDI(ar,ai,LDA,N,ipvt,detr,deti,workr,worki,JOB)
-      call ml_wgedi(stkr(l),stki(l),m,n,buf,dtr,dti,sr(1),si(1),10)
+      call ml_wgedi(G_stkr(l),G_STKI(l),m,n,G_buf,dtr,dti,sr(1),si(1),10)
       k = idint(dtr(2))
       ka = iabs(k)+2
       t = 1.0d0
@@ -3721,10 +3716,10 @@ integer           :: nn
          t = t/10.0d0
          if (t .eq. 0.0d0) goto 42
       enddo
-      stkr(l) = dtr(1)*10.d0**k
-      stki(l) = dti(1)*10.d0**k
-      mstk(top) = 1
-      nstk(top) = 1
+      G_stkr(l) = dtr(1)*10.d0**k
+      G_STKI(l) = dti(1)*10.d0**k
+      G_MSTK(G_top) = 1
+      G_NSTK(G_top) = 1
       goto 99
 42    continue
       if (dti(1) .eq. 0.0d0)then
@@ -3736,47 +3731,47 @@ integer           :: nn
 44       format(' det =  ',f7.4,' + ',f7.4,' i ',7h * 10**,i4)
          call journal(mline)
       endif
-      stkr(l) = dtr(1)
-      stki(l) = dti(1)
-      stkr(l+1) = dtr(2)
-      stki(l+1) = 0.0d0
-      mstk(top) = 1
-      nstk(top) = 2
+      G_stkr(l) = dtr(1)
+      G_STKI(l) = dti(1)
+      G_stkr(l+1) = dtr(2)
+      G_STKI(l+1) = 0.0d0
+      G_MSTK(G_top) = 1
+      G_NSTK(G_top) = 2
 !===================================================================================================================================
     case(3) ! COMMAND::RCOND
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
       l3 = l + n*n
-      G_err = l3+n - lstk(bot)
+      G_err = l3+n - G_LSTK(G_BOT)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wgeco(stkr(l),stki(l),m,n,buf,rcond,stkr(l3),stki(l3))
-      stkr(l) = rcond
-      stki(l) = 0.0d0
-      mstk(top) = 1
-      nstk(top) = 1
-      if (lhs .ne. 1)then
+      call ml_wgeco(G_stkr(l),G_STKI(l),m,n,G_buf,rcond,G_stkr(l3),G_STKI(l3))
+      G_stkr(l) = rcond
+      G_STKI(l) = 0.0d0
+      G_MSTK(G_top) = 1
+      G_NSTK(G_top) = 1
+      if (G_lhs .ne. 1)then
          l = l + 1
-         call mat_wcopy(n,stkr(l3),stki(l3),1,stkr(l),stki(l),1)
-         top = top + 1
-         lstk(top) = l
-         mstk(top) = n
-         nstk(top) = 1
+         call mat_wcopy(n,G_stkr(l3),G_STKI(l3),1,G_stkr(l),G_STKI(l),1)
+         G_top = G_top + 1
+         G_LSTK(G_top) = l
+         G_MSTK(G_top) = n
+         G_NSTK(G_top) = 1
       endif
 !===================================================================================================================================
     case(4) ! COMMAND::LU
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call ml_wgefa(stkr(l),stki(l),m,n,buf,info)
-      if (lhs .ne. 2) goto 99
+      call ml_wgefa(G_stkr(l),G_STKI(l),m,n,G_buf,info)
+      if (G_lhs .ne. 2) goto 99
       nn = n*n
-      if (top+1 .ge. bot) call mat_err(18)
+      if (G_top+1 .ge. G_BOT) call mat_err(18)
       if (G_err .gt. 0) return
-      top = top+1
-      lstk(top) = l + nn
-      mstk(top) = n
-      nstk(top) = n
-      G_err = l+nn+nn - lstk(bot)
+      G_top = G_top+1
+      G_LSTK(G_top) = l + nn
+      G_MSTK(G_top) = n
+      G_NSTK(G_top) = n
+      G_err = l+nn+nn - G_LSTK(G_BOT)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
       do kb = 1, n
@@ -3784,53 +3779,53 @@ integer           :: nn
          do i = 1, n
             ll = l+i-1+(k-1)*n
             lu = ll + nn
-            if (i .le. k) stkr(lu) = stkr(ll)
-            if (i .le. k) stki(lu) = stki(ll)
-            if (i .gt. k) stkr(lu) = 0.0d0
-            if (i .gt. k) stki(lu) = 0.0d0
-            if (i .lt. k) stkr(ll) = 0.0d0
-            if (i .lt. k) stki(ll) = 0.0d0
-            if (i .eq. k) stkr(ll) = 1.0d0
-            if (i .eq. k) stki(ll) = 0.0d0
-            if (i .gt. k) stkr(ll) = -stkr(ll)
-            if (i .gt. k) stki(ll) = -stki(ll)
+            if (i .le. k) G_stkr(lu) = G_stkr(ll)
+            if (i .le. k) G_STKI(lu) = G_STKI(ll)
+            if (i .gt. k) G_stkr(lu) = 0.0d0
+            if (i .gt. k) G_STKI(lu) = 0.0d0
+            if (i .lt. k) G_stkr(ll) = 0.0d0
+            if (i .lt. k) G_STKI(ll) = 0.0d0
+            if (i .eq. k) G_stkr(ll) = 1.0d0
+            if (i .eq. k) G_STKI(ll) = 0.0d0
+            if (i .gt. k) G_stkr(ll) = -G_stkr(ll)
+            if (i .gt. k) G_STKI(ll) = -G_STKI(ll)
          enddo
-         i = buf(k)
+         i = G_buf(k)
          if (i .eq. k) cycle
          li = l+i-1+(k-1)*n
          lk = l+k-1+(k-1)*n
-         call mat_wswap(n-k+1,stkr(li),stki(li),n,stkr(lk),stki(lk),n)
+         call mat_wswap(n-k+1,G_stkr(li),G_STKI(li),n,G_stkr(lk),G_STKI(lk),n)
       enddo
 !===================================================================================================================================
     case(5) ! COMMAND::HILBERT
-      n = idint(stkr(l))
-      mstk(top) = n
-      nstk(top) = n
-      call mat_hilber(stkr(l),n,n)
-      call mat_rset(n*n,0.0d0,stki(l),1)
-      if (fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),stkr(l),stki(l),1)
+      n = idint(G_stkr(l))
+      G_MSTK(G_top) = n
+      G_NSTK(G_top) = n
+      call mat_hilber(G_stkr(l),n,n)
+      call mat_rset(n*n,0.0d0,G_STKI(l),1)
+      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_stkr(l),G_STKI(l),1)
 !===================================================================================================================================
     case(6) ! COMMAND::CHOLESKY
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call mat_wpofa(stkr(l),stki(l),m,n,G_err)
+      call mat_wpofa(G_stkr(l),G_STKI(l),m,n,G_err)
       if (G_err .ne. 0) call mat_err(29)
       if (G_err .gt. 0) return
       do j = 1, n
          ll = l+j+(j-1)*m
-         call mat_wset(m-j,0.0d0,0.0d0,stkr(ll),stki(ll),1)
+         call mat_wset(m-j,0.0d0,0.0d0,G_stkr(ll),G_STKI(ll),1)
       enddo
 !===================================================================================================================================
     case(7) ! COMMAND::RREF
-      if (rhs .ge. 2)then
-         top = top-1
-         l = lstk(top)
-         if (mstk(top) .ne. m) call mat_err(5)
+      if (G_rhs .ge. 2)then
+         G_top = G_top-1
+         l = G_LSTK(G_top)
+         if (G_MSTK(G_top) .ne. m) call mat_err(5)
          if (G_err .gt. 0) return
-         n = n + nstk(top)
+         n = n + G_NSTK(G_top)
       endif
-      call mat_rref(stkr(l),stki(l),m,m,n,stkr(vsize-4))
-      nstk(top) = n
+      call mat_rref(G_stkr(l),G_STKI(l),m,m,n,G_stkr(G_VSIZE-4))
+      G_NSTK(G_top) = n
 !===================================================================================================================================
    end select
 !
@@ -3864,46 +3859,46 @@ integer          :: nn
       DOUBLEPRECISION TR(1),TI(1),SR,SI,POWR,POWI
       LOGICAL HERM,SCHUR,VECT,HESS
 !
-      IF (DDT .EQ. 1) call journal('sc','*MATFN2* ', FIN)
+      IF (G_DDT .EQ. 1) call journal('sc','*MATFN2* ', G_FIN)
 !
-!     FUNCTIONS/FIN
+!     FUNCTIONS/G_FIN
 !     **   SIN  COS ATAN  EXP  SQRT LOG
 !      0    1    2    3    4    5    6
 !    EIG  SCHU HESS POLY ROOT
 !     11   12   13   14   15
 !    ABS  ROUN REAL IMAG CONJ
 !     21   22   23   24   25
-      IF (FIN .NE. 0) GOTO 05
-         L = LSTK(TOP+1)
-         POWR = STKR(L)
-         POWI = STKI(L)
+      IF (G_FIN .NE. 0) GOTO 05
+         L = G_LSTK(G_TOP+1)
+         POWR = G_STKR(L)
+         POWI = G_STKI(L)
    05 continue
-      L = LSTK(TOP)
-      M = MSTK(TOP)
-      N = NSTK(TOP)
-      IF (FIN .GE. 11 .AND. FIN .LE. 13) GOTO 10
-      IF (FIN .EQ. 14 .AND. (M.EQ.1 .OR. N.EQ.1)) GOTO 50
-      IF (FIN .EQ. 14) GOTO 10
-      IF (FIN .EQ. 15) GOTO 60
-      IF (FIN .GT. 20) GOTO 40
+      L = G_LSTK(G_TOP)
+      M = G_MSTK(G_TOP)
+      N = G_NSTK(G_TOP)
+      IF (G_FIN .GE. 11 .AND. G_FIN .LE. 13) GOTO 10
+      IF (G_FIN .EQ. 14 .AND. (M.EQ.1 .OR. N.EQ.1)) GOTO 50
+      IF (G_FIN .EQ. 14) GOTO 10
+      IF (G_FIN .EQ. 15) GOTO 60
+      IF (G_FIN .GT. 20) GOTO 40
       IF (M .EQ. 1 .OR. N .EQ. 1) GOTO 40
 !===================================================================================================================================
 !     EIGENVALUES AND VECTORS
    10 continue
       IF (M .NE. N) CALL mat_err(20)
       IF (G_ERR .GT. 0) RETURN
-      SCHUR = FIN .EQ. 12
-      HESS = FIN .EQ. 13
-      VECT = LHS.EQ.2 .OR. FIN.LT.10
+      SCHUR = G_FIN .EQ. 12
+      HESS = G_FIN .EQ. 13
+      VECT = G_LHS.EQ.2 .OR. G_FIN.LT.10
       NN = N*N
       L2 = L + NN
       LD = L2 + NN
       LE = LD + N
       LW = LE + N
-      G_ERR = LW+N - LSTK(BOT)
+      G_ERR = LW+N - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      CALL mat_wcopy(NN,STKR(L),STKI(L),1,STKR(L2),STKI(L2),1)
+      CALL mat_wcopy(NN,G_STKR(L),G_STKI(L),1,G_STKR(L2),G_STKI(L2),1)
 !
 !     CHECK IF HERMITIAN
       HERM=.FALSE.
@@ -3911,45 +3906,45 @@ integer          :: nn
          DO I = 1, J
             LS = L+I-1+(J-1)*N
             LL = L+(I-1)*N+J-1
-            HERM = STKR(LL).EQ.STKR(LS) .AND. STKI(LL).EQ.-STKI(LS)
+            HERM = G_STKR(LL).EQ.G_STKR(LS) .AND. G_STKI(LL).EQ.-G_STKI(LS)
             IF (.NOT. HERM) GOTO 30
          enddo
       enddo
 !
 !     HERMITIAN EIGENVALUE PROBLEM
-      CALL mat_wset(NN,0.0D0,0.0D0,STKR(L),STKI(L),1)
-      CALL mat_wset(N,1.0D0,0.0D0,STKR(L),STKI(L),N+1)
-      CALL mat_wset(N,0.0D0,0.0D0,STKI(LD),STKI(LE),1)
+      CALL mat_wset(NN,0.0D0,0.0D0,G_STKR(L),G_STKI(L),1)
+      CALL mat_wset(N,1.0D0,0.0D0,G_STKR(L),G_STKI(L),N+1)
+      CALL mat_wset(N,0.0D0,0.0D0,G_STKI(LD),G_STKI(LE),1)
       JOB = 0
       IF (VECT) JOB = 1
-      CALL ML_HTRIDI(N,N,STKR(L2),STKI(L2),STKR(LD),STKR(LE),STKR(LE),STKR(LW))
-      IF(.NOT.HESS)CALL ML_IMTQL2(N,N,STKR(LD),STKR(LE),STKR(L),G_ERR,JOB)
+      CALL ML_HTRIDI(N,N,G_STKR(L2),G_STKI(L2),G_STKR(LD),G_STKR(LE),G_STKR(LE),G_STKR(LW))
+      IF(.NOT.HESS)CALL ML_IMTQL2(N,N,G_STKR(LD),G_STKR(LE),G_STKR(L),G_ERR,JOB)
       IF (G_ERR .GT. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
-      IF (JOB .NE. 0) CALL ML_HTRIBK(N,N,STKR(L2),STKI(L2),STKR(LW),N,STKR(L),STKI(L))
+      IF (JOB .NE. 0) CALL ML_HTRIBK(N,N,G_STKR(L2),G_STKI(L2),G_STKR(LW),N,G_STKR(L),G_STKI(L))
       GOTO 31
 !
 !     NON-HERMITIAN EIGENVALUE PROBLEM
    30 continue
-      CALL ML_CORTH(N,N,1,N,STKR(L2),STKI(L2),STKR(LW),STKI(LW))
+      CALL ML_CORTH(N,N,1,N,G_STKR(L2),G_STKI(L2),G_STKR(LW),G_STKI(LW))
       IF (.NOT.VECT .AND. HESS) GOTO 31
       JOB = 0
       IF (VECT) JOB = 2
       IF (VECT .AND. SCHUR) JOB = 1
       IF (HESS) JOB = 3
-      CALL ML_COMQR3(N,N,1,N,STKR(LW),STKI(LW),STKR(L2),STKI(L2), STKR(LD),STKI(LD),STKR(L),STKI(L),G_ERR,JOB)
+      CALL ML_COMQR3(N,N,1,N,G_STKR(LW),G_STKI(LW),G_STKR(L2),G_STKI(L2), G_STKR(LD),G_STKI(LD),G_STKR(L),G_STKI(L),G_ERR,JOB)
       IF (G_ERR .GT. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
 !
 !     VECTORS
    31 continue
       IF (.NOT.VECT) GOTO 34
-      IF (TOP+1 .GE. BOT) CALL mat_err(18)
+      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
       IF (G_ERR .GT. 0) RETURN
-      TOP = TOP+1
-      LSTK(TOP) = L2
-      MSTK(TOP) = N
-      NSTK(TOP) = N
+      G_TOP = G_TOP+1
+      G_LSTK(G_TOP) = L2
+      G_MSTK(G_TOP) = N
+      G_NSTK(G_TOP) = N
 !
 !     DIAGONAL OF VALUES OR CANONICAL FORMS
    34 continue
@@ -3959,23 +3954,23 @@ integer          :: nn
          IF (SCHUR .AND. (.NOT.HERM)) LJ = LJ+J
          IF (HESS .AND. (.NOT.HERM)) LJ = LJ+J+1
          LL = L2+J*N-LJ
-         CALL mat_wset(LL,0.0D0,0.0D0,STKR(LJ),STKI(LJ),1)
+         CALL mat_wset(LL,0.0D0,0.0D0,G_STKR(LJ),G_STKI(LJ),1)
       enddo
-      IF (.NOT.HESS .OR. HERM) CALL mat_wcopy(N,STKR(LD),STKI(LD),1,STKR(L2),STKI(L2),N+1)
+      IF (.NOT.HESS .OR. HERM) CALL mat_wcopy(N,G_STKR(LD),G_STKI(LD),1,G_STKR(L2),G_STKI(L2),N+1)
       LL = L2+1
-      IF (HESS .AND. HERM)CALL mat_wcopy(N-1,STKR(LE+1),STKI(LE+1),1,STKR(LL),STKI(LL),N+1)
+      IF (HESS .AND. HERM)CALL mat_wcopy(N-1,G_STKR(LE+1),G_STKI(LE+1),1,G_STKR(LL),G_STKI(LL),N+1)
       LL = L2+N
-      IF (HESS .AND. HERM)CALL mat_wcopy(N-1,STKR(LE+1),STKI(LE+1),1,STKR(LL),STKI(LL),N+1)
-      IF (FIN .LT. 10) GOTO 42
+      IF (HESS .AND. HERM)CALL mat_wcopy(N-1,G_STKR(LE+1),G_STKI(LE+1),1,G_STKR(LL),G_STKI(LL),N+1)
+      IF (G_FIN .LT. 10) GOTO 42
       IF (VECT .OR. .NOT.(SCHUR.OR.HESS)) GOTO 99
-      CALL mat_wcopy(NN,STKR(L2),STKI(L2),1,STKR(L),STKI(L),1)
+      CALL mat_wcopy(NN,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
       GOTO 99
 !
 !     VECTOR OF EIGENVALUES
    37 continue
-      IF (FIN .EQ. 14) GOTO 52
-      CALL mat_wcopy(N,STKR(LD),STKI(LD),1,STKR(L),STKI(L),1)
-      NSTK(TOP) = 1
+      IF (G_FIN .EQ. 14) GOTO 52
+      CALL mat_wcopy(N,G_STKR(LD),G_STKI(LD),1,G_STKR(L),G_STKI(L),1)
+      G_NSTK(G_TOP) = 1
       GOTO 99
 !===================================================================================================================================
 !     ELEMENTARY FUNCTIONS
@@ -3990,48 +3985,48 @@ integer          :: nn
    44 continue
       DO J = 1, N
         LS = L2+(J-1)*INC
-        SR = STKR(LS)
-        SI = STKI(LS)
+        SR = G_STKR(LS)
+        SI = G_STKI(LS)
         TI = 0.0D0
-        IF (FIN .NE. 0) GOTO 45
+        IF (G_FIN .NE. 0) GOTO 45
           CALL mat_wlog(SR,SI,SR,SI)
           CALL mat_wmul(SR,SI,POWR,POWI,SR,SI)
           TR(1) = DEXP(SR)*DCOS(SI)
           TI(1) = DEXP(SR)*DSIN(SI)
-   45   IF (FIN .EQ. 1) TR(1) = DSIN(SR)*DCOSH(SI)
-        IF (FIN .EQ. 1) TI(1) = DCOS(SR)*DSINH(SI)
-        IF (FIN .EQ. 2) TR(1) = DCOS(SR)*DCOSH(SI)
-        IF (FIN .EQ. 2) TI(1) = (-DSIN(SR))*DSINH(SI)
-        IF (FIN .EQ. 3) CALL mat_watan(SR,SI,TR(1),TI(1))
-        IF (FIN .EQ. 4) TR(1) = DEXP(SR)*DCOS(SI)
-        IF (FIN .EQ. 4) TI(1) = DEXP(SR)*DSIN(SI)
-        IF (FIN .EQ. 5) CALL mat_wsqrt(SR,SI,TR(1),TI(1))
-        IF (FIN .EQ. 6) CALL mat_wlog(SR,SI,TR(1),TI(1))
-        IF (FIN .EQ. 21) TR(1) = mat_pythag(SR,SI)
-        IF (FIN .EQ. 22) TR(1) = mat_round(SR)
-        IF (FIN .EQ. 23) TR(1) = SR
-        IF (FIN .EQ. 24) TR(1) = SI
-        IF (FIN .EQ. 25) TR(1) = SR
-        IF (FIN .EQ. 25) TI(1) = -SI
+   45   IF (G_FIN .EQ. 1) TR(1) = DSIN(SR)*DCOSH(SI)
+        IF (G_FIN .EQ. 1) TI(1) = DCOS(SR)*DSINH(SI)
+        IF (G_FIN .EQ. 2) TR(1) = DCOS(SR)*DCOSH(SI)
+        IF (G_FIN .EQ. 2) TI(1) = (-DSIN(SR))*DSINH(SI)
+        IF (G_FIN .EQ. 3) CALL mat_watan(SR,SI,TR(1),TI(1))
+        IF (G_FIN .EQ. 4) TR(1) = DEXP(SR)*DCOS(SI)
+        IF (G_FIN .EQ. 4) TI(1) = DEXP(SR)*DSIN(SI)
+        IF (G_FIN .EQ. 5) CALL mat_wsqrt(SR,SI,TR(1),TI(1))
+        IF (G_FIN .EQ. 6) CALL mat_wlog(SR,SI,TR(1),TI(1))
+        IF (G_FIN .EQ. 21) TR(1) = mat_pythag(SR,SI)
+        IF (G_FIN .EQ. 22) TR(1) = mat_round(SR)
+        IF (G_FIN .EQ. 23) TR(1) = SR
+        IF (G_FIN .EQ. 24) TR(1) = SI
+        IF (G_FIN .EQ. 25) TR(1) = SR
+        IF (G_FIN .EQ. 25) TI(1) = -SI
         IF (G_ERR .GT. 0) RETURN
-        STKR(LS) = mat_flop(TR(1))
-        STKI(LS) = 0.0D0
-        IF (TI(1) .NE. 0.0D0) STKI(LS) = mat_flop(TI(1))
+        G_STKR(LS) = mat_flop(TR(1))
+        G_STKI(LS) = 0.0D0
+        IF (TI(1) .NE. 0.0D0) G_STKI(LS) = mat_flop(TI(1))
       enddo
       IF (INC .EQ. 1) GOTO 99
       DO J = 1, N
         LS = L2+(J-1)*INC
-        SR = STKR(LS)
-        SI = STKI(LS)
+        SR = G_STKR(LS)
+        SI = G_STKI(LS)
         LS = L+(J-1)*N
         LL = L2+(J-1)*N
-        CALL mat_wcopy(N,STKR(LS),STKI(LS),1,STKR(LL),STKI(LL),1)
-        CALL mat_wscal(N,SR,SI,STKR(LS),STKI(LS),1)
+        CALL mat_wcopy(N,G_STKR(LS),G_STKI(LS),1,G_STKR(LL),G_STKI(LL),1)
+        CALL mat_wscal(N,SR,SI,G_STKR(LS),G_STKI(LS),1)
       enddo
 !     SIGNAL MATFN1 TO DIVIDE BY EIGENVECTORS
-      FUN = 21
-      FIN = -1
-      TOP = TOP-1
+      G_FUN = 21
+      G_FIN = -1
+      G_TOP = G_TOP-1
       GOTO 99
 !===================================================================================================================================
 !     POLY
@@ -4039,52 +4034,52 @@ integer          :: nn
    50 continue
       N = MAX0(M,N)
       LD = L+N+1
-      CALL mat_wcopy(N,STKR(L),STKI(L),1,STKR(LD),STKI(LD),1)
+      CALL mat_wcopy(N,G_STKR(L),G_STKI(L),1,G_STKR(LD),G_STKI(LD),1)
 !
 !     FORM CHARACTERISTIC POLYNOMIAL
    52 continue
-      CALL mat_wset(N+1,0.0D0,0.0D0,STKR(L),STKI(L),1)
-      STKR(L) = 1.0D0
+      CALL mat_wset(N+1,0.0D0,0.0D0,G_STKR(L),G_STKI(L),1)
+      G_STKR(L) = 1.0D0
       DO J = 1, N
-         CALL matX_waxpy(J,-STKR(LD),-STKI(LD),STKR(L),STKI(L),-1, STKR(L+1),STKI(L+1),-1)
+         CALL matX_waxpy(J,-G_STKR(LD),-G_STKI(LD),G_STKR(L),G_STKI(L),-1, G_STKR(L+1),G_STKI(L+1),-1)
          LD = LD+1
       enddo
-      MSTK(TOP) = N+1
-      NSTK(TOP) = 1
+      G_MSTK(G_TOP) = N+1
+      G_NSTK(G_TOP) = 1
       GOTO 99
 !===================================================================================================================================
 !     ROOTS
    60 continue
       LL = L+M*N
-      STKR(LL) = -1.0D0
-      STKI(LL) = 0.0D0
+      G_STKR(LL) = -1.0D0
+      G_STKI(LL) = 0.0D0
       K = -1
    61 continue
       K = K+1
       L1 = L+K
-      IF (DABS(STKR(L1))+DABS(STKI(L1)) .EQ. 0.0D0) GOTO 61
+      IF (DABS(G_STKR(L1))+DABS(G_STKI(L1)) .EQ. 0.0D0) GOTO 61
       N = MAX0(M*N - K-1, 0)
       IF (N .LE. 0) GOTO 65
       L2 = L1+N+1
       LW = L2+N*N
-      G_ERR = LW+N - LSTK(BOT)
+      G_ERR = LW+N - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      CALL mat_wset(N*N+N,0.0D0,0.0D0,STKR(L2),STKI(L2),1)
+      CALL mat_wset(N*N+N,0.0D0,0.0D0,G_STKR(L2),G_STKI(L2),1)
       DO J = 1, N
          LL = L2+J+(J-1)*N
-         STKR(LL) = 1.0D0
+         G_STKR(LL) = 1.0D0
          LS = L1+J
          LL = L2+(J-1)*N
-         CALL mat_wdiv(-STKR(LS),-STKI(LS),STKR(L1),STKI(L1), STKR(LL),STKI(LL))
+         CALL mat_wdiv(-G_STKR(LS),-G_STKI(LS),G_STKR(L1),G_STKI(L1), G_STKR(LL),G_STKI(LL))
          IF (G_ERR .GT. 0) RETURN
       enddo
-      CALL ML_COMQR3(N,N,1,N,STKR(LW),STKI(LW),STKR(L2),STKI(L2),STKR(L),STKI(L),TR,TI,G_ERR,0)
+      CALL ML_COMQR3(N,N,1,N,G_STKR(LW),G_STKI(LW),G_STKR(L2),G_STKI(L2),G_STKR(L),G_STKI(L),TR,TI,G_ERR,0)
       IF (G_ERR .GT. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
    65 continue
-      MSTK(TOP) = N
-      NSTK(TOP) = 1
+      G_MSTK(G_TOP) = N
+      G_NSTK(G_TOP) = 1
       GOTO 99
 !===================================================================================================================================
    99 continue
@@ -4117,51 +4112,52 @@ integer         :: n
 logical         :: fro,inf
 doubleprecision :: p,s,t(1,1),tol,eps
 !
-   if (ddt .eq. 1) call journal('sc','*MATFN3* ', FIN)
+   if (G_ddt .eq. 1) call journal('sc','*MATFN3* ', G_FIN)
 !
-   if (fin.eq.1 .and. rhs.eq.2) top = top-1
-   l = lstk(top)
-   m = mstk(top)
-   n = nstk(top)
+   if (G_fin.eq.1 .and. G_rhs.eq.2) G_top = G_top-1
+   l = G_LSTK(G_top)
+   m = G_MSTK(G_top)
+   n = G_NSTK(G_top)
    mn = m*n
    !      SVD PINV COND NORM RANK
    !        1    2    3    4    5
-   FUN3: select case(fin)
+   FUN3: select case(G_fin)
 !===================================================================================================================================
     case(3) ! COMMAND::COND
       ld = l + m*n
       l1 = ld + min0(m+1,n)
       l2 = l1 + n
-      G_err = l2+min0(m,n) - lstk(bot)
+      G_err = l2+min0(m,n) - G_LSTK(G_BOT)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),t,t,1,t,t,1,stkr(l2),stki(l2),0,G_err)
+      call ml_wsvdc(G_stkr(l),G_STKI(l),m,m,n, &
+      & G_stkr(ld),G_STKI(ld),G_stkr(l1),G_STKI(l1),t,t,1,t,t,1,G_stkr(l2),G_STKI(l2),0,G_err)
       if (G_err .ne. 0) call mat_err(24)
       if (G_err .gt. 0) return
-      s = stkr(ld)
+      s = G_stkr(ld)
       ld = ld + min0(m,n) - 1
-      t(1,1) = stkr(ld)
+      t(1,1) = G_stkr(ld)
       if (t(1,1) .ne. 0.0d0) then
-         stkr(l) = mat_flop(s/t(1,1))
-         stki(l) = 0.0d0
-         mstk(top) = 1
-         nstk(top) = 1
+         G_stkr(l) = mat_flop(s/t(1,1))
+         G_STKI(l) = 0.0d0
+         G_MSTK(G_top) = 1
+         G_NSTK(G_top) = 1
       else
          call journal(' CONDITION IS INFINITE')
-         mstk(top) = 0
+         G_MSTK(G_top) = 0
       endif
 !===================================================================================================================================
     case(4) ! command::norm
       p = 2.0d0
       inf = .false.
-      if (rhs .eq. 2)then
-         fro = idint(stkr(l)).eq.15 .and. mn.gt.1
-         inf = idint(stkr(l)).eq.18 .and. mn.gt.1
-         if (.not. fro) p = stkr(l)
-         top = top-1
-         l = lstk(top)
-         m = mstk(top)
-         n = nstk(top)
+      if (G_rhs .eq. 2)then
+         fro = idint(G_stkr(l)).eq.15 .and. mn.gt.1
+         inf = idint(G_stkr(l)).eq.18 .and. mn.gt.1
+         if (.not. fro) p = G_stkr(l)
+         G_top = G_top-1
+         l = G_LSTK(G_top)
+         m = G_MSTK(G_top)
+         n = G_NSTK(G_top)
          mn = m*n
          if (fro) m = mn
          if (fro) n = 1
@@ -4169,22 +4165,22 @@ doubleprecision :: p,s,t(1,1),tol,eps
       if (m .gt. 1 .and. n .gt. 1) goto 40
       if (p .eq. 1.0d0) goto 36
       if (p .eq. 2.0d0) goto 38
-      i = mat_iwamax(mn,stkr(l),stki(l),1) + l - 1
-      s = dabs(stkr(i)) + dabs(stki(i))
+      i = mat_iwamax(mn,G_stkr(l),G_STKI(l),1) + l - 1
+      s = dabs(G_stkr(i)) + dabs(G_STKI(i))
       if (inf .or. s .eq. 0.0d0) goto 49
       t(1,1) = 0.0d0
       do i = 1, mn
          ls = l+i-1
-         t(1,1) = mat_flop(t(1,1) + (mat_pythag(stkr(ls),stki(ls))/s)**p)
+         t(1,1) = mat_flop(t(1,1) + (mat_pythag(G_stkr(ls),G_STKI(ls))/s)**p)
       enddo
       if (p .ne. 0.0d0) p = 1.0d0/p
       s = mat_flop(s*t(1,1)**p)
       GOTO 49
 36    continue
-      S = mat_wasum(MN,STKR(L),STKI(L),1)
+      S = mat_wasum(MN,G_STKR(L),G_STKI(L),1)
       GOTO 49
 38    continue
-      S = mat_wnrm2(MN,STKR(L),STKI(L),1)
+      S = mat_wnrm2(MN,G_STKR(L),G_STKI(L),1)
       GOTO 49
 40    continue !     MATRIX NORM
       IF (INF) GOTO 43
@@ -4194,19 +4190,20 @@ doubleprecision :: p,s,t(1,1),tol,eps
       LD = L + M*N
       L1 = LD + MIN0(M+1,N)
       L2 = L1 + N
-      G_ERR = L2+MIN0(M,N) - LSTK(BOT)
+      G_ERR = L2+MIN0(M,N) - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),t,t,1,t,t,1,stkr(l2),stki(l2),0,G_err)
+      call ml_wsvdc(G_stkr(l),G_STKI(l),m,m,n, &
+      & G_stkr(ld),G_STKI(ld),G_stkr(l1),G_STKI(l1),t,t,1,t,t,1,G_stkr(l2),G_STKI(l2),0,G_err)
       IF (G_ERR .NE. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
-      S = STKR(LD)
+      S = G_STKR(LD)
       GOTO 49
 43    continue
       S = 0.0D0
       DO I = 1, M
          LI = L+I-1
-         T(1,1) = mat_wasum(N,STKR(LI),STKI(LI),M)
+         T(1,1) = mat_wasum(N,G_STKR(LI),G_STKI(LI),M)
          S = DMAX1(S,T(1,1))
       enddo
       GOTO 49
@@ -4214,131 +4211,135 @@ doubleprecision :: p,s,t(1,1),tol,eps
       S = 0.0D0
       DO J = 1, N
          LJ = L+(J-1)*M
-         T(1,1) = mat_wasum(M,STKR(LJ),STKI(LJ),1)
+         T(1,1) = mat_wasum(M,G_STKR(LJ),G_STKI(LJ),1)
          S = DMAX1(S,T(1,1))
       enddo
       GOTO 49
 49    continue
-      STKR(L) = S
-      STKI(L) = 0.0D0
-      MSTK(TOP) = 1
-      NSTK(TOP) = 1
+      G_STKR(L) = S
+      G_STKI(L) = 0.0D0
+      G_MSTK(G_TOP) = 1
+      G_NSTK(G_TOP) = 1
 !===================================================================================================================================
     case(1) !     COMMAND::SVD
-      IF (LHS .EQ. 3)then
+      IF (G_LHS .EQ. 3)then
          K = M
-         IF (RHS .EQ. 2) K = MIN0(M,N)
+         IF (G_RHS .EQ. 2) K = MIN0(M,N)
          LU = L + M*N
          LD = LU + M*K
          LV = LD + K*N
          L1 = LV + N*N
          L2 = L1 + N
-         G_ERR = L2+MIN0(M,N) - LSTK(BOT)
+         G_ERR = L2+MIN0(M,N) - G_LSTK(G_BOT)
          IF (G_ERR .GT. 0) CALL mat_err(17)
          IF (G_ERR .GT. 0) RETURN
          JOB = 11
-         IF (RHS .EQ. 2) JOB = 21
-         call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),stkr(lu),stki(lu),m,stkr(lv),stki(lv), &
-         &        n,stkr(l2),stki(l2),job,G_err)
+         IF (G_RHS .EQ. 2) JOB = 21
+         call ml_wsvdc(G_stkr(l),G_STKI(l),m,m,n, &
+         & G_stkr(ld),G_STKI(ld),G_stkr(l1),G_STKI(l1),G_stkr(lu),G_STKI(lu),m,G_stkr(lv),G_STKI(lv), &
+         & n,G_stkr(l2),G_STKI(l2),job,G_err)
          DO JB = 1, N
             DO I = 1, K
                J = N+1-JB
                LL = LD+I-1+(J-1)*K
-               IF (I.NE.J) STKR(LL) = 0.0D0
-               STKI(LL) = 0.0D0
+               IF (I.NE.J) G_STKR(LL) = 0.0D0
+               G_STKI(LL) = 0.0D0
                LS = LD+I-1
-               IF (I.EQ.J) STKR(LL) = STKR(LS)
+               IF (I.EQ.J) G_STKR(LL) = G_STKR(LS)
                LS = L1+I-1
-               IF (G_ERR.NE.0 .AND. I.EQ.J-1) STKR(LL) = STKR(LS)
+               IF (G_ERR.NE.0 .AND. I.EQ.J-1) G_STKR(LL) = G_STKR(LS)
             enddo
          enddo
          IF (G_ERR .NE. 0) CALL mat_err(24)
          G_ERR = 0
-         CALL mat_wcopy(M*K+K*N+N*N,STKR(LU),STKI(LU),1,STKR(L),STKI(L),1)
-         MSTK(TOP) = M
-         NSTK(TOP) = K
-         IF (TOP+1 .GE. BOT) CALL mat_err(18)
+         CALL mat_wcopy(M*K+K*N+N*N,G_STKR(LU),G_STKI(LU),1,G_STKR(L),G_STKI(L),1)
+         G_MSTK(G_TOP) = M
+         G_NSTK(G_TOP) = K
+         IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
          IF (G_ERR .GT. 0) RETURN
-         TOP = TOP+1
-         LSTK(TOP) = L + M*K
-         MSTK(TOP) = K
-         NSTK(TOP) = N
-         IF (TOP+1 .GE. BOT) CALL mat_err(18)
+         G_TOP = G_TOP+1
+         G_LSTK(G_TOP) = L + M*K
+         G_MSTK(G_TOP) = K
+         G_NSTK(G_TOP) = N
+         IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
          IF (G_ERR .GT. 0) RETURN
-         TOP = TOP+1
-         LSTK(TOP) = L + M*K + K*N
-         MSTK(TOP) = N
-         NSTK(TOP) = N
+         G_TOP = G_TOP+1
+         G_LSTK(G_TOP) = L + M*K + K*N
+         G_MSTK(G_TOP) = N
+         G_NSTK(G_TOP) = N
       else
          LD = L + M*N
          L1 = LD + MIN0(M+1,N)
          L2 = L1 + N
-         G_ERR = L2+MIN0(M,N) - LSTK(BOT)
+         G_ERR = L2+MIN0(M,N) - G_LSTK(G_BOT)
          IF (G_ERR .GT. 0) CALL mat_err(17)
          IF (G_ERR .GT. 0) RETURN
-         call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),t,t,1,t,t,1,stkr(l2),stki(l2),0,G_err)
+         call ml_wsvdc(G_stkr(l),G_STKI(l),m,m,n, &
+         & G_stkr(ld),G_STKI(ld),G_stkr(l1),G_STKI(l1), &
+         & t,t,1,t,t,1,G_stkr(l2),G_STKI(l2),0,G_err)
          IF (G_ERR .NE. 0) CALL mat_err(24)
          IF (G_ERR .GT. 0) RETURN
          K = MIN0(M,N)
-         CALL mat_wcopy(K,STKR(LD),STKI(LD),1,STKR(L),STKI(L),1)
-         MSTK(TOP) = K
-         NSTK(TOP) = 1
+         CALL mat_wcopy(K,G_STKR(LD),G_STKI(LD),1,G_STKR(L),G_STKI(L),1)
+         G_MSTK(G_TOP) = K
+         G_NSTK(G_TOP) = 1
       endif
 !===================================================================================================================================
     case(2,5) ! COMMAND::PINV AND RANK
       TOL = -1.0D0
-      IF (RHS .EQ. 2) then
-         TOL = STKR(L)
-         TOP = TOP-1
-         L = LSTK(TOP)
-         M = MSTK(TOP)
-         N = NSTK(TOP)
+      IF (G_RHS .EQ. 2) then
+         TOL = G_STKR(L)
+         G_TOP = G_TOP-1
+         L = G_LSTK(G_TOP)
+         M = G_MSTK(G_TOP)
+         N = G_NSTK(G_TOP)
       endif
       LU = L + M*N
       LD = LU + M*M
-      IF (FIN .EQ. 5) LD = L + M*N
+      IF (G_FIN .EQ. 5) LD = L + M*N
       LV = LD + M*N
       L1 = LV + N*N
-      IF (FIN .EQ. 5) L1 = LD + N
+      IF (G_FIN .EQ. 5) L1 = LD + N
       L2 = L1 + N
-      G_ERR = L2+MIN0(M,N) - LSTK(BOT)
+      G_ERR = L2+MIN0(M,N) - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      IF (FIN .EQ. 2) JOB = 11
-      IF (FIN .EQ. 5) JOB = 0
-      CALL ML_WSVDC(STKR(L),STKI(L),M,M,N,STKR(LD),STKI(LD),STKR(L1),STKI(L1),STKR(LU),STKI(LU),M,STKR(LV),STKI(LV), &
-      &        N,STKR(L2),STKI(L2),JOB,G_ERR)
+      IF (G_FIN .EQ. 2) JOB = 11
+      IF (G_FIN .EQ. 5) JOB = 0
+      CALL ML_WSVDC(G_STKR(L),G_STKI(L),M,M,N, &
+      & G_STKR(LD),G_STKI(LD),G_STKR(L1),G_STKI(L1),G_STKR(LU),G_STKI(LU),M,G_STKR(LV),G_STKI(LV), &
+      &        N,G_STKR(L2),G_STKI(L2),JOB,G_ERR)
       IF (G_ERR .NE. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
-      EPS = STKR(VSIZE-4)
-      IF (TOL .LT. 0.0D0) TOL = mat_flop(dble(MAX0(M,N))*EPS*STKR(LD))
+      EPS = G_STKR(G_VSIZE-4)
+      IF (TOL .LT. 0.0D0) TOL = mat_flop(dble(MAX0(M,N))*EPS*G_STKR(LD))
       MN = MIN0(M,N)
       K = 0
       DO J = 1, MN
          LS = LD+J-1
-         S = STKR(LS)
+         S = G_STKR(LS)
          IF (S .LE. TOL) exit
          K = J
          LL = LV+(J-1)*N
-         IF (FIN .EQ. 2) CALL mat_wrscal(N,1.0D0/S,STKR(LL),STKI(LL),1)
+         IF (G_FIN .EQ. 2) CALL mat_wrscal(N,1.0D0/S,G_STKR(LL),G_STKI(LL),1)
       enddo
-      if (fin .ne. 5) then
+      if (G_fin .ne. 5) then
          do j = 1, m
             do i = 1, n
                ll = l+i-1+(j-1)*n
                l1 = lv+i-1
                l2 = lu+j-1
-               stkr(ll) = mat_wdotcr(k,stkr(l2),stki(l2),m,stkr(l1),stki(l1),n)
-               stki(ll) = mat_wdotci(k,stkr(l2),stki(l2),m,stkr(l1),stki(l1),n)
+               G_stkr(ll) = mat_wdotcr(k,G_stkr(l2),G_STKI(l2),m,G_stkr(l1),G_STKI(l1),n)
+               G_STKI(ll) = mat_wdotci(k,G_stkr(l2),G_STKI(l2),m,G_stkr(l1),G_STKI(l1),n)
             enddo
          enddo
-         mstk(top) = n
-         nstk(top) = m
+         G_MSTK(G_top) = n
+         G_NSTK(G_top) = m
       else
-         stkr(l) = dble(k)
-         stki(l) = 0.0d0
-         mstk(top) = 1
-         nstk(top) = 1
+         G_stkr(l) = dble(k)
+         G_STKI(l) = 0.0d0
+         G_MSTK(G_top) = 1
+         G_NSTK(G_top) = 1
       endif
 !===================================================================================================================================
    end select FUN3
@@ -4373,34 +4374,34 @@ character(len=81) ::  mline
 DOUBLEPRECISION   :: T(1),TOL,EPS
 INTEGER,parameter :: QUOTE= 49
 !
-      IF (DDT .EQ. 1) call journal('sc','*MATFN4* ', FIN)
+      IF (G_DDT .EQ. 1) call journal('sc','*MATFN4* ', G_FIN)
 !
-      L = LSTK(TOP)
-      M = MSTK(TOP)
-      N = NSTK(TOP)
-      IF (FIN .EQ. -1) GOTO 10
-      IF (FIN .EQ. -2) GOTO 20
+      L = G_LSTK(G_TOP)
+      M = G_MSTK(G_TOP)
+      N = G_NSTK(G_TOP)
+      IF (G_FIN .EQ. -1) GOTO 10
+      IF (G_FIN .EQ. -2) GOTO 20
       GOTO 40
 !
 !     RECTANGULAR MATRIX RIGHT DIVISION, A/A2
    10 continue
-      L2 = LSTK(TOP+1)
-      M2 = MSTK(TOP+1)
-      N2 = NSTK(TOP+1)
-      TOP = TOP + 1
+      L2 = G_LSTK(G_TOP+1)
+      M2 = G_MSTK(G_TOP+1)
+      N2 = G_NSTK(G_TOP+1)
+      G_TOP = G_TOP + 1
       IF (N.GT.1 .AND. N.NE.N2) CALL mat_err(11)
       IF (G_ERR .GT. 0) RETURN
       CALL mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) RETURN
       LL = L2+M2*N2
-      CALL mat_wcopy(M*N,STKR(L),STKI(L),1,STKR(LL),STKI(LL),1)
-      CALL mat_wcopy(M*N+M2*N2,STKR(L2),STKI(L2),1,STKR(L),STKI(L),1)
-      LSTK(TOP) = L+M2*N2
-      MSTK(TOP) = M
-      NSTK(TOP) = N
+      CALL mat_wcopy(M*N,G_STKR(L),G_STKI(L),1,G_STKR(LL),G_STKI(LL),1)
+      CALL mat_wcopy(M*N+M2*N2,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
+      G_LSTK(G_TOP) = L+M2*N2
+      G_MSTK(G_TOP) = M
+      G_NSTK(G_TOP) = N
       CALL mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) RETURN
-      TOP = TOP - 1
+      G_TOP = G_TOP - 1
       M = N2
       N = M2
       GOTO 20
@@ -4408,23 +4409,23 @@ INTEGER,parameter :: QUOTE= 49
 !     RECTANGULAR MATRIX LEFT DIVISION A BACKSLASH A2
 !
    20 continue
-      L2 = LSTK(TOP+1)
-      M2 = MSTK(TOP+1)
-      N2 = NSTK(TOP+1)
+      L2 = G_LSTK(G_TOP+1)
+      M2 = G_MSTK(G_TOP+1)
+      N2 = G_NSTK(G_TOP+1)
       IF (M2*N2 .GT. 1) GOTO 21
         M2 = M
         N2 = M
-        G_ERR = L2+M*M - LSTK(BOT)
+        G_ERR = L2+M*M - G_LSTK(G_BOT)
         IF (G_ERR .GT. 0) CALL mat_err(17)
         IF (G_ERR .GT. 0) RETURN
-        CALL mat_wset(M*M-1,0.0D0,0.0D0,STKR(L2+1),STKI(L2+1),1)
-        CALL mat_wcopy(M,STKR(L2),STKI(L2),0,STKR(L2),STKI(L2),M+1)
+        CALL mat_wset(M*M-1,0.0D0,0.0D0,G_STKR(L2+1),G_STKI(L2+1),1)
+        CALL mat_wcopy(M,G_STKR(L2),G_STKI(L2),0,G_STKR(L2),G_STKI(L2),M+1)
    21 continue
       IF (M2 .NE. M) CALL mat_err(12)
       IF (G_ERR .GT. 0) RETURN
       L3 = L2 + MAX0(M,N)*N2
       L4 = L3 + N
-      G_ERR = L4 + N - LSTK(BOT)
+      G_ERR = L4 + N - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
       IF (M .GT. N) GOTO 23
@@ -4432,21 +4433,21 @@ INTEGER,parameter :: QUOTE= 49
         J = N+1-JB
         LS = L2 + (J-1)*M
         LL = L2 + (J-1)*N
-        CALL mat_wcopy(M,STKR(LS),STKI(LS),-1,STKR(LL),STKI(LL),-1)
+        CALL mat_wcopy(M,G_STKR(LS),G_STKI(LS),-1,G_STKR(LL),G_STKI(LL),-1)
       enddo
    23 continue
       DO J = 1, N
-        BUF(J) = 0
+        G_BUF(J) = 0
       enddo
-      CALL ML_WQRDC(STKR(L),STKI(L),M,M,N,STKR(L4),STKI(L4),BUF,STKR(L3),STKI(L3),1)
+      CALL ML_WQRDC(G_STKR(L),G_STKI(L),M,M,N,G_STKR(L4),G_STKI(L4),G_BUF,G_STKR(L3),G_STKI(L3),1)
       K = 0
-      EPS = STKR(VSIZE-4)
-      T(1) = DABS(STKR(L))+DABS(STKI(L))
+      EPS = G_STKR(G_VSIZE-4)
+      T(1) = DABS(G_STKR(L))+DABS(G_STKI(L))
       TOL = mat_flop(dble(MAX0(M,N))*EPS*T(1))
       MN = MIN0(M,N)
       DO J = 1, MN
         LS = L+J-1+(J-1)*M
-        T(1) = DABS(STKR(LS)) + DABS(STKI(LS))
+        T(1) = DABS(G_STKR(LS)) + DABS(G_STKI(LS))
         IF (T(1) .GT. TOL) K = J
       enddo
       IF (K .LT. MN) then
@@ -4456,35 +4457,35 @@ INTEGER,parameter :: QUOTE= 49
       MN = MAX0(M,N)
       DO J = 1, N2
         LS = L2+(J-1)*MN
-        CALL ML_WQRSL(STKR(L),STKI(L),M,M,K,STKR(L4),STKI(L4),STKR(LS),STKI(LS),T,T,STKR(LS),STKI(LS),STKR(LS), &
-       & STKI(LS),T,T,T,T,100,INFO)
+        CALL ML_WQRSL(G_STKR(L),G_STKI(L),M,M,K,G_STKR(L4),G_STKI(L4),G_STKR(LS),G_STKI(LS),T,T,G_STKR(LS),G_STKI(LS),G_STKR(LS), &
+       & G_STKI(LS),T,T,T,T,100,INFO)
         LL = LS+K
-        CALL mat_wset(N-K,0.0D0,0.0D0,STKR(LL),STKI(LL),1)
+        CALL mat_wset(N-K,0.0D0,0.0D0,G_STKR(LL),G_STKI(LL),1)
       enddo
       DO J = 1, N
-        BUF(J) = -BUF(J)
+        G_BUF(J) = -G_BUF(J)
       enddo
       DO J = 1, N
-        IF (BUF(J) .GT. 0) cycle
-        K = -BUF(J)
-        BUF(J) = K
+        IF (G_BUF(J) .GT. 0) cycle
+        K = -G_BUF(J)
+        G_BUF(J) = K
    33   CONTINUE
           IF (K .EQ. J) cycle
           LS = L2+J-1
           LL = L2+K-1
-          CALL mat_wswap(N2,STKR(LS),STKI(LS),MN,STKR(LL),STKI(LL),MN)
-          BUF(K) = -BUF(K)
-          K = BUF(K)
+          CALL mat_wswap(N2,G_STKR(LS),G_STKI(LS),MN,G_STKR(LL),G_STKI(LL),MN)
+          G_BUF(K) = -G_BUF(K)
+          K = G_BUF(K)
           GOTO 33
       enddo
       DO J = 1, N2
         LS = L2+(J-1)*MN
         LL = L+(J-1)*N
-        CALL mat_wcopy(N,STKR(LS),STKI(LS),1,STKR(LL),STKI(LL),1)
+        CALL mat_wcopy(N,G_STKR(LS),G_STKI(LS),1,G_STKR(LL),G_STKI(LL),1)
       enddo
-      MSTK(TOP) = N
-      NSTK(TOP) = N2
-      IF (FIN .EQ. -1) CALL mat_stack1(QUOTE)
+      G_MSTK(G_TOP) = N
+      G_NSTK(G_TOP) = N2
+      IF (G_FIN .EQ. -1) CALL mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) RETURN
       GOTO 99
 !
@@ -4493,52 +4494,52 @@ INTEGER,parameter :: QUOTE= 49
    40 continue
       MM = MAX0(M,N)
       LS = L + MM*MM
-      IF (LHS.EQ.1 .AND. FIN.EQ.1) LS = L
+      IF (G_LHS.EQ.1 .AND. G_FIN.EQ.1) LS = L
       LE = LS + M*N
       L4 = LE + MM
-      G_ERR = L4+MM - LSTK(BOT)
+      G_ERR = L4+MM - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      IF (LS.NE.L) CALL mat_wcopy(M*N,STKR(L),STKI(L),1,STKR(LS),STKI(LS),1)
+      IF (LS.NE.L) CALL mat_wcopy(M*N,G_STKR(L),G_STKI(L),1,G_STKR(LS),G_STKI(LS),1)
       JOB = 1
-      IF (LHS.LT.3) JOB = 0
+      IF (G_LHS.LT.3) JOB = 0
       DO J = 1, N
-        BUF(J) = 0
+        G_BUF(J) = 0
       enddo
-      CALL ML_WQRDC(STKR(LS),STKI(LS),M,M,N,STKR(L4),STKI(L4),BUF,STKR(LE),STKI(LE),JOB)
-      IF (LHS.EQ.1 .AND. FIN.EQ.1) GOTO 99
-      CALL mat_wset(M*M,0.0D0,0.0D0,STKR(L),STKI(L),1)
-      CALL mat_wset(M,1.0D0,0.0D0,STKR(L),STKI(L),M+1)
+      CALL ML_WQRDC(G_STKR(LS),G_STKI(LS),M,M,N,G_STKR(L4),G_STKI(L4),G_BUF,G_STKR(LE),G_STKI(LE),JOB)
+      IF (G_LHS.EQ.1 .AND. G_FIN.EQ.1) GOTO 99
+      CALL mat_wset(M*M,0.0D0,0.0D0,G_STKR(L),G_STKI(L),1)
+      CALL mat_wset(M,1.0D0,0.0D0,G_STKR(L),G_STKI(L),M+1)
       DO J = 1, M
         LL = L+(J-1)*M
-        CALL ML_WQRSL(STKR(LS),STKI(LS),M,M,N,STKR(L4),STKI(L4),   &
-     &             STKR(LL),STKI(LL),STKR(LL),STKI(LL),T,T,        &
+        CALL ML_WQRSL(G_STKR(LS),G_STKI(LS),M,M,N,G_STKR(L4),G_STKI(L4),   &
+     &             G_STKR(LL),G_STKI(LL),G_STKR(LL),G_STKI(LL),T,T,        &
      &             T,T,T,T,T,T,10000,INFO)
       enddo
-      IF (FIN .EQ. 2) GOTO 99
-      NSTK(TOP) = M
+      IF (G_FIN .EQ. 2) GOTO 99
+      G_NSTK(G_TOP) = M
       DO J = 1, N
         LL = LS+J+(J-1)*M
-        CALL mat_wset(M-J,0.0D0,0.0D0,STKR(LL),STKI(LL),1)
+        CALL mat_wset(M-J,0.0D0,0.0D0,G_STKR(LL),G_STKI(LL),1)
       enddo
-      IF (TOP+1 .GE. BOT) CALL mat_err(18)
+      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
       IF (G_ERR .GT. 0) RETURN
-      TOP = TOP+1
-      LSTK(TOP) = LS
-      MSTK(TOP) = M
-      NSTK(TOP) = N
-      IF (LHS .EQ. 2) GOTO 99
-      CALL mat_wset(N*N,0.0D0,0.0D0,STKR(LE),STKI(LE),1)
+      G_TOP = G_TOP+1
+      G_LSTK(G_TOP) = LS
+      G_MSTK(G_TOP) = M
+      G_NSTK(G_TOP) = N
+      IF (G_LHS .EQ. 2) GOTO 99
+      CALL mat_wset(N*N,0.0D0,0.0D0,G_STKR(LE),G_STKI(LE),1)
       DO J = 1, N
-        LL = LE+BUF(J)-1+(J-1)*N
-        STKR(LL) = 1.0D0
+        LL = LE+G_BUF(J)-1+(J-1)*N
+        G_STKR(LL) = 1.0D0
       enddo
-      IF (TOP+1 .GE. BOT) CALL mat_err(18)
+      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
       IF (G_ERR .GT. 0) RETURN
-      TOP = TOP+1
-      LSTK(TOP) = LE
-      MSTK(TOP) = N
-      NSTK(TOP) = N
+      G_TOP = G_TOP+1
+      G_LSTK(G_TOP) = LE
+      G_MSTK(G_TOP) = N
+      G_NSTK(G_TOP) = N
       GOTO 99
 !
    99 continue
@@ -4587,274 +4588,273 @@ integer             :: m
 integer             :: mn
 integer             :: n
 !
-      IF (DDT .EQ. 1) call journal('sc','*MATFN5* ',FIN)
-!     FUNCTIONS/FIN
+      IF (G_DDT .EQ. 1) call journal('sc','*MATFN5* ',G_FIN)
+!     FUNCTIONS/G_FIN
 !     EXEC SAVE LOAD PRIN DIAR DISP BASE LINE CHAR PLOT RAT  DEBU DOC
 !      1    2    3    4    5    6    7    8    9   10   11   12   13
-      L = LSTK(TOP)
-      M = MSTK(TOP)
-      N = NSTK(TOP)
+      L = G_LSTK(G_TOP)
+      M = G_MSTK(G_TOP)
+      N = G_NSTK(G_TOP)
 
-      select case(fin)
+      select case(G_fin)
       case(:5,13)
          ! CONVERT FILE NAME
          MN = M*N
          FLAG = 3
-         IF (SYM .EQ. SEMI) FLAG = 0
-         IF (RHS .GE. 2) THEN
-            FLAG = IDINT(STKR(L))
-            TOP2 = TOP
-            TOP = TOP-1
-            L = LSTK(TOP)
-            MN = MSTK(TOP)*NSTK(TOP)
+         IF (G_SYM .EQ. SEMI) FLAG = 0
+         IF (G_RHS .GE. 2) THEN
+            FLAG = IDINT(G_STKR(L))
+            TOP2 = G_TOP
+            G_TOP = G_TOP-1
+            L = G_LSTK(G_TOP)
+            MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
          ENDIF
          LUN = -1
-         IF (MN.EQ.1 .AND. STKR(L).LT.10.0D0) LUN = IDINT(STKR(L))
+         IF (MN.EQ.1 .AND. G_STKR(L).LT.10.0D0) LUN = IDINT(G_STKR(L))
          IF (LUN .LT. 0) THEN
              DO J = 1, 32
                 LS = L+J-1
-                IF (J .LE. MN) CH = IDINT(STKR(LS))
+                IF (J .LE. MN) CH = IDINT(G_STKR(LS))
                 IF (J .GT. MN) CH = BLANK
-                IF (CH.LT.0 .OR. CH.GE.alflq) CALL mat_err(38)
+                IF (CH.LT.0 .OR. CH.GE.G_ALFLQ) CALL mat_err(38)
                 IF (G_ERR .GT. 0) RETURN
-                IF (CASE .EQ. 0) BUF(J) = ALFA(CH+1)
-                IF (CASE .EQ. 1) BUF(J) = ALFB(CH+1)
+                G_BUF(J) = G_ALFB(CH+1)
              enddo
          ENDIF
       case(6:12)
       case default
       end select
 !===================================================================================================================================
-      FUN5 : select case(fin)
+      FUN5 : select case(G_fin)
 !===================================================================================================================================
       case(1) !     COMMAND::EXEC
       IF (LUN .EQ. 0) THEN
 !     EXEC(0)
-         RIO = RTE
+         G_RIO = G_RTE
          G_ERR = 99
       else
-         K = LPT(6)
-         LIN(K+1) = LPT(1)
-         LIN(K+2) = LPT(3)
-         LIN(K+3) = LPT(6)
-         LIN(K+4) = PTZ
-         LIN(K+5) = RIO
-         LIN(K+6) = LCT(4)
-         LPT(1) = K + 7
-         LCT(4) = FLAG
-         PTZ = PT - 4
-         IF (RIO .EQ. RTE) RIO = 12
-         RIO = RIO + 1
-         IF (LUN .GT. 0) RIO = LUN
-         IF (LUN .LT. 0) CALL mat_files(RIO,BUF)
+         K = G_LPT(6)
+         G_LIN(K+1) = G_LPT(1)
+         G_LIN(K+2) = G_LPT(3)
+         G_LIN(K+3) = G_LPT(6)
+         G_LIN(K+4) = G_PTZ
+         G_LIN(K+5) = G_RIO
+         G_LIN(K+6) = G_LCT(4)
+         G_LPT(1) = K + 7
+         G_LCT(4) = FLAG
+         G_PTZ = G_PT - 4
+         IF (G_RIO .EQ. G_RTE) G_RIO = 12
+         G_RIO = G_RIO + 1
+         IF (LUN .GT. 0) G_RIO = LUN
+         IF (LUN .LT. 0) CALL mat_files(G_RIO,G_BUF)
          IF (FLAG .GE. 4)call journal(' PAUSE MODE. ENTER BLANK LINES.')
-         SYM = EOL
-         MSTK(TOP) = 0
+         G_SYM = G_EOL
+         G_MSTK(G_TOP) = 0
       endif
 !===================================================================================================================================
       case(4) ! COMMAND::PRINT
-      K = WTE
-      WTE = LUN
-      IF (LUN .LT. 0) WTE = 7
-      IF (LUN .LT. 0) CALL mat_files(WTE,BUF)
+      K = G_WTE
+      G_WTE = LUN
+      IF (LUN .LT. 0) G_WTE = 7
+      IF (LUN .LT. 0) CALL mat_files(G_WTE,G_BUF)
 
-      L = LCT(2)
-      LCT(2) = 9999
-      IF (RHS .GT. 1) CALL mat_print(SYN,TOP2)
-      LCT(2) = L
+      L = G_LCT(2)
+      G_LCT(2) = 9999
+      IF (G_RHS .GT. 1) CALL mat_print(G_SYN,TOP2)
+      G_LCT(2) = L
 
-      WTE = K
-      MSTK(TOP) = 0
+      G_WTE = K
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(5) ! COMMAND::DIARY
-      IF (LUN < 0) CALL mat_files(8,BUF)
-      MSTK(TOP) = 0
+      IF (LUN < 0) CALL mat_files(8,G_BUF)
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(2) ! COMMAND::SAVE
       IF (LUN .LT. 0) LUNIT = 1
-      IF (LUN .LT. 0) CALL mat_files(LUNIT,BUF)
+      IF (LUN .LT. 0) CALL mat_files(LUNIT,G_BUF)
       IF (LUN .GT. 0) LUNIT = LUN
-      K = LSIZE-4
-      IF (K .LT. BOT) K = LSIZE
-      IF (RHS .EQ. 2) K = TOP2
-      IF (RHS .EQ. 2) CALL mat_putid(IDSTK(1,K),SYN)
+      K = G_LSIZE-4
+      IF (K .LT. G_BOT) K = G_LSIZE
+      IF (G_RHS .EQ. 2) K = TOP2
+      IF (G_RHS .EQ. 2) CALL mat_putid(G_IDSTK(1,K),G_SYN)
    32 CONTINUE
-      L = LSTK(K)
-      M = MSTK(K)
-      N = NSTK(K)
+      L = G_LSTK(K)
+      M = G_MSTK(K)
+      N = G_NSTK(K)
       DO I = 1, 4
-         J = IDSTK(I,K)+1
-         BUF(I) = ALFA(J)
+         J = G_IDSTK(I,K)+1
+         G_BUF(I) = G_ALFA(J)
       enddo
       IMG = 0
-      IF (mat_wasum(M*N,STKI(L),STKI(L),1) .NE. 0.0D0) IMG = 1
-      IF(FE .EQ. 0)CALL mat_savlod(LUNIT,BUF,M,N,IMG,0,STKR(L),STKI(L))
+      IF (mat_wasum(M*N,G_STKI(L),G_STKI(L),1) .NE. 0.0D0) IMG = 1
+      IF(G_FE .EQ. 0)CALL mat_savlod(LUNIT,G_BUF,M,N,IMG,0,G_STKR(L),G_STKI(L))
       K = K-1
-      IF (K .GE. BOT) GOTO 32
-      CALL mat_files(-LUNIT,BUF)
-      MSTK(TOP) = 0
+      IF (K .GE. G_BOT) GOTO 32
+      CALL mat_files(-LUNIT,G_BUF)
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(3) ! COMMAND::LOAD
       IF (LUN .LT. 0) LUNIT = 2
-      IF (LUN .LT. 0) CALL mat_files(LUNIT,BUF) ! open the unit
+      IF (LUN .LT. 0) CALL mat_files(LUNIT,G_BUF) ! open the unit
       IF (LUN .GT. 0) LUNIT = LUN
    36 CONTINUE
-      JOB = LSTK(BOT) - L
-      IF(FE .EQ. 0)CALL mat_savlod(LUNIT,ID,MSTK(TOP),NSTK(TOP),IMG,JOB,STKR(L),STKI(L))
-      MN = MSTK(TOP)*NSTK(TOP)
+      JOB = G_LSTK(G_BOT) - L
+      IF(G_FE .EQ. 0)CALL mat_savlod(LUNIT,ID,G_MSTK(G_TOP),G_NSTK(G_TOP),IMG,JOB,G_STKR(L),G_STKI(L))
+      MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
       IF (MN .EQ. 0) GOTO 39
-      IF (IMG .EQ. 0) CALL mat_rset(MN,0.0D0,STKI(L),1)
+      IF (IMG .EQ. 0) CALL mat_rset(MN,0.0D0,G_STKI(L),1)
       DO I = 1, 4
          J = 0
    37    CONTINUE
          J = J+1
-         IF (ID(I).NE.ALFA(J) .AND. J.LE.BLANK) GOTO 37
+         IF (ID(I).NE.G_ALFA(J) .AND. J.LE.BLANK) GOTO 37
          ID(I) = J-1
       enddo
-      SYM = SEMI
-      RHS = 0
+      G_SYM = SEMI
+      G_RHS = 0
       CALL mat_stackp(ID)
-      TOP = TOP + 1
+      G_TOP = G_TOP + 1
       GOTO 36
 
    39 CONTINUE
-      CALL mat_files(-LUNIT,BUF) ! close unit
-      MSTK(TOP) = 0
+      CALL mat_files(-LUNIT,G_BUF) ! close unit
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(11) !     COMMAND::RAT
-      if (rhs .ne. 2) then
+      if (G_rhs .ne. 2) then
          mn = m*n
          l2 = l
-         if (lhs .eq. 2) l2 = l + mn
+         if (G_lhs .eq. 2) l2 = l + mn
          lw = l2 + mn
-         G_err = lw + lrat - lstk(bot)
+         G_err = lw + lrat - G_LSTK(G_BOT)
          if (G_err .gt. 0) call mat_err(17)
          if (G_err .gt. 0) return
-         if (lhs .eq. 2) top = top + 1
-         lstk(top) = l2
-         mstk(top) = m
-         nstk(top) = n
-         call mat_rset(lhs*mn,0.0d0,stki(l),1)
+         if (G_lhs .eq. 2) G_top = G_top + 1
+         G_LSTK(G_top) = l2
+         G_MSTK(G_top) = m
+         G_NSTK(G_top) = n
+         call mat_rset(G_lhs*mn,0.0d0,G_STKI(l),1)
          do i = 1, mn
-            call mat_rat(stkr(l),lrat,mrat,s,t,stkr(lw))
-            stkr(l) = s
-            stkr(l2) = t
-            if (lhs .eq. 1) stkr(l) = mat_flop(s/t)
+            call mat_rat(G_stkr(l),lrat,mrat,s,t,G_stkr(lw))
+            G_stkr(l) = s
+            G_stkr(l2) = t
+            if (G_lhs .eq. 1) G_stkr(l) = mat_flop(s/t)
             l = l + 1
             l2 = l2 + 1
          enddo
       else
-         mrat = idint(stkr(l))
-         lrat = idint(stkr(l-1))
-         top = top - 1
-         mstk(top) = 0
+         mrat = idint(G_stkr(l))
+         lrat = idint(G_stkr(l-1))
+         G_top = G_top - 1
+         G_MSTK(G_top) = 0
       endif
 !===================================================================================================================================
       case(9) !     COMMAND::CHAR
-      K = IABS(IDINT(STKR(L)))
-      IF (M*N.NE.1 .OR. K.GE.alflq) CALL mat_err(36)
+      K = IABS(IDINT(G_STKR(L)))
+      IF (M*N.NE.1 .OR. K.GE.G_ALFLQ) CALL mat_err(36)
       IF (G_ERR .GT. 0) exit FUN5
-      CH = ALFA(K+1)
-      IF (STKR(L) .LT. 0.0D0) CH = ALFB(K+1)
+      CH = G_ALFA(K+1)
+      IF (G_STKR(L) .LT. 0.0D0) CH = G_ALFB(K+1)
       WRITE(mline,'('' REPLACE CHARACTER '',A1)') CHAR(CH)
       call journal(mline)
-      READ(RTE,'(A1)') CH_CHAR
+      READ(G_RTE,'(A1)') CH_CHAR
       call mat_str2buf(ch_char,ch1,1); ch=ch1(1)
-      IF (STKR(L) .GE. 0.0D0) ALFA(K+1) = CH
-      IF (STKR(L) .LT. 0.0D0) ALFB(K+1) = CH
-      MSTK(TOP) = 0
+      IF (G_STKR(L) .GE. 0.0D0) G_ALFA(K+1) = CH
+      IF (G_STKR(L) .LT. 0.0D0) G_ALFB(K+1) = CH
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(6,7) !     COMMAND::DISP
 60    continue
       call journal(' ')
-      if (FIN.eq.7)goto 65
-      IF (RHS .EQ. 2) GOTO 65
+      if (G_FIN.eq.7)goto 65
+      IF (G_RHS .EQ. 2) GOTO 65
       MN = M*N
       TEXT = .TRUE.
       DO I = 1, MN
         LS = L+I-1
-        CH = IDINT(STKR(LS))
-        TEXT = TEXT .AND. (CH.GE.0) .AND. (CH.LT.alflq)
-        TEXT = TEXT .AND. (dble(CH).EQ.STKR(LS))
+        CH = IDINT(G_STKR(LS))
+        TEXT = TEXT .AND. (CH.GE.0) .AND. (CH.LT.G_ALFLQ)
+        TEXT = TEXT .AND. (dble(CH).EQ.G_STKR(LS))
       enddo
 
       DO I = 1, M
          DO J = 1, N
            LS = L+I-1+(J-1)*M
-           IF (STKR(LS) .EQ. 0.0D0) CH = BLANK
-           IF (STKR(LS) .GT. 0.0D0) CH = PLUS
-           IF (STKR(LS) .LT. 0.0D0) CH = MINUS
-           IF (TEXT) CH = IDINT(STKR(LS))
-           BUF(J) = ALFA(CH+1)
+           IF (G_STKR(LS) .EQ. 0.0D0) CH = BLANK
+           IF (G_STKR(LS) .GT. 0.0D0) CH = PLUS
+           IF (G_STKR(LS) .LT. 0.0D0) CH = MINUS
+           IF (TEXT) CH = IDINT(G_STKR(LS))
+           G_BUF(J) = G_ALFA(CH+1)
          enddo
-         call mat_buf2str(mline,buf,n)
+         call mat_buf2str(mline,G_buf,n)
          call journal(mline)
       enddo
-      MSTK(TOP) = 0
+      G_MSTK(G_TOP) = 0
       exit FUN5
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 !     COMMAND::BASE
    65 CONTINUE
-      IF (RHS .NE. 2) CALL mat_err(39)
-      IF (STKR(L) .LE. 1.0D0) CALL mat_err(36)
+      IF (G_RHS .NE. 2) CALL mat_err(39)
+      IF (G_STKR(L) .LE. 1.0D0) CALL mat_err(36)
       IF (G_ERR .GT. 0) exit FUN5
-      B = STKR(L)
+      B = G_STKR(L)
       L2 = L
-      TOP = TOP-1
-      RHS = 1
-      L = LSTK(TOP)
-      M = MSTK(TOP)*NSTK(TOP)
-      EPS = STKR(VSIZE-4)
+      G_TOP = G_TOP-1
+      G_RHS = 1
+      L = G_LSTK(G_TOP)
+      M = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+      EPS = G_STKR(G_VSIZE-4)
       DO I = 1, M
          LS = L2+(I-1)*N
          LL = L+I-1
-         CALL mat_base(STKR(LL),B,EPS,STKR(LS),N)
+         CALL mat_base(G_STKR(LL),B,EPS,G_STKR(LS),N)
       enddo
-      CALL mat_rset(M*N,0.0D0,STKI(L2),1)
-      CALL mat_wcopy(M*N,STKR(L2),STKI(L2),1,STKR(L),STKI(L),1)
-      MSTK(TOP) = N
-      NSTK(TOP) = M
+      CALL mat_rset(M*N,0.0D0,G_STKI(L2),1)
+      CALL mat_wcopy(M*N,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
+      G_MSTK(G_TOP) = N
+      G_NSTK(G_TOP) = M
       CALL mat_stack1(QUOTE)
-      IF (FIN .EQ. 6) GOTO 60
+      IF (G_FIN .EQ. 6) GOTO 60
 !===================================================================================================================================
       case(8)
 !     COMMAND::LINES
-      LCT(2) = IDINT(STKR(L))
-      MSTK(TOP) = 0
+      G_LCT(2) = IDINT(G_STKR(L))
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(10) !     COMMAND::PLOT
-      IF (RHS .GE. 2) GOTO 82
+      IF (G_RHS .GE. 2) GOTO 82
       N = M*N
       DO I = 1, N
          LL = L+I-1
-         STKI(LL) = dble(I)
+         G_STKI(LL) = dble(I)
       enddo
-      CALL mat_plot(WTE,STKI(L),STKR(L),N,TDUM,0)
-      MSTK(TOP) = 0
+      CALL mat_plot(G_WTE,G_STKI(L),G_STKR(L),N,TDUM,0)
+      G_MSTK(G_TOP) = 0
       exit FUN5
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
    82 continue
-      IF (RHS .EQ. 2) K = 0
-      IF (RHS .EQ. 3) K = M*N
-      IF (RHS .GT. 3) K = RHS - 2
-      TOP = TOP - (RHS - 1)
-      N = MSTK(TOP)*NSTK(TOP)
-      IF (MSTK(TOP+1)*NSTK(TOP+1) .NE. N) CALL mat_err(5)
+      IF (G_RHS .EQ. 2) K = 0
+      IF (G_RHS .EQ. 3) K = M*N
+      IF (G_RHS .GT. 3) K = G_RHS - 2
+      G_TOP = G_TOP - (G_RHS - 1)
+      N = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+      IF (G_MSTK(G_TOP+1)*G_NSTK(G_TOP+1) .NE. N) CALL mat_err(5)
       IF (G_ERR .GT. 0) exit FUN5
-      LX = LSTK(TOP)
-      LY = LSTK(TOP+1)
-      IF (RHS .GT. 3) L = LSTK(TOP+2)
-      CALL mat_plot(WTE,STKR(LX),STKR(LY),N,STKR(L),K)
-      MSTK(TOP) = 0
+      LX = G_LSTK(G_TOP)
+      LY = G_LSTK(G_TOP+1)
+      IF (G_RHS .GT. 3) L = G_LSTK(G_TOP+2)
+      CALL mat_plot(G_WTE,G_STKR(LX),G_STKR(LY),N,G_STKR(L),K)
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(12) !     COMMAND::DEBUG
-      DDT = IDINT(STKR(L))
-      call journal('sc',' DEBUG ',DDT)
-      MSTK(TOP) = 0
+      G_DDT = IDINT(G_STKR(L))
+      call journal('sc',' DEBUG ',G_DDT)
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(13) !     COMMAND::DOC
-      call mat_buf2str(name,buf,256)
+      call mat_buf2str(name,G_buf,256)
          open(newunit=temp_lun,file=name,status='new',iostat=ios,iomsg=errmsg) ! open help file
          if(ios.eq.0)then
             call mat_make_manual(temp_lun)
@@ -4864,7 +4864,7 @@ integer             :: n
          else
             call journal(trim(errmsg))
          endif
-      MSTK(TOP) = 0
+      G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       end select FUN5
 !===================================================================================================================================
@@ -4893,112 +4893,112 @@ integer       :: mk
 integer       :: mn
 integer       :: mnk
 integer       :: n
-      IF (DDT .EQ. 1)then
+      IF (G_DDT .EQ. 1)then
          call journal('sc','STACKG(1)=',ID(1))
          call journal('sc','STACKG(2)=',ID(2))
          call journal('sc','STACKG(3)=',ID(3))
          call journal('sc','STACKG(4)=',ID(4))
       endif
-      CALL mat_putid(IDSTK(1,BOT-1), ID)
-      K = LSIZE+1
+      CALL mat_putid(G_IDSTK(1,G_BOT-1), ID)
+      K = G_LSIZE+1
 !===================================================================================================================================
    10 continue
       K = K-1
-      IF (.NOT.mat_eqid(IDSTK(1,K), ID)) GOTO 10
-      IF (K .GE. LSIZE-1 .AND. RHS .GT. 0) GOTO 98
-      IF (K .EQ. BOT-1) GOTO 98
-      LK = LSTK(K)
-      IF (RHS .EQ. 1) GOTO 40
-      IF (RHS .EQ. 2) GOTO 60
-      IF (RHS .GT. 2) CALL mat_err(21)
+      IF (.NOT.mat_eqid(G_IDSTK(1,K), ID)) GOTO 10
+      IF (K .GE. G_LSIZE-1 .AND. G_RHS .GT. 0) GOTO 98
+      IF (K .EQ. G_BOT-1) GOTO 98
+      LK = G_LSTK(K)
+      IF (G_RHS .EQ. 1) GOTO 40
+      IF (G_RHS .EQ. 2) GOTO 60
+      IF (G_RHS .GT. 2) CALL mat_err(21)
       IF (G_ERR .GT. 0) RETURN
       L = 1
-      IF (TOP .GT. 0) L = LSTK(TOP) + MSTK(TOP)*NSTK(TOP)
-      IF (TOP+1 .GE. BOT) CALL mat_err(18)
+      IF (G_TOP .GT. 0) L = G_LSTK(G_TOP) + G_MSTK(G_TOP)*G_NSTK(G_TOP)
+      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
       IF (G_ERR .GT. 0) RETURN
-      TOP = TOP+1
+      G_TOP = G_TOP+1
 !
 !     LOAD VARIABLE TO TOP OF STACK
-      LSTK(TOP) = L
-      MSTK(TOP) = MSTK(K)
-      NSTK(TOP) = NSTK(K)
-      MN = MSTK(K)*NSTK(K)
-      G_ERR = L+MN - LSTK(BOT)
+      G_LSTK(G_TOP) = L
+      G_MSTK(G_TOP) = G_MSTK(K)
+      G_NSTK(G_TOP) = G_NSTK(K)
+      MN = G_MSTK(K)*G_NSTK(K)
+      G_ERR = L+MN - G_LSTK(G_BOT)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
 !     IF RAND, MATFN6 GENERATES RANDOM NUMBER
-      IF (K .EQ. LSIZE) GOTO 97
-      CALL mat_wcopy(MN,STKR(LK),STKI(LK),1,STKR(L),STKI(L),1)
+      IF (K .EQ. G_LSIZE) GOTO 97
+      CALL mat_wcopy(MN,G_STKR(LK),G_STKI(LK),1,G_STKR(L),G_STKI(L),1)
       GOTO 99
 !===================================================================================================================================
 !     VECT(ARG)
    40 continue
-      IF (MSTK(TOP) .EQ. 0) GOTO 99
-      L = LSTK(TOP)
-      MN = MSTK(TOP)*NSTK(TOP)
-      MNK = MSTK(K)*NSTK(K)
-      IF (MSTK(TOP) .LT. 0) MN = MNK
+      IF (G_MSTK(G_TOP) .EQ. 0) GOTO 99
+      L = G_LSTK(G_TOP)
+      MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+      MNK = G_MSTK(K)*G_NSTK(K)
+      IF (G_MSTK(G_TOP) .LT. 0) MN = MNK
       DO I = 1, MN
         LL = L+I-1
         LS = LK+I-1
-        IF (MSTK(TOP) .GT. 0) LS = LK + IDINT(STKR(LL)) - 1
+        IF (G_MSTK(G_TOP) .GT. 0) LS = LK + IDINT(G_STKR(LL)) - 1
         IF (LS .LT. LK .OR. LS .GE. LK+MNK) CALL mat_err(21)
         IF (G_ERR .GT. 0) RETURN
-        STKR(LL) = STKR(LS)
-        STKI(LL) = STKI(LS)
+        G_STKR(LL) = G_STKR(LS)
+        G_STKI(LL) = G_STKI(LS)
       enddo
-      MSTK(TOP) = 1
-      NSTK(TOP) = 1
-      IF (MSTK(K) .GT. 1) MSTK(TOP) = MN
-      IF (MSTK(K) .EQ. 1) NSTK(TOP) = MN
+      G_MSTK(G_TOP) = 1
+      G_NSTK(G_TOP) = 1
+      IF (G_MSTK(K) .GT. 1) G_MSTK(G_TOP) = MN
+      IF (G_MSTK(K) .EQ. 1) G_NSTK(G_TOP) = MN
       GOTO 99
 !===================================================================================================================================
 !     MATRIX(ARG,ARG)
    60 continue
-      TOP = TOP-1
-      L = LSTK(TOP)
-      IF (MSTK(TOP+1) .EQ. 0) MSTK(TOP) = 0
-      IF (MSTK(TOP) .EQ. 0) GOTO 99
-      L2 = LSTK(TOP+1)
-      M = MSTK(TOP)*NSTK(TOP)
-      IF (MSTK(TOP) .LT. 0) M = MSTK(K)
-      N = MSTK(TOP+1)*NSTK(TOP+1)
-      IF (MSTK(TOP+1) .LT. 0) N = NSTK(K)
+      G_TOP = G_TOP-1
+      L = G_LSTK(G_TOP)
+      IF (G_MSTK(G_TOP+1) .EQ. 0) G_MSTK(G_TOP) = 0
+      IF (G_MSTK(G_TOP) .EQ. 0) GOTO 99
+      L2 = G_LSTK(G_TOP+1)
+      M = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+      IF (G_MSTK(G_TOP) .LT. 0) M = G_MSTK(K)
+      N = G_MSTK(G_TOP+1)*G_NSTK(G_TOP+1)
+      IF (G_MSTK(G_TOP+1) .LT. 0) N = G_NSTK(K)
       L3 = L2 + N
-      MK = MSTK(K)
-      MNK = MSTK(K)*NSTK(K)
+      MK = G_MSTK(K)
+      MNK = G_MSTK(K)*G_NSTK(K)
       DO J = 1, N
          DO I = 1, M
            LI = L+I-1
-           IF (MSTK(TOP) .GT. 0) LI = L + IDINT(STKR(LI)) - 1
+           IF (G_MSTK(G_TOP) .GT. 0) LI = L + IDINT(G_STKR(LI)) - 1
            LJ = L2+J-1
-           IF (MSTK(TOP+1) .GT. 0) LJ = L2 + IDINT(STKR(LJ)) - 1
+           IF (G_MSTK(G_TOP+1) .GT. 0) LJ = L2 + IDINT(G_STKR(LJ)) - 1
            LS = LK + LI-L + (LJ-L2)*MK
            IF (LS.LT.LK .OR. LS.GE.LK+MNK) CALL mat_err(21)
            IF (G_ERR .GT. 0) RETURN
            LL = L3 + I-1 + (J-1)*M
-           STKR(LL) = STKR(LS)
-           STKI(LL) = STKI(LS)
+           G_STKR(LL) = G_STKR(LS)
+           G_STKI(LL) = G_STKI(LS)
          enddo
       enddo
       MN = M*N
-      CALL mat_wcopy(MN,STKR(L3),STKI(L3),1,STKR(L),STKI(L),1)
-      MSTK(TOP) = M
-      NSTK(TOP) = N
+      CALL mat_wcopy(MN,G_STKR(L3),G_STKI(L3),1,G_STKR(L),G_STKI(L),1)
+      G_MSTK(G_TOP) = M
+      G_NSTK(G_TOP) = N
       GOTO 99
 !===================================================================================================================================
    97 continue
-      FIN = 7
-      FUN = 6
+      G_FIN = 7
+      G_FUN = 6
       RETURN
 !===================================================================================================================================
    98 continue
-      FIN = 0
+      G_FIN = 0
       RETURN
 !===================================================================================================================================
    99 continue
-      FIN = -1
-      FUN = 0
+      G_FIN = -1
+      G_FUN = 0
 !===================================================================================================================================
 END SUBROUTINE mat_stackg
 !==================================================================================================================================!
@@ -5039,15 +5039,15 @@ integer           ::  n
 integer           ::  n2
 integer           ::  nexp
 
-   IF (DDT .EQ. 1) call journal('sc',',STACK2 ',OP)
-   L2 = LSTK(TOP)
-   M2 = MSTK(TOP)
-   N2 = NSTK(TOP)
-   TOP = TOP-1
-   L = LSTK(TOP)
-   M = MSTK(TOP)
-   N = NSTK(TOP)
-   FUN = 0
+   IF (G_DDT .EQ. 1) call journal('sc',',STACK2 ',OP)
+   L2 = G_LSTK(G_TOP)
+   M2 = G_MSTK(G_TOP)
+   N2 = G_NSTK(G_TOP)
+   G_TOP = G_TOP-1
+   L = G_LSTK(G_TOP)
+   M = G_MSTK(G_TOP)
+   N = G_NSTK(G_TOP)
+   G_FUN = 0
    IF (OP .EQ. PLUS) GOTO 01
    IF (OP .EQ. MINUS) GOTO 03
    IF (OP .EQ. STAR) GOTO 05
@@ -5065,7 +5065,7 @@ integer           ::  nexp
    IF (G_ERR .GT. 0) RETURN
    IF (N .NE. N2) CALL mat_err(8)
    IF (G_ERR .GT. 0) RETURN
-   CALL matX_waxpy(M*N,1.0D0,0.0D0,STKR(L2),STKI(L2),1,STKR(L),STKI(L),1)
+   CALL matX_waxpy(M*N,1.0D0,0.0D0,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
    GOTO 99
 !
 !     SUBTRACTION
@@ -5075,7 +5075,7 @@ integer           ::  nexp
    IF (G_ERR .GT. 0) RETURN
    IF (N .NE. N2) CALL mat_err(9)
    IF (G_ERR .GT. 0) RETURN
-   CALL matX_waxpy(M*N,-1.0D0,0.0D0,STKR(L2),STKI(L2),1,STKR(L),STKI(L),1)
+   CALL matX_waxpy(M*N,-1.0D0,0.0D0,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
    GOTO 99
 !
 !     MULTIPLICATION
@@ -5087,55 +5087,55 @@ integer           ::  nexp
    IF (G_ERR .GT. 0) RETURN
    MN = M*N2
    LL = L + MN
-   G_ERR = LL+M*N+M2*N2 - LSTK(BOT)
+   G_ERR = LL+M*N+M2*N2 - G_LSTK(G_BOT)
    IF (G_ERR .GT. 0) CALL mat_err(17)
    IF (G_ERR .GT. 0) RETURN
-   CALL mat_wcopy(M*N+M2*N2,STKR(L),STKI(L),-1,STKR(LL),STKI(LL),-1)
+   CALL mat_wcopy(M*N+M2*N2,G_STKR(L),G_STKI(L),-1,G_STKR(LL),G_STKI(LL),-1)
    DO J = 1, N2
       DO I = 1, M
          K1 = L + MN + (I-1)
          K2 = L2 + MN + (J-1)*M2
          K = L + (I-1) + (J-1)*M
-         STKR(K) = mat_wdotur(N,STKR(K1),STKI(K1),M,STKR(K2),STKI(K2),1)
-         STKI(K) = mat_wdotui(N,STKR(K1),STKI(K1),M,STKR(K2),STKI(K2),1)
+         G_STKR(K) = mat_wdotur(N,G_STKR(K1),G_STKI(K1),M,G_STKR(K2),G_STKI(K2),1)
+         G_STKI(K) = mat_wdotui(N,G_STKR(K1),G_STKI(K1),M,G_STKR(K2),G_STKI(K2),1)
       enddo
    enddo
-   NSTK(TOP) = N2
+   G_NSTK(G_TOP) = N2
    GOTO 99
 !
 !     MULTIPLICATION BY SCALAR
 10 continue
-   SR = STKR(L2)
-   SI = STKI(L2)
+   SR = G_STKR(L2)
+   SI = G_STKI(L2)
    L1 = L
    GOTO 13
 11 continue
-   SR = STKR(L)
-   SI = STKI(L)
+   SR = G_STKR(L)
+   SI = G_STKI(L)
    L1 = L+1
-   MSTK(TOP) = M2
-   NSTK(TOP) = N2
+   G_MSTK(G_TOP) = M2
+   G_NSTK(G_TOP) = N2
 13 continue
-   MN = MSTK(TOP)*NSTK(TOP)
-   CALL mat_wscal(MN,SR,SI,STKR(L1),STKI(L1),1)
-   IF (L1.NE.L) CALL mat_wcopy(MN,STKR(L1),STKI(L1),1,STKR(L),STKI(L),1)
+   MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+   CALL mat_wscal(MN,SR,SI,G_STKR(L1),G_STKI(L1),1)
+   IF (L1.NE.L) CALL mat_wcopy(MN,G_STKR(L1),G_STKI(L1),1,G_STKR(L),G_STKI(L),1)
    GOTO 99
 !
 !     RIGHT DIVISION
 20 continue
    IF (M2*N2 .EQ. 1) GOTO 21
-   IF (M2 .EQ. N2) FUN = 1
-   IF (M2 .NE. N2) FUN = 4
-   FIN = -1
-   RHS = 2
+   IF (M2 .EQ. N2) G_FUN = 1
+   IF (M2 .NE. N2) G_FUN = 4
+   G_FIN = -1
+   G_RHS = 2
    GOTO 99
 21 continue
-   SR = STKR(L2)
-   SI = STKI(L2)
+   SR = G_STKR(L2)
+   SI = G_STKI(L2)
    MN = M*N
    DO I = 1, MN
       LL = L+I-1
-      CALL mat_wdiv(STKR(LL),STKI(LL),SR,SI,STKR(LL),STKI(LL))
+      CALL mat_wdiv(G_STKR(LL),G_STKI(LL),SR,SI,G_STKR(LL),G_STKI(LL))
       IF (G_ERR .GT. 0) RETURN
    enddo
    GOTO 99
@@ -5143,20 +5143,20 @@ integer           ::  nexp
 !     LEFT DIVISION
 25 continue
    IF (M*N .EQ. 1) GOTO 26
-   IF (M .EQ. N) FUN = 1
-   IF (M .NE. N) FUN = 4
-   FIN = -2
-   RHS = 2
+   IF (M .EQ. N) G_FUN = 1
+   IF (M .NE. N) G_FUN = 4
+   G_FIN = -2
+   G_RHS = 2
    GOTO 99
 26 continue
-   SR = STKR(L)
-   SI = STKI(L)
-   MSTK(TOP) = M2
-   NSTK(TOP) = N2
+   SR = G_STKR(L)
+   SI = G_STKI(L)
+   G_MSTK(G_TOP) = M2
+   G_NSTK(G_TOP) = N2
    MN = M2*N2
    DO I = 1, MN
       LL = L+I-1
-      CALL mat_wdiv(STKR(LL+1),STKI(LL+1),SR,SI,STKR(LL),STKI(LL))
+      CALL mat_wdiv(G_STKR(LL+1),G_STKI(LL+1),SR,SI,G_STKR(LL),G_STKI(LL))
       IF (G_ERR .GT. 0) RETURN
    enddo
    GOTO 99
@@ -5167,25 +5167,25 @@ integer           ::  nexp
    IF (G_ERR .GT. 0) RETURN
    IF (M .NE. N) CALL mat_err(20)
    IF (G_ERR .GT. 0) RETURN
-   NEXP = IDINT(STKR(L2))
-   IF (STKR(L2) .NE. dble(NEXP)) GOTO 39
-   IF (STKI(L2) .NE. 0.0D0) GOTO 39
+   NEXP = IDINT(G_STKR(L2))
+   IF (G_STKR(L2) .NE. dble(NEXP)) GOTO 39
+   IF (G_STKI(L2) .NE. 0.0D0) GOTO 39
    IF (NEXP .LT. 2) GOTO 39
    MN = M*N
-   G_ERR = L2+MN+N - LSTK(BOT)
+   G_ERR = L2+MN+N - G_LSTK(G_BOT)
    IF (G_ERR .GT. 0) CALL mat_err(17)
    IF (G_ERR .GT. 0) RETURN
-   CALL mat_wcopy(MN,STKR(L),STKI(L),1,STKR(L2),STKI(L2),1)
+   CALL mat_wcopy(MN,G_STKR(L),G_STKI(L),1,G_STKR(L2),G_STKI(L2),1)
    L3 = L2+MN
    DO KEXP = 2, NEXP
       DO J = 1, N
          LS = L+(J-1)*N
-         CALL mat_wcopy(N,STKR(LS),STKI(LS),1,STKR(L3),STKI(L3),1)
+         CALL mat_wcopy(N,G_STKR(LS),G_STKI(LS),1,G_STKR(L3),G_STKI(L3),1)
          DO I = 1, N
             LS = L2+I-1
             LL = L+I-1+(J-1)*N
-            STKR(LL)=mat_wdotur(N,STKR(LS),STKI(LS),N,STKR(L3),STKI(L3),1)
-            STKI(LL)=mat_wdotui(N,STKR(LS),STKI(LS),N,STKR(L3),STKI(L3),1)
+            G_STKR(LL)=mat_wdotur(N,G_STKR(LS),G_STKI(LS),N,G_STKR(L3),G_STKI(L3),1)
+            G_STKI(LL)=mat_wdotui(N,G_STKR(LS),G_STKI(LS),N,G_STKR(L3),G_STKI(L3),1)
          enddo
       enddo
    enddo
@@ -5193,8 +5193,8 @@ integer           ::  nexp
 !
 !     NONINTEGER OR NONPOSITIVE POWER, USE EIGENVECTORS
 39 continue
-   FUN = 2
-   FIN = 0
+   G_FUN = 2
+   G_FIN = 0
    GOTO 99
 !
 !     ADD OR SUBTRACT SCALAR
@@ -5203,82 +5203,82 @@ integer           ::  nexp
    IF (G_ERR .GT. 0) RETURN
    M = M2
    N = N2
-   MSTK(TOP) = M
-   NSTK(TOP) = N
-   SR = STKR(L)
-   SI = STKI(L)
-   CALL mat_wcopy(M*N,STKR(L+1),STKI(L+1),1,STKR(L),STKI(L),1)
+   G_MSTK(G_TOP) = M
+   G_NSTK(G_TOP) = N
+   SR = G_STKR(L)
+   SI = G_STKI(L)
+   CALL mat_wcopy(M*N,G_STKR(L+1),G_STKI(L+1),1,G_STKR(L),G_STKI(L),1)
    GOTO 58
 52 continue
    IF (M .NE. N) CALL mat_err(8)
    IF (G_ERR .GT. 0) RETURN
-   SR = STKR(L2)
-   SI = STKI(L2)
+   SR = G_STKR(L2)
+   SI = G_STKI(L2)
    GOTO 58
 54 continue
    IF (M2 .NE. N2) CALL mat_err(9)
    IF (G_ERR .GT. 0) RETURN
    M = M2
    N = N2
-   MSTK(TOP) = M
-   NSTK(TOP) = N
-   SR = STKR(L)
-   SI = STKI(L)
-   CALL mat_wcopy(M*N,STKR(L+1),STKI(L+1),1,STKR(L),STKI(L),1)
-   CALL mat_wrscal(M*N,-1.0D0,STKR(L),STKI(L),1)
+   G_MSTK(G_TOP) = M
+   G_NSTK(G_TOP) = N
+   SR = G_STKR(L)
+   SI = G_STKI(L)
+   CALL mat_wcopy(M*N,G_STKR(L+1),G_STKI(L+1),1,G_STKR(L),G_STKI(L),1)
+   CALL mat_wrscal(M*N,-1.0D0,G_STKR(L),G_STKI(L),1)
    GOTO 58
 56 continue
    IF (M .NE. N) CALL mat_err(9)
    IF (G_ERR .GT. 0) RETURN
-   SR = -STKR(L2)
-   SI = -STKI(L2)
+   SR = -G_STKR(L2)
+   SI = -G_STKI(L2)
    GOTO 58
 58 continue
    DO I = 1, N
       LL = L + (I-1)*(N+1)
-      STKR(LL) = mat_flop(STKR(LL)+SR)
-      STKI(LL) = mat_flop(STKI(LL)+SI)
+      G_STKR(LL) = mat_flop(G_STKR(LL)+SR)
+      G_STKI(LL) = mat_flop(G_STKI(LL)+SI)
    enddo
    GOTO 99
 !
 !     COLON
 60 continue
-   E2 = STKR(L2)
+   E2 = G_STKR(L2)
    ST = 1.0D0
    N = 0
-   IF (RHS .LT. 3) GOTO 61
-   ST = STKR(L)
-   TOP = TOP-1
-   L = LSTK(TOP)
+   IF (G_RHS .LT. 3) GOTO 61
+   ST = G_STKR(L)
+   G_TOP = G_TOP-1
+   L = G_LSTK(G_TOP)
    IF (ST .EQ. 0.0D0) GOTO 63
 61 continue
-   E1 = STKR(L)
+   E1 = G_STKR(L)
 !     CHECK FOR CLAUSE
-   IF (RSTK(PT) .EQ. 3) GOTO 64
-   G_ERR = L + MAX0(3,IDINT((E2-E1)/ST)) - LSTK(BOT)
+   IF (G_RSTK(G_PT) .EQ. 3) GOTO 64
+   G_ERR = L + MAX0(3,IDINT((E2-E1)/ST)) - G_LSTK(G_BOT)
    IF (G_ERR .GT. 0) CALL mat_err(17)
    IF (G_ERR .GT. 0) RETURN
 62 continue
-   IF (ST .GT. 0.0D0 .AND. STKR(L) .GT. E2) GOTO 63
-   IF (ST .LT. 0.0D0 .AND. STKR(L) .LT. E2) GOTO 63
+   IF (ST .GT. 0.0D0 .AND. G_STKR(L) .GT. E2) GOTO 63
+   IF (ST .LT. 0.0D0 .AND. G_STKR(L) .LT. E2) GOTO 63
    N = N+1
    L = L+1
-   STKR(L) = E1 + dble(N)*ST
-   STKI(L) = 0.0D0
+   G_STKR(L) = E1 + dble(N)*ST
+   G_STKI(L) = 0.0D0
    GOTO 62
 63 continue
-   NSTK(TOP) = N
-   MSTK(TOP) = 1
-   IF (N .EQ. 0) MSTK(TOP) = 0
+   G_NSTK(G_TOP) = N
+   G_MSTK(G_TOP) = 1
+   IF (N .EQ. 0) G_MSTK(G_TOP) = 0
    GOTO 99
 !
 !     FOR CLAUSE
 64 continue
-   STKR(L) = E1
-   STKR(L+1) = ST
-   STKR(L+2) = E2
-   MSTK(TOP) = -3
-   NSTK(TOP) = -1
+   G_STKR(L) = E1
+   G_STKR(L+1) = ST
+   G_STKR(L+2) = E2
+   G_MSTK(G_TOP) = -3
+   G_NSTK(G_TOP) = -1
    GOTO 99
 !
 !     ELEMENTWISE OPERATIONS
@@ -5290,19 +5290,19 @@ integer           ::  nexp
    DO I = 1, MN
       J = L+I-1
       K = L2+I-1
-      IF (OP .EQ. STAR)CALL mat_wmul(STKR(J),STKI(J),STKR(K),STKI(K),STKR(J),STKI(J))
-      IF (OP .EQ. SLASH)CALL mat_wdiv(STKR(J),STKI(J),STKR(K),STKI(K),STKR(J),STKI(J))
-      IF (OP .EQ. BSLASH)CALL mat_wdiv(STKR(K),STKI(K),STKR(J),STKI(J),STKR(J),STKI(J))
+      IF (OP .EQ. STAR)CALL mat_wmul(G_STKR(J),G_STKI(J),G_STKR(K),G_STKI(K),G_STKR(J),G_STKI(J))
+      IF (OP .EQ. SLASH)CALL mat_wdiv(G_STKR(J),G_STKI(J),G_STKR(K),G_STKI(K),G_STKR(J),G_STKI(J))
+      IF (OP .EQ. BSLASH)CALL mat_wdiv(G_STKR(K),G_STKI(K),G_STKR(J),G_STKI(J),G_STKR(J),G_STKI(J))
       IF (G_ERR .GT. 0) RETURN
    enddo
    GOTO 99
 !
 !     KRONECKER
 80 continue
-   FIN = OP - 2*DOT - STAR + 11
-   FUN = 6
-   TOP = TOP + 1
-   RHS = 2
+   G_FIN = OP - 2*DOT - STAR + 11
+   G_FUN = 6
+   G_TOP = G_TOP + 1
+   G_RHS = 2
    GOTO 99
 !
 99 continue
@@ -5329,99 +5329,99 @@ integer             :: l
 integer             :: n
 !.......................................................................
    10 CONTINUE
-      L = LPT(1)
+      L = G_LPT(1)
 !.......................................................................
    11 CONTINUE
       DO J = 1, LRECL            ! blank out buffer before reading it
-         BUF(J) = ALFA(BLANK+1)
+         G_BUF(J) = G_ALFA(BLANK+1)
       enddo
 !.......................................................................
       N = LRECL+1
 !     get line of input
-      IF(ISTRINGQ.GT.0)THEN                  ! read from string instead of file
-         CALL REDO(stringq,'.')              ! This is a no-op except for storing the line into the input history
-         call mat_str2buf(stringq,buf,lrecl)     ! read input line from MAT88 call string
-         call journal('c',stringq)           ! write as a comment
-         IF(INITQ.EQ.2)THEN                  ! terminate after processing STRINGQ
-            ISTRINGQ=4
-            STRINGQ='quit'
-         ELSE                                ! go to normal MAT88 mode after processing STRINGQ
-            ISTRINGQ=0
+      IF(G_ISTRING.GT.0)THEN                  ! read from string instead of file
+         CALL REDO(G_STRING,'.')              ! This is a no-op except for storing the line into the input history
+         call mat_str2buf(G_STRING,G_buf,lrecl)     ! read input line from MAT88 call string
+         call journal('c',G_STRING)           ! write as a comment
+         IF(G_INIT.EQ.2)THEN                  ! terminate after processing G_STRING
+            G_ISTRING=4
+            G_STRING='quit'
+         ELSE                                ! go to normal MAT88 mode after processing G_STRING
+            G_ISTRING=0
          ENDIF
       ELSE
          mline(:)=' '
 
-         READ(RIO,'(A)',END=50,ERR=15) mline ! read input line from file
+         READ(G_RIO,'(A)',END=50,ERR=15) mline ! read input line from file
          CALL REDO(mline,'.')  ! pass line to REDO(3f). This is a no-op except for storing the line into the input history
                                ! (unless the input line is the "r" command)
 
-         if(RIO.eq.5)then
+         if(G_RIO.eq.5)then
             call journal('t',mline)          ! reading from standard input, so copy to trail file
          else
             call journal('c',mline)          ! reading from an exec() command, so write as a comment
          endif
          if(mline(1:1).eq.'#')goto 11        ! ignore lines with a # in column 1
-         call mat_str2buf(mline,buf,lrecl)       ! read input line from file
+         call mat_str2buf(mline,G_buf,lrecl)       ! read input line from file
       ENDIF
 !.......................................................................
    15 CONTINUE
       N = N-1
       IF(N.LT.1)THEN
          N=1
-      else IF (BUF(N) .EQ. ALFA(BLANK+1))then
+      else IF (G_BUF(N) .EQ. G_ALFA(BLANK+1))then
          GOTO 15 ! trim off trailing spaces
       endif
 !.......................................................................
-      IF (MOD(LCT(4),2) .EQ. 1) then
-              call mat_buf2str(mline,buf,n) ! convert ADE buffer to character
+      IF (MOD(G_LCT(4),2) .EQ. 1) then
+              call mat_buf2str(mline,G_buf,n) ! convert ADE buffer to character
               call journal('s',mline) ! just to standard output
       endif
 !.......................................................................
       DO J = 1, N
-         DO K = 1, alflq  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
-           IF (BUF(J).EQ.ALFA(K) .OR. BUF(J).EQ.ALFB(K)) GOTO 30
+         DO K = 1, G_ALFLQ  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
+           IF (G_BUF(J).EQ.G_ALFA(K) .OR. G_BUF(J).EQ.G_ALFB(K)) GOTO 30
          enddo
          call journal('sc','UNKNOWN CHARACTER AT COLUMN ',J) ! this is not a known character
-         K = EOL+1
-         IF (K .GT. EOL) GOTO 10   ! UNKNOWN CHARACTER , K NOT CHANGED. get new line
-         IF (K .EQ. EOL) GOTO 45
+         K = G_EOL+1
+         IF (K .GT. G_EOL) GOTO 10   ! UNKNOWN CHARACTER , K NOT CHANGED. get new line
+         IF (K .EQ. G_EOL) GOTO 45
          IF (K .EQ. -1) L = L-1
          IF (K .LE. 0) cycle
 !
    30    CONTINUE
          K = K-1   ! K is index into ALF*, should be in range 0 to 51
-         IF (K.EQ.SLASH .AND. BUF(J+1).EQ.BUF(J)) GOTO 45  ! if // rest is comment
-         IF (K.EQ.DOT .AND. BUF(J+1).EQ.BUF(J)) GOTO 11    ! if .. line continuation
+         IF (K.EQ.SLASH .AND. G_BUF(J+1).EQ.G_BUF(J)) GOTO 45  ! if // rest is comment
+         IF (K.EQ.DOT .AND. G_BUF(J+1).EQ.G_BUF(J)) GOTO 11    ! if .. line continuation
          IF (K.EQ.BSLASH .AND. N.EQ.1) GOTO 60             ! if \ in column 1
-         LIN(L) = K
+         G_LIN(L) = K
          IF (L.LT.1024) L = L+1
          IF (L.EQ.1024) call journal('sc','input buffer limit exceeded=',L)
       enddo
 !.......................................................................
    45 CONTINUE      ! line is ready, reset line pointers
-      LIN(L) = EOL
-      LPT(6) = L
-      LPT(4) = LPT(1)
-      LPT(3) = 0
-      LPT(2) = 0
-      LCT(1) = 0
-      CALL mat_getch() ! load first character onto CHRA
+      G_LIN(L) = G_EOL
+      G_LPT(6) = L
+      G_LPT(4) = G_LPT(1)
+      G_LPT(3) = 0
+      G_LPT(2) = 0
+      G_LCT(1) = 0
+      CALL mat_getch() ! load first character onto G_CHRA
       RETURN
 !.......................................................................
    50 CONTINUE ! hit end of file
-      CALL mat_putid(LIN(L),RETU) ! store RETU onto LIN(L) to simulate RETURN command
+      CALL mat_putid(G_LIN(L),RETU) ! store RETU onto G_LIN(L) to simulate RETURN command
       L = L + 4
       GOTO 45
 !.......................................................................
    60 CONTINUE
-      N = LPT(6) - LPT(1)
+      N = G_LPT(6) - G_LPT(1)
       DO I = 1, N
          J = L+I-1
-         K = LIN(J)
-         BUF(I) = ALFA(K+1)
-         IF (CASE.EQ.1 .AND. K.LT.36) BUF(I) = ALFB(K+1)
+         K = G_LIN(J)
+         G_BUF(I) = G_ALFA(K+1)
+         IF ( K.LT.36) G_BUF(I) = G_ALFB(K+1)
       enddo    ! edit command history
-      !!CALL ML_EDIT(BUF,N)
+      !!CALL ML_EDIT(G_BUF,N)
       !!N = N + 1
       GOTO 15
 !.......................................................................
@@ -5457,16 +5457,16 @@ integer            :: lj
 integer            :: m
 integer            :: n
 
-   R = -FIN-10
-   FIN = 0
-   IF (DDT .EQ. 1)then
-      WRITE(mline,'('' CLAUSE '',3I4)') PT,RSTK(PT),R
+   R = -G_FIN-10
+   G_FIN = 0
+   IF (G_DDT .EQ. 1)then
+      WRITE(mline,'('' CLAUSE '',3I4)') G_PT,G_RSTK(G_PT),R
       call journal(mline)
    endif
    IF (R.LT.1 .OR. R.GT.6) GOTO 01
    GOTO (02,30,30,80,99,90),R
 01 continue
-   R = RSTK(PT)
+   R = G_RSTK(G_PT)
    GOTO (99,99,05,40,45,99,99,99,99,99,99,99,15,55,99,99,99),R
    call journal('*mat_clause* -- internal error')
    goto 99
@@ -5475,111 +5475,111 @@ integer            :: n
 !
 02 continue
    CALL mat_getsym()
-   IF (SYM .NE. NAME) CALL mat_err(34) ! improper for clause
+   IF (G_SYM .NE. NAME) CALL mat_err(34) ! improper for clause
    IF (G_ERR .GT. 0) RETURN
-   PT = PT+2
-   CALL mat_putid(IDS(1,PT),SYN)
+   G_PT = G_PT+2
+   CALL mat_putid(G_IDS(1,G_PT),G_SYN)
    CALL mat_getsym()
-   IF (SYM .NE. EQUAL) CALL mat_err(34) ! improper for clause
+   IF (G_SYM .NE. EQUAL) CALL mat_err(34) ! improper for clause
    IF (G_ERR .GT. 0) RETURN
    CALL mat_getsym()
-   RSTK(PT) = 3
+   G_RSTK(G_PT) = 3
 !     *CALL* EXPR
    RETURN
 05 continue
-   PSTK(PT-1) = 0
-   PSTK(PT) = LPT(4) - 1
-   IF (mat_eqid(SYN,DO)) SYM = SEMI
-   IF (SYM .EQ. COMMA) SYM = SEMI
-   IF (SYM .NE. SEMI) CALL mat_err(34) ! improper for clause
+   G_PSTK(G_PT-1) = 0
+   G_PSTK(G_PT) = G_LPT(4) - 1
+   IF (mat_eqid(G_SYN,DO)) G_SYM = SEMI
+   IF (G_SYM .EQ. COMMA) G_SYM = SEMI
+   IF (G_SYM .NE. SEMI) CALL mat_err(34) ! improper for clause
    IF (G_ERR .GT. 0) RETURN
 10 continue
-   J = PSTK(PT-1)
-   LPT(4) = PSTK(PT)
-   SYM = SEMI
-   CHRA = BLANK
+   J = G_PSTK(G_PT-1)
+   G_LPT(4) = G_PSTK(G_PT)
+   G_SYM = SEMI
+   G_CHRA = BLANK
    J = J+1
-   L = LSTK(TOP)
-   M = MSTK(TOP)
-   N = NSTK(TOP)
+   L = G_LSTK(G_TOP)
+   M = G_MSTK(G_TOP)
+   N = G_NSTK(G_TOP)
    LJ = L+(J-1)*M
    L2 = L + M*N
    IF (M .NE. -3) GOTO 12
    LJ = L+3
    L2 = LJ
-   STKR(LJ) = STKR(L) + dble(J-1)*STKR(L+1)
-   STKI(LJ) = 0.0d0
-   IF (STKR(L+1).GT.0.0D0 .AND. STKR(LJ).GT.STKR(L+2)) GOTO 20
-   IF (STKR(L+1).LT.0.0D0 .AND. STKR(LJ).LT.STKR(L+2)) GOTO 20
+   G_STKR(LJ) = G_STKR(L) + dble(J-1)*G_STKR(L+1)
+   G_STKI(LJ) = 0.0d0
+   IF (G_STKR(L+1).GT.0.0D0 .AND. G_STKR(LJ).GT.G_STKR(L+2)) GOTO 20
+   IF (G_STKR(L+1).LT.0.0D0 .AND. G_STKR(LJ).LT.G_STKR(L+2)) GOTO 20
    M = 1
    N = J
 12 continue
    IF (J .GT. N) GOTO 20
-   IF (TOP+1 .GE. BOT) CALL mat_err(18) ! too many names
+   IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18) ! too many names
    IF (G_ERR .GT. 0) RETURN
-   TOP = TOP+1
-   LSTK(TOP) = L2
-   MSTK(TOP) = M
-   NSTK(TOP) = 1
-   G_ERR = L2+M - LSTK(BOT)
+   G_TOP = G_TOP+1
+   G_LSTK(G_TOP) = L2
+   G_MSTK(G_TOP) = M
+   G_NSTK(G_TOP) = 1
+   G_ERR = L2+M - G_LSTK(G_BOT)
    IF (G_ERR .GT. 0) CALL mat_err(17)   ! too much memory required
    IF (G_ERR .GT. 0) RETURN
-   CALL mat_wcopy(M,STKR(LJ),STKI(LJ),1,STKR(L2),STKI(L2),1)
-   RHS = 0
-   CALL mat_stackp(IDS(1,PT))
+   CALL mat_wcopy(M,G_STKR(LJ),G_STKI(LJ),1,G_STKR(L2),G_STKI(L2),1)
+   G_RHS = 0
+   CALL mat_stackp(G_IDS(1,G_PT))
    IF (G_ERR .GT. 0) RETURN
-   PSTK(PT-1) = J
-   PSTK(PT) = LPT(4)
-   RSTK(PT) = 13
+   G_PSTK(G_PT-1) = J
+   G_PSTK(G_PT) = G_LPT(4)
+   G_RSTK(G_PT) = 13
 !     *CALL* PARSE
    RETURN
 15 continue
    GOTO 10
 20 continue
-   MSTK(TOP) = 0
-   NSTK(TOP) = 0
-   RHS = 0
-   CALL mat_stackp(IDS(1,PT))
+   G_MSTK(G_TOP) = 0
+   G_NSTK(G_TOP) = 0
+   G_RHS = 0
+   CALL mat_stackp(G_IDS(1,G_PT))
    IF (G_ERR .GT. 0) RETURN
-   PT = PT-2
+   G_PT = G_PT-2
    GOTO 80
 !.......................................................................
 !
 !     WHILE OR IF
 !
 30 continue
-   PT = PT+1
-   CALL mat_putid(IDS(1,PT),SYN)
-   PSTK(PT) = LPT(4)-1
+   G_PT = G_PT+1
+   CALL mat_putid(G_IDS(1,G_PT),G_SYN)
+   G_PSTK(G_PT) = G_LPT(4)-1
 35 continue
-   LPT(4) = PSTK(PT)
-   CHRA = BLANK
+   G_LPT(4) = G_PSTK(G_PT)
+   G_CHRA = BLANK
    CALL mat_getsym()
-   RSTK(PT) = 4
+   G_RSTK(G_PT) = 4
 !     *CALL* EXPR
    RETURN
 40 continue
-   IF (SYM.NE.EQUAL .AND. SYM.NE.LESS .AND. SYM.NE.GREAT)CALL mat_err(35)    ! improper WHILE or IF clause
+   IF (G_SYM.NE.EQUAL .AND. G_SYM.NE.LESS .AND. G_SYM.NE.GREAT)CALL mat_err(35)    ! improper WHILE or IF clause
    IF (G_ERR .GT. 0) RETURN
-   OP = SYM
+   OP = G_SYM
    CALL mat_getsym()
-   IF (SYM.EQ.EQUAL .OR. SYM.EQ.GREAT) OP = OP + SYM
+   IF (G_SYM.EQ.EQUAL .OR. G_SYM.EQ.GREAT) OP = OP + G_SYM
    IF (OP .GT. GREAT) CALL mat_getsym()
-   PSTK(PT) = 256*PSTK(PT) + OP
-   RSTK(PT) = 5
+   G_PSTK(G_PT) = 256*G_PSTK(G_PT) + OP
+   G_RSTK(G_PT) = 5
 !     *CALL* EXPR
    RETURN
 45 continue
-   OP = MOD(PSTK(PT),256)
-   PSTK(PT) = PSTK(PT)/256
-   L = LSTK(TOP-1)
-   E1 = STKR(L)
-   L = LSTK(TOP)
-   E2 = STKR(L)
-   TOP = TOP - 2
-   IF (mat_eqid(SYN,DO) .OR. mat_eqid(SYN,THENN)) SYM = SEMI
-   IF (SYM .EQ. COMMA) SYM = SEMI
-   IF (SYM .NE. SEMI) CALL mat_err(35) ! improper WHILE or IF clause
+   OP = MOD(G_PSTK(G_PT),256)
+   G_PSTK(G_PT) = G_PSTK(G_PT)/256
+   L = G_LSTK(G_TOP-1)
+   E1 = G_STKR(L)
+   L = G_LSTK(G_TOP)
+   E2 = G_STKR(L)
+   G_TOP = G_TOP - 2
+   IF (mat_eqid(G_SYN,DO) .OR. mat_eqid(G_SYN,THENN)) G_SYM = SEMI
+   IF (G_SYM .EQ. COMMA) G_SYM = SEMI
+   IF (G_SYM .NE. SEMI) CALL mat_err(35) ! improper WHILE or IF clause
    IF (G_ERR .GT. 0) RETURN
    IF (OP.EQ.EQUAL         .AND. E1.EQ.E2) GOTO 50
    IF (OP.EQ.LESS          .AND. E1.LT.E2) GOTO 50
@@ -5587,16 +5587,16 @@ integer            :: n
    IF (OP.EQ.(LESS+EQUAL)  .AND. E1.LE.E2) GOTO 50
    IF (OP.EQ.(GREAT+EQUAL) .AND. E1.GE.E2) GOTO 50
    IF (OP.EQ.(LESS+GREAT)  .AND. E1.NE.E2) GOTO 50
-   PT = PT-1
+   G_PT = G_PT-1
    GOTO 80
 50 continue
-   RSTK(PT) = 14
+   G_RSTK(G_PT) = 14
 !     *CALL* PARSE
    RETURN
 55 continue
-   IF (mat_eqid(IDS(1,PT),WHILE)) GOTO 35
-   PT = PT-1
-   IF (mat_eqid(SYN,ELSE)) GOTO 80
+   IF (mat_eqid(G_IDS(1,G_PT),WHILE)) GOTO 35
+   G_PT = G_PT-1
+   IF (mat_eqid(G_SYN,ELSE)) GOTO 80
    RETURN
 !.......................................................................
 !
@@ -5605,12 +5605,12 @@ integer            :: n
    KOUNT = 0
    CALL mat_getsym()
 82 continue
-   IF (SYM .EQ. EOL) RETURN
-   IF (SYM .NE. NAME) GOTO 83
-   IF (mat_eqid(SYN,ENND) .AND. KOUNT.EQ.0) RETURN
-   IF (mat_eqid(SYN,ELSE) .AND. KOUNT.EQ.0) RETURN
-   IF (mat_eqid(SYN,ENND) .OR. mat_eqid(SYN,ELSE))KOUNT = KOUNT-1
-   IF (mat_eqid(SYN,FOR) .OR. mat_eqid(SYN,WHILE).OR.mat_eqid(SYN,IFF)) KOUNT = KOUNT+1
+   IF (G_SYM .EQ. G_EOL) RETURN
+   IF (G_SYM .NE. NAME) GOTO 83
+   IF (mat_eqid(G_SYN,ENND) .AND. KOUNT.EQ.0) RETURN
+   IF (mat_eqid(G_SYN,ELSE) .AND. KOUNT.EQ.0) RETURN
+   IF (mat_eqid(G_SYN,ENND) .OR. mat_eqid(G_SYN,ELSE))KOUNT = KOUNT-1
+   IF (mat_eqid(G_SYN,FOR) .OR. mat_eqid(G_SYN,WHILE).OR.mat_eqid(G_SYN,IFF)) KOUNT = KOUNT+1
 83 continue
    CALL mat_getsym()
    GOTO 82
@@ -5618,16 +5618,16 @@ integer            :: n
 !
 !     EXIT FROM LOOP
 90 continue
-   IF (DDT .EQ. 1)then
-      WRITE(mline,'('' EXIT '',10I4)') (RSTK(I),I=1,PT)
+   IF (G_DDT .EQ. 1)then
+      WRITE(mline,'('' EXIT '',10I4)') (G_RSTK(I),I=1,G_PT)
       call journal(mline)
    endif
-   IF (RSTK(PT) .EQ. 14) PT = PT-1
-   IF (PT .LE. PTZ) RETURN
-   IF (RSTK(PT) .EQ. 14) PT = PT-1
-   IF (PT-1 .LE. PTZ) RETURN
-   IF (RSTK(PT) .EQ. 13) TOP = TOP-1
-   IF (RSTK(PT) .EQ. 13) PT = PT-2
+   IF (G_RSTK(G_PT) .EQ. 14) G_PT = G_PT-1
+   IF (G_PT .LE. G_PTZ) RETURN
+   IF (G_RSTK(G_PT) .EQ. 14) G_PT = G_PT-1
+   IF (G_PT-1 .LE. G_PTZ) RETURN
+   IF (G_RSTK(G_PT) .EQ. 13) G_TOP = G_TOP-1
+   IF (G_RSTK(G_PT) .EQ. 13) G_PT = G_PT-2
    GOTO 80
 !.......................................................................
 !
@@ -5673,8 +5673,8 @@ integer         :: k
    endif
    if (s .lt. 0.0d0) t = -t
    if (s .lt. 0.0d0) s = -s
-   if (ddt .eq. 27)then
-      write(wte,50) x,t,s,(d(i),i=1,k) ! debug 27
+   if (G_ddt .eq. 27)then
+      write(G_WTE,50) x,t,s,(d(i),i=1,k) ! debug 27
 50    format(/1x,1pd23.15,0pf8.0,' /',f8.0,4x,6f5.0/(1x,45x,6f5.0))
    endif
    a = t
@@ -5697,67 +5697,67 @@ integer           :: kount
 integer           :: ls
 integer           :: op
 
-   if (ddt .eq. 1) then
-      write(mline,'('' EXPR '',2I4)') pt,rstk(pt)
+   if (G_ddt .eq. 1) then
+      write(mline,'('' EXPR '',2I4)') G_pt,G_RSTK(G_pt)
       call journal(mline)
    endif
-   r = rstk(pt)
+   r = G_RSTK(G_pt)
 !===================================================================================================================================
    GOTO (01,01,01,01,01,05,25,99,99,01,01,99,99,99,99,99,99,01,01,01),R
 !===================================================================================================================================
 01 continue
-   if (sym .eq. colon) call mat_putid(syn,eye)
-   if (sym .eq. colon) sym = name
+   if (G_sym .eq. colon) call mat_putid(G_syn,eye)
+   if (G_sym .eq. colon) G_sym = name
    kount = 1
 02 continue
    sign = plus
-   if (sym .eq. minus) sign = minus
-   if (sym.eq.plus .or. sym.eq.minus) call mat_getsym()
-   pt = pt+1
-   if (pt .gt. psize-1) call mat_err(26) ! too complicated (stack overflow)
+   if (G_sym .eq. minus) sign = minus
+   if (G_sym.eq.plus .or. G_sym.eq.minus) call mat_getsym()
+   G_pt = G_pt+1
+   if (G_pt .gt. G_PSIZE-1) call mat_err(26) ! too complicated (stack overflow)
    if (G_err .gt. 0) return
-   pstk(pt) = sign + 256*kount
-   rstk(pt) = 6
+   G_PSTK(G_pt) = sign + 256*kount
+   G_RSTK(G_pt) = 6
 !     *call* term
    return
 05 continue
-   sign = mod(pstk(pt),256)
-   kount = pstk(pt)/256
-   pt = pt-1
+   sign = mod(G_PSTK(G_pt),256)
+   kount = G_PSTK(G_pt)/256
+   G_pt = G_pt-1
    if (sign .eq. minus) call mat_stack1(minus)
    if (G_err .gt. 0) return
 10 continue
-   if (sym.eq.plus .or. sym.eq.minus) goto 20
+   if (G_sym.eq.plus .or. G_sym.eq.minus) goto 20
    goto 50
 20 continue
-   if (rstk(pt) .ne. 10) goto 21
+   if (G_RSTK(G_pt) .ne. 10) goto 21
 !     blank is delimiter inside angle brackets
-   ls = lpt(3) - 2
-   if (lin(ls) .eq. blank) goto 50
+   ls = G_LPT(3) - 2
+   if (G_LIN(ls) .eq. blank) goto 50
 21 continue
-   op = sym
+   op = G_sym
    call mat_getsym()
-   pt = pt+1
-   pstk(pt) = op + 256*kount
-   rstk(pt) = 7
+   G_pt = G_pt+1
+   G_PSTK(G_pt) = op + 256*kount
+   G_RSTK(G_pt) = 7
 !     *call* term
    return
 25 continue
-   op = mod(pstk(pt),256)
-   kount = pstk(pt)/256
-   pt = pt-1
+   op = mod(G_PSTK(G_pt),256)
+   kount = G_PSTK(G_pt)/256
+   G_pt = G_pt-1
    call mat_stack2(op)
    if (G_err .gt. 0) return
    goto 10
 50 continue
-   if (sym .ne. colon) goto 60
+   if (G_sym .ne. colon) goto 60
    call mat_getsym()
    kount = kount+1
    goto 02
 60 continue
    if (kount .gt. 3) call mat_err(33)  ! too many colons
    if (G_err .gt. 0) return
-   rhs = kount
+   G_rhs = kount
    if (kount .gt. 1) call mat_stack2(colon)
    if (G_err .gt. 0) return
    return
@@ -5793,103 +5793,103 @@ integer           :: ln
 integer           :: ls
 integer           :: n
 
-   IF (DDT .EQ. 1) then
-      WRITE(mline,'('' FACTOR '',3I4)') PT,RSTK(PT),SYM
+   IF (G_DDT .EQ. 1) then
+      WRITE(mline,'('' FACTOR '',3I4)') G_PT,G_RSTK(G_PT),G_SYM
       call journal(mline)
    endif
-   R = RSTK(PT)
+   R = G_RSTK(G_PT)
    GOTO (99,99,99,99,99,99,99,01,01,25,45,65,99,99,99,55,75,32,37),R
 01 CONTINUE
-   IF (SYM.EQ.NUM .OR. SYM.EQ.QUOTE .OR.  SYM.EQ.LESS) GOTO 10
-   IF (SYM .EQ. GREAT) GOTO 30
+   IF (G_SYM.EQ.NUM .OR. G_SYM.EQ.QUOTE .OR.  G_SYM.EQ.LESS) GOTO 10
+   IF (G_SYM .EQ. GREAT) GOTO 30
    EXCNT = 0
-   IF (SYM .EQ. NAME) GOTO 40
+   IF (G_SYM .EQ. NAME) GOTO 40
    ID(1) = BLANK
-   IF (SYM .EQ. LPAREN) GOTO 42
+   IF (G_SYM .EQ. LPAREN) GOTO 42
    CALL mat_err(2)
    IF (G_ERR .GT. 0) RETURN
 !
 !     PUT SOMETHING ON THE STACK
 10 CONTINUE
    L = 1
-   IF (TOP .GT. 0) L = LSTK(TOP) + MSTK(TOP)*NSTK(TOP)
-   IF (TOP+1 .GE. BOT) CALL mat_err(18)
+   IF (G_TOP .GT. 0) L = G_LSTK(G_TOP) + G_MSTK(G_TOP)*G_NSTK(G_TOP)
+   IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
    IF (G_ERR .GT. 0) RETURN
-   TOP = TOP+1
-   LSTK(TOP) = L
-   IF (SYM .EQ. QUOTE) GOTO 15
-   IF (SYM .EQ. LESS) GOTO 20
+   G_TOP = G_TOP+1
+   G_LSTK(G_TOP) = L
+   IF (G_SYM .EQ. QUOTE) GOTO 15
+   IF (G_SYM .EQ. LESS) GOTO 20
 !
-!     SINGLE NUMBER, GETSYM STORED IT IN STKI
-   MSTK(TOP) = 1
-   NSTK(TOP) = 1
-   STKR(L) = STKI(VSIZE)
-   STKI(L) = 0.0D0
+!     SINGLE NUMBER, GETSYM STORED IT IN G_STKI
+   G_MSTK(G_TOP) = 1
+   G_NSTK(G_TOP) = 1
+   G_STKR(L) = G_STKI(G_VSIZE)
+   G_STKI(L) = 0.0D0
    CALL mat_getsym()
    GOTO 60
 !
 !     STRING
 15 CONTINUE
    N = 0
-   LPT(4) = LPT(3)
+   G_LPT(4) = G_LPT(3)
    CALL mat_getch()  ! get next character
 16 CONTINUE
-   IF (CHRA .EQ. QUOTE) GOTO 18
+   IF (G_CHRA .EQ. QUOTE) GOTO 18
 17 CONTINUE
    LN = L+N
-   IF (CHRA .EQ. EOL) CALL mat_err(31)
+   IF (G_CHRA .EQ. G_EOL) CALL mat_err(31)
    IF (G_ERR .GT. 0) RETURN
-   STKR(LN) = dble(CHRA)
-   STKI(LN) = 0.0D0
+   G_STKR(LN) = dble(G_CHRA)
+   G_STKI(LN) = 0.0D0
    N = N+1
    CALL mat_getch()  ! get next character
    GOTO 16
 18 CONTINUE
    CALL mat_getch()  ! get next character
-   IF (CHRA .EQ. QUOTE) GOTO 17
+   IF (G_CHRA .EQ. QUOTE) GOTO 17
    IF (N .LE. 0) CALL mat_err(31)
    IF (G_ERR .GT. 0) RETURN
-   MSTK(TOP) = 1
-   NSTK(TOP) = N
+   G_MSTK(G_TOP) = 1
+   G_NSTK(G_TOP) = N
    CALL mat_getsym()
    GOTO 60
 !
 !     EXPLICIT MATRIX
 20 CONTINUE
-   MSTK(TOP) = 0
-   NSTK(TOP) = 0
+   G_MSTK(G_TOP) = 0
+   G_NSTK(G_TOP) = 0
 21 CONTINUE
-   TOP = TOP + 1
-   LSTK(TOP) = LSTK(TOP-1) + MSTK(TOP-1)*NSTK(TOP-1)
-   MSTK(TOP) = 0
-   NSTK(TOP) = 0
+   G_TOP = G_TOP + 1
+   G_LSTK(G_TOP) = G_LSTK(G_TOP-1) + G_MSTK(G_TOP-1)*G_NSTK(G_TOP-1)
+   G_MSTK(G_TOP) = 0
+   G_NSTK(G_TOP) = 0
    CALL mat_getsym()
 22 CONTINUE
-   IF (SYM.EQ.SEMI .OR. SYM.EQ.GREAT .OR. SYM.EQ.EOL) GOTO 27
-   IF (SYM .EQ. COMMA) CALL mat_getsym()
-   PT = PT+1
-   RSTK(PT) = 10
+   IF (G_SYM.EQ.SEMI .OR. G_SYM.EQ.GREAT .OR. G_SYM.EQ.G_EOL) GOTO 27
+   IF (G_SYM .EQ. COMMA) CALL mat_getsym()
+   G_PT = G_PT+1
+   G_RSTK(G_PT) = 10
 !     *CALL* EXPR
    RETURN
 25 CONTINUE
-   PT = PT-1
-   TOP = TOP - 1
-   IF (MSTK(TOP) .EQ. 0) MSTK(TOP) = MSTK(TOP+1)
-   IF (MSTK(TOP) .NE. MSTK(TOP+1)) CALL mat_err(5)
+   G_PT = G_PT-1
+   G_TOP = G_TOP - 1
+   IF (G_MSTK(G_TOP) .EQ. 0) G_MSTK(G_TOP) = G_MSTK(G_TOP+1)
+   IF (G_MSTK(G_TOP) .NE. G_MSTK(G_TOP+1)) CALL mat_err(5)
    IF (G_ERR .GT. 0) RETURN
-   NSTK(TOP) = NSTK(TOP) + NSTK(TOP+1)
+   G_NSTK(G_TOP) = G_NSTK(G_TOP) + G_NSTK(G_TOP+1)
    GOTO 22
 27 CONTINUE
-   IF (SYM.EQ.SEMI .AND. CHRA.EQ.EOL) CALL mat_getsym()
+   IF (G_SYM.EQ.SEMI .AND. G_CHRA.EQ.G_EOL) CALL mat_getsym()
    CALL mat_stack1(QUOTE)
    IF (G_ERR .GT. 0) RETURN
-   TOP = TOP - 1
-   IF (MSTK(TOP) .EQ. 0) MSTK(TOP) = MSTK(TOP+1)
-   IF (MSTK(TOP).NE.MSTK(TOP+1).AND.MSTK(TOP+1).GT.0)CALL mat_err(6)
+   G_TOP = G_TOP - 1
+   IF (G_MSTK(G_TOP) .EQ. 0) G_MSTK(G_TOP) = G_MSTK(G_TOP+1)
+   IF (G_MSTK(G_TOP).NE.G_MSTK(G_TOP+1).AND.G_MSTK(G_TOP+1).GT.0)CALL mat_err(6)
    IF (G_ERR .GT. 0) RETURN
-   NSTK(TOP) = NSTK(TOP) + NSTK(TOP+1)
-   IF (SYM .EQ. EOL) CALL mat_getlin()
-   IF (SYM .NE. GREAT) GOTO 21
+   G_NSTK(G_TOP) = G_NSTK(G_TOP) + G_NSTK(G_TOP+1)
+   IF (G_SYM .EQ. G_EOL) CALL mat_getlin()
+   IF (G_SYM .NE. GREAT) GOTO 21
    CALL mat_stack1(QUOTE)
    IF (G_ERR .GT. 0) RETURN
    CALL mat_getsym()
@@ -5898,138 +5898,138 @@ integer           :: n
 !     MACRO STRING
 30 CONTINUE
    CALL mat_getsym()
-   IF (SYM.EQ.LESS .AND. CHRA.EQ.EOL) CALL mat_err(28)
+   IF (G_SYM.EQ.LESS .AND. G_CHRA.EQ.G_EOL) CALL mat_err(28)
    IF (G_ERR .GT. 0) RETURN
-   PT = PT+1
-   RSTK(PT) = 18
+   G_PT = G_PT+1
+   G_RSTK(G_PT) = 18
 !     *CALL* EXPR
    RETURN
 32 CONTINUE
-   PT = PT-1
-   IF (SYM.NE.LESS .AND. SYM.NE.EOL) CALL mat_err(37)
+   G_PT = G_PT-1
+   IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37)
    IF (G_ERR .GT. 0) RETURN
-   IF (SYM .EQ. LESS) CALL mat_getsym()
-   K = LPT(6)
-   LIN(K+1) = LPT(1)
-   LIN(K+2) = LPT(2)
-   LIN(K+3) = LPT(6)
-   LPT(1) = K + 4
+   IF (G_SYM .EQ. LESS) CALL mat_getsym()
+   K = G_LPT(6)
+   G_LIN(K+1) = G_LPT(1)
+   G_LIN(K+2) = G_LPT(2)
+   G_LIN(K+3) = G_LPT(6)
+   G_LPT(1) = K + 4
 !     TRANSFER STACK TO INPUT LINE
-   K = LPT(1)
-   L = LSTK(TOP)
-   N = MSTK(TOP)*NSTK(TOP)
+   K = G_LPT(1)
+   L = G_LSTK(G_TOP)
+   N = G_MSTK(G_TOP)*G_NSTK(G_TOP)
    DO J = 1, N
       LS = L + J-1
-      LIN(K) = IDINT(STKR(LS))
-      IF (LIN(K).LT.0 .OR. LIN(K).GE.IALF) CALL mat_err(37)
+      G_LIN(K) = IDINT(G_STKR(LS))
+      IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_IALF) CALL mat_err(37)
       IF (G_ERR .GT. 0) RETURN
       IF (K.LT.1024) K = K+1
       IF (K.EQ.1024)call journal('sc','INPUT BUFFER CHAR LIMIT EXCEEDED=',K)
    enddo
-   TOP = TOP-1
-   LIN(K) = EOL
-   LPT(6) = K
-   LPT(4) = LPT(1)
-   LPT(3) = 0
-   LPT(2) = 0
-   LCT(1) = 0
-   CHRA = BLANK
+   G_TOP = G_TOP-1
+   G_LIN(K) = G_EOL
+   G_LPT(6) = K
+   G_LPT(4) = G_LPT(1)
+   G_LPT(3) = 0
+   G_LPT(2) = 0
+   G_LCT(1) = 0
+   G_CHRA = BLANK
    CALL mat_getsym()
-   PT = PT+1
-   RSTK(PT) = 19
+   G_PT = G_PT+1
+   G_RSTK(G_PT) = 19
 !     *CALL* EXPR
    RETURN
 37 CONTINUE
-   PT = PT-1
-   K = LPT(1) - 4
-   LPT(1) = LIN(K+1)
-   LPT(4) = LIN(K+2)
-   LPT(6) = LIN(K+3)
-   CHRA = BLANK
+   G_PT = G_PT-1
+   K = G_LPT(1) - 4
+   G_LPT(1) = G_LIN(K+1)
+   G_LPT(4) = G_LIN(K+2)
+   G_LPT(6) = G_LIN(K+3)
+   G_CHRA = BLANK
    CALL mat_getsym()
    GOTO 60
 !
 !     FUNCTION OR MATRIX ELEMENT
 40 CONTINUE
-   CALL mat_putid(ID,SYN)
+   CALL mat_putid(ID,G_SYN)
    CALL mat_getsym()
-   IF (SYM .EQ. LPAREN) GOTO 42
-   RHS = 0
+   IF (G_SYM .EQ. LPAREN) GOTO 42
+   G_RHS = 0
    CALL mat_funs(ID)
-   IF (FIN .NE. 0) CALL mat_err(25)
+   IF (G_FIN .NE. 0) CALL mat_err(25)
    IF (G_ERR .GT. 0) RETURN
    CALL mat_stackg(ID)
    IF (G_ERR .GT. 0) RETURN
-   IF (FIN .EQ. 7) GOTO 50
-   IF (FIN .EQ. 0) CALL mat_putid(IDS(1,PT+1),ID)
-   IF (FIN .EQ. 0) CALL mat_err(4)
+   IF (G_FIN .EQ. 7) GOTO 50
+   IF (G_FIN .EQ. 0) CALL mat_putid(G_IDS(1,G_PT+1),ID)
+   IF (G_FIN .EQ. 0) CALL mat_err(4)
    IF (G_ERR .GT. 0) RETURN
    GOTO 60
 !
 42 CONTINUE
    CALL mat_getsym()
    EXCNT = EXCNT+1
-   PT = PT+1
-   PSTK(PT) = EXCNT
-   CALL mat_putid(IDS(1,PT),ID)
-   RSTK(PT) = 11
+   G_PT = G_PT+1
+   G_PSTK(G_PT) = EXCNT
+   CALL mat_putid(G_IDS(1,G_PT),ID)
+   G_RSTK(G_PT) = 11
 !     *CALL* EXPR
    RETURN
 !.......................................................................
 45 CONTINUE
-   CALL mat_putid(ID,IDS(1,PT))
-   EXCNT = PSTK(PT)
-   PT = PT-1
-   IF (SYM .EQ. COMMA) GOTO 42
-   IF (SYM .NE. RPAREN) CALL mat_err(3)
+   CALL mat_putid(ID,G_IDS(1,G_PT))
+   EXCNT = G_PSTK(G_PT)
+   G_PT = G_PT-1
+   IF (G_SYM .EQ. COMMA) GOTO 42
+   IF (G_SYM .NE. RPAREN) CALL mat_err(3)
    IF (G_ERR .GT. 0) RETURN
-   IF (SYM .EQ. RPAREN) CALL mat_getsym()
+   IF (G_SYM .EQ. RPAREN) CALL mat_getsym()
    IF (ID(1) .EQ. BLANK) GOTO 60
-   RHS = EXCNT
+   G_RHS = EXCNT
    CALL mat_stackg(ID)
    IF (G_ERR .GT. 0) RETURN
-   IF (FIN .EQ. 0) CALL mat_funs(ID)
-   IF (FIN .EQ. 0) CALL mat_err(4)
+   IF (G_FIN .EQ. 0) CALL mat_funs(ID)
+   IF (G_FIN .EQ. 0) CALL mat_err(4)
    IF (G_ERR .GT. 0) RETURN
 !
 !     EVALUATE MATRIX FUNCTION
 50 CONTINUE
-   PT = PT+1
-   RSTK(PT) = 16
+   G_PT = G_PT+1
+   G_RSTK(G_PT) = 16
 !     *CALL* MATFN
    RETURN
 55 CONTINUE
-   PT = PT-1
+   G_PT = G_PT-1
    GOTO 60
 !
 !     CHECK FOR QUOTE (TRANSPOSE) AND ** (POWER)
 60 CONTINUE
-   IF (SYM .NE. QUOTE) GOTO 62
-   I = LPT(3) - 2
-   IF (LIN(I) .EQ. BLANK) GOTO 90
+   IF (G_SYM .NE. QUOTE) GOTO 62
+   I = G_LPT(3) - 2
+   IF (G_LIN(I) .EQ. BLANK) GOTO 90
    CALL mat_stack1(QUOTE)
    IF (G_ERR .GT. 0) RETURN
    CALL mat_getsym()
 62 CONTINUE
-   IF (SYM.NE.STAR .OR. CHRA.NE.STAR) GOTO 90
+   IF (G_SYM.NE.STAR .OR. G_CHRA.NE.STAR) GOTO 90
    CALL mat_getsym()
    CALL mat_getsym()
-   PT = PT+1
-   RSTK(PT) = 12
+   G_PT = G_PT+1
+   G_RSTK(G_PT) = 12
 !     *CALL* FACTOR
    GOTO 01
 65 CONTINUE
-   PT = PT-1
+   G_PT = G_PT-1
    CALL mat_stack2(DSTAR)
    IF (G_ERR .GT. 0) RETURN
-   IF (FUN .NE. 2) GOTO 90
+   IF (G_FUN .NE. 2) GOTO 90
 !     MATRIX POWER, USE EIGENVECTORS
-   PT = PT+1
-   RSTK(PT) = 17
+   G_PT = G_PT+1
+   G_RSTK(G_PT) = 17
 !     *CALL* MATFN
    RETURN
 75 CONTINUE
-   PT = PT-1
+   G_PT = G_PT-1
 90 CONTINUE
    RETURN
 99 CONTINUE
@@ -6051,54 +6051,54 @@ integer,parameter  :: DOT=47
 integer            :: ierr
 integer            :: ilen
 
-   IF (DDT .EQ. 1) then
+   IF (G_DDT .EQ. 1) then
       mline='TERM '
-      call mat_appnum(real(pt),mline,ilen,ierr)
-      call mat_appnum(real(rstk(pt)),mline,ilen,ierr)
+      call mat_appnum(real(G_pt),mline,ilen,ierr)
+      call mat_appnum(real(G_RSTK(G_pt)),mline,ilen,ierr)
       call journal(mline)
    endif
-   R = RSTK(PT)
+   R = G_RSTK(G_PT)
    GOTO (99,99,99,99,99, 1, 1, 5,25,99,99,99,99,99,35,99,99,99,99),R
 1  continue
-   PT = PT+1
-   RSTK(PT) = 8
+   G_PT = G_PT+1
+   G_RSTK(G_PT) = 8
 !     *CALL* FACTOR
    RETURN
 !.......................................................................
 5  CONTINUE
-   PT = PT-1
+   G_PT = G_PT-1
 10 CONTINUE
    OP = 0
-   IF (SYM .EQ. DOT) OP = DOT
-   IF (SYM .EQ. DOT) CALL mat_getsym
-   IF (SYM.EQ.STAR .OR. SYM.EQ.SLASH .OR. SYM.EQ.BSLASH) GOTO 20
+   IF (G_SYM .EQ. DOT) OP = DOT
+   IF (G_SYM .EQ. DOT) CALL mat_getsym
+   IF (G_SYM.EQ.STAR .OR. G_SYM.EQ.SLASH .OR. G_SYM.EQ.BSLASH) GOTO 20
    RETURN
 !.......................................................................
 20 CONTINUE
-   OP = OP + SYM
+   OP = OP + G_SYM
    CALL mat_getsym()
-   IF (SYM .EQ. DOT) OP = OP + SYM
-   IF (SYM .EQ. DOT) CALL mat_getsym()
-   PT = PT+1
-   PSTK(PT) = OP
-   RSTK(PT) = 9
+   IF (G_SYM .EQ. DOT) OP = OP + G_SYM
+   IF (G_SYM .EQ. DOT) CALL mat_getsym()
+   G_PT = G_PT+1
+   G_PSTK(G_PT) = OP
+   G_RSTK(G_PT) = 9
 !     *CALL* FACTOR
    RETURN
 !.......................................................................
 25 CONTINUE
-   OP = PSTK(PT)
-   PT = PT-1
+   OP = G_PSTK(G_PT)
+   G_PT = G_PT-1
    CALL mat_stack2(OP)
    IF (G_ERR .GT. 0) RETURN
 !     SOME BINARY OPS DONE IN MATFNS
-   IF (FUN .EQ. 0) GOTO 10
-   PT = PT+1
-   RSTK(PT) = 15
+   IF (G_FUN .EQ. 0) GOTO 10
+   G_PT = G_PT+1
+   G_RSTK(G_PT) = 15
 !     *CALL* MATFN
    RETURN
 !.......................................................................
 35 CONTINUE
-   PT = PT-1
+   G_PT = G_PT-1
    GOTO 10
 !.......................................................................
 99 CONTINUE
@@ -6423,8 +6423,8 @@ end function mat_iwamax
 !!##OPTIONS
 !!
 !!##NOTES
-!!    FLP(1)  IS FLOP COUNTER
-!!    FLP(2)  IS NUMBER OF PLACES TO BE CHOPPED
+!!    G_FLOP_COUNTER(1)  IS FLOP COUNTER
+!!    G_FLOP_COUNTER(2)  IS NUMBER OF PLACES TO BE CHOPPED
 doubleprecision function mat_flop(x)
 doubleprecision,intent(in) :: x
 doubleprecision            :: mask(14),xx,mm
@@ -6477,8 +6477,8 @@ character(len=8),save      :: setmas(2,14)=reshape([ &
    endif
 !<<<<<<<<<<<<<<<<<<
 
-   flp(1) = flp(1) + 1
-   k = flp(2)
+   G_FLOP_COUNTER(1) = G_FLOP_COUNTER(1) + 1
+   k = G_FLOP_COUNTER(2)
 
    select case(k)
    case(:0)
@@ -9158,12 +9158,12 @@ write(io,'(a)')'   whenever "serious" matrix computations are required. They are
 write(io,'(a)')'   interface routines which call the various LINPACK and EISPACK'
 write(io,'(a)')'   subroutines. MATFN5 primarily handles the file access tasks.'
 write(io,'(a)')''
-write(io,'(a)')'   Two large real arrays, STKR and STKI, are used to store all'
+write(io,'(a)')'   Two large real arrays, G_STKR and G_STKI, are used to store all'
 write(io,'(a)')'   the matrices. Four integer arrays are used to store the names,'
 write(io,'(a)')'   the row and column dimensions, and the pointers into the real'
 write(io,'(a)')'   stacks. The following diagram illustrates this storage scheme.'
 write(io,'(a)')''
-write(io,'(a)')'    TOP         IDSTK     MSTK NSTK LSTK               STKR       STKI'
+write(io,'(a)')'    TOP        IDSTK     MSTK NSTK LSTK               STKR      STKI'
 write(io,'(a)')'     --      -- -- -- --   --   --   --              --------   --------'
 write(io,'(a)')'    |  |--->|  |  |  |  | |  | |  | |  |----------->|        | |        |'
 write(io,'(a)')'     --      -- -- -- --   --   --   --              --------   --------'
@@ -9515,7 +9515,7 @@ write(io,'(a)')''
 write(io,'(a)')'   The following Fortran subprograms illustrate more details of'
 write(io,'(a)')'   FLOP and CHOP. The first subprogram is a simplified example of a'
 write(io,'(a)')'   system-dependent function used within MAT88 itself. The common'
-write(io,'(a)')'   variable FLP is essentially the first component of the variable'
+write(io,'(a)')'   variable G_FLOP_COUNTER is essentially the first component of the variable'
 write(io,'(a)')'   FLOP. The common variable CHP is initially zero, but it is set'
 write(io,'(a)')'   to p by the statement CHOP(p). To shorten the DATA statement,'
 write(io,'(a)')'   we assume there are only 6 hexadecimal digits. We also assume an'
@@ -9524,11 +9524,11 @@ write(io,'(a)')'   operation between two real variables.'
 write(io,'(a)')''
 write(io,'(a)')'         REAL FUNCTION FLOP(X)'
 write(io,'(a)')'         REAL X'
-write(io,'(a)')'         INTEGER FLP,CHP'
-write(io,'(a)')'         COMMON FLP,CHP'
+write(io,'(a)')'         INTEGER G_FLOP_COUNTER,CHP'
+write(io,'(a)')'         COMMON G_FLOP_COUNTER,CHP'
 write(io,'(a)')'         REAL MASK(5)'
 write(io,'(a)')'         DATA MASK/ZFFFFFFF0,ZFFFFFF00,ZFFFFF000,ZFFFF0000,ZFFF00000/'
-write(io,'(a)')'         FLP = FLP + 1'
+write(io,'(a)')'         G_FLOP_COUNTER = G_FLOP_COUNTER + 1'
 write(io,'(a)')'         IF (CHP .EQ. 0) FLOP = X'
 write(io,'(a)')'         IF (CHP .GE. 1 .AND. CHP .LE. 5) FLOP = X .AND. MASK(CHP)'
 write(io,'(a)')'         IF (CHP .GE. 6) FLOP = 0.0'
