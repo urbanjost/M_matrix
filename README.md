@@ -463,28 +463,24 @@ the fpm.toml project file.
                   f = r;
                   g = z;
 ```
-
 #### rqi
 ```text
             rho = (x'*A*x)
             x = (A-rho*eye)\x;
             x = x/norm(x)
 ```
-
 #### setup
 ```text
             diary('xxx')
             !tail -f xxx > /dev/tty1 &
             !tail -f xxx > /dev/tty2 &
 ```
-
 #### sigma
 ```text
             RHO = .5  M = 20  N = 10   SIGMA =  1.488934271883534
             RHO = .5  M = 40  N = 20   SIGMA =  1.488920312974229
             RHO = .5  M = 60  N = 30   SIGMA =  1.488920697912116
 ```
-
 #### strut.mat
 ```text
             // Structure problem, Forsythe, Malcolm and Moler, p. 62
@@ -510,7 +506,6 @@ the fpm.toml project file.
             b = <
              .  .  . 10  .   .  . 15  .  .  .  .  .  .  . 10  .>';
 ```
-
 #### test1
 ```text
             // -----------------------------------------------------------------
@@ -562,7 +557,6 @@ the fpm.toml project file.
             >
             disp('EXPE and BETA should be the same')
 ```
-
 #### tryall
 ```text
             diary('log.txt')
@@ -599,7 +593,6 @@ the fpm.toml project file.
             exec('rogers.exec
             exec('rogers.load
 ```
-
 #### w5
 ```text
             w5    = <
@@ -610,3 +603,6 @@ the fpm.toml project file.
                    1024.          0.          0.          0.         -4.
                      >
 ```
+---
+[HISTORY](CHANGELOG.md)
+---

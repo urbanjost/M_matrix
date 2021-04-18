@@ -68,8 +68,10 @@ module M_matrix
 !!       gfortran -fno-range-check matrix.f90
 use M_journal, only : journal
 implicit none
+!private
 integer,parameter :: BIGMEM=200005
 public MAT88
+public mat_matz
 public mat_str2buf
 public mat_buf2str
 public test_suite_M_matrix
@@ -84,7 +86,7 @@ DOUBLEPRECISION          :: STKR(BIGMEM),STKI(BIGMEM)
 INTEGER                  :: IDSTK(4,48),LSTK(48),MSTK(48),NSTK(48),VSIZE,LSIZE,BOT,TOP
 INTEGER                  :: ALFA(IALF),ALFB(IALF),alflq,CASE
 INTEGER                  :: IDS(4,32),PSTK(32),RSTK(32),PSIZE,PT,PTZ
-INTEGER                  :: DDT,ERR,FMT,LCT(4),LIN(1024),LPT(6),HIO,RIO,RTE,WTE,FE
+INTEGER                  :: DDT,G_ERR,FMT,LCT(4),LIN(1024),LPT(6),HIO,RIO,RTE,WTE,FE
 INTEGER                  :: SYM,SYN(4),BUF(1024),CHRA,FLP(2),FIN,FUN,LHS,RHS,RAN(2)
 !==================================================================================================================================!
 
@@ -299,45 +301,45 @@ contains
 !!      mgs:   for j = k+1:n, d = x(j,:)*x(k,:)'; x(j,:) = x(j,:) - d*x(k,:);
 !!
 !!      net:C = <
-!!      net:1 2 15 . . .
-!!      net:2 1 3 . . .
-!!      net:3 2 4 11 . .
-!!      net:4 3 5 . . .
-!!      net:5 4 6 7 . .
-!!      net:6 5 8 . . .
-!!      net:7 5 9 30 . .
-!!      net:8 6 9 10 11 .
-!!      net:9 7 8 30 . .
-!!      net:10 8 12 30 31 34
-!!      net:11 3 8 12 13 .
-!!      net:12 10 11 34 36 .
-!!      net:13 11 14 . . .
-!!      net:14 13 15 16 38 .
-!!      net:15 1 14 . . .
-!!      net:16 14 17 20 35 37
-!!      net:17 16 18 . . .
-!!      net:18 17 19 . . .
-!!      net:19 18 20 . . .
-!!      net:20 16 19 21 . .
-!!      net:21 20 22 . . .
-!!      net:22 21 23 . . .
-!!      net:23 22 24 35 . .
-!!      net:24 23 25 39 . .
-!!      net:25 24 . . . .
-!!      net:26 27 33 39 . .
-!!      net:27 26 32 . . .
-!!      net:28 29 32 . . .
-!!      net:29 28 30 . . .
-!!      net:30 7 9 10 29 .
-!!      net:31 10 32 . . .
-!!      net:32 27 28 31 34 .
-!!      net:33 26 34 . . .
-!!      net:34 10 12 32 33 35
-!!      net:35 16 23 34 36 .
-!!      net:36 12 35 38 . .
-!!      net:37 16 38 . . .
-!!      net:38 14 36 37 . .
-!!      net:39 24 26 . . .
+!!      net:1   2   15  .   .   .
+!!      net:2   1   3   .   .   .
+!!      net:3   2   4   11  .   .
+!!      net:4   3   5   .   .   .
+!!      net:5   4   6   7   .   .
+!!      net:6   5   8   .   .   .
+!!      net:7   5   9   30  .   .
+!!      net:8   6   9   10  11  .
+!!      net:9   7   8   30  .   .
+!!      net:10  8   12  30  31  34
+!!      net:11  3   8   12  13  .
+!!      net:12  10  11  34  36  .
+!!      net:13  11  14  .   .   .
+!!      net:14  13  15  16  38  .
+!!      net:15  1   14  .   .   .
+!!      net:16  14  17  20  35  37
+!!      net:17  16  18  .   .   .
+!!      net:18  17  19  .   .   .
+!!      net:19  18  20  .   .   .
+!!      net:20  16  19  21  .   .
+!!      net:21  20  22  .   .   .
+!!      net:22  21  23  .   .   .
+!!      net:23  22  24  35  .   .
+!!      net:24  23  25  39  .   .
+!!      net:25  24  .   .   .   .
+!!      net:26  27  33  39  .   .
+!!      net:27  26  32  .   .   .
+!!      net:28  29  32  .   .   .
+!!      net:29  28  30  .   .   .
+!!      net:30  7   9   10  29  .
+!!      net:31  10  32  .   .   .
+!!      net:32  27  28  31  34  .
+!!      net:33  26  34  .   .   .
+!!      net:34  10  12  32  33  35
+!!      net:35  16  23  34  36  .
+!!      net:36  12  35  38  .   .
+!!      net:37  16  38  .   .   .
+!!      net:38  14  36  37  .   .
+!!      net:39  24  26  .   .   .
 !!      net:>;
 !!      net:<n, m> = size(C);
 !!      net:A = 0*ones(n,n);
@@ -700,7 +702,7 @@ integer,save                :: RAND(4)=  [27,10,23,13]
       RAN(2) = 0
       PTZ = 0
       PT = PTZ
-      ERR = 0
+      G_ERR = 0
       IF (INIT .EQ. -1) RETURN
 !
 90    continue
@@ -724,108 +726,87 @@ end subroutine MAT88
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_err(n)
-integer,intent(in) :: n
+
+! ident_2="@(#)m_matrix::mat_err(3fp): given error number, write associated error message"
+
+integer,intent(in)        :: n
 integer,parameter         :: linelen=255
-character(len=linelen)    :: blh
 character(len=linelen)    :: msg
-character(len=linelen+20) :: mline
-integer                   :: iend
 integer                   :: k
 integer                   :: kk
 integer                   :: i
-integer                   :: i9400
 integer                   :: lb
 integer                   :: lt
 
-   blh(1:linelen)='        '
-!
-   k = lpt(2) - lpt(1)
-   if (k .lt. 1) k = 1
    select case(n)
-    case(1); msg='IMPROPER MULTIPLE ASSIGNMENT'
-    case(2); msg='IMPROPER FACTOR'
-    case(3); msg='EXPECT RIGHT PARENTHESIS'
+    case(1);  msg='Improper multiple assignment'
+    case(2);  msg='Improper factor'
+    case(3);  msg='Expected right parenthesis'
 !.......................................................................
     case(4);
-      DO I9400 = 1, 4
-         KK = IDS(I9400,PT+1)
-         BUF(I9400) = ALFA(KK+1)
+      DO I = 1, 4                           ! extract variable name into buffer
+         KK = IDS(I,PT+1)
+         BUF(I) = ALFA(KK+1)
       enddo
-      call mat_buf2str(msg,buf,4)
-      msg='UNDEFINED VARIABLE: '//msg(1:4)
+      call mat_buf2str(msg,buf,4)           ! convert buffer to string
+      msg='Undefined variable: '//msg(1:4)
 !.......................................................................
-    case(5); msg='COLUMN LENGTHS DO NOT MATCH'
-    case(6); msg='ROW LENGTHS DO NOT MATCH'
-    case(7); msg='TEXT TOO LONG'
-    case(8); msg='Incompatible for ADDITION'
-    case(9); msg='Incompatible for SUBTRACTION'
+    case(5);  msg='Column lengths do not match'
+    case(6);  msg='Row lengths do not match'
+    case(7);  msg='Text too long'
+    case(8);  msg='Incompatible for ADDITION'
+    case(9);  msg='Incompatible for SUBTRACTION'
     case(10); msg='Incompatible for MULTIPLICATION'
     case(11); msg='Incompatible for RIGHT DIVISION'
     case(12); msg='Incompatible for LEFT DIVISION'
     case(13); msg='Improper assignment to PERMANENT VARIABLE'
     case(14); msg='EYE-dentity undefined by CONTEXT'
-    case(15); msg='IMPROPER ASSIGNMENT TO SUBMATRIX'
-    case(16); msg='IMPROPER COMMAND'
+    case(15); msg='Improper assignment to submatrix'
+    case(16); msg='Improper command'
 !.......................................................................
     case(17)
-      LB = VSIZE - LSTK(BOT) + 1
-      LT = ERR + LSTK(BOT)
-      call journal(' TOO MUCH MEMORY REQUIRED')
-      WRITE(MLINE,'(1X,I7,'' VARIABLES,'',I7,'' TEMPORARIES,'',I7,'' AVAILABLE.'')') LB,LT,VSIZE
-      call journal(MLINE)
-      GOTO 999
+      lb = vsize - lstk(bot) + 1
+      lt = g_err + lstk(bot)
+      call journal(' Too much memory required')
+      write(msg,'(1X,I7,'' Variables,'',I7,'' Temporaries,'',I7,'' Available.'')') lb,lt,vsize
 !.......................................................................
-    case(18); msg='TOO MANY NAMES'
-    case(19); msg='MATRIX IS SINGULAR TO WORKING PRECISION'
-    case(20); msg='MATRIX MUST BE SQUARE'
-    case(21); msg='SUBSCRIPT OUT OF RANGE'
+    case(18); msg='Too many names'
+    case(19); msg='Matrix is singular to working precision'
+    case(20); msg='Matrix must be square'
+    case(21); msg='Subscript out of range'
 !.......................................................................
     case(22)
-      WRITE(MLINE,122) (RSTK(I),I=1,PT)
-122   FORMAT(1X,'RECURSION DIFFICULTIES',10I4)
-      call journal(mline)
-      GOTO 999
+      write(msg,122) (RSTK(I),I=1,PT)
+122   format(1X,'Recursion difficulties',10I4)
 !.......................................................................
-    case(23); msg='ONLY 1, 2 OR INF NORM OF MATRIX'
-    case(24); msg='NO CONVERGENCE'
-    case(25); msg='CAN NOT USE FUNCTION NAME AS VARIABLE'
-    case(26); msg='TOO COMPLICATED (STACK OVERFLOW)'
-    case(27); msg='DIVISION BY ZERO IS A NO-NO'
-    case(28); msg='EMPTY MACRO'
-    case(29); msg='NOT POSITIVE DEFINITE'
-    case(30); msg='IMPROPER EXPONENT'
-    case(31); msg='IMPROPER STRING'
-    case(32); msg='SINGULARITY OF LOG OR ATAN'
-    case(33); msg='TOO MANY COLONS'
-    case(34); msg='IMPROPER FOR CLAUSE'
-    case(35); msg='IMPROPER WHILE OR IF CLAUSE'
-    case(36); msg='ARGUMENT OUT OF RANGE'
-    case(37); msg='IMPROPER MACRO'
-    case(38); msg='IMPROPER FILE NAME'
-    case(39); msg='INCORRECT NUMBER OF ARGUMENTS'
-    case(40); msg='EXPECT STATEMENT TERMINATOR'
+    case(23); msg='Only 1, 2 or INF norm of matrix'
+    case(24); msg='No convergence'
+    case(25); msg='Can not use function name as variable'
+    case(26); msg='Too complicated (STACK OVERFLOW)'
+    case(27); msg='Division by zero is a NO-NO'
+    case(28); msg='Empty macro'
+    case(29); msg='Not positive definite'
+    case(30); msg='Improper exponent'
+    case(31); msg='Improper string'
+    case(32); msg='Singularity of LOG or ATAN'
+    case(33); msg='Too many colons'
+    case(34); msg='Improper FOR clause'
+    case(35); msg='Improper WHILE or IF clause'
+    case(36); msg='Argument out of range'
+    case(37); msg='Improper MACRO'
+    case(38); msg='Improper file name'
+    case(39); msg='Incorrect number of arguments'
+    case(40); msg='Expecting statement terminator'
 !.......................................................................
     case default
-    call journal('sc','*mat_err* unknown error code =',n)
-    goto 999
+       write(msg,'("*mat_err* internal error: unknown error code =",i0)')n
 !.......................................................................
    end select
 
+   k = max(1,lpt(2) - lpt(1)) ! number of spaces to shift arrow by
+   call journal(' '//repeat(' ',k)//'/\--ERROR:'//msg)
 
-   iend=max(1,len_trim(msg))
-
-   if(k+iend.lt.len(mline))then
-      write(mline,'(1x,a,''/^--ERROR:'',a)') blh(1:k),msg(1:iend)
-      call journal(mline)
-   else
-      WRITE(mline,'(1x,a,''/^--ERROR:'')') blh(1:k)
-      call journal(mline)
-      call journal(msg)
-   endif
-   goto 999
-!.......................................................................
-999 continue
-   err = n
+   G_err = n
 end subroutine mat_err
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -910,7 +891,7 @@ end subroutine mat_files
 !==================================================================================================================================!
 subroutine mat_getsym()
 
-! ident_2="@(#)m_matrix::mat_getsym(3fp): get a symbol"
+! ident_3="@(#)m_matrix::mat_getsym(3fp): get a symbol"
 
 character(len=80) ::  mline
 integer,parameter :: a2=52
@@ -1027,17 +1008,18 @@ end subroutine mat_getsym
 !==================================================================================================================================!
 subroutine mat_str2buf(string,buf,lrecl)
 
-! ident_3="@(#)M_matrix::mat_str2buf(3fp) :: convert string to hollerith"
+! ident_4="@(#)M_matrix::mat_str2buf(3fp) :: convert string to hollerith"
 
 ! g95 compiler does not support Hollerith, this is a KLUDGE to give time to think about it
 
-character(len=*),intent(in) ::  string
+character(len=*),intent(in) :: string
 integer,intent(in)          :: lrecl
 integer,intent(out)         :: buf(lrecl)
-integer                     :: i10
+integer                     :: i
 
-   do i10=1,lrecl
-      buf(i10)=ichar(string(i10:i10))+538976304-48
+   buf=ichar(' ')+538976304-48
+   do i=1,min(lrecl,len(string))
+      buf(i)=ichar(string(i:i))+538976304-48
    enddo
 
 end subroutine mat_str2buf
@@ -1046,14 +1028,14 @@ end subroutine mat_str2buf
 !==================================================================================================================================!
 subroutine mat_buf2str(string,buf,lrecl)
 
-! ident_4="@(#)M_matrix::mat_buf2string(3fp) :: convert hollerith to string"
+! ident_5="@(#)M_matrix::mat_buf2string(3fp) :: convert hollerith to string"
 
 integer,intent(in)           :: lrecl
 integer,intent(in)           :: buf(lrecl)
 character(len=*)             :: string
 integer                      :: i10
    string(:)=' '
-   do i10=1,lrecl
+   do i10=1,min(lrecl,len(string))
       if(buf(i10).eq.0)exit
       string(i10:i10)=char(buf(i10)-538976304+48)
    enddo
@@ -1063,7 +1045,7 @@ end subroutine mat_buf2str
 !==================================================================================================================================!
 subroutine mat_hilber(a,lda,n)
 
-! ident_5="@(#)M_matrix::ml_hilbr(3fp): generate inverse hilbert matrix"
+! ident_6="@(#)M_matrix::ml_hilbr(3fp): generate inverse hilbert matrix"
 
 integer         :: lda
 integer         :: n
@@ -1095,7 +1077,7 @@ end subroutine mat_hilber
 !==================================================================================================================================!
 subroutine mat_matfn6()
 !
-! ident_6="@(#)M_matrix::mat_matfn6(3f):evaluate utility functions"
+! ident_7="@(#)M_matrix::mat_matfn6(3f):evaluate utility functions"
 !
 integer :: i
 integer :: ia
@@ -1138,16 +1120,16 @@ character(len=80) :: mline
 !  COMMAND::KRONECKER PRODUCT
    case(11,12,13)
       IF (RHS .NE. 2) CALL mat_err(39)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       TOP = TOP - 1
       L = LSTK(TOP)
       MA = MSTK(TOP)
       NA = NSTK(TOP)
       LA = L + MAX0(M*N*MA*NA,M*N+MA*NA)
       LB = LA + MA*NA
-      ERR = LB + M*N - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = LB + M*N - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
 !     MOVE A AND B ABOVE RESULT
       CALL mat_wcopy(MA*NA+M*N,STKR(L),STKI(L),1,STKR(LA),STKI(LA),1)
       DO JA = 1, NA
@@ -1163,7 +1145,7 @@ character(len=80) :: mline
               IF (FIN .EQ. 11) CALL mat_wmul(STKR(LS),STKI(LS),STKR(L),STKI(L),STKR(L),STKI(L))
               IF (FIN .EQ. 12) CALL mat_wdiv(STKR(LS),STKI(LS),STKR(L),STKI(L),STKR(L),STKI(L))
               IF (FIN .EQ. 13) CALL mat_wdiv(STKR(L),STKI(L),STKR(LS),STKI(LS),STKR(L),STKI(L))
-              IF (ERR .GT. 0) RETURN
+              IF (G_ERR .GT. 0) RETURN
               L = L + 1
             ENDDO
           enddo
@@ -1292,9 +1274,9 @@ character(len=80) :: mline
 !-----------------------------------------------------------------------------------------------------------------------------------
    83 continue
       N = MAX0(M,N)+IABS(K)
-      ERR = L+N*N - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = L+N*N - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
       MSTK(TOP) = N
       NSTK(TOP) = N
       DO JB = 1, N
@@ -1345,9 +1327,9 @@ character(len=80) :: mline
       M = MAX0(IDINT(STKR(L)),0)
       IF (RHS .EQ. 2) N = MAX0(NN,0)
       IF (RHS .NE. 2) N = M
-      ERR = L+M*N - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = L+M*N - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
       MSTK(TOP) = M
       NSTK(TOP) = N
       IF (M*N .EQ. 0) exit FUN6
@@ -1391,7 +1373,7 @@ end subroutine mat_matfn6
 !==================================================================================================================================!
 subroutine mat_funs(id)
 
-! ident_7="@(#)M_matrix::ml_funcs(3fp):scan function list"
+! ident_8="@(#)M_matrix::ml_funcs(3fp):scan function list"
 
 integer,intent(in) :: id(4)
 integer,parameter  :: funl=58                      ! number of functions
@@ -1455,7 +1437,7 @@ end subroutine mat_funs
 !==================================================================================================================================!
 subroutine mat_putid(x,y)
 
-! ident_8="@(#)M_matrix::mat_putid(3fp): store a name"
+! ident_9="@(#)M_matrix::mat_putid(3fp): store a name"
 
 integer,intent(out) :: x(4)
 integer,intent(in)  :: y(4)
@@ -1469,7 +1451,7 @@ end subroutine mat_putid
 !==================================================================================================================================!
 subroutine mat_getval(s)
 
-! ident_9="@(#)M_matrix::mat_getval(3fp): form numerical value"
+! ident_10="@(#)M_matrix::mat_getval(3fp): form numerical value"
 
 doubleprecision,intent(out) :: s
       s = 0.0d0
@@ -1484,7 +1466,7 @@ end subroutine mat_getval
 !==================================================================================================================================!
 subroutine mat_getch()
 
-! ident_10="@(#)M_matrix::mat_getch(3f): get next character from input line"
+! ident_11="@(#)M_matrix::mat_getch(3f): get next character from input line"
 
 integer :: l
 
@@ -1532,7 +1514,7 @@ end function mat_wdotur
 subroutine mat_appnum(rval,string,ilen,ierr)
 use M_strings, only: value_to_string
 
-! ident_11="@(#)M_matrix::mat_appnum(3fp): subroutine returns a string given a prefix string and a real value"
+! ident_12="@(#)M_matrix::mat_appnum(3fp): subroutine returns a string given a prefix string and a real value"
 
 !     Input string should have at least 20 blank characters at end
 !     03/16/87 J. S. Urban
@@ -1595,7 +1577,7 @@ end subroutine mat_wcopy
 !==================================================================================================================================!
 subroutine mat_wdiv(ar,ai,br,bi,cr,ci)
 
-! ident_12="@(#)M_matrix::mat_wdiv(3fp): c = a/b"
+! ident_13="@(#)M_matrix::mat_wdiv(3fp): c = a/b"
 
 doubleprecision :: ar
 doubleprecision :: ai
@@ -1656,7 +1638,7 @@ integer         :: n
 
 doubleprecision :: t
 !
-! ident_13="@(#)M_matrix::mat_base(3fp): store base b representation of x in s(1:n)"
+! ident_14="@(#)M_matrix::mat_base(3fp): store base b representation of x in s(1:n)"
 !
 integer,save :: plus=41
 integer,save :: minus=42
@@ -1790,7 +1772,7 @@ end function mat_pythag
 !==================================================================================================================================!
 SUBROUTINE mat_print(ID,K)
 
-! ident_14="@(#)M_matrix::mat_print(3fp): primary output routine"
+! ident_15="@(#)M_matrix::mat_print(3fp): primary output routine"
 
 integer           :: id(4)
 integer           :: k
@@ -1925,6 +1907,7 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
             SIG(J) = ALFA(PLUS+1)
             IF (STKI(LS) .LT. 0.0D0) SIG(J) = ALFA(MINUS+1)
          enddo
+
          goto(11,12)F-10
          goto(21,22,23,24)F-20
          goto(31,32,33,34)F-30
@@ -2031,12 +2014,12 @@ END SUBROUTINE mat_print
 !==================================================================================================================================!
 subroutine mat_wsqrt(xr,xi,yr,yi)
 
-! ident_15="@(#)M_matrix::mat_wsqrt(3fp): y = sqrt(x) with yr .ge. 0.0 and sign(yi) .eq. sign(xi)"
+! ident_16="@(#)M_matrix::mat_wsqrt(3fp): y = sqrt(x) with yr .ge. 0.0 and sign(yi) .eq. sign(xi)"
 
-doubleprecision :: xr
-doubleprecision :: xi
-doubleprecision :: yr
-doubleprecision :: yi
+doubleprecision,intent(in)  :: xr
+doubleprecision,intent(in)  :: xi
+doubleprecision,intent(out) :: yr
+doubleprecision,intent(out) :: yi
 
 doubleprecision :: s
 doubleprecision :: tr
@@ -2056,7 +2039,7 @@ end subroutine mat_wsqrt
 !==================================================================================================================================!
 subroutine mat_wlog(xr,xi,yr,yi)
 
-! ident_16="@(#)M_matrix::mat_wlog(3fp): y = log(x)"
+! ident_17="@(#)M_matrix::mat_wlog(3fp): y = log(x)"
 
 doubleprecision :: xr
 doubleprecision :: xi
@@ -2077,7 +2060,7 @@ end subroutine mat_wlog
 !==================================================================================================================================!
 subroutine mat_formz(lunit,x,y)
 
-! ident_17="@(#)M_matrix::mat_formz: system dependent routine to print with z format"
+! ident_18="@(#)M_matrix::mat_formz: system dependent routine to print with z format"
 
 integer                    :: lunit
 doubleprecision,intent(in) :: x,y
@@ -2098,7 +2081,7 @@ end subroutine mat_formz
 !==================================================================================================================================!
 subroutine mat_prompt(pause)
 
-! ident_18="@(#)issue interactive prompt with optional pause"
+! ident_19="@(#)issue interactive prompt with optional pause"
 
 integer,intent(in) :: pause
 character(len=1)   :: dummy
@@ -2122,7 +2105,7 @@ end subroutine mat_prompt
 !==================================================================================================================================!
 subroutine mat_magic(a,lda,n)
 !
-! ident_19="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
+! ident_20="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
 
 !        Algorithms taken from
 !        Mathematical Recreations and Essays, 12th Ed.,
@@ -2334,7 +2317,7 @@ end subroutine mat_wscal
 !==================================================================================================================================!
 subroutine mat_wmul(ar,ai,br,bi,cr,ci)
 
-! ident_20="@(#)mat_wmul(3fp) [M_matrix] c = a*b"
+! ident_21="@(#)mat_wmul(3fp) [M_matrix] c = a*b"
 
 doubleprecision :: ar
 doubleprecision :: ai
@@ -2354,7 +2337,7 @@ end subroutine mat_wmul
 !==================================================================================================================================!
 subroutine mat_stack1(op)
 
-! ident_21="@(#)M_matrix::mat_stack1(3f): Unary Operations"
+! ident_22="@(#)M_matrix::mat_stack1(3f): Unary Operations"
 
 integer           :: op
 INTEGER,parameter :: QUOTE=49
@@ -2377,9 +2360,9 @@ integer           :: n
       CALL mat_wrscal(MN,-1.0D0,STKR(L),STKI(L),1)
    else                                                        ! TRANSPOSE
       LL = L + MN
-      ERR = LL+MN - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = LL+MN - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
       CALL mat_wcopy(MN,STKR(L),STKI(L),1,STKR(LL),STKI(LL),1)
       M = NSTK(TOP)
       N = MSTK(TOP)
@@ -2400,7 +2383,7 @@ end subroutine mat_stack1
 !==================================================================================================================================!
 subroutine mat_rrot(n,dx,incx,dy,incy,c,s)
 
-! ident_22="@(#)M_matrix::mat_rrot(3f): Applies a plane rotation."
+! ident_23="@(#)M_matrix::mat_rrot(3f): Applies a plane rotation."
 
 integer         :: n
 doubleprecision :: dx(*)
@@ -2434,7 +2417,7 @@ end subroutine mat_rrot
 !==================================================================================================================================!
 subroutine mat_rset(n,dx,dy,incy)
 
-! ident_23="@(#)M_matrix::mat_rset(3f): copies a scalar, dx, to a scalar, dy."
+! ident_24="@(#)M_matrix::mat_rset(3f): copies a scalar, dx, to a scalar, dy."
 
 integer         :: n
 doubleprecision :: dx,dy(*)
@@ -2456,7 +2439,7 @@ end subroutine mat_rset
 !==================================================================================================================================!
 subroutine mat_prntid(id,argcnt)
 
-! ident_24="@(#)M_matrix::mat_prntid(3fp): print table of variable id names (up to) eight per line"
+! ident_25="@(#)M_matrix::mat_prntid(3fp): print table of variable id names (up to) eight per line"
 
 !     ID     IS ARRAY OF 4-CHARACTER IDS TO PRINT
 !     ARGCNT IS NUMBER OF IDS TO PRINT
@@ -2509,7 +2492,7 @@ end subroutine mat_prntid
 !==================================================================================================================================!
 subroutine mat_stackp(id)
 
-! ident_25="@(#)M_matrix::mat_stackp(3fp): put variables into storage"
+! ident_26="@(#)M_matrix::mat_stackp(3fp): put variables into storage"
 
 integer             :: id(4)
 character(len=100)  :: mline
@@ -2547,17 +2530,17 @@ integer             :: nt
    endif
 
    if (top .le. 0) call mat_err(1)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
 
    call mat_funs(id)
    if (fin .ne. 0) call mat_err(25)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
 
    m = mstk(top)
    n = nstk(top)
    if (m .gt. 0) l = lstk(top)
    if (m .lt. 0) call mat_err(14)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
 
    if (m .eq. 0 .and. n .ne. 0) goto 99
    mn = m*n
@@ -2581,20 +2564,20 @@ integer             :: nt
    mnk = mk*nk
    if (rhs .eq. 0) goto 20
    if (rhs .gt. 2) call mat_err(15)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    mt = mk
    nt = nk
    lt = l + mn
-   err = lt + mnk - lstk(bot)
-   if (err .gt. 0) call mat_err(17)
-   if (err .gt. 0) return
+   G_err = lt + mnk - lstk(bot)
+   if (G_err .gt. 0) call mat_err(17)
+   if (G_err .gt. 0) return
    call mat_wcopy(mnk,stkr(lk),stki(lk),1,stkr(lt),stki(lt),1)
 !
 !     DOES IT FIT
 20 continue
    if (rhs.eq.0 .and. mn.eq.mnk) goto 40
    if (k .ge. lsize-3) call mat_err(13)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
 !
 !     SHIFT STORAGE
    if (k .eq. bot) goto 25
@@ -2618,7 +2601,7 @@ integer             :: nt
 30 continue
    if (mn .eq. 0) goto 99
    if (bot-2 .le. top) call mat_err(18)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    k = bot-1
    call mat_putid(idstk(1,k), id)
    if (rhs .eq. 1) goto 50
@@ -2648,7 +2631,7 @@ integer             :: nt
    goto 60
 52 continue
    if (m.ne.1 .or. mk.ne.1) call mat_err(15)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    l2 = lstk(top-1)
    m2 = mstk(top-1)
    mn2 = m2*nstk(top-1)
@@ -2670,14 +2653,14 @@ integer             :: nt
 !
 59 continue
    if (mn .ne. mnk) call mat_err(15)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    lk = lstk(k)
    call mat_wcopy(mn,stkr(l),stki(l),-1,stkr(lk),stki(lk),-1)
    goto 90
 !
 60 continue
    if (mn1.ne.m .or. mn2.ne.n) call mat_err(15)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    ll = 1
    if (m1 .lt. 0) goto 62
    do i = 1, mn1
@@ -2696,12 +2679,12 @@ integer             :: nt
 64 continue
    nk = max0(nk,n)
    if (ll .lt. 1) call mat_err(21)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    mnk = mk*nk
    lk = lstk(k+1) - mnk
-   err = lt + mt*nt - lk
-   if (err .gt. 0) call mat_err(17)
-   if (err .gt. 0) return
+   G_err = lt + mt*nt - lk
+   if (G_err .gt. 0) call mat_err(17)
+   if (G_err .gt. 0) return
    lstk(k) = lk
    mstk(k) = mk
    nstk(k) = nk
@@ -2779,7 +2762,7 @@ end subroutine mat_wpofa
 !==================================================================================================================================!
 subroutine mat_watan(xr,xi,yr,yi)
 
-! ident_26="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
+! ident_27="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
 
 doubleprecision :: xr
 doubleprecision :: xi
@@ -2806,7 +2789,7 @@ end subroutine mat_watan
 !==================================================================================================================================!
 subroutine mat_rrotg(da,db,c,s)
 
-! ident_27="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
+! ident_28="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
 
 doubleprecision :: da
 doubleprecision :: db
@@ -2835,7 +2818,7 @@ end subroutine mat_rrotg
 !==================================================================================================================================!
 subroutine mat_wsign(xr,xi,yr,yi,zr,zi)
 
-! ident_28="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
+! ident_29="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
 
 doubleprecision :: xr
 doubleprecision :: xi
@@ -2885,10 +2868,10 @@ integer            :: n
 !
    01 CONTINUE
       R = 0
-      IF (ERR .GT. 0) PTZ = 0
-      IF (ERR.LE.0 .AND. PT.GT.PTZ) R = RSTK(PT)
+      IF (G_ERR .GT. 0) PTZ = 0
+      IF (G_ERR.LE.0 .AND. PT.GT.PTZ) R = RSTK(PT)
       IF (DDT .EQ. 1) THEN
-         WRITE(MLINE,'('' PARSE'',4I4)') PT,R,PTZ,ERR
+         WRITE(MLINE,'('' PARSE'',4I4)') PT,R,PTZ,G_ERR
          CALL JOURNAL(MLINE)
       ENDIF
       IF (R.EQ.15) GOTO 93
@@ -2903,7 +2886,7 @@ integer            :: n
    10 CONTINUE
       IF (SYM.EQ.EOL.AND.MOD(LCT(4)/2,2).EQ.1) CALL mat_prompt(LCT(4)/4)
       IF (SYM .EQ. EOL) CALL mat_getlin()
-      ERR = 0
+      G_ERR = 0
       PT = PTZ
    15 CONTINUE
       EXCNT = 0
@@ -2927,7 +2910,7 @@ integer            :: n
 !     LHS BEGINS WITH NAME
    20 CONTINUE
       CALL mat_comand(SYN)
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
       IF (FUN .EQ. 99) GOTO 95
       IF (FIN .EQ. -15) GOTO 80
       IF (FIN .LT. 0) GOTO 91
@@ -2970,8 +2953,8 @@ integer            :: n
       PT = PT-1
       IF (SYM .EQ. COMMA) GOTO 32
       IF (SYM .NE. RPAREN) CALL mat_err(3)
-      IF (ERR .GT. 0) GOTO 01
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) RETURN
       IF (SYM .EQ. RPAREN) CALL mat_getsym()
       IF (SYM .EQ. EQUAL) GOTO 50
 !     LHS IS REALLY RHS, FORGET SCAN JUST DONE
@@ -3022,7 +3005,7 @@ integer            :: n
          CALL mat_appnum(REAL(TOP),MLINE,ILEN,IERR)
       ENDIF
       IF (SYM.EQ.LESS .AND. CHRA.EQ.EOL) CALL mat_err(28)
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
       PT = PT+1
       RSTK(PT) = 20
 !     *CALL* EXPR
@@ -3031,7 +3014,7 @@ integer            :: n
    46 CONTINUE
       PT = PT-1
       IF (SYM.NE.LESS .AND. SYM.NE.EOL) CALL mat_err(37)
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
       IF (SYM .EQ. LESS) CALL mat_getsym()
       K = LPT(6)
       LIN(K+1) = LPT(1)
@@ -3046,7 +3029,7 @@ integer            :: n
          LS = L + J-1
          LIN(K) = IDINT(STKR(LS))
          IF (LIN(K).LT.0 .OR. LIN(K).GE.IALF) CALL mat_err(37)
-         IF (ERR .GT. 0) RETURN
+         IF (G_ERR .GT. 0) RETURN
          IF (K.LT.1024) K = K+1
          IF (K.EQ.1024) then
             WRITE(mline,47) K
@@ -3096,13 +3079,13 @@ integer            :: n
       IF (SYM.EQ.NAME .AND. mat_eqid(SYN,ELSE)) GOTO 60
       IF (SYM.EQ.NAME .AND. mat_eqid(SYN,ENND)) GOTO 60
       CALL mat_err(40)
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
 !
 !     STORE RESULTS
    60 CONTINUE
       RHS = PSTK(PT)
       CALL mat_stackp(IDS(1,PT))
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
       PT = PT-1
       LHS = LHS-1
       IF (LHS .GT. 0) GOTO 60
@@ -3152,7 +3135,7 @@ integer            :: n
 !     SIMULATE RECURSION
    91 CONTINUE
       CALL mat_clause()
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
       IF (PT .LE. PTZ) GOTO 15
       R = RSTK(PT)
       IF (R .EQ. 21) GOTO 49
@@ -3160,19 +3143,19 @@ integer            :: n
 !
    92 CONTINUE
       CALL mat_expr()
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
       R = RSTK(PT)
       GOTO (35,55,91,91,91,93,93,99,99,94,94,99,99,99,99,99,99,94,94,46),R
 !
    93 CONTINUE
       CALL mat_term()
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
       R = RSTK(PT)
       GOTO (99,99,99,99,99,92,92,94,94,99,99,99,99,99,95,99,99,99,99),R
 !
    94 CONTINUE
       CALL mat_factor()
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
       R = RSTK(PT)
       GOTO (99,99,99,99,99,99,99,93,93,92,92,94,99,99,99,95,95,92,92),R
 !.......................................................................
@@ -3184,7 +3167,7 @@ integer            :: n
       else
          IF (FIN.GT.0 .AND. MSTK(TOP).LT.0) CALL mat_err(14)
       endif
-      IF (ERR .GT. 0) GOTO 01
+      IF (G_ERR .GT. 0) GOTO 01
       RETURN
 !.......................................................................
 !
@@ -3273,7 +3256,7 @@ integer            :: l
          NSTK(TOP) = 0
          RHS = 0
          CALL mat_stackp(SYN)
-         IF (ERR .GT. 0) RETURN
+         IF (G_ERR .GT. 0) RETURN
          FIN = 1
       else
          BOT = LSIZE-3
@@ -3384,6 +3367,7 @@ integer            :: l
       IF (CHRA .EQ. EOL) THEN
          call journal('Type "help" followed by ...')
          call journal(' INTRO   (To get started)')
+         call journal(' SAMPLE  (simple samples)')
          call journal(' NEWS    (recent revisions)')
          H(1) = 0
          CALL mat_funs(H)
@@ -3461,7 +3445,7 @@ end subroutine mat_comand
 !==================================================================================================================================!
 subroutine mat_plot(lplot,x,y,n,p,k)
 
-! ident_29="@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
+! ident_30="@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
 
 integer           :: lplot
 integer           :: n
@@ -3545,7 +3529,7 @@ end subroutine mat_plot
 !==================================================================================================================================!
 subroutine mat_matfn1()
 
-! ident_30="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
+! ident_31="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
 
 doubleprecision   :: dtr(2)
 doubleprecision   :: dti(2)
@@ -3591,17 +3575,17 @@ integer           :: nn
       m2 = mstk(top+1)
       n2 = nstk(top+1)
       if (m2 .ne. n2) call mat_err(20)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       if (m*n .eq. 1) goto 16
       if (n .ne. n2) call mat_err(11)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       l3 = l2 + m2*n2
-      err = l3+n2 - lstk(bot)
-      if (err .gt. 0) call mat_err(17)
-      if (err .gt. 0) return
+      G_err = l3+n2 - lstk(bot)
+      if (G_err .gt. 0) call mat_err(17)
+      if (G_err .gt. 0) return
       call ml_wgeco(stkr(l2),stki(l2),m2,n2,buf,rcond,stkr(l3),stki(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
       if (t.eq.1.0d0 .and. fun.ne.21)then
          call journal('WARNING:')
@@ -3657,15 +3641,15 @@ integer           :: nn
       m2 = mstk(top+1)
       n2 = nstk(top+1)
       if (m .ne. n) call mat_err(20)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       if (m2*n2 .eq. 1) goto 26
       l3 = l2 + m2*n2
-      err = l3+n - lstk(bot)
-      if (err .gt. 0) call mat_err(17)
-      if (err .gt. 0) return
+      G_err = l3+n - lstk(bot)
+      if (G_err .gt. 0) call mat_err(17)
+      if (G_err .gt. 0) return
       call ml_wgeco(stkr(l),stki(l),m,n,buf,rcond,stkr(l3),stki(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
       if (t .eq. 1.0d0) then
          call journal('WARNING:')
@@ -3674,7 +3658,7 @@ integer           :: nn
          call journal(mline)
       endif
       if (m2 .ne. n) call mat_err(12)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       do j = 1, n2
          lj = l2+(j-1)*m2
          call ml_wgesl(stkr(l),stki(l),m,n,buf,stkr(lj),stki(lj),0)
@@ -3692,7 +3676,7 @@ integer           :: nn
 !===================================================================================================================================
     case(1) ! COMMAND::INV
       if (m .ne. n) call mat_err(20)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       if (ddt .eq. 17) goto 32
       do j = 1, n
          do i = 1, n
@@ -3708,12 +3692,12 @@ integer           :: nn
       goto 99
 32    continue
       l3 = l + n*n
-      err = l3+n - lstk(bot)
-      if (err .gt. 0) call mat_err(17)
-      if (err .gt. 0) return
+      G_err = l3+n - lstk(bot)
+      if (G_err .gt. 0) call mat_err(17)
+      if (G_err .gt. 0) return
       call ml_wgeco(stkr(l),stki(l),m,n,buf,rcond,stkr(l3),stki(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
       if (t .eq. 1.0d0) then
          call journal('warning:')
@@ -3726,7 +3710,7 @@ integer           :: nn
 !===================================================================================================================================
     case (2) ! COMMAND::DET
       if (m .ne. n) call mat_err(20)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       call ml_wgefa(stkr(l),stki(l),m,n,buf,info)
       !SUBROUTINE ML_WGEDI(ar,ai,LDA,N,ipvt,detr,deti,workr,worki,JOB)
       call ml_wgedi(stkr(l),stki(l),m,n,buf,dtr,dti,sr(1),si(1),10)
@@ -3761,11 +3745,11 @@ integer           :: nn
 !===================================================================================================================================
     case(3) ! COMMAND::RCOND
       if (m .ne. n) call mat_err(20)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       l3 = l + n*n
-      err = l3+n - lstk(bot)
-      if (err .gt. 0) call mat_err(17)
-      if (err .gt. 0) return
+      G_err = l3+n - lstk(bot)
+      if (G_err .gt. 0) call mat_err(17)
+      if (G_err .gt. 0) return
       call ml_wgeco(stkr(l),stki(l),m,n,buf,rcond,stkr(l3),stki(l3))
       stkr(l) = rcond
       stki(l) = 0.0d0
@@ -3782,19 +3766,19 @@ integer           :: nn
 !===================================================================================================================================
     case(4) ! COMMAND::LU
       if (m .ne. n) call mat_err(20)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       call ml_wgefa(stkr(l),stki(l),m,n,buf,info)
       if (lhs .ne. 2) goto 99
       nn = n*n
       if (top+1 .ge. bot) call mat_err(18)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
       top = top+1
       lstk(top) = l + nn
       mstk(top) = n
       nstk(top) = n
-      err = l+nn+nn - lstk(bot)
-      if (err .gt. 0) call mat_err(17)
-      if (err .gt. 0) return
+      G_err = l+nn+nn - lstk(bot)
+      if (G_err .gt. 0) call mat_err(17)
+      if (G_err .gt. 0) return
       do kb = 1, n
          k = n+1-kb
          do i = 1, n
@@ -3828,10 +3812,10 @@ integer           :: nn
 !===================================================================================================================================
     case(6) ! COMMAND::CHOLESKY
       if (m .ne. n) call mat_err(20)
-      if (err .gt. 0) return
-      call mat_wpofa(stkr(l),stki(l),m,n,err)
-      if (err .ne. 0) call mat_err(29)
-      if (err .gt. 0) return
+      if (G_err .gt. 0) return
+      call mat_wpofa(stkr(l),stki(l),m,n,G_err)
+      if (G_err .ne. 0) call mat_err(29)
+      if (G_err .gt. 0) return
       do j = 1, n
          ll = l+j+(j-1)*m
          call mat_wset(m-j,0.0d0,0.0d0,stkr(ll),stki(ll),1)
@@ -3842,7 +3826,7 @@ integer           :: nn
          top = top-1
          l = lstk(top)
          if (mstk(top) .ne. m) call mat_err(5)
-         if (err .gt. 0) return
+         if (G_err .gt. 0) return
          n = n + nstk(top)
       endif
       call mat_rref(stkr(l),stki(l),m,m,n,stkr(vsize-4))
@@ -3907,7 +3891,7 @@ integer          :: nn
 !     EIGENVALUES AND VECTORS
    10 continue
       IF (M .NE. N) CALL mat_err(20)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       SCHUR = FIN .EQ. 12
       HESS = FIN .EQ. 13
       VECT = LHS.EQ.2 .OR. FIN.LT.10
@@ -3916,9 +3900,9 @@ integer          :: nn
       LD = L2 + NN
       LE = LD + N
       LW = LE + N
-      ERR = LW+N - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = LW+N - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
       CALL mat_wcopy(NN,STKR(L),STKI(L),1,STKR(L2),STKI(L2),1)
 !
 !     CHECK IF HERMITIAN
@@ -3939,9 +3923,9 @@ integer          :: nn
       JOB = 0
       IF (VECT) JOB = 1
       CALL ML_HTRIDI(N,N,STKR(L2),STKI(L2),STKR(LD),STKR(LE),STKR(LE),STKR(LW))
-      IF(.NOT.HESS)CALL ML_IMTQL2(N,N,STKR(LD),STKR(LE),STKR(L),ERR,JOB)
-      IF (ERR .GT. 0) CALL mat_err(24)
-      IF (ERR .GT. 0) RETURN
+      IF(.NOT.HESS)CALL ML_IMTQL2(N,N,STKR(LD),STKR(LE),STKR(L),G_ERR,JOB)
+      IF (G_ERR .GT. 0) CALL mat_err(24)
+      IF (G_ERR .GT. 0) RETURN
       IF (JOB .NE. 0) CALL ML_HTRIBK(N,N,STKR(L2),STKI(L2),STKR(LW),N,STKR(L),STKI(L))
       GOTO 31
 !
@@ -3953,15 +3937,15 @@ integer          :: nn
       IF (VECT) JOB = 2
       IF (VECT .AND. SCHUR) JOB = 1
       IF (HESS) JOB = 3
-      CALL ML_COMQR3(N,N,1,N,STKR(LW),STKI(LW),STKR(L2),STKI(L2), STKR(LD),STKI(LD),STKR(L),STKI(L),ERR,JOB)
-      IF (ERR .GT. 0) CALL mat_err(24)
-      IF (ERR .GT. 0) RETURN
+      CALL ML_COMQR3(N,N,1,N,STKR(LW),STKI(LW),STKR(L2),STKI(L2), STKR(LD),STKI(LD),STKR(L),STKI(L),G_ERR,JOB)
+      IF (G_ERR .GT. 0) CALL mat_err(24)
+      IF (G_ERR .GT. 0) RETURN
 !
 !     VECTORS
    31 continue
       IF (.NOT.VECT) GOTO 34
       IF (TOP+1 .GE. BOT) CALL mat_err(18)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       TOP = TOP+1
       LSTK(TOP) = L2
       MSTK(TOP) = N
@@ -4029,7 +4013,7 @@ integer          :: nn
         IF (FIN .EQ. 24) TR(1) = SI
         IF (FIN .EQ. 25) TR(1) = SR
         IF (FIN .EQ. 25) TI(1) = -SI
-        IF (ERR .GT. 0) RETURN
+        IF (G_ERR .GT. 0) RETURN
         STKR(LS) = mat_flop(TR(1))
         STKI(LS) = 0.0D0
         IF (TI(1) .NE. 0.0D0) STKI(LS) = mat_flop(TI(1))
@@ -4083,9 +4067,9 @@ integer          :: nn
       IF (N .LE. 0) GOTO 65
       L2 = L1+N+1
       LW = L2+N*N
-      ERR = LW+N - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = LW+N - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
       CALL mat_wset(N*N+N,0.0D0,0.0D0,STKR(L2),STKI(L2),1)
       DO J = 1, N
          LL = L2+J+(J-1)*N
@@ -4093,11 +4077,11 @@ integer          :: nn
          LS = L1+J
          LL = L2+(J-1)*N
          CALL mat_wdiv(-STKR(LS),-STKI(LS),STKR(L1),STKI(L1), STKR(LL),STKI(LL))
-         IF (ERR .GT. 0) RETURN
+         IF (G_ERR .GT. 0) RETURN
       enddo
-      CALL ML_COMQR3(N,N,1,N,STKR(LW),STKI(LW),STKR(L2),STKI(L2),STKR(L),STKI(L),TR,TI,ERR,0)
-      IF (ERR .GT. 0) CALL mat_err(24)
-      IF (ERR .GT. 0) RETURN
+      CALL ML_COMQR3(N,N,1,N,STKR(LW),STKI(LW),STKR(L2),STKI(L2),STKR(L),STKI(L),TR,TI,G_ERR,0)
+      IF (G_ERR .GT. 0) CALL mat_err(24)
+      IF (G_ERR .GT. 0) RETURN
    65 continue
       MSTK(TOP) = N
       NSTK(TOP) = 1
@@ -4110,7 +4094,7 @@ END SUBROUTINE mat_matfn2
 !==================================================================================================================================!
 subroutine mat_matfn3()
 
-! ident_31="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
+! ident_32="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
 
 integer         :: i
 integer         :: j
@@ -4148,12 +4132,12 @@ doubleprecision :: p,s,t(1,1),tol,eps
       ld = l + m*n
       l1 = ld + min0(m+1,n)
       l2 = l1 + n
-      err = l2+min0(m,n) - lstk(bot)
-      if (err .gt. 0) call mat_err(17)
-      if (err .gt. 0) return
-      call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),t,t,1,t,t,1,stkr(l2),stki(l2),0,err)
-      if (err .ne. 0) call mat_err(24)
-      if (err .gt. 0) return
+      G_err = l2+min0(m,n) - lstk(bot)
+      if (G_err .gt. 0) call mat_err(17)
+      if (G_err .gt. 0) return
+      call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),t,t,1,t,t,1,stkr(l2),stki(l2),0,G_err)
+      if (G_err .ne. 0) call mat_err(24)
+      if (G_err .gt. 0) return
       s = stkr(ld)
       ld = ld + min0(m,n) - 1
       t(1,1) = stkr(ld)
@@ -4206,16 +4190,16 @@ doubleprecision :: p,s,t(1,1),tol,eps
       IF (INF) GOTO 43
       IF (P .EQ. 1.0D0) GOTO 46
       IF (P .NE. 2.0D0) CALL mat_err(23)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       LD = L + M*N
       L1 = LD + MIN0(M+1,N)
       L2 = L1 + N
-      ERR = L2+MIN0(M,N) - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
-      call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),t,t,1,t,t,1,stkr(l2),stki(l2),0,err)
-      IF (ERR .NE. 0) CALL mat_err(24)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = L2+MIN0(M,N) - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
+      call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),t,t,1,t,t,1,stkr(l2),stki(l2),0,G_err)
+      IF (G_ERR .NE. 0) CALL mat_err(24)
+      IF (G_ERR .GT. 0) RETURN
       S = STKR(LD)
       GOTO 49
 43    continue
@@ -4249,13 +4233,13 @@ doubleprecision :: p,s,t(1,1),tol,eps
          LV = LD + K*N
          L1 = LV + N*N
          L2 = L1 + N
-         ERR = L2+MIN0(M,N) - LSTK(BOT)
-         IF (ERR .GT. 0) CALL mat_err(17)
-         IF (ERR .GT. 0) RETURN
+         G_ERR = L2+MIN0(M,N) - LSTK(BOT)
+         IF (G_ERR .GT. 0) CALL mat_err(17)
+         IF (G_ERR .GT. 0) RETURN
          JOB = 11
          IF (RHS .EQ. 2) JOB = 21
          call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),stkr(lu),stki(lu),m,stkr(lv),stki(lv), &
-         &        n,stkr(l2),stki(l2),job,err)
+         &        n,stkr(l2),stki(l2),job,G_err)
          DO JB = 1, N
             DO I = 1, K
                J = N+1-JB
@@ -4265,22 +4249,22 @@ doubleprecision :: p,s,t(1,1),tol,eps
                LS = LD+I-1
                IF (I.EQ.J) STKR(LL) = STKR(LS)
                LS = L1+I-1
-               IF (ERR.NE.0 .AND. I.EQ.J-1) STKR(LL) = STKR(LS)
+               IF (G_ERR.NE.0 .AND. I.EQ.J-1) STKR(LL) = STKR(LS)
             enddo
          enddo
-         IF (ERR .NE. 0) CALL mat_err(24)
-         ERR = 0
+         IF (G_ERR .NE. 0) CALL mat_err(24)
+         G_ERR = 0
          CALL mat_wcopy(M*K+K*N+N*N,STKR(LU),STKI(LU),1,STKR(L),STKI(L),1)
          MSTK(TOP) = M
          NSTK(TOP) = K
          IF (TOP+1 .GE. BOT) CALL mat_err(18)
-         IF (ERR .GT. 0) RETURN
+         IF (G_ERR .GT. 0) RETURN
          TOP = TOP+1
          LSTK(TOP) = L + M*K
          MSTK(TOP) = K
          NSTK(TOP) = N
          IF (TOP+1 .GE. BOT) CALL mat_err(18)
-         IF (ERR .GT. 0) RETURN
+         IF (G_ERR .GT. 0) RETURN
          TOP = TOP+1
          LSTK(TOP) = L + M*K + K*N
          MSTK(TOP) = N
@@ -4289,12 +4273,12 @@ doubleprecision :: p,s,t(1,1),tol,eps
          LD = L + M*N
          L1 = LD + MIN0(M+1,N)
          L2 = L1 + N
-         ERR = L2+MIN0(M,N) - LSTK(BOT)
-         IF (ERR .GT. 0) CALL mat_err(17)
-         IF (ERR .GT. 0) RETURN
-         call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),t,t,1,t,t,1,stkr(l2),stki(l2),0,err)
-         IF (ERR .NE. 0) CALL mat_err(24)
-         IF (ERR .GT. 0) RETURN
+         G_ERR = L2+MIN0(M,N) - LSTK(BOT)
+         IF (G_ERR .GT. 0) CALL mat_err(17)
+         IF (G_ERR .GT. 0) RETURN
+         call ml_wsvdc(stkr(l),stki(l),m,m,n,stkr(ld),stki(ld),stkr(l1),stki(l1),t,t,1,t,t,1,stkr(l2),stki(l2),0,G_err)
+         IF (G_ERR .NE. 0) CALL mat_err(24)
+         IF (G_ERR .GT. 0) RETURN
          K = MIN0(M,N)
          CALL mat_wcopy(K,STKR(LD),STKI(LD),1,STKR(L),STKI(L),1)
          MSTK(TOP) = K
@@ -4317,15 +4301,15 @@ doubleprecision :: p,s,t(1,1),tol,eps
       L1 = LV + N*N
       IF (FIN .EQ. 5) L1 = LD + N
       L2 = L1 + N
-      ERR = L2+MIN0(M,N) - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = L2+MIN0(M,N) - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
       IF (FIN .EQ. 2) JOB = 11
       IF (FIN .EQ. 5) JOB = 0
       CALL ML_WSVDC(STKR(L),STKI(L),M,M,N,STKR(LD),STKI(LD),STKR(L1),STKI(L1),STKR(LU),STKI(LU),M,STKR(LV),STKI(LV), &
-      &        N,STKR(L2),STKI(L2),JOB,ERR)
-      IF (ERR .NE. 0) CALL mat_err(24)
-      IF (ERR .GT. 0) RETURN
+      &        N,STKR(L2),STKI(L2),JOB,G_ERR)
+      IF (G_ERR .NE. 0) CALL mat_err(24)
+      IF (G_ERR .GT. 0) RETURN
       EPS = STKR(VSIZE-4)
       IF (TOL .LT. 0.0D0) TOL = mat_flop(dble(MAX0(M,N))*EPS*STKR(LD))
       MN = MIN0(M,N)
@@ -4365,7 +4349,7 @@ end subroutine mat_matfn3
 !==================================================================================================================================!
 SUBROUTINE mat_matfn4()
 
-! ident_32="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
+! ident_33="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
 
 integer           :: info
 integer           :: j
@@ -4405,9 +4389,9 @@ INTEGER,parameter :: QUOTE= 49
       N2 = NSTK(TOP+1)
       TOP = TOP + 1
       IF (N.GT.1 .AND. N.NE.N2) CALL mat_err(11)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       CALL mat_stack1(QUOTE)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       LL = L2+M2*N2
       CALL mat_wcopy(M*N,STKR(L),STKI(L),1,STKR(LL),STKI(LL),1)
       CALL mat_wcopy(M*N+M2*N2,STKR(L2),STKI(L2),1,STKR(L),STKI(L),1)
@@ -4415,7 +4399,7 @@ INTEGER,parameter :: QUOTE= 49
       MSTK(TOP) = M
       NSTK(TOP) = N
       CALL mat_stack1(QUOTE)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       TOP = TOP - 1
       M = N2
       N = M2
@@ -4430,19 +4414,19 @@ INTEGER,parameter :: QUOTE= 49
       IF (M2*N2 .GT. 1) GOTO 21
         M2 = M
         N2 = M
-        ERR = L2+M*M - LSTK(BOT)
-        IF (ERR .GT. 0) CALL mat_err(17)
-        IF (ERR .GT. 0) RETURN
+        G_ERR = L2+M*M - LSTK(BOT)
+        IF (G_ERR .GT. 0) CALL mat_err(17)
+        IF (G_ERR .GT. 0) RETURN
         CALL mat_wset(M*M-1,0.0D0,0.0D0,STKR(L2+1),STKI(L2+1),1)
         CALL mat_wcopy(M,STKR(L2),STKI(L2),0,STKR(L2),STKI(L2),M+1)
    21 continue
       IF (M2 .NE. M) CALL mat_err(12)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       L3 = L2 + MAX0(M,N)*N2
       L4 = L3 + N
-      ERR = L4 + N - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = L4 + N - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
       IF (M .GT. N) GOTO 23
       DO JB = 1, N2
         J = N+1-JB
@@ -4501,7 +4485,7 @@ INTEGER,parameter :: QUOTE= 49
       MSTK(TOP) = N
       NSTK(TOP) = N2
       IF (FIN .EQ. -1) CALL mat_stack1(QUOTE)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       GOTO 99
 !
 !     QR
@@ -4512,9 +4496,9 @@ INTEGER,parameter :: QUOTE= 49
       IF (LHS.EQ.1 .AND. FIN.EQ.1) LS = L
       LE = LS + M*N
       L4 = LE + MM
-      ERR = L4+MM - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = L4+MM - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
       IF (LS.NE.L) CALL mat_wcopy(M*N,STKR(L),STKI(L),1,STKR(LS),STKI(LS),1)
       JOB = 1
       IF (LHS.LT.3) JOB = 0
@@ -4538,7 +4522,7 @@ INTEGER,parameter :: QUOTE= 49
         CALL mat_wset(M-J,0.0D0,0.0D0,STKR(LL),STKI(LL),1)
       enddo
       IF (TOP+1 .GE. BOT) CALL mat_err(18)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       TOP = TOP+1
       LSTK(TOP) = LS
       MSTK(TOP) = M
@@ -4550,7 +4534,7 @@ INTEGER,parameter :: QUOTE= 49
         STKR(LL) = 1.0D0
       enddo
       IF (TOP+1 .GE. BOT) CALL mat_err(18)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       TOP = TOP+1
       LSTK(TOP) = LE
       MSTK(TOP) = N
@@ -4564,7 +4548,7 @@ END SUBROUTINE mat_matfn4
 !==================================================================================================================================!
 subroutine mat_matfn5()
 
-! ident_33="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
+! ident_34="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
 
 character(len=256)  :: mline
 character(len=256)  :: errmsg
@@ -4632,7 +4616,7 @@ integer             :: n
                 IF (J .LE. MN) CH = IDINT(STKR(LS))
                 IF (J .GT. MN) CH = BLANK
                 IF (CH.LT.0 .OR. CH.GE.alflq) CALL mat_err(38)
-                IF (ERR .GT. 0) RETURN
+                IF (G_ERR .GT. 0) RETURN
                 IF (CASE .EQ. 0) BUF(J) = ALFA(CH+1)
                 IF (CASE .EQ. 1) BUF(J) = ALFB(CH+1)
              enddo
@@ -4647,7 +4631,7 @@ integer             :: n
       IF (LUN .EQ. 0) THEN
 !     EXEC(0)
          RIO = RTE
-         ERR = 99
+         G_ERR = 99
       else
          K = LPT(6)
          LIN(K+1) = LPT(1)
@@ -4743,9 +4727,9 @@ integer             :: n
          l2 = l
          if (lhs .eq. 2) l2 = l + mn
          lw = l2 + mn
-         err = lw + lrat - lstk(bot)
-         if (err .gt. 0) call mat_err(17)
-         if (err .gt. 0) return
+         G_err = lw + lrat - lstk(bot)
+         if (G_err .gt. 0) call mat_err(17)
+         if (G_err .gt. 0) return
          if (lhs .eq. 2) top = top + 1
          lstk(top) = l2
          mstk(top) = m
@@ -4769,7 +4753,7 @@ integer             :: n
       case(9) !     COMMAND::CHAR
       K = IABS(IDINT(STKR(L)))
       IF (M*N.NE.1 .OR. K.GE.alflq) CALL mat_err(36)
-      IF (ERR .GT. 0) exit FUN5
+      IF (G_ERR .GT. 0) exit FUN5
       CH = ALFA(K+1)
       IF (STKR(L) .LT. 0.0D0) CH = ALFB(K+1)
       WRITE(mline,'('' REPLACE CHARACTER '',A1)') CHAR(CH)
@@ -4813,7 +4797,7 @@ integer             :: n
    65 CONTINUE
       IF (RHS .NE. 2) CALL mat_err(39)
       IF (STKR(L) .LE. 1.0D0) CALL mat_err(36)
-      IF (ERR .GT. 0) exit FUN5
+      IF (G_ERR .GT. 0) exit FUN5
       B = STKR(L)
       L2 = L
       TOP = TOP-1
@@ -4857,7 +4841,7 @@ integer             :: n
       TOP = TOP - (RHS - 1)
       N = MSTK(TOP)*NSTK(TOP)
       IF (MSTK(TOP+1)*NSTK(TOP+1) .NE. N) CALL mat_err(5)
-      IF (ERR .GT. 0) exit FUN5
+      IF (G_ERR .GT. 0) exit FUN5
       LX = LSTK(TOP)
       LY = LSTK(TOP+1)
       IF (RHS .GT. 3) L = LSTK(TOP+2)
@@ -4890,7 +4874,7 @@ end subroutine mat_matfn5
 !==================================================================================================================================!
 SUBROUTINE mat_stackg(ID)
 
-! ident_34="@(#)M_matrix::mat_stackg(3fp): get variables from storage"
+! ident_35="@(#)M_matrix::mat_stackg(3fp): get variables from storage"
 
 integer       :: id(4)
 integer       :: i
@@ -4927,11 +4911,11 @@ integer       :: n
       IF (RHS .EQ. 1) GOTO 40
       IF (RHS .EQ. 2) GOTO 60
       IF (RHS .GT. 2) CALL mat_err(21)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       L = 1
       IF (TOP .GT. 0) L = LSTK(TOP) + MSTK(TOP)*NSTK(TOP)
       IF (TOP+1 .GE. BOT) CALL mat_err(18)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       TOP = TOP+1
 !
 !     LOAD VARIABLE TO TOP OF STACK
@@ -4939,9 +4923,9 @@ integer       :: n
       MSTK(TOP) = MSTK(K)
       NSTK(TOP) = NSTK(K)
       MN = MSTK(K)*NSTK(K)
-      ERR = L+MN - LSTK(BOT)
-      IF (ERR .GT. 0) CALL mat_err(17)
-      IF (ERR .GT. 0) RETURN
+      G_ERR = L+MN - LSTK(BOT)
+      IF (G_ERR .GT. 0) CALL mat_err(17)
+      IF (G_ERR .GT. 0) RETURN
 !     IF RAND, MATFN6 GENERATES RANDOM NUMBER
       IF (K .EQ. LSIZE) GOTO 97
       CALL mat_wcopy(MN,STKR(LK),STKI(LK),1,STKR(L),STKI(L),1)
@@ -4959,7 +4943,7 @@ integer       :: n
         LS = LK+I-1
         IF (MSTK(TOP) .GT. 0) LS = LK + IDINT(STKR(LL)) - 1
         IF (LS .LT. LK .OR. LS .GE. LK+MNK) CALL mat_err(21)
-        IF (ERR .GT. 0) RETURN
+        IF (G_ERR .GT. 0) RETURN
         STKR(LL) = STKR(LS)
         STKI(LL) = STKI(LS)
       enddo
@@ -4991,7 +4975,7 @@ integer       :: n
            IF (MSTK(TOP+1) .GT. 0) LJ = L2 + IDINT(STKR(LJ)) - 1
            LS = LK + LI-L + (LJ-L2)*MK
            IF (LS.LT.LK .OR. LS.GE.LK+MNK) CALL mat_err(21)
-           IF (ERR .GT. 0) RETURN
+           IF (G_ERR .GT. 0) RETURN
            LL = L3 + I-1 + (J-1)*M
            STKR(LL) = STKR(LS)
            STKI(LL) = STKI(LS)
@@ -5022,7 +5006,7 @@ END SUBROUTINE mat_stackg
 !==================================================================================================================================!
 SUBROUTINE mat_stack2(OP)
 
-! ident_35="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
+! ident_36="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
 
 INTEGER           :: OP
 DOUBLEPRECISION   :: SR,SI,E1,ST,E2
@@ -5078,9 +5062,9 @@ integer           ::  nexp
 01 IF (M .LT. 0) GOTO 50
    IF (M2 .LT. 0) GOTO 52
    IF (M .NE. M2) CALL mat_err(8)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    IF (N .NE. N2) CALL mat_err(8)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    CALL matX_waxpy(M*N,1.0D0,0.0D0,STKR(L2),STKI(L2),1,STKR(L),STKI(L),1)
    GOTO 99
 !
@@ -5088,9 +5072,9 @@ integer           ::  nexp
 03 IF (M .LT. 0) GOTO 54
    IF (M2 .LT. 0) GOTO 56
    IF (M .NE. M2) CALL mat_err(9)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    IF (N .NE. N2) CALL mat_err(9)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    CALL matX_waxpy(M*N,-1.0D0,0.0D0,STKR(L2),STKI(L2),1,STKR(L),STKI(L),1)
    GOTO 99
 !
@@ -5100,12 +5084,12 @@ integer           ::  nexp
    IF (M*N .EQ. 1) GOTO 11
    IF (M2*N2 .EQ. 1) GOTO 10
    IF (N .NE. M2) CALL mat_err(10)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    MN = M*N2
    LL = L + MN
-   ERR = LL+M*N+M2*N2 - LSTK(BOT)
-   IF (ERR .GT. 0) CALL mat_err(17)
-   IF (ERR .GT. 0) RETURN
+   G_ERR = LL+M*N+M2*N2 - LSTK(BOT)
+   IF (G_ERR .GT. 0) CALL mat_err(17)
+   IF (G_ERR .GT. 0) RETURN
    CALL mat_wcopy(M*N+M2*N2,STKR(L),STKI(L),-1,STKR(LL),STKI(LL),-1)
    DO J = 1, N2
       DO I = 1, M
@@ -5152,7 +5136,7 @@ integer           ::  nexp
    DO I = 1, MN
       LL = L+I-1
       CALL mat_wdiv(STKR(LL),STKI(LL),SR,SI,STKR(LL),STKI(LL))
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
    enddo
    GOTO 99
 !
@@ -5173,24 +5157,24 @@ integer           ::  nexp
    DO I = 1, MN
       LL = L+I-1
       CALL mat_wdiv(STKR(LL+1),STKI(LL+1),SR,SI,STKR(LL),STKI(LL))
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
    enddo
    GOTO 99
 !
 !     POWER
 30 continue
    IF (M2*N2 .NE. 1) CALL mat_err(30)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    IF (M .NE. N) CALL mat_err(20)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    NEXP = IDINT(STKR(L2))
    IF (STKR(L2) .NE. dble(NEXP)) GOTO 39
    IF (STKI(L2) .NE. 0.0D0) GOTO 39
    IF (NEXP .LT. 2) GOTO 39
    MN = M*N
-   ERR = L2+MN+N - LSTK(BOT)
-   IF (ERR .GT. 0) CALL mat_err(17)
-   IF (ERR .GT. 0) RETURN
+   G_ERR = L2+MN+N - LSTK(BOT)
+   IF (G_ERR .GT. 0) CALL mat_err(17)
+   IF (G_ERR .GT. 0) RETURN
    CALL mat_wcopy(MN,STKR(L),STKI(L),1,STKR(L2),STKI(L2),1)
    L3 = L2+MN
    DO KEXP = 2, NEXP
@@ -5216,7 +5200,7 @@ integer           ::  nexp
 !     ADD OR SUBTRACT SCALAR
 50 continue
    IF (M2 .NE. N2) CALL mat_err(8)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    M = M2
    N = N2
    MSTK(TOP) = M
@@ -5227,13 +5211,13 @@ integer           ::  nexp
    GOTO 58
 52 continue
    IF (M .NE. N) CALL mat_err(8)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    SR = STKR(L2)
    SI = STKI(L2)
    GOTO 58
 54 continue
    IF (M2 .NE. N2) CALL mat_err(9)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    M = M2
    N = N2
    MSTK(TOP) = M
@@ -5245,7 +5229,7 @@ integer           ::  nexp
    GOTO 58
 56 continue
    IF (M .NE. N) CALL mat_err(9)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    SR = -STKR(L2)
    SI = -STKI(L2)
    GOTO 58
@@ -5271,9 +5255,9 @@ integer           ::  nexp
    E1 = STKR(L)
 !     CHECK FOR CLAUSE
    IF (RSTK(PT) .EQ. 3) GOTO 64
-   ERR = L + MAX0(3,IDINT((E2-E1)/ST)) - LSTK(BOT)
-   IF (ERR .GT. 0) CALL mat_err(17)
-   IF (ERR .GT. 0) RETURN
+   G_ERR = L + MAX0(3,IDINT((E2-E1)/ST)) - LSTK(BOT)
+   IF (G_ERR .GT. 0) CALL mat_err(17)
+   IF (G_ERR .GT. 0) RETURN
 62 continue
    IF (ST .GT. 0.0D0 .AND. STKR(L) .GT. E2) GOTO 63
    IF (ST .LT. 0.0D0 .AND. STKR(L) .LT. E2) GOTO 63
@@ -5301,7 +5285,7 @@ integer           ::  nexp
 70 continue
    OP = OP - DOT
    IF (M.NE.M2 .OR. N.NE.N2) CALL mat_err(10)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    MN = M*N
    DO I = 1, MN
       J = L+I-1
@@ -5309,7 +5293,7 @@ integer           ::  nexp
       IF (OP .EQ. STAR)CALL mat_wmul(STKR(J),STKI(J),STKR(K),STKI(K),STKR(J),STKI(J))
       IF (OP .EQ. SLASH)CALL mat_wdiv(STKR(J),STKI(J),STKR(K),STKI(K),STKR(J),STKI(J))
       IF (OP .EQ. BSLASH)CALL mat_wdiv(STKR(K),STKI(K),STKR(J),STKI(J),STKR(J),STKI(J))
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
    enddo
    GOTO 99
 !
@@ -5492,12 +5476,12 @@ integer            :: n
 02 continue
    CALL mat_getsym()
    IF (SYM .NE. NAME) CALL mat_err(34) ! improper for clause
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    PT = PT+2
    CALL mat_putid(IDS(1,PT),SYN)
    CALL mat_getsym()
    IF (SYM .NE. EQUAL) CALL mat_err(34) ! improper for clause
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    CALL mat_getsym()
    RSTK(PT) = 3
 !     *CALL* EXPR
@@ -5508,7 +5492,7 @@ integer            :: n
    IF (mat_eqid(SYN,DO)) SYM = SEMI
    IF (SYM .EQ. COMMA) SYM = SEMI
    IF (SYM .NE. SEMI) CALL mat_err(34) ! improper for clause
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
 10 continue
    J = PSTK(PT-1)
    LPT(4) = PSTK(PT)
@@ -5532,18 +5516,18 @@ integer            :: n
 12 continue
    IF (J .GT. N) GOTO 20
    IF (TOP+1 .GE. BOT) CALL mat_err(18) ! too many names
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    TOP = TOP+1
    LSTK(TOP) = L2
    MSTK(TOP) = M
    NSTK(TOP) = 1
-   ERR = L2+M - LSTK(BOT)
-   IF (ERR .GT. 0) CALL mat_err(17)   ! too much memory required
-   IF (ERR .GT. 0) RETURN
+   G_ERR = L2+M - LSTK(BOT)
+   IF (G_ERR .GT. 0) CALL mat_err(17)   ! too much memory required
+   IF (G_ERR .GT. 0) RETURN
    CALL mat_wcopy(M,STKR(LJ),STKI(LJ),1,STKR(L2),STKI(L2),1)
    RHS = 0
    CALL mat_stackp(IDS(1,PT))
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    PSTK(PT-1) = J
    PSTK(PT) = LPT(4)
    RSTK(PT) = 13
@@ -5556,7 +5540,7 @@ integer            :: n
    NSTK(TOP) = 0
    RHS = 0
    CALL mat_stackp(IDS(1,PT))
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    PT = PT-2
    GOTO 80
 !.......................................................................
@@ -5576,7 +5560,7 @@ integer            :: n
    RETURN
 40 continue
    IF (SYM.NE.EQUAL .AND. SYM.NE.LESS .AND. SYM.NE.GREAT)CALL mat_err(35)    ! improper WHILE or IF clause
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    OP = SYM
    CALL mat_getsym()
    IF (SYM.EQ.EQUAL .OR. SYM.EQ.GREAT) OP = OP + SYM
@@ -5596,7 +5580,7 @@ integer            :: n
    IF (mat_eqid(SYN,DO) .OR. mat_eqid(SYN,THENN)) SYM = SEMI
    IF (SYM .EQ. COMMA) SYM = SEMI
    IF (SYM .NE. SEMI) CALL mat_err(35) ! improper WHILE or IF clause
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    IF (OP.EQ.EQUAL         .AND. E1.EQ.E2) GOTO 50
    IF (OP.EQ.LESS          .AND. E1.LT.E2) GOTO 50
    IF (OP.EQ.GREAT         .AND. E1.GT.E2) GOTO 50
@@ -5649,14 +5633,14 @@ integer            :: n
 !
 99 continue
    CALL mat_err(22)    ! recursion difficulties
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
 END SUBROUTINE mat_clause
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_rat(x,len,maxd,a,b,d)
 
-! ident_36="@(#)M_matrix::mat_rat(3fp): A/B = continued fraction approximation to X using  len  terms each less than MAXD"
+! ident_37="@(#)M_matrix::mat_rat(3fp): A/B = continued fraction approximation to X using  len  terms each less than MAXD"
 
 integer         :: len,maxd
 doubleprecision :: x,a,b,d(len)
@@ -5731,7 +5715,7 @@ integer           :: op
    if (sym.eq.plus .or. sym.eq.minus) call mat_getsym()
    pt = pt+1
    if (pt .gt. psize-1) call mat_err(26) ! too complicated (stack overflow)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    pstk(pt) = sign + 256*kount
    rstk(pt) = 6
 !     *call* term
@@ -5741,7 +5725,7 @@ integer           :: op
    kount = pstk(pt)/256
    pt = pt-1
    if (sign .eq. minus) call mat_stack1(minus)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
 10 continue
    if (sym.eq.plus .or. sym.eq.minus) goto 20
    goto 50
@@ -5763,7 +5747,7 @@ integer           :: op
    kount = pstk(pt)/256
    pt = pt-1
    call mat_stack2(op)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    goto 10
 50 continue
    if (sym .ne. colon) goto 60
@@ -5772,14 +5756,14 @@ integer           :: op
    goto 02
 60 continue
    if (kount .gt. 3) call mat_err(33)  ! too many colons
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    rhs = kount
    if (kount .gt. 1) call mat_stack2(colon)
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
    return
 99 continue
    call mat_err(22)     ! recursion difficulties
-   if (err .gt. 0) return
+   if (G_err .gt. 0) return
 end subroutine mat_expr
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -5823,14 +5807,14 @@ integer           :: n
    ID(1) = BLANK
    IF (SYM .EQ. LPAREN) GOTO 42
    CALL mat_err(2)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
 !
 !     PUT SOMETHING ON THE STACK
 10 CONTINUE
    L = 1
    IF (TOP .GT. 0) L = LSTK(TOP) + MSTK(TOP)*NSTK(TOP)
    IF (TOP+1 .GE. BOT) CALL mat_err(18)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    TOP = TOP+1
    LSTK(TOP) = L
    IF (SYM .EQ. QUOTE) GOTO 15
@@ -5854,7 +5838,7 @@ integer           :: n
 17 CONTINUE
    LN = L+N
    IF (CHRA .EQ. EOL) CALL mat_err(31)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    STKR(LN) = dble(CHRA)
    STKI(LN) = 0.0D0
    N = N+1
@@ -5864,7 +5848,7 @@ integer           :: n
    CALL mat_getch()  ! get next character
    IF (CHRA .EQ. QUOTE) GOTO 17
    IF (N .LE. 0) CALL mat_err(31)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    MSTK(TOP) = 1
    NSTK(TOP) = N
    CALL mat_getsym()
@@ -5892,22 +5876,22 @@ integer           :: n
    TOP = TOP - 1
    IF (MSTK(TOP) .EQ. 0) MSTK(TOP) = MSTK(TOP+1)
    IF (MSTK(TOP) .NE. MSTK(TOP+1)) CALL mat_err(5)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    NSTK(TOP) = NSTK(TOP) + NSTK(TOP+1)
    GOTO 22
 27 CONTINUE
    IF (SYM.EQ.SEMI .AND. CHRA.EQ.EOL) CALL mat_getsym()
    CALL mat_stack1(QUOTE)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    TOP = TOP - 1
    IF (MSTK(TOP) .EQ. 0) MSTK(TOP) = MSTK(TOP+1)
    IF (MSTK(TOP).NE.MSTK(TOP+1).AND.MSTK(TOP+1).GT.0)CALL mat_err(6)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    NSTK(TOP) = NSTK(TOP) + NSTK(TOP+1)
    IF (SYM .EQ. EOL) CALL mat_getlin()
    IF (SYM .NE. GREAT) GOTO 21
    CALL mat_stack1(QUOTE)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    CALL mat_getsym()
    GOTO 60
 !
@@ -5915,7 +5899,7 @@ integer           :: n
 30 CONTINUE
    CALL mat_getsym()
    IF (SYM.EQ.LESS .AND. CHRA.EQ.EOL) CALL mat_err(28)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    PT = PT+1
    RSTK(PT) = 18
 !     *CALL* EXPR
@@ -5923,7 +5907,7 @@ integer           :: n
 32 CONTINUE
    PT = PT-1
    IF (SYM.NE.LESS .AND. SYM.NE.EOL) CALL mat_err(37)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    IF (SYM .EQ. LESS) CALL mat_getsym()
    K = LPT(6)
    LIN(K+1) = LPT(1)
@@ -5938,7 +5922,7 @@ integer           :: n
       LS = L + J-1
       LIN(K) = IDINT(STKR(LS))
       IF (LIN(K).LT.0 .OR. LIN(K).GE.IALF) CALL mat_err(37)
-      IF (ERR .GT. 0) RETURN
+      IF (G_ERR .GT. 0) RETURN
       IF (K.LT.1024) K = K+1
       IF (K.EQ.1024)call journal('sc','INPUT BUFFER CHAR LIMIT EXCEEDED=',K)
    enddo
@@ -5973,13 +5957,13 @@ integer           :: n
    RHS = 0
    CALL mat_funs(ID)
    IF (FIN .NE. 0) CALL mat_err(25)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    CALL mat_stackg(ID)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    IF (FIN .EQ. 7) GOTO 50
    IF (FIN .EQ. 0) CALL mat_putid(IDS(1,PT+1),ID)
    IF (FIN .EQ. 0) CALL mat_err(4)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    GOTO 60
 !
 42 CONTINUE
@@ -5998,15 +5982,15 @@ integer           :: n
    PT = PT-1
    IF (SYM .EQ. COMMA) GOTO 42
    IF (SYM .NE. RPAREN) CALL mat_err(3)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    IF (SYM .EQ. RPAREN) CALL mat_getsym()
    IF (ID(1) .EQ. BLANK) GOTO 60
    RHS = EXCNT
    CALL mat_stackg(ID)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    IF (FIN .EQ. 0) CALL mat_funs(ID)
    IF (FIN .EQ. 0) CALL mat_err(4)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
 !
 !     EVALUATE MATRIX FUNCTION
 50 CONTINUE
@@ -6024,7 +6008,7 @@ integer           :: n
    I = LPT(3) - 2
    IF (LIN(I) .EQ. BLANK) GOTO 90
    CALL mat_stack1(QUOTE)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    CALL mat_getsym()
 62 CONTINUE
    IF (SYM.NE.STAR .OR. CHRA.NE.STAR) GOTO 90
@@ -6037,7 +6021,7 @@ integer           :: n
 65 CONTINUE
    PT = PT-1
    CALL mat_stack2(DSTAR)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
    IF (FUN .NE. 2) GOTO 90
 !     MATRIX POWER, USE EIGENVECTORS
    PT = PT+1
@@ -6050,7 +6034,7 @@ integer           :: n
    RETURN
 99 CONTINUE
    CALL mat_err(22)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
 END SUBROUTINE mat_factor
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -6105,7 +6089,7 @@ integer            :: ilen
    OP = PSTK(PT)
    PT = PT-1
    CALL mat_stack2(OP)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
 !     SOME BINARY OPS DONE IN MATFNS
    IF (FUN .EQ. 0) GOTO 10
    PT = PT+1
@@ -6119,7 +6103,7 @@ integer            :: ilen
 !.......................................................................
 99 CONTINUE
    CALL mat_err(22)
-   IF (ERR .GT. 0) RETURN
+   IF (G_ERR .GT. 0) RETURN
 !.......................................................................
 END SUBROUTINE mat_term
 !==================================================================================================================================!
@@ -6138,7 +6122,7 @@ doubleprecision              :: ximag(*)
 character(len=4)             :: cid
 integer                      :: i,j,k,l
 
-! ident_37="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
+! ident_38="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
 
       ! should report I/O errors (disk full, unwritable, ....)
 !
@@ -6164,7 +6148,7 @@ integer                      :: i,j,k,l
 !.......................................................................
       ELSE                   ! load
          READ(LSAVE,101,END=30) cid,M,N,IMG
-         call mat_str2buf(cid,id,4) ! convert character string to and ID
+         call mat_str2buf(cid,id,4) ! convert character string to an ID
          IF (M*N .GT. JOB) GOTO 30
          DO J = 1, N
             K = (J-1)*M+1
@@ -6399,7 +6383,7 @@ end function mat_wdotci
 !==================================================================================================================================!
 integer function mat_iwamax(n,xr,xi,incx)
 
-! ident_38="@(#)M_matrix::mat_iwamax(3fp):index of norminf(x)"
+! ident_39="@(#)M_matrix::mat_iwamax(3fp):index of norminf(x)"
 
 integer         :: n
 doubleprecision :: xr(*)
@@ -6565,7 +6549,6 @@ end function mat_round
 subroutine mat_make_help(io)
 integer,intent(in) :: io
 write(io,'(a)')'INTRO Welcome to MAT88.'
-write(io,'(a)')''
 write(io,'(a)')'       #-------------------#--------------------------------------------#'
 write(io,'(a)')'       | HELP Sections     | Available Topics                           |'
 write(io,'(a)')'       #-------------------#--------------------------------------------#'
@@ -6600,6 +6583,8 @@ write(io,'(a)')'       | Performance Info. |  flops    flps                     
 write(io,'(a)')'       #-------------------#--------------------------------------------#'
 write(io,'(a)')'       | Miscellaneous     |   char    EDIT  debug    eps     sh        |'
 write(io,'(a)')'       #----------------------------------------------------------------#'
+write(io,'(a)')''
+write(io,'(a)')'SAMPLE'
 write(io,'(a)')'      Here are a few sample statements:'
 write(io,'(a)')''
 write(io,'(a)')'       A = <1 2; 3 4>'
@@ -6621,17 +6606,19 @@ write(io,'(a)')'      HELP HELP obviously prints this message.'
 write(io,'(a)')'      To see all the HELP messages, generate the manual'
 write(io,'(a)')'      using "doc(''help.txt'')".'
 write(io,'(a)')''
-write(io,'(a)')'NEWS  MAT88 NEWS dated May, 1981.'
+write(io,'(a)')'NEWS'
+write(io,'(a)')'      May, 1981.'
 write(io,'(a)')''
 write(io,'(a)')'      This is a port of the Argonne National Lab. FORTRAN 77 MATLAB'
 write(io,'(a)')'      routine circa 1981. This port is intended to be used primarily'
 write(io,'(a)')'      by families of FORTRAN programs that wish to add a consistent'
 write(io,'(a)')'      interactive "calculator" mode.'
 write(io,'(a)')''
-write(io,'(a)')'      COMMAND HISTORY'
+write(io,'(a)')'      Mar, 1990.'
 write(io,'(a)')''
-write(io,'(a)')'      A "." on a line by itself calls the command history mode. Enter'
-write(io,'(a)')'      "?" after entering the mode for details.'
+write(io,'(a)')'      Input lines can now be recalled and edited.  A "." on a line by'
+write(io,'(a)')'      itself calls the command history mode. Enter "?" after entering'
+write(io,'(a)')'      the mode for details.'
 write(io,'(a)')''
 write(io,'(a)')'what  Lists commands and functions currently available.'
 write(io,'(a)')''
@@ -6810,7 +6797,7 @@ write(io,'(a)')'who   Lists current variables.'
 write(io,'(a)')'================================================================================'
 write(io,'(a)')'MACROS'
 write(io,'(a)')''
-write(io,'(a)')'MACRO  The macro facility involves text and inward pointing angle'
+write(io,'(a)')'       The macro facility involves text and inward pointing angle'
 write(io,'(a)')'       brackets. If STRING is the source text for any MAT88'
 write(io,'(a)')'       expression or statement, then'
 write(io,'(a)')''
@@ -9699,16 +9686,15 @@ write(io,'(a)')'   within another program. Communication with the MAT88 stack is
 write(io,'(a)')'   accomplished using subroutine MATZ which is distributed with MAT88,'
 write(io,'(a)')'   but which is not used by MAT88 itself. The preamble of MATZ is:'
 write(io,'(a)')''
-write(io,'(a)')'         SUBROUTINE MATZ(A,LDA,M,N,IDA,JOB,IERR)'
-write(io,'(a)')'         INTEGER LDA,M,N,IDA(1),JOB,IERR'
+write(io,'(a)')'         SUBROUTINE MATZ(A,LDA,M,N,ID,JOB,IERR)'
+write(io,'(a)')'         INTEGER LDA,M,N,JOB,IERR'
+write(io,'(a)')'         character(len=*) :: id'
 write(io,'(a)')'         DOUBLEPRECISION A(LDA,N)'
 write(io,'(a)')''
 write(io,'(a)')'         ! ACCESS MAT88 VARIABLE STACK'
 write(io,'(a)')'         ! A IS AN M BY N MATRIX, STORED IN AN ARRAY WITH'
 write(io,'(a)')'         !     LEADING DIMENSION LDA.'
-write(io,'(a)')'         ! IDA IS THE NAME OF A.'
-write(io,'(a)')'         !     IF IDA IS AN INTEGER K LESS THAN 10, THEN THE NAME IS ''A''K'
-write(io,'(a)')'         !     OTHERWISE, IDA(1:4) IS FOUR CHARACTERS, FORMAT 4A1.'
+write(io,'(a)')'         ! ID IS THE NAME OF A. ID IS UP TO FOUR CHARACTERS.'
 write(io,'(a)')'         ! JOB =  0  GET REAL A FROM MAT88,'
 write(io,'(a)')'         !     =  1  PUT REAL A INTO MAT88,'
 write(io,'(a)')'         !     = 10  GET IMAG PART OF A FROM MAT88,'
@@ -9728,9 +9714,7 @@ write(io,'(a)')''
 write(io,'(a)')'        To do our example, write the following program:'
 write(io,'(a)')''
 write(io,'(a)')'            DOUBLEPRECISION A(10,10),X(10,10)'
-write(io,'(a)')'            INTEGER IDA(4),IDX(4)'
 write(io,'(a)')'            DATA LDA/10/'
-write(io,'(a)')'            DATA IDA/''A'','' '','' '','' ''/, IDX/''X'','' '','' '','' ''/'
 write(io,'(a)')'            CALL M_88(0,'''')'
 write(io,'(a)')'            N = 6'
 write(io,'(a)')'            DO J = 1, N'
@@ -9738,10 +9722,10 @@ write(io,'(a)')'               DO I = 1, N'
 write(io,'(a)')'                  A(I,J) = IABS(I-J)'
 write(io,'(a)')'               enddo'
 write(io,'(a)')'            enddo'
-write(io,'(a)')'            CALL MATZ(A,LDA,N,N,IDA,1,IERR)'
+write(io,'(a)')'            CALL MATZ(A,LDA,N,N,''A'',1,IERR)'
 write(io,'(a)')'            IF (IERR .NE. 0) GO TO ...'
 write(io,'(a)')'            CALL MAT88(1,'''')'
-write(io,'(a)')'            CALL MATZ(X,LDA,N,N,IDX,0,IERR)'
+write(io,'(a)')'            CALL MATZ(X,LDA,N,N,''X'',0,IERR)'
 write(io,'(a)')'            IF (IERR .NE. 0) GO TO ...'
 write(io,'(a)')'            ...'
 write(io,'(a)')'            ...'
@@ -9818,6 +9802,43 @@ write(io,'(a)')'     publication, 1980.'
 write(io,'(a)')''
 write(io,'(a)')'APPENDIX'
 end subroutine mat_make_manual
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+SUBROUTINE MAT_MATZ(A,LDA,M,N,CID,JOB,IERR)
+INTEGER LDA,M,N,JOB,IERR
+character(len=*),intent(in) :: cid
+DOUBLE PRECISION A(LDA,N)
+!
+!     ACCESS MATLAB VARIABLE STACK
+!     A   IS AN M BY N MATRIX, STORED IN AN ARRAY WITH
+!         LEADING DIMENSION LDA.
+!     ID  IS THE NAME OF A.  ID IS FOUR CHARACTERS
+!     JOB =  0  GET REAL A FROM MATLAB,
+!         =  1  PUT REAL A INTO MATLAB,
+!         = 10  GET IMAG PART OF A FROM MATLAB,
+!         = 11  PUT IMAG PART OF A INTO MATLAB.
+!     RETURN WITH NONZERO IERR AFTER MATLAB ERROR MESSAGE.
+!
+!     USES MATLAB ROUTINES ML_STACKG, ML_STACKP AND ML_ERROR
+      ! ML_STACKP
+!#include "ml_88.h"
+!     FILE HANDLING AND OTHER I/O
+      INTEGER BLANK,TOP2,SEMI
+      INTEGER ID(4)
+      character(len=4) :: cid4
+      DATA BLANK/36/,SEMI/39/
+      SAVE BLANK,SEMI
+
+      integer :: i, j, k, l
+      integer :: img
+      integer :: mn
+      integer :: lun
+      lun=90
+      cid4=cid
+      call mat_str2buf(cid4,id,4)
+!
+END SUBROUTINE MAT_MATZ
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
@@ -10489,7 +10510,7 @@ end subroutine test_suite_M_matrix
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-end module M_matrix !! subroutine
+end module M_matrix
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
