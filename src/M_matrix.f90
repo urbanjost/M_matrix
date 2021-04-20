@@ -67,6 +67,7 @@ module M_matrix
 !!       g95 matrix.f90
 !!       gfortran -fno-range-check matrix.f90
 use M_journal, only : journal
+use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
 implicit none
 !private
 public MAT88
@@ -80,23 +81,30 @@ character(len=1024),save :: G_STRING
 integer,save             :: G_ISTRING
 integer,save             :: G_INIT
 !==================================================================================================================================!
-integer,parameter        :: G_ialf=78
+integer                  :: G_DEBUG_LEVEL       ! select which debug messages to display. zero (0) is off
+logical                  :: G_FILE_OPEN_ERROR   ! flag whether file open error occurred or not
 integer,parameter        :: G_eol=99
-integer,parameter        :: G_BIGMEM=200005
-doubleprecision          :: G_STKR(G_BIGMEM), G_STKI(G_BIGMEM)
-integer                  :: G_IDSTK(4, 48), G_LSTK(48), G_MSTK(48), G_NSTK(48), G_VSIZE, G_LSIZE, G_BOT, G_TOP
-integer                  :: G_ALFA(G_IALF), G_ALFB(G_IALF), G_ALFLQ
-integer                  :: G_DDT, G_ERR, G_FMT, G_LCT(4), G_LIN(1024), G_LPT(6), G_HIO, G_RIO, G_RTE, G_WTE, G_FE
+integer                  :: G_ERR, G_FMT, G_LCT(4), G_LIN(1024), G_LPT(6), G_HIO, G_RIO, G_RTE, G_WTE
 integer                  :: G_IDS(4,32), G_PSTK(32), G_RSTK(32), G_PSIZE, G_PT, G_PTZ
 integer                  :: G_SYM, G_SYN(4), G_BUF(1024), G_CHRA, G_FLOP_COUNTER(2), G_FIN, G_FUN, G_LHS, G_RHS, G_RAN(2)
 
-! CHARACTER SET                                0---------1---------2---------3---------4--------- 5---------6---------7-------
-!                                              01234567890123456789012345678901234567890123456789 0123456789012345678901234567
-character(len=G_ialf),parameter ::  G_charset='0123456789abcdefghijklmnopqrstuvwxyz ();:+-*/\=.,''<>ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+integer                  :: G_IDSTK(4, 48), G_LSTK(48), G_MSTK(48), G_NSTK(48), G_VSIZE, G_LSIZE, G_BOT, G_TOP
+integer,parameter        :: G_BIGMEM=200005
+doubleprecision          :: G_STKR(G_BIGMEM), G_STKI(G_BIGMEM)
 
-! ALTERNATE CHARACTER SET                         0---------1---------2---------3---------4---------5---------6---------7-------
-!                                                 012345678901234567890123456789012345678901234567890123456789012345678901234567
-character(len=G_ialf),parameter ::  G_alt_charset='0123456789abcdefghijklmnopqrstuvwxyz {};|+-*/$=@,"[]ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+integer,parameter        :: G_CHARSET_SIZE=78      ! number of characters in character set
+! CHARACTER SET                                    0---------1---------2---------3---------4---------5---------6---------7-------
+!                                                  012345678901234567890123456789012345678901234567890123456789012345678901234567
+character(len=G_CHARSET_SIZE),parameter ::  G_DEFINE_CHARSET=&
+                                                 &"0123456789abcdefghijklmnopqrstuvwxyz ();:+-*/\=.,'<>ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+! ALTERNATE CHARACTER SET                          0---------1---------2---------3---------4---------5---------6---------7-------
+!                                                  012345678901234567890123456789012345678901234567890123456789012345678901234567
+character(len=G_CHARSET_SIZE),parameter ::  G_DEFINE_ALT_CHARSET=&
+                                                 &'0123456789abcdefghijklmnopqrstuvwxyz {};|+-*/$=@,"[]ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+integer                  :: G_CHARSET(G_CHARSET_SIZE)  ! G_DEFINE_CHARSET converted to "Hollerith" values
+integer                  :: G_ALT_CHARSET(G_CHARSET_SIZE)  ! G_DEFINE_ALT_CHARSET converted to "Hollerith" values
 
 contains
 !==================================================================================================================================!
@@ -235,9 +243,9 @@ contains
 !!      four:F = <>;
 !!      four:for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
 !!      four:F = F/sqrt(n);
-!!      four:G_ALFA = r*pi;
-!!      four:rho = exp(i*G_ALFA);
-!!      four:S = log(rho*F)/i - G_ALFA*EYE;
+!!      four:G_CHARSET = r*pi;
+!!      four:rho = exp(i*G_CHARSET);
+!!      four:S = log(rho*F)/i - G_CHARSET*EYE;
 !!      four:serr = norm(imag(S),1);
 !!      four:S = real(S);
 !!      four:serr = serr + norm(S-S',1)
@@ -282,17 +290,17 @@ contains
 !!      lanczos:<n,n> = size(A);
 !!      lanczos:q1 = rand(n,1);
 !!      lanczos:ort
-!!      lanczos:G_ALFA = <>; beta = <>;
+!!      lanczos:G_CHARSET = <>; beta = <>;
 !!      lanczos:q = q1/norm(q1); r = A*q(:,1);
 !!      lanczos:for j = 1:n, exec('lanstep',0);
 !!
-!!      lanstep:G_ALFA(j) = q(:,j)'*r;
-!!      lanstep:r = r - G_ALFA(j)*q(:,j);
+!!      lanstep:G_CHARSET(j) = q(:,j)'*r;
+!!      lanstep:r = r - G_CHARSET(j)*q(:,j);
 !!      lanstep:if ort <> 0, for k = 1:j-1, r = r - r'*q(:,k)*q(:,k);
 !!      lanstep:beta(j) = norm(r);
 !!      lanstep:q(:,j+1) = r/beta(j);
 !!      lanstep:r = A*q(:,j+1) - beta(j)*q(:,j);
-!!      lanstep:if j > 1, T = diag(beta(1:j-1),1); T = diag(G_ALFA) + T + T'; eig(T)
+!!      lanstep:if j > 1, T = diag(beta(1:j-1),1); T = diag(G_CHARSET) + T + T'; eig(T)
 !!
 !!      mgs:for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; ...
 !!      mgs:   for j = k+1:n, d = x(j,:)*x(k,:)'; x(j,:) = x(j,:) - d*x(k,:);
@@ -352,24 +360,24 @@ contains
 !!      pascal:k = k + 1;
 !!      pascal:L(k,1:k) = <L(k-1,:) 0> + <0 L(k-1,:)>;
 !!
-!!      pdq:G_ALFA = <>; beta = 0; q = <>; p = p(:,1)/norm(p(:,1));
+!!      pdq:G_CHARSET = <>; beta = 0; q = <>; p = p(:,1)/norm(p(:,1));
 !!      pdq:t = A'*p(:,1);
-!!      pdq:G_ALFA(1) = norm(t);
-!!      pdq:q(:,1) = t/G_ALFA(1);
-!!      pdq:X = p(:,1)*(G_ALFA(1)*q(:,1))'
+!!      pdq:G_CHARSET(1) = norm(t);
+!!      pdq:q(:,1) = t/G_CHARSET(1);
+!!      pdq:X = p(:,1)*(G_CHARSET(1)*q(:,1))'
 !!      pdq:e(1) = norm(A-X,1)
 !!      pdq:for j = 2:r, exec('pdqstep',ip); ...
-!!      pdq:   X = X + p(:,j)*(G_ALFA(j)*q(:,j)+beta(j)*q(:,j-1))', ...
+!!      pdq:   X = X + p(:,j)*(G_CHARSET(j)*q(:,j)+beta(j)*q(:,j-1))', ...
 !!      pdq:   e(j) = norm(A-X,1)
 !!
-!!      pdqstep:t = A*q(:,j-1) - G_ALFA(j-1)*p(:,j-1);
+!!      pdqstep:t = A*q(:,j-1) - G_CHARSET(j-1)*p(:,j-1);
 !!      pdqstep:   if ort>0, for i = 1:j-1, t = t - t'*p(:,i)*p(:,i);
 !!      pdqstep:beta(j) = norm(t);
 !!      pdqstep:p(:,j) = t/beta(j);
 !!      pdqstep:t = A'*p(:,j) - beta(j)*q(:,j-1);
 !!      pdqstep:   if ort>0, for i = 1:j-1, t = t - t'*q(:,i)*q(:,i);
-!!      pdqstep:G_ALFA(j) = norm(t);
-!!      pdqstep:q(:,j) = t/G_ALFA(j);
+!!      pdqstep:G_CHARSET(j) = norm(t);
+!!      pdqstep:q(:,j) = t/G_CHARSET(j);
 !!
 !!      pop:y = < 75.995   91.972  105.711  123.203   ...
 !!      pop:     131.669  150.697  179.323  203.212>'
@@ -628,36 +636,34 @@ integer,save                :: RAND(4)=  [27,10,23,13]
 !     8      8        I        S  RPAREN )  COMMA  ,
 !     9      9        J        T  SEMI   ;  QUOTE  '
 !----------------------------------------------------------------
-      G_STRING=STRING0
-      ISTRING0=LEN(STRING0)
-      G_ISTRING=len_trim(STRING0(1:ISTRING0))
-      IF(G_ISTRING.LE.0.AND.INIT.EQ.2)THEN
-         G_STRING='quit'
-         G_ISTRING=4
-      ENDIF
-      G_INIT=INIT
+   G_STRING=STRING0
+   ISTRING0=LEN(STRING0)
+   G_ISTRING=len_trim(STRING0(1:ISTRING0))
+   IF(G_ISTRING.LE.0.AND.INIT.EQ.2)THEN
+      G_STRING='quit'
+      G_ISTRING=4
+   ENDIF
+   G_INIT=INIT
 !----------------------------------------------------------------
-      IF (INIT .NE. 0 .and. INIT .ne. -1) GOTO 90     ! already initialized
-      G_RTE = 5                                         ! unit number for terminal input
+   IF (INIT .eq. 0 .or. INIT .eq. -1) then              ! initialize the routine
+      G_RTE = STDIN                                     ! unit number for terminal input
       CALL mat_files(G_RTE,G_BUF)
-      G_RIO = G_RTE                                       ! current file to read commands from
-      G_WTE = 6                                         ! unit number for terminal output
+      G_RIO = G_RTE                                     ! current file to read commands from
+      G_WTE = STDOUT                                    ! unit number for terminal output
       CALL mat_files(G_WTE,G_BUF)
 
-      IF (INIT .GE. 0) then                           ! initializing verbose
-         call journal('  < M A T 8 8 >')
-         call journal(' based on MATLAB Version of 05/25/82')
+      IF (INIT .GE. 0) then                             ! initializing verbose
+         call journal('< MAT88 > modeled on the MATLAB version of 05/25/82')
       endif
 
       G_HIO = 11                                        ! UNIT NUMBER FOR HELP FILE
-      CALL mat_files(G_HIO,G_BUF)                         ! open HELP FILE
+      CALL mat_files(G_HIO,G_BUF)                       ! open HELP FILE
       G_RAN(1) = 0                                      ! RANDOM NUMBER SEED
       G_LCT(2) = 25                                     ! INITIAL LINE LIMIT
 
-      G_ALFLQ = G_IALF
 !------------------------------------------------------------------------
-      call mat_str2buf(G_charset,G_ALFA,G_ALFLQ)     ! convert string to hollerith
-      call mat_str2buf(G_alt_charset,G_ALFB,G_ALFLQ) ! convert string to hollerith
+      call mat_str2buf(G_DEFINE_CHARSET,G_CHARSET,G_CHARSET_SIZE)         ! convert string to hollerith
+      call mat_str2buf(G_DEFINE_ALT_CHARSET,G_ALT_CHARSET,G_CHARSET_SIZE) ! convert string to hollerith
 !------------------------------------------------------------------------
 !
       G_VSIZE = G_BIGMEM
@@ -671,10 +677,12 @@ integer,save                :: RAND(4)=  [27,10,23,13]
       G_NSTK(G_LSIZE-3) = 1
 
       S = 1.0D0
-   30 continue
-      S = S/2.0D0
-      T = 1.0D0 + S
-      IF (T .GT. 1.0D0) GOTO 30
+      SET_ST: do
+         S = S/2.0D0
+         T = 1.0D0 + S
+         IF (T .le. 1.0D0) exit
+      enddo SET_ST
+
       G_STKR(G_VSIZE-4) = 2.0D0*S
 
       CALL mat_putid(G_IDSTK(1,G_LSIZE-2),FLOPS)
@@ -693,28 +701,28 @@ integer,save                :: RAND(4)=  [27,10,23,13]
       G_FMT = 1
       G_FLOP_COUNTER(1) = 0
       G_FLOP_COUNTER(2) = 0
-      G_DDT = 0
+      G_DEBUG_LEVEL = 0
       G_RAN(2) = 0
       G_PTZ = 0
       G_PT = G_PTZ
       G_ERR = 0
       IF (INIT .EQ. -1) RETURN
-!
-90    continue
-      INFINITE : do
-         CALL mat_parse(INIT)
-         select case(G_fun)
-         case(1) ; call mat_matfn1()
-         case(2) ; call mat_matfn2()
-         case(3) ; call mat_matfn3()
-         case(4) ; call mat_matfn4()
-         case(5) ; call mat_matfn5()
-         case(6) ; call mat_matfn6()
-         case(21); call mat_matfn1()
-         case(99); exit INFINITE
-         case default
-         end select
-      enddo INFINITE
+   endif
+
+   PARSE_LINE : do
+      CALL mat_parse(INIT)
+      select case(G_fun)
+      case(1) ; call mat_matfn1()
+      case(2) ; call mat_matfn2()
+      case(3) ; call mat_matfn3()
+      case(4) ; call mat_matfn4()
+      case(5) ; call mat_matfn5()
+      case(6) ; call mat_matfn6()
+      case(21); call mat_matfn1()
+      case(99); exit PARSE_LINE
+      case default
+      end select
+   enddo PARSE_LINE
 
 end subroutine MAT88
 !==================================================================================================================================!
@@ -724,14 +732,14 @@ subroutine mat_err(n)
 
 ! ident_2="@(#)m_matrix::mat_err(3fp): given error number, write associated error message"
 
-integer,intent(in)        :: n
-integer,parameter         :: linelen=255
-character(len=linelen)    :: msg
-integer                   :: k
-integer                   :: kk
-integer                   :: i
-integer                   :: lb
-integer                   :: lt
+integer,intent(in)   :: n
+
+integer              :: i
+integer              :: k
+integer              :: kk
+integer              :: lb
+integer              :: lt
+character(len=255)   :: msg
 
    select case(n)
     case(1);  msg='Improper multiple assignment'
@@ -741,7 +749,7 @@ integer                   :: lt
     case(4);
       DO I = 1, 4                           ! extract variable name into buffer
          KK = G_IDS(I,G_PT+1)
-         G_BUF(I) = G_ALFA(KK+1)
+         G_BUF(I) = G_CHARSET(KK+1)
       enddo
       call mat_buf2str(msg,G_buf,4)           ! convert buffer to string
       msg='Undefined variable: '//msg(1:4)
@@ -806,7 +814,7 @@ end subroutine mat_err
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_files(lunit,iname)
+subroutine mat_files(lunit,iname,status)
 integer :: lunit !  logical unit number
    ! if LUNIT is zero, return
    ! if LUNIT = standard input, return
@@ -815,24 +823,28 @@ integer :: lunit !  logical unit number
    ! if LUNIT is -11 and G_HIO .ne. 0 , rewind the help file
    ! if LUNIT is positive, open the unit to file name INAME
    ! if LUNIT is negative, close the unit number
-!     INAME = FILE NAME, 1 character per word
-   ! how to know length of iname?
-integer                      :: iname(256)
+integer                      :: iname(256) ! INAME = FILE NAME, 1 character per word
+                                           ! how to know length of iname?
 character(len=1024)          :: name
 character(len=1024)          :: temp1
+character(len=*),optional    :: status
+character(len=20)            :: status_local
 integer                      :: ios
-integer                      :: itemp
-integer                      :: itemp1
+if(present(status))then
+   status_local=status
+else
+   status_local='UNKNOWN'
+endif
 !  Amiga dependent stuff squeezes the NAME from one CHAR per word to one per byte
 !.......................................................................
-   if (G_ddt .eq. 1) then
+   if (G_DEBUG_LEVEL .eq. 1) then
       call journal('sc','*MLFILES* LUNIT=', LUNIT)
       name(1:10)='*MLFILES* INAME='
       call mat_buf2str(name(11:),iname,256)
       call journal(name)
    endif
 !.......................................................................
-   G_fe=0
+   G_FILE_OPEN_ERROR=.false.
    select case(lunit)
     case(0) ! error catcher
     case(5) ! if unit is standard input return
@@ -842,25 +854,23 @@ integer                      :: itemp1
        call journal('O',trim(name)) ! open up trail file
     case(11)                                                         ! HELP FILE
       temp1=' '
-      call get_environment_variable('ML88_HELP',temp1)              ! get default name for helpfile to override built-in file
-      if(temp1(:).eq.' ')then                                       ! create and open scratch help file
+      call get_environment_variable('ML88_HELP',temp1)               ! get default name for helpfile to override built-in file
+      if(temp1(:).eq.' ')then                                        ! create and open scratch help file
          !! temp1='MAT88_help.txt'
          open(11,status='scratch',iostat=ios)
          call mat_make_help(lunit)
          rewind(11,iostat=ios)
-      else                                                          ! try to use user-specified help file instead of built-in file
-         itemp1=max(1,len_trim(temp1))
-         open(11,file=temp1(:itemp1),status='old',iostat=ios)       ! open help file
-         if(ios.ne.0)then                                           ! HELP FILE NOT FOUND
-            call journal('HELP IS NOT AVAILABLE ON FILE ...')
-            call journal(temp1(1:itemp1))
+      else                                                           ! try to use user-specified help file instead of built-in file
+         open(11,file=temp1,status='old',iostat=ios)                 ! open help file
+         if(ios.ne.0)then                                            ! HELP FILE NOT FOUND
+            call journal('HELP IS NOT AVAILABLE ON FILE ...'//temp1)
             G_HIO = 0
          else
             !call journal('HELP is available')
          endif
       endif
     case(:-1)
-      if( lunit .eq. -11 .and. G_HIO .ne. 0)then                       ! SPECIAL CASE FOR HELP FILE
+      if( lunit .eq. -11 .and. G_HIO .ne. 0)then                     ! SPECIAL CASE FOR HELP FILE
          rewind (11,iostat=ios)
       elseif(lunit.eq.-8)then
          call journal('O','')                                        ! close trail file
@@ -870,14 +880,13 @@ integer                      :: itemp1
       endif
     case default                                                     !  ALL OTHER FILES
       call mat_buf2str(name,iname,256)
-      itemp=len_trim(name)
-      !call journal('filename='//name(:itemp)
-      open(unit=lunit,file=name(:itemp),status='unknown',iostat=ios) ! open a file
+      open(unit=lunit,file=name,status=status_local,iostat=ios)      ! open a file
       if(ios.ne.0)then                                               ! general file open failure
-         call journal('*mat_files* OPEN FILE FAILED')
-         call journal(name(1:len_trim(name)))
-         G_fe=1                                                        ! set the I/O to terminal I/O
-         G_RIO=G_RTE                                                     ! set current file to read input lines from/to G_RTE
+         call journal('OPEN failed on file '//name)
+         G_FILE_OPEN_ERROR=.true.                                    ! set the flag a file error occurred
+         G_RIO=G_RTE                                                 ! set current file to read input lines from/to G_RTE
+      else
+         G_FILE_OPEN_ERROR=.false.                                   ! set the flag a file error did not occurr
       endif
    end select
 end subroutine mat_files
@@ -922,7 +931,7 @@ integer      :: i
 !.......................................................................
    G_LPT(2) = G_LPT(3)
    G_LPT(3) = G_LPT(4)
-   if (G_chra .le. 9) goto 50                                 ! numeric character (0-9)
+   if (G_chra .le. 9) goto 50                                     ! numeric character (0-9)
    if (G_chra .le. z.or.(G_chra.ge.a2.and.G_chra.le.z2)) goto 30  ! alphameric (A-Z OR a-z)
 !.......................................................................
 !     special character
@@ -987,11 +996,11 @@ integer      :: i
    call mat_getch() ! get next character
    goto 90
 99 continue
-   if (G_ddt .ne. 1) return
-   if (G_sym.gt.name .and. G_sym.lt.G_ALFLQ) then
-      call journal(char(G_ALFA(G_sym+1)))
+   if (G_DEBUG_LEVEL .ne. 1) return
+   if (G_sym.gt.name .and. G_sym.lt.G_CHARSET_SIZE) then
+      call journal(char(G_CHARSET(G_sym+1)))
    endif
-   if (G_sym .ge. G_ALFLQ) call journal('eol')
+   if (G_sym .ge. G_CHARSET_SIZE) call journal('eol')
    if (G_sym .eq. name) call mat_prntid(G_syn,1)
    if (G_sym .eq. num) then
       write(mline,'(1x,g8.2)') syv
@@ -1009,11 +1018,11 @@ subroutine mat_str2buf(string,buf,lrecl)
 
 character(len=*),intent(in) :: string
 integer,intent(in)          :: lrecl
-integer,intent(out)         :: buf(lrecl)
+integer,intent(out)         :: buf(:)
 integer                     :: i
 
    buf=ichar(' ')+538976304-48
-   do i=1,min(lrecl,len(string))
+   do i=1,min(lrecl,len_trim(string))
       buf(i)=ichar(string(i:i))+538976304-48
    enddo
 
@@ -1026,13 +1035,14 @@ subroutine mat_buf2str(string,buf,lrecl)
 ! ident_5="@(#)M_matrix::mat_buf2string(3fp) :: convert hollerith to string"
 
 integer,intent(in)           :: lrecl
-integer,intent(in)           :: buf(lrecl)
+integer,intent(in)           :: buf(:)
 character(len=*)             :: string
-integer                      :: i10
+integer                      :: i
+integer                      :: ilen
    string(:)=' '
-   do i10=1,min(lrecl,len(string))
-      if(buf(i10).eq.0)exit
-      string(i10:i10)=char(buf(i10)-538976304+48)
+   ilen=len(string)
+   do i=1,min(lrecl,ilen)
+      string(i:i)=char(buf(i)-538976304+48)
    enddo
 end subroutine mat_buf2str
 !==================================================================================================================================!
@@ -1040,11 +1050,15 @@ end subroutine mat_buf2str
 !==================================================================================================================================!
 subroutine mat_hilber(a,lda,n)
 
-! ident_6="@(#)M_matrix::ml_hilbr(3fp): generate inverse hilbert matrix"
+! ident_6="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
+!
+! References:
+! Forsythe, G. E. and C. B. Moler. Computer Solution of Linear Algebraic Systems. Englewood Cliffs, NJ: Prentice-Hall, 1967.
 
 integer         :: lda
 integer         :: n
 doubleprecision :: a(lda,n)
+
 doubleprecision :: p
 doubleprecision :: r
 integer         :: i
@@ -1054,14 +1068,14 @@ integer         :: ip1
    p = dble(n)
 
    do i = 1, n
-      if (i.ne.1) p = (dble(n-i+1)*p*dble(n+i-1))/dble(i-1)**2
-      r = p*p
-      a(i,i) = r/dble(2*i-1)
+      if (i.ne.1) p = (dble(n-i+1) * p * dble(n+i-1)) / dble(i-1)**2
+      r = p * p
+      a(i,i) = r / dble(2*i-1)
       if (i.eq.n) cycle
-      ip1 = i+1
+      ip1 = i + 1
       do j = ip1, n
-         r = (-1)*(dble(n-j+1)*r*(n+j-1))/dble(j-1)**2
-         a(i,j) = r/dble(i+j-1)
+         r = (-1) * (dble(n-j+1) * r * (n+j-1)) / dble(j-1)**2
+         a(i,j) = r/ dble(i+j-1)
          a(j,i) = a(i,j)
       enddo
    enddo
@@ -1103,7 +1117,7 @@ integer           :: id(4)
 doubleprecision   :: eps0,eps,s,sr,si,t
 character(len=80) :: mline
 !
-      IF (G_DDT .EQ. 1) call journal('sc','*MATFN6* ',G_FIN)
+      IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN6* ',G_FIN)
 !     FUNCTIONS/G_FIN
 !     MAGI DIAG SUM  PROD USER EYE  RAND ONES CHOP SIZE KRON  TRIL TRIU
 !       1    2    3    4    5    6    7    8    9   10  11-13  14   15
@@ -1737,7 +1751,7 @@ doubleprecision :: t
    q = dmin1(dabs(a),dabs(b))
 
    !------- DEBUG
-   if (G_ddt .eq. 25) then
+   if (G_DEBUG_LEVEL .eq. 25) then
       call journal('sc','*mat_pythag* a) P=',real(P)) ! debug 25
       call journal('sc','*mat_pythag* a) Q=',real(Q)) ! debug 25
    endif
@@ -1752,7 +1766,7 @@ doubleprecision :: t
          p = p + 2.0d0*p*s
          q = q*s
          !------- DEBUG
-         if (G_ddt .eq. 25) then
+         if (G_DEBUG_LEVEL .eq. 25) then
             call journal('sc','*mat_pythag* b) P=',real(P)) ! debug 25
             call journal('sc','*mat_pythag* b) Q=',real(Q)) ! debug 25
          endif
@@ -1877,7 +1891,7 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
    G_LCT(1) = G_LCT(1)+2
    IF (S .NE. 1.0D0)then
       WRITE(mline,'(''  '',1PD9.1," *")') S
-      if(G_WTE.eq.6)then
+      if(G_WTE.eq.STDOUT)then
          call journal(mline)
       else
          write(G_WTE,'(a)')mline(1:80)
@@ -1887,7 +1901,7 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
       J2 = MIN0(N, J1+JINC-1)
       IF (N .GT. JINC)then
          WRITE(mline,'(''     COLUMNS'',I6,'' THRU'',I6)') J1,J2
-         if(G_WTE.eq.6)then
+         if(G_WTE.eq.STDOUT)then
             call journal(mline)
          else
             write(G_WTE,'(a)')mline(1:80)
@@ -1899,8 +1913,8 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
             LS = L+I-1+(J+J1-2)*M
             PR(J) = G_STKR(LS)/S
             PI(J) = DABS(G_STKI(LS)/S)
-            SIG(J) = G_ALFA(PLUS+1)
-            IF (G_STKI(LS) .LT. 0.0D0) SIG(J) = G_ALFA(MINUS+1)
+            SIG(J) = G_CHARSET(PLUS+1)
+            IF (G_STKI(LS) .LT. 0.0D0) SIG(J) = G_CHARSET(MINUS+1)
          enddo
 
          goto(11,12)F-10
@@ -1926,7 +1940,7 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
          J3=1
 7161     CONTINUE
          WRITE(mline,FORM)(PR(J),J=J3,MIN(J3+ISTEP-1,JM))
-         if(G_WTE.eq.6)then
+         if(G_WTE.eq.STDOUT)then
             call journal(mline)
          else
             write(G_WTE,'(a)')mline(1:80)
@@ -1956,7 +1970,7 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
          J3=1
 7141     CONTINUE
          WRITE(mline,FORM)(PR(J),J=J3,MIN(J3+ISTEP,JM))
-         if(G_WTE.eq.6)then
+         if(G_WTE.eq.STDOUT)then
             call journal(mline)
          else
             write(G_WTE,'(a)')mline(1:80)
@@ -1985,7 +1999,7 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
          J3=1
 7181     CONTINUE
          WRITE(mline,form)(PR(J),SIG(J),PI(J),J=J3,MIN(J3+ISTEP-1,JM))
-         if(G_WTE.eq.6)then
+         if(G_WTE.eq.STDOUT)then
             call journal(mline)
          else
             write(G_WTE,'(a)')mline(1:80)
@@ -2001,7 +2015,7 @@ integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
    GOTO 99
 !.......................................................................
 99 CONTINUE
-   if(G_WTE.ne.6)flush(unit=G_WTE,iostat=ios)
+   if(G_WTE.ne.STDOUT)flush(unit=G_WTE,iostat=ios)
 !
 END SUBROUTINE mat_print
 !==================================================================================================================================!
@@ -2088,7 +2102,7 @@ character(len=1)   :: dummy
       call journal('*mat_prompt* internal error: G_RTE <= 0')
    else
       ! write prompt using format that stays on current line
-      if(G_WTE.eq.6)then
+      if(G_WTE.eq.STDOUT)then
          WRITE(G_WTE,'(''<>'')',advance='no')   ! write prompt to interactive input
       endif
       if (pause .eq. 1) read(G_RTE,'(a1)') dummy
@@ -2312,14 +2326,14 @@ end subroutine mat_wscal
 !==================================================================================================================================!
 subroutine mat_wmul(ar,ai,br,bi,cr,ci)
 
-! ident_21="@(#)mat_wmul(3fp) [M_matrix] c = a*b"
+! ident_21="@(#)M_matrix::mat_wmul(3fp) c = a*b"
 
-doubleprecision :: ar
-doubleprecision :: ai
-doubleprecision :: br
-doubleprecision :: bi
-doubleprecision :: cr
-doubleprecision :: ci
+doubleprecision,intent(in)  :: ar
+doubleprecision,intent(in)  :: ai
+doubleprecision,intent(in)  :: br
+doubleprecision,intent(in)  :: bi
+doubleprecision,intent(out) :: cr
+doubleprecision,intent(out) :: ci
 
 doubleprecision :: t
    t = ar*bi + ai*br
@@ -2345,7 +2359,7 @@ integer           :: m
 integer           :: mn
 integer           :: n
 
-   IF (G_DDT .EQ. 1) call journal('sc','mat_stack1 ',OP)
+   IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','mat_stack1 ',OP)
    L = G_LSTK(G_TOP)
    M = G_MSTK(G_TOP)
    N = G_NSTK(G_TOP)
@@ -2458,7 +2472,7 @@ integer             :: i, j, k, l
       do j = j1,min0(j1+7,iabs(argcnt))   ! copy up to eight names into buffer
          do i = 1, 4                      !    copy one name into buffer
             k = id(i,j)+1                 ! this is the kth letter of the set
-            linebuf(l) = G_ALFA(k)
+            linebuf(l) = G_CHARSET(k)
             l = l+1                       ! increment pointer into output
          enddo
          linebuf(l+0)=ade_blank           ! put two space between names
@@ -2472,7 +2486,7 @@ integer             :: i, j, k, l
       endif
       !-----------------------------------------------
       call mat_buf2str(mline,linebuf,l)   ! write LINEBUF(1:L) line to a character variable
-      if(G_WTE.eq.6)then
+      if(G_WTE.eq.STDOUT)then
          call journal(mline)              ! print the line
       else
          write(G_WTE,'(a)')mline(1:80)      ! print the line
@@ -2519,7 +2533,7 @@ integer             :: n
 integer             :: nk
 integer             :: nt
 
-   if (G_ddt .eq. 1) then
+   if (G_DEBUG_LEVEL .eq. 1) then
       write(mline,'('' STACKP '',4i4)') id
       call journal(mline)
    endif
@@ -2865,7 +2879,7 @@ integer            :: n
       R = 0
       IF (G_ERR .GT. 0) G_PTZ = 0
       IF (G_ERR.LE.0 .AND. G_PT.GT.G_PTZ) R = G_RSTK(G_PT)
-      IF (G_DDT .EQ. 1) THEN
+      IF (G_DEBUG_LEVEL .EQ. 1) THEN
          WRITE(MLINE,'('' PARSE'',4I4)') G_PT,R,G_PTZ,G_ERR
          CALL JOURNAL(MLINE)
       ENDIF
@@ -2885,7 +2899,7 @@ integer            :: n
       G_PT = G_PTZ
    15 CONTINUE
       EXCNT = 0
-      IF (G_DDT .EQ. 1) THEN
+      IF (G_DEBUG_LEVEL .EQ. 1) THEN
          MLINE='STATE'
          CALL mat_appnum(REAL(G_PT),MLINE,ILEN,IERR)
          CALL mat_appnum(REAL(G_TOP),MLINE,ILEN,IERR)
@@ -2894,7 +2908,7 @@ integer            :: n
       G_LHS = 1
       CALL mat_putid(ID,ANS)
       CALL mat_getsym()
-      IF (G_SYM.EQ.COLON .AND. G_CHRA.EQ.G_EOL) G_DDT = 1-G_DDT
+      IF (G_SYM.EQ.COLON .AND. G_CHRA.EQ.G_EOL) G_DEBUG_LEVEL = 1-G_DEBUG_LEVEL
       IF (G_SYM .EQ. COLON) CALL mat_getsym()
       IF (G_SYM.EQ.SEMI .OR. G_SYM.EQ.COMMA .OR. G_SYM.EQ.G_EOL) GOTO 80
       IF (G_SYM .EQ. NAME) GOTO 20
@@ -2994,7 +3008,7 @@ integer            :: n
 !     MACRO STRING
    45 CONTINUE
       CALL mat_getsym()
-      IF (G_DDT .EQ. 1) THEN
+      IF (G_DEBUG_LEVEL .EQ. 1) THEN
          MLINE='MACRO'
          CALL mat_appnum(REAL(G_PT),MLINE,ILEN,IERR)
          CALL mat_appnum(REAL(G_TOP),MLINE,ILEN,IERR)
@@ -3023,7 +3037,7 @@ integer            :: n
       DO J = 1, N
          LS = L + J-1
          G_LIN(K) = IDINT(G_STKR(LS))
-         IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_IALF) CALL mat_err(37)
+         IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_CHARSET_SIZE) CALL mat_err(37)
          IF (G_ERR .GT. 0) RETURN
          IF (K.LT.1024) K = K+1
          IF (K.EQ.1024) then
@@ -3048,7 +3062,7 @@ integer            :: n
 !.......................................................................
    49 CONTINUE
       G_PT = G_PT-1
-      IF (G_DDT .EQ. 1)then
+      IF (G_DEBUG_LEVEL .EQ. 1)then
          WRITE(mline,'('' MACEND '',2I4)') G_PT,G_TOP
          call journal(mline)
       endif
@@ -3117,7 +3131,7 @@ integer            :: n
       R = 0
       IF (G_PT .GT. 0) P = G_PSTK(G_PT)
       IF (G_PT .GT. 0) R = G_RSTK(G_PT)
-      IF (G_DDT .EQ. 1)then
+      IF (G_DEBUG_LEVEL .EQ. 1)then
          WRITE(mline,'('' FINISH'',5I4)') G_PT,G_PTZ,P,R,G_LPT(1)
          call journal(mline)
       endif
@@ -3224,7 +3238,7 @@ integer            :: l
      &  32,17,24,36, 28,17,36,36, 21,10,21,10, 28,17,14,21/
       DATA LRECL/LINELEN/
 !
-      IF (G_DDT .EQ. 1)call journal('COMAND')
+      IF (G_DEBUG_LEVEL .EQ. 1)call journal('COMAND')
       G_FUN = 0
       DO K = 1, CMDL
         IF (mat_eqid(ID,CMD(1,K))) GOTO 20
@@ -3298,8 +3312,10 @@ integer            :: l
 !===================================================================================================================================
       case(9) ! COMMAND::QUIT
       K = G_LPT(1) - 7
-      IF (K .LE. 0) G_FUN = 99
-      IF (K .LE. 0) exit COMAND
+      IF (K .LE. 0)then
+         G_FUN = 99
+         exit COMAND
+      endif
       CALL mat_files(-G_RIO,G_BUF)
       G_LPT(1) = G_LIN(K+1)
       G_LPT(4) = G_LIN(K+2)
@@ -3346,16 +3362,13 @@ integer            :: l
       CALL mat_prntid(CMD,CMDL-2)
 !===================================================================================================================================
       case(15) !     COMMAND::SH
-                                   ! call system shell interactively or passing command
-      IF (G_CHRA .eq. G_EOL )then    ! if next character on stack is end-of-line call interactive shell
-          call execute_command_line('/bin/sh',cmdstat=istat) ! call shell interactively
-      else                         ! there were characters after SH on the line
-          call mat_buf2str(mline,G_buf(4),lrecl)                              ! pass ENTIRE line
-          call execute_command_line(MLINE(:len_trim(mline)),cmdstat=istat)  ! call system shell
-          CALL mat_getlin()                                                  ! start a new line because gave all of this one to shell
-          if(istat.ne.0)then
-             CALL JOURNAL('sc','*SH* RETURN=',ISTAT)
-          endif
+      ! need to think about this
+                                                                 ! call system shell interactively or passing command
+      call get_environment_variable('SHELL',mline)               ! get command to execute
+      IF (G_CHRA .eq. G_EOL )then                                ! if next character on stack is end-of-line call interactive shell
+         call execute_command_line(mline,cmdstat=istat)          ! call shell interactively
+      else                                                       ! there were characters after SH on the line
+         call execute_command_line(mline,cmdstat=istat)          ! call shell interactively
       endif
 !===================================================================================================================================
       case(6) ! COMMAND::HELP
@@ -3370,11 +3383,11 @@ integer            :: l
          J = BLANK+2
          call journal(' ans   EDIT  FILE  FUN   MACRO')
          !-------------------------------------------------
-         ! write G_ALFA(J) to G_ALFA(a_up-1) one string at a time
+         ! write G_CHARSET(J) to G_CHARSET(a_up-1) one string at a time
          INFINITE: do
             jj=j+16
             jj=min(jj,a_up-1)
-            WRITE(MLINE,'(1X,17(A1,1X))')(CHAR(G_ALFA(I)),I=J,a_up-1)
+            WRITE(MLINE,'(1X,17(A1,1X))')(CHAR(G_CHARSET(I)),I=J,a_up-1)
             call journal(mline)
             IF(jj.ge.a_up-1)exit INFINITE
          enddo INFINITE
@@ -3385,14 +3398,14 @@ integer            :: l
       CALL mat_getsym()
       IF (G_SYM .NE. NAME) THEN
          IF (G_SYM .EQ. 0) G_SYM = DOT
-         H(1) = G_ALFA(G_SYM+1)
-         H(2) = G_ALFA(BLANK+1)
-         H(3) = G_ALFA(BLANK+1)
-         H(4) = G_ALFA(BLANK+1)
+         H(1) = G_CHARSET(G_SYM+1)
+         H(2) = G_CHARSET(BLANK+1)
+         H(3) = G_CHARSET(BLANK+1)
+         H(4) = G_CHARSET(BLANK+1)
       ELSE
          DO I = 1, 4
            CH = G_SYN(I)
-           H(I) = G_ALFA(CH+1)
+           H(I) = G_CHARSET(CH+1)
          enddo
       ENDIF
 
@@ -3412,7 +3425,7 @@ integer            :: l
          K = K - 1
          IF(K.LE.0) THEN  ! blank line
             K=1
-         ELSEIF (G_BUF(K) .EQ. G_ALFA(BLANK+1)) THEN
+         ELSEIF (G_BUF(K) .EQ. G_CHARSET(BLANK+1)) THEN
             GOTO 87
          ENDIF
          !-------------------------------------------------
@@ -3420,15 +3433,14 @@ integer            :: l
          call journal(mline(1:k))
          READ(G_HIO,'(a)') mline
          call mat_str2buf(mline,G_buf,lrecl)
-         IF (G_BUF(1) .EQ. G_ALFA(BLANK+1)) GOTO 86
+         IF (G_BUF(1) .EQ. G_CHARSET(BLANK+1)) GOTO 86
          CALL mat_files(-G_HIO,G_BUF)
          exit COMAND
       ENDIF
 !
    89 CONTINUE
       call mat_buf2str(mline,h,4)
-      mline=' SORRY, NO HELP ON '//mline(1:4)
-      call journal(mline)
+      call journal('SORRY, NO HELP ON '//mline(1:4))
       CALL mat_files(-G_HIO,G_BUF)
 !===================================================================================================================================
       end select COMAND
@@ -3507,8 +3519,8 @@ integer           :: l
    lets=0
    do i=1,k
       ch=p(i)
-      if ((ch.ge.0) .and. (ch.lt.G_ALFLQ)) then
-         lets(i) = G_ALFA(ch+1)
+      if ((ch.ge.0) .and. (ch.lt.G_CHARSET_SIZE)) then
+         lets(i) = G_CHARSET(ch+1)
       endif
    enddo
    call mat_buf2str(string,lets,k)
@@ -3557,7 +3569,7 @@ integer           :: n
 integer           :: n2
 integer           :: nn
 !
-   IF (G_DDT .EQ. 1) call journal('sc','*MATFN1* ', G_FIN)
+   IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN1* ', G_FIN)
 !
    L = G_LSTK(G_TOP)
    M = G_MSTK(G_TOP)
@@ -3616,7 +3628,7 @@ integer           :: nn
       si(1) = mat_wasum(n*n,G_STKI(l),G_STKI(l),1)
       eps = G_stkr(G_VSIZE-4)
       t = eps*sr(1)
-      if (G_ddt .eq. 18)then
+      if (G_DEBUG_LEVEL .eq. 18)then
          WRITE(G_WTE,'('' SR,SI,EPS,T'',1P4D13.4)') SR(1),SI(1),EPS,T ! debug 18
       endif
       if (si(1) .le. eps*sr(1)) call mat_rset(n*n,0.0d0,G_STKI(l),1)
@@ -3672,7 +3684,7 @@ integer           :: nn
     case(1) ! COMMAND::INV
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      if (G_ddt .eq. 17) goto 32
+      if (G_DEBUG_LEVEL .eq. 17) goto 32
       do j = 1, n
          do i = 1, n
             ls = l+i-1+(j-1)*n
@@ -3859,7 +3871,7 @@ integer          :: nn
       DOUBLEPRECISION TR(1),TI(1),SR,SI,POWR,POWI
       LOGICAL HERM,SCHUR,VECT,HESS
 !
-      IF (G_DDT .EQ. 1) call journal('sc','*MATFN2* ', G_FIN)
+      IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN2* ', G_FIN)
 !
 !     FUNCTIONS/G_FIN
 !     **   SIN  COS ATAN  EXP  SQRT LOG
@@ -4112,7 +4124,7 @@ integer         :: n
 logical         :: fro,inf
 doubleprecision :: p,s,t(1,1),tol,eps
 !
-   if (G_ddt .eq. 1) call journal('sc','*MATFN3* ', G_FIN)
+   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','*MATFN3* ', G_FIN)
 !
    if (G_fin.eq.1 .and. G_rhs.eq.2) G_top = G_top-1
    l = G_LSTK(G_top)
@@ -4374,7 +4386,7 @@ character(len=81) ::  mline
 DOUBLEPRECISION   :: T(1),TOL,EPS
 INTEGER,parameter :: QUOTE= 49
 !
-      IF (G_DDT .EQ. 1) call journal('sc','*MATFN4* ', G_FIN)
+      IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN4* ', G_FIN)
 !
       L = G_LSTK(G_TOP)
       M = G_MSTK(G_TOP)
@@ -4587,8 +4599,9 @@ integer             :: ly
 integer             :: m
 integer             :: mn
 integer             :: n
+logical             :: isfound
 !
-      IF (G_DDT .EQ. 1) call journal('sc','*MATFN5* ',G_FIN)
+      IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN5* ',G_FIN)
 !     FUNCTIONS/G_FIN
 !     EXEC SAVE LOAD PRIN DIAR DISP BASE LINE CHAR PLOT RAT  DEBU DOC
 !      1    2    3    4    5    6    7    8    9   10   11   12   13
@@ -4616,9 +4629,9 @@ integer             :: n
                 LS = L+J-1
                 IF (J .LE. MN) CH = IDINT(G_STKR(LS))
                 IF (J .GT. MN) CH = BLANK
-                IF (CH.LT.0 .OR. CH.GE.G_ALFLQ) CALL mat_err(38)
+                IF (CH.LT.0 .OR. CH.GE.G_CHARSET_SIZE) CALL mat_err(38)
                 IF (G_ERR .GT. 0) RETURN
-                G_BUF(J) = G_ALFB(CH+1)
+                G_BUF(J) = G_ALT_CHARSET(CH+1)
              enddo
          ENDIF
       case(6:12)
@@ -4627,9 +4640,8 @@ integer             :: n
 !===================================================================================================================================
       FUN5 : select case(G_fin)
 !===================================================================================================================================
-      case(1) !     COMMAND::EXEC
-      IF (LUN .EQ. 0) THEN
-!     EXEC(0)
+      case(1)                                               ! COMMAND::EXEC
+      IF (LUN .EQ. 0) THEN                                  ! EXEC(0)
          G_RIO = G_RTE
          G_ERR = 99
       else
@@ -4646,8 +4658,9 @@ integer             :: n
          IF (G_RIO .EQ. G_RTE) G_RIO = 12
          G_RIO = G_RIO + 1
          IF (LUN .GT. 0) G_RIO = LUN
-         IF (LUN .LT. 0) CALL mat_files(G_RIO,G_BUF)
-         IF (FLAG .GE. 4)call journal(' PAUSE MODE. ENTER BLANK LINES.')
+         !!call find_exec_file(G_BUF,isfound)
+         IF (LUN .LT. 0) CALL mat_files(G_RIO,G_BUF,status='old')
+         IF (FLAG .GE. 4)call journal(' PAUSE MODE. Enter blank lines.')
          G_SYM = G_EOL
          G_MSTK(G_TOP) = 0
       endif
@@ -4678,19 +4691,20 @@ integer             :: n
       IF (K .LT. G_BOT) K = G_LSIZE
       IF (G_RHS .EQ. 2) K = TOP2
       IF (G_RHS .EQ. 2) CALL mat_putid(G_IDSTK(1,K),G_SYN)
-   32 CONTINUE
-      L = G_LSTK(K)
-      M = G_MSTK(K)
-      N = G_NSTK(K)
-      DO I = 1, 4
-         J = G_IDSTK(I,K)+1
-         G_BUF(I) = G_ALFA(J)
+      do
+         L = G_LSTK(K)
+         M = G_MSTK(K)
+         N = G_NSTK(K)
+         DO I = 1, 4
+            J = G_IDSTK(I,K)+1
+            G_BUF(I) = G_CHARSET(J)
+         enddo
+         IMG = 0
+         IF (mat_wasum(M*N,G_STKI(L),G_STKI(L),1) .NE. 0.0D0) IMG = 1
+         IF(.not.G_FILE_OPEN_ERROR)CALL mat_savlod(LUNIT,G_BUF,M,N,IMG,0,G_STKR(L),G_STKI(L))
+         K = K-1
+         IF (K .LT. G_BOT) exit
       enddo
-      IMG = 0
-      IF (mat_wasum(M*N,G_STKI(L),G_STKI(L),1) .NE. 0.0D0) IMG = 1
-      IF(G_FE .EQ. 0)CALL mat_savlod(LUNIT,G_BUF,M,N,IMG,0,G_STKR(L),G_STKI(L))
-      K = K-1
-      IF (K .GE. G_BOT) GOTO 32
       CALL mat_files(-LUNIT,G_BUF)
       G_MSTK(G_TOP) = 0
 !===================================================================================================================================
@@ -4698,26 +4712,29 @@ integer             :: n
       IF (LUN .LT. 0) LUNIT = 2
       IF (LUN .LT. 0) CALL mat_files(LUNIT,G_BUF) ! open the unit
       IF (LUN .GT. 0) LUNIT = LUN
-   36 CONTINUE
-      JOB = G_LSTK(G_BOT) - L
-      IF(G_FE .EQ. 0)CALL mat_savlod(LUNIT,ID,G_MSTK(G_TOP),G_NSTK(G_TOP),IMG,JOB,G_STKR(L),G_STKI(L))
-      MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
-      IF (MN .EQ. 0) GOTO 39
-      IF (IMG .EQ. 0) CALL mat_rset(MN,0.0D0,G_STKI(L),1)
-      DO I = 1, 4
-         J = 0
-   37    CONTINUE
-         J = J+1
-         IF (ID(I).NE.G_ALFA(J) .AND. J.LE.BLANK) GOTO 37
-         ID(I) = J-1
+      do
+         JOB = G_LSTK(G_BOT) - L
+         IF(.not.G_FILE_OPEN_ERROR)CALL mat_savlod(LUNIT,ID,G_MSTK(G_TOP),G_NSTK(G_TOP),IMG,JOB,G_STKR(L),G_STKI(L))
+         MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+         IF (MN .NE. 0)then
+            IF (IMG .EQ. 0) CALL mat_rset(MN,0.0D0,G_STKI(L),1)
+            DO I = 1, 4
+               J = 0
+               do
+                  J = J+1
+                  IF (ID(I).NE.G_CHARSET(J) .AND. J.LE.BLANK) cycle
+                  exit
+               enddo
+               ID(I) = J-1
+            enddo
+            G_SYM = SEMI
+            G_RHS = 0
+            CALL mat_stackp(ID)
+            G_TOP = G_TOP + 1
+         else
+            exit
+         endif
       enddo
-      G_SYM = SEMI
-      G_RHS = 0
-      CALL mat_stackp(ID)
-      G_TOP = G_TOP + 1
-      GOTO 36
-
-   39 CONTINUE
       CALL mat_files(-LUNIT,G_BUF) ! close unit
       G_MSTK(G_TOP) = 0
 !===================================================================================================================================
@@ -4752,16 +4769,16 @@ integer             :: n
 !===================================================================================================================================
       case(9) !     COMMAND::CHAR
       K = IABS(IDINT(G_STKR(L)))
-      IF (M*N.NE.1 .OR. K.GE.G_ALFLQ) CALL mat_err(36)
+      IF (M*N.NE.1 .OR. K.GE.G_CHARSET_SIZE) CALL mat_err(36)
       IF (G_ERR .GT. 0) exit FUN5
-      CH = G_ALFA(K+1)
-      IF (G_STKR(L) .LT. 0.0D0) CH = G_ALFB(K+1)
+      CH = G_CHARSET(K+1)
+      IF (G_STKR(L) .LT. 0.0D0) CH = G_ALT_CHARSET(K+1)
       WRITE(mline,'('' REPLACE CHARACTER '',A1)') CHAR(CH)
       call journal(mline)
       READ(G_RTE,'(A1)') CH_CHAR
       call mat_str2buf(ch_char,ch1,1); ch=ch1(1)
-      IF (G_STKR(L) .GE. 0.0D0) G_ALFA(K+1) = CH
-      IF (G_STKR(L) .LT. 0.0D0) G_ALFB(K+1) = CH
+      IF (G_STKR(L) .GE. 0.0D0) G_CHARSET(K+1) = CH
+      IF (G_STKR(L) .LT. 0.0D0) G_ALT_CHARSET(K+1) = CH
       G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(6,7) !     COMMAND::DISP
@@ -4774,7 +4791,7 @@ integer             :: n
       DO I = 1, MN
         LS = L+I-1
         CH = IDINT(G_STKR(LS))
-        TEXT = TEXT .AND. (CH.GE.0) .AND. (CH.LT.G_ALFLQ)
+        TEXT = TEXT .AND. (CH.GE.0) .AND. (CH.LT.G_CHARSET_SIZE)
         TEXT = TEXT .AND. (dble(CH).EQ.G_STKR(LS))
       enddo
 
@@ -4785,7 +4802,7 @@ integer             :: n
            IF (G_STKR(LS) .GT. 0.0D0) CH = PLUS
            IF (G_STKR(LS) .LT. 0.0D0) CH = MINUS
            IF (TEXT) CH = IDINT(G_STKR(LS))
-           G_BUF(J) = G_ALFA(CH+1)
+           G_BUF(J) = G_CHARSET(CH+1)
          enddo
          call mat_buf2str(mline,G_buf,n)
          call journal(mline)
@@ -4849,8 +4866,8 @@ integer             :: n
       G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(12) !     COMMAND::DEBUG
-      G_DDT = IDINT(G_STKR(L))
-      call journal('sc',' DEBUG ',G_DDT)
+      G_DEBUG_LEVEL = IDINT(G_STKR(L))
+      call journal('sc',' DEBUG ',G_DEBUG_LEVEL)
       G_MSTK(G_TOP) = 0
 !===================================================================================================================================
       case(13) !     COMMAND::DOC
@@ -4859,8 +4876,8 @@ integer             :: n
          if(ios.eq.0)then
             call mat_make_manual(temp_lun)
             call mat_make_help(temp_lun)
-            close(unit=-lunit,iostat=ios)
-            call journal('sc','*doc* user guide including all help text in the Appendix is on file',trim(name) )
+            close(unit=temp_lun,iostat=ios)
+            call journal('sc','<INFO> user guide including all help text in the Appendix is on file',trim(name) )
          else
             call journal(trim(errmsg))
          endif
@@ -4893,7 +4910,7 @@ integer       :: mk
 integer       :: mn
 integer       :: mnk
 integer       :: n
-      IF (G_DDT .EQ. 1)then
+      IF (G_DEBUG_LEVEL .EQ. 1)then
          call journal('sc','STACKG(1)=',ID(1))
          call journal('sc','STACKG(2)=',ID(2))
          call journal('sc','STACKG(3)=',ID(3))
@@ -5039,7 +5056,7 @@ integer           ::  n
 integer           ::  n2
 integer           ::  nexp
 
-   IF (G_DDT .EQ. 1) call journal('sc',',STACK2 ',OP)
+   IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc',',STACK2 ',OP)
    L2 = G_LSTK(G_TOP)
    M2 = G_MSTK(G_TOP)
    N2 = G_NSTK(G_TOP)
@@ -5314,8 +5331,10 @@ subroutine mat_getlin() ! get a new input line
 use m_history,only : redo
 
 character(len=1024) :: mline
+character(len=1024) :: shift_mline
 
 integer,parameter   :: linelen=255
+integer             :: istat
 INTEGER,save        :: LRECL=linelen
 integer,parameter   :: SLASH=44
 integer,parameter   :: BSLASH=45
@@ -5332,43 +5351,60 @@ integer             :: n
       L = G_LPT(1)
 !.......................................................................
    11 CONTINUE
-      DO J = 1, LRECL            ! blank out buffer before reading it
-         G_BUF(J) = G_ALFA(BLANK+1)
+      DO J = 1, LRECL                           ! blank out buffer before reading it
+         G_BUF(J) = G_CHARSET(BLANK+1)
       enddo
 !.......................................................................
       N = LRECL+1
 !     get line of input
-      IF(G_ISTRING.GT.0)THEN                  ! read from string instead of file
-         CALL REDO(G_STRING,'.')              ! This is a no-op except for storing the line into the input history
-         call mat_str2buf(G_STRING,G_buf,lrecl)     ! read input line from MAT88 call string
-         call journal('c',G_STRING)           ! write as a comment
-         IF(G_INIT.EQ.2)THEN                  ! terminate after processing G_STRING
+      IF(G_ISTRING.GT.0)THEN                    ! read from string instead of file
+         CALL REDO(G_STRING,'.')                ! This is a no-op except for storing the line into the input history
+         call mat_str2buf(G_STRING,G_buf,lrecl) ! read input line from MAT88 call string
+         call journal('c',G_STRING)             ! write as a comment
+         IF(G_INIT.EQ.2)THEN                    ! terminate after processing G_STRING
             G_ISTRING=4
             G_STRING='quit'
-         ELSE                                ! go to normal MAT88 mode after processing G_STRING
+         ELSE                                   ! go to normal MAT88 mode after processing G_STRING
             G_ISTRING=0
          ENDIF
       ELSE
          mline(:)=' '
 
-         READ(G_RIO,'(A)',END=50,ERR=15) mline ! read input line from file
-         CALL REDO(mline,'.')  ! pass line to REDO(3f). This is a no-op except for storing the line into the input history
-                               ! (unless the input line is the "r" command)
+         READ(G_RIO,'(A)',END=50,ERR=15) mline  ! read input line from file
+         shift_mline=adjustl(mline)
+         if(shift_mline(1:2).eq.'!!')then                             ! edit command line history
+            mline='. '//mline(3:)
+         endif
 
          if(G_RIO.eq.5)then
-            call journal('t',mline)          ! reading from standard input, so copy to trail file
+            call journal('t',mline)   ! reading from standard input, so copy to trail file
          else
-            call journal('c',mline)          ! reading from an exec() command, so write as a comment
+            call journal('c',mline)   ! reading from an exec() command, so write as a comment
          endif
-         if(mline(1:1).eq.'#')goto 11        ! ignore lines with a # in column 1
-         call mat_str2buf(mline,G_buf,lrecl)       ! read input line from file
+         CALL REDO(mline,'.')         ! pass line to REDO(3f). This is a no-op except for storing the line into the input history
+                                      ! (unless the input line is the "r" command)
+
+         ! look for other lines to immediately process and then ignore
+         if(shift_mline(1:1).eq.'#')then
+            mline=''                                                      ! ignore lines with a # as first non-blank character
+         elseif(shift_mline(1:1).eq.'!')then
+            if(shift_mline.eq.'!')then
+               call get_environment_variable('SHELL',shift_mline)         ! get command to execute
+               call execute_command_line(shift_mline,cmdstat=istat)       ! call system shell
+            else
+               call execute_command_line(shift_mline(2:),cmdstat=istat)   ! call system shell
+            endif
+            mline=''
+         endif
+
+         call mat_str2buf(mline,G_buf,lrecl)    ! convert input line to "Hollerith" buffer
       ENDIF
 !.......................................................................
    15 CONTINUE
       N = N-1
       IF(N.LT.1)THEN
          N=1
-      else IF (G_BUF(N) .EQ. G_ALFA(BLANK+1))then
+      else IF (G_BUF(N) .EQ. G_CHARSET(BLANK+1))then
          GOTO 15 ! trim off trailing spaces
       endif
 !.......................................................................
@@ -5378,8 +5414,8 @@ integer             :: n
       endif
 !.......................................................................
       DO J = 1, N
-         DO K = 1, G_ALFLQ  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
-           IF (G_BUF(J).EQ.G_ALFA(K) .OR. G_BUF(J).EQ.G_ALFB(K)) GOTO 30
+         DO K = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
+           IF (G_BUF(J).EQ.G_CHARSET(K) .OR. G_BUF(J).EQ.G_ALT_CHARSET(K)) GOTO 30
          enddo
          call journal('sc','UNKNOWN CHARACTER AT COLUMN ',J) ! this is not a known character
          K = G_EOL+1
@@ -5418,8 +5454,8 @@ integer             :: n
       DO I = 1, N
          J = L+I-1
          K = G_LIN(J)
-         G_BUF(I) = G_ALFA(K+1)
-         IF ( K.LT.36) G_BUF(I) = G_ALFB(K+1)
+         G_BUF(I) = G_CHARSET(K+1)
+         IF ( K.LT.36) G_BUF(I) = G_ALT_CHARSET(K+1)
       enddo    ! edit command history
       !!CALL ML_EDIT(G_BUF,N)
       !!N = N + 1
@@ -5459,7 +5495,7 @@ integer            :: n
 
    R = -G_FIN-10
    G_FIN = 0
-   IF (G_DDT .EQ. 1)then
+   IF (G_DEBUG_LEVEL .EQ. 1)then
       WRITE(mline,'('' CLAUSE '',3I4)') G_PT,G_RSTK(G_PT),R
       call journal(mline)
    endif
@@ -5618,7 +5654,7 @@ integer            :: n
 !
 !     EXIT FROM LOOP
 90 continue
-   IF (G_DDT .EQ. 1)then
+   IF (G_DEBUG_LEVEL .EQ. 1)then
       WRITE(mline,'('' EXIT '',10I4)') (G_RSTK(I),I=1,G_PT)
       call journal(mline)
    endif
@@ -5673,7 +5709,7 @@ integer         :: k
    endif
    if (s .lt. 0.0d0) t = -t
    if (s .lt. 0.0d0) s = -s
-   if (G_ddt .eq. 27)then
+   if (G_DEBUG_LEVEL .eq. 27)then
       write(G_WTE,50) x,t,s,(d(i),i=1,k) ! debug 27
 50    format(/1x,1pd23.15,0pf8.0,' /',f8.0,4x,6f5.0/(1x,45x,6f5.0))
    endif
@@ -5697,7 +5733,7 @@ integer           :: kount
 integer           :: ls
 integer           :: op
 
-   if (G_ddt .eq. 1) then
+   if (G_DEBUG_LEVEL .eq. 1) then
       write(mline,'('' EXPR '',2I4)') G_pt,G_RSTK(G_pt)
       call journal(mline)
    endif
@@ -5793,7 +5829,7 @@ integer           :: ln
 integer           :: ls
 integer           :: n
 
-   IF (G_DDT .EQ. 1) then
+   IF (G_DEBUG_LEVEL .EQ. 1) then
       WRITE(mline,'('' FACTOR '',3I4)') G_PT,G_RSTK(G_PT),G_SYM
       call journal(mline)
    endif
@@ -5921,7 +5957,7 @@ integer           :: n
    DO J = 1, N
       LS = L + J-1
       G_LIN(K) = IDINT(G_STKR(LS))
-      IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_IALF) CALL mat_err(37)
+      IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_CHARSET_SIZE) CALL mat_err(37)
       IF (G_ERR .GT. 0) RETURN
       IF (K.LT.1024) K = K+1
       IF (K.EQ.1024)call journal('sc','INPUT BUFFER CHAR LIMIT EXCEEDED=',K)
@@ -6051,7 +6087,7 @@ integer,parameter  :: DOT=47
 integer            :: ierr
 integer            :: ilen
 
-   IF (G_DDT .EQ. 1) then
+   IF (G_DEBUG_LEVEL .EQ. 1) then
       mline='TERM '
       call mat_appnum(real(G_pt),mline,ilen,ierr)
       call mat_appnum(real(G_RSTK(G_pt)),mline,ilen,ierr)
@@ -6499,7 +6535,7 @@ end function mat_flop
 !==================================================================================================================================!
 logical function mat_eqid(x,y)
 
-!     check for equality of two names
+!     check for equality of two integer arrays
 
 integer,intent(in) :: x(4)
 integer,intent(in) :: y(4)
@@ -6517,38 +6553,37 @@ end function mat_eqid
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 doubleprecision function mat_round(x)
-doubleprecision      :: x,y,z,e
-doubleprecision,save :: h=1.0d9
-      z = dabs(x)
-      y = z + 1.0d0
-      if (y .eq. z) goto 40
+doubleprecision           :: x,y,z,e
+doubleprecision,parameter :: h=1.0d9
+   z = dabs(x)
+   y = z + 1.0d0
+   if (y .ne. z)then
       y = 0.0d0
       e = h
-   10 continue
-      if (e .ge. z) goto 20
+      do
+         if (e .ge. z) exit
          e = 2.0d0*e
-         goto 10
-   20 continue
-      if (e .le. h) goto 30
+      enddo
+      do
+         if (e .le. h) exit
          if (e .le. z) y = y + e
          if (e .le. z) z = z - e
          e = e/2.0d0
-         goto 20
-   30 continue
+      enddo
       z = idint(z + 0.5d0)
       y = y + z
       if (x .lt. 0.0d0) y = -y
       mat_round = y
-      return
-   40 continue
+   else
       mat_round = x
+   endif
 end function mat_round
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_make_help(io)
 integer,intent(in) :: io
-write(io,'(a)')'INTRO Welcome to MAT88.'
+write(io,'(a)')'INTRO Welcome to MAT88. A categorized list of case-sensitive help topics:'
 write(io,'(a)')'       #-------------------#--------------------------------------------#'
 write(io,'(a)')'       | HELP Sections     | Available Topics                           |'
 write(io,'(a)')'       #-------------------#--------------------------------------------#'
@@ -6560,7 +6595,7 @@ write(io,'(a)')'       |                   |      +       -      *      :       
 write(io,'(a)')'       #-------------------#--------------------------------------------#'
 write(io,'(a)')'       | Variables         |    ans   clear    who                      |'
 write(io,'(a)')'       #-------------------#--------------------------------------------#'
-write(io,'(a)')'       | Macros            |  macro                                     |'
+write(io,'(a)')'       | Macros            |  MACRO                                     |'
 write(io,'(a)')'       #-------------------#--------------------------------------------#'
 write(io,'(a)')'       | Basic Functions   |    FUN    atan    cos    exp    log    sin |'
 write(io,'(a)')'       |                   |   sqrt    abs   round   real   imag  conjg |'
@@ -6583,7 +6618,6 @@ write(io,'(a)')'       | Performance Info. |  flops    flps                     
 write(io,'(a)')'       #-------------------#--------------------------------------------#'
 write(io,'(a)')'       | Miscellaneous     |   char    EDIT  debug    eps     sh        |'
 write(io,'(a)')'       #----------------------------------------------------------------#'
-write(io,'(a)')''
 write(io,'(a)')'SAMPLE'
 write(io,'(a)')'      Here are a few sample statements:'
 write(io,'(a)')''
@@ -6622,9 +6656,10 @@ write(io,'(a)')'      the mode for details.'
 write(io,'(a)')''
 write(io,'(a)')'what  Lists commands and functions currently available.'
 write(io,'(a)')''
-write(io,'(a)')'sh    Starts the command shell interactively.'
-write(io,'(a)')'      If any characters follow the remainder of the line (restricted to'
-write(io,'(a)')'      the MAT88 character set) is passed to the sh shell.'
+write(io,'(a)')'sh    Starts the command shell interactively, using the command defined by'
+write(io,'(a)')'      the environment variable SHELL. Note that in addition any line'
+write(io,'(a)')'      starting with an exclamation (!) is passed to the system for'
+write(io,'(a)')'      execution.'
 write(io,'(a)')'================================================================================'
 write(io,'(a)')'SYNTAX'
 write(io,'(a)')''
@@ -6702,6 +6737,9 @@ write(io,'(a)')'      Used at the end of FOR, WHILE and IF clauses. Used to'
 write(io,'(a)')'      separate statements in multi-statement lines. In this'
 write(io,'(a)')'      situation, it may be replaced by a semicolon to suppress'
 write(io,'(a)')'      printing.'
+write(io,'(a)')''
+write(io,'(a)')'!     If the first character of a line the rest of the line is'
+write(io,'(a)')'      passed to the system to be executed.'
 write(io,'(a)')''
 write(io,'(a)')';     Used inside brackets to end rows.'
 write(io,'(a)')''
@@ -6914,14 +6952,18 @@ write(io,'(a)')'      adds 3 to each diagonal element of A.'
 write(io,'(a)')''
 write(io,'(a)')'hess  Hessenberg form. The Hessenberg form of a matrix is zero'
 write(io,'(a)')'      below the first subdiagonal. If the matrix is symmetric or'
-write(io,'(a)')'      Hermitian, the form is tridiagonal. <P,H> = HESS(A)'
-write(io,'(a)')'      produces a unitary matrix P and a Hessenberg matrix H so'
-write(io,'(a)')'      that A = P*H*P''. By itself, HESS(A) returns H.'
+write(io,'(a)')'      Hermitian, the form is tridiagonal. <P,H> = HESS(A) produces a'
+write(io,'(a)')'      unitary matrix P and a Hessenberg matrix H so that A = P*H*P''. By'
+write(io,'(a)')'      itself, HESS(A) returns H.'
 write(io,'(a)')''
-write(io,'(a)')'hilb  Inverse Hilbert matrix. HILB(N) is the inverse of the N'
-write(io,'(a)')'      by N  matrix with elements 1/(i+j-1), which is a famous'
-write(io,'(a)')'      example of a badly conditioned matrix. The result is exact'
-write(io,'(a)')'      for N less than about 15, depending upon the computer.'
+write(io,'(a)')'hilb  Inverse Hilbert matrix. HILB(N) is the inverse of a N_by_N'
+write(io,'(a)')'      Hilbert matrix (which is a famous example of a badly conditioned'
+write(io,'(a)')'      matrix). The result is exact for N less than about 15, depending'
+write(io,'(a)')'      upon the computer.'
+write(io,'(a)')''
+write(io,'(a)')'         for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);'
+write(io,'(a)')''
+write(io,'(a)')'      generates the NxN Hilbert matrix.'
 write(io,'(a)')''
 write(io,'(a)')'imag  IMAG(X) is the imaginary part of X .'
 write(io,'(a)')''
@@ -7331,18 +7373,25 @@ write(io,'(a)')'       limit, the user is asked whether or not to suppress'
 write(io,'(a)')'       printing until the next input. Initially the limit is 25.'
 write(io,'(a)')'       LINES(N) resets the limit to N .'
 write(io,'(a)')''
-write(io,'(a)')'long  Determine output format. All computations are done in'
-write(io,'(a)')'      complex arithmetic and double precision if it is available.'
-write(io,'(a)')'      SHORT and LONG merely switch between different output'
-write(io,'(a)')'      formats.'
+write(io,'(a)')'long   See SHORT also.'
 write(io,'(a)')''
-write(io,'(a)')'       SHORT    Scaled fixed point format with about 5 digits.'
-write(io,'(a)')'       LONG     Scaled fixed point format with about 15 digits.'
-write(io,'(a)')'       SHORT E  Floating point format with about 5 digits.'
-write(io,'(a)')'       LONG E   Floating point format with about 15 digits.'
-write(io,'(a)')'       LONG Z   System dependent format, often hexadecimal.'
+write(io,'(a)')'       Determine output format. All computations are done in'
+write(io,'(a)')'       complex arithmetic and double precision if it is available.'
+write(io,'(a)')'       SHORT and LONG merely switch between different output'
+write(io,'(a)')'       formats.'
 write(io,'(a)')''
-write(io,'(a)')'short  See LONG .'
+write(io,'(a)')'        long     // Scaled fixed point format with about 15 digits.'
+write(io,'(a)')'        long e   // Floating point format with about 15 digits.'
+write(io,'(a)')'        long z   // System dependent format, often hexadecimal.'
+write(io,'(a)')''
+write(io,'(a)')'short  See LONG also.'
+write(io,'(a)')'       Determine output format. All computations are done in'
+write(io,'(a)')'       complex arithmetic and double precision if it is available.'
+write(io,'(a)')'       SHORT and LONG merely switch between different output'
+write(io,'(a)')'       formats.'
+write(io,'(a)')''
+write(io,'(a)')'        short    // Scaled fixed point format with about 5 digits.'
+write(io,'(a)')'        short e  // Floating point format with about 5 digits.'
 write(io,'(a)')''
 write(io,'(a)')'diary  DIARY(''file'') causes a copy of all subsequent terminal input and'
 write(io,'(a)')'       most of the resulting output to be written on the file. DIARY(0)'
@@ -7389,12 +7438,10 @@ write(io,'(a)')'      Hopefully, you have the command xy(1) in your search path.
 write(io,'(a)')'      If not, you can make one by creating a script that calls'
 write(io,'(a)')'      a plotting utility.'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'         t = 0:50;'
 write(io,'(a)')'         plot( t.*cos(t), t.*sin(t) )'
 write(io,'(a)')'         opts='' -m 1 -title test plot -d pdf'''
 write(io,'(a)')'         plot( t.*cos(t), t.*sin(t),opts)'
-write(io,'(a)')''
 write(io,'(a)')'================================================================================'
 write(io,'(a)')'PERFORMANCE INFORMATION'
 write(io,'(a)')''
@@ -8484,7 +8531,6 @@ write(io,'(a)')'   removed from one corner. There are Neumann conditions on the 
 write(io,'(a)')'   and bottom edges and Dirichlet conditions on the remainder of the'
 write(io,'(a)')'   boundary.'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'                            u  = 0'
 write(io,'(a)')'                             n'
 write(io,'(a)')''
@@ -8507,7 +8553,6 @@ write(io,'(a)')'                        ------------------------'
 write(io,'(a)')''
 write(io,'(a)')'                                 u  = 0'
 write(io,'(a)')'                                  n'
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'   The effective conductivity of an medium is then given by the'
 write(io,'(a)')'   integral along the left edge,'
@@ -8786,7 +8831,6 @@ write(io,'(a)')'      ANS   ='
 write(io,'(a)')''
 write(io,'(a)')'         1.7692e+03'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'   Rescaling the eigenvectors so that their last components are'
 write(io,'(a)')'   all equal to one has two consequences. The condition of X is'
 write(io,'(a)')'   decreased by over two orders of magnitude. (This is about the'
@@ -8932,7 +8976,6 @@ write(io,'(a)')'      DIGIT  -- 0 THROUGH 9,'
 write(io,'(a)')'      CHAR   -- ( ) ; : + - * / \ = . , < >'
 write(io,'(a)')'      QUOTE  -- '''
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'   LINE'
 write(io,'(a)')''
 write(io,'(a)')'          |-----> STATEMENT >----|'
@@ -8950,7 +8993,6 @@ write(io,'(a)')'        |                          |'
 write(io,'(a)')'        |        |-< ; <-|         |'
 write(io,'(a)')'        |--------|       |---------|'
 write(io,'(a)')'                 |-< , <-|'
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'   STATEMENT'
 write(io,'(a)')''
@@ -8993,7 +9035,6 @@ write(io,'(a)')'                       |--|-< - <-|--|'
 write(io,'(a)')'                          |       |'
 write(io,'(a)')'                          |-< : <-|'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'   TERM'
 write(io,'(a)')''
 write(io,'(a)')'   ---------------------> FACTOR >---------------------->'
@@ -9034,7 +9075,6 @@ write(io,'(a)')'        |-----> FACTOR >---> ** >---> FACTOR >----|           |'
 write(io,'(a)')'        |                                                     |'
 write(io,'(a)')'        |------------> '' >-----> TEXT >-----> '' >-------------|'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'   NUMBER'
 write(io,'(a)')''
 write(io,'(a)')'       |----------|                          |-> + >-|'
@@ -9045,13 +9085,11 @@ write(io,'(a)')'                |                   | |      |-> - >-|        |'
 write(io,'(a)')'                |                   | |                       |'
 write(io,'(a)')'                |---------------------------------------------|'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'   INT'
 write(io,'(a)')''
 write(io,'(a)')'   ------------> DIGIT >----------->'
 write(io,'(a)')'             |           |'
 write(io,'(a)')'             |-----------|'
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'   NAME'
 write(io,'(a)')''
@@ -9060,8 +9098,6 @@ write(io,'(a)')'                     |              |'
 write(io,'(a)')'   ------> LETTER >--|--------------|----->'
 write(io,'(a)')'                     |              |'
 write(io,'(a)')'                     |--< DIGIT  <--|'
-write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'   COMMAND'
 write(io,'(a)')''
@@ -9085,9 +9121,7 @@ write(io,'(a)')'               |   |-> '' >-> '' >-|   |'
 write(io,'(a)')'               |                     |'
 write(io,'(a)')'               |---------------------|'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'10.  THE PARSER-INTERPRETER'
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'   The structure of the parser-interpreter is similar to that'
 write(io,'(a)')'   of Wirth''s compiler [6] for his simple language, PL/0 , except'
@@ -9226,7 +9260,6 @@ write(io,'(a)')'   provide some overlay mechanism so that this code is brought i
 write(io,'(a)')'   the main memory only when required. The variables, which occupy'
 write(io,'(a)')'   a relatively small portion of the memory, remain in place, while'
 write(io,'(a)')'   the subroutines which process them are loaded a few at a time.'
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'11. THE NUMERICAL ALGORITHMS'
 write(io,'(a)')''

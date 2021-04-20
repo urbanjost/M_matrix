@@ -29,5 +29,5 @@ exec('setup')
 exec('sigma')
 exec('strut.mat')
 exec('w5')
-exec('rogers.exec
-exec('rogers.load
+exec('rogers.exec')
+exec('rogers.load')
