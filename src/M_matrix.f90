@@ -4625,7 +4625,7 @@ logical             :: isfound
          LUN = -1
          IF (MN.EQ.1 .AND. G_STKR(L).LT.10.0D0) LUN = IDINT(G_STKR(L))
          IF (LUN .LT. 0) THEN
-             DO J = 1, 32
+             DO J = 1, 256
                 LS = L+J-1
                 IF (J .LE. MN) CH = IDINT(G_STKR(LS))
                 IF (J .GT. MN) CH = BLANK
