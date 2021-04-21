@@ -86,9 +86,86 @@ logical                  :: G_FILE_OPEN_ERROR   ! flag whether file open error o
 integer,parameter        :: G_eol=99
 integer                  :: G_ERR, G_FMT, G_LCT(4), G_LIN(1024), G_LPT(6), G_HIO, G_RIO, G_RTE, G_WTE
 integer                  :: G_IDS(4,32), G_PSTK(32), G_RSTK(32), G_PSIZE, G_PT, G_PTZ
-integer                  :: G_SYM, G_SYN(4), G_BUF(1024), G_CHRA, G_FLOP_COUNTER(2), G_FIN, G_FUN, G_LHS, G_RHS, G_RAN(2)
+integer                  :: G_SYM, G_SYN(4), G_BUF(1024), G_CHRA, G_FLOP_COUNTER(2), G_FUN, G_LHS, G_RHS, G_RAN(2)
+integer                  :: G_FIN
 
-integer                  :: G_IDSTK(4, 48), G_LSTK(48), G_MSTK(48), G_NSTK(48), G_VSIZE, G_LSIZE, G_BOT, G_TOP
+!==================================================================================================================================!
+integer,parameter        :: G_MAX_NUMBER_OF_NAMES=48
+integer                  :: G_IDSTK(4, G_MAX_NUMBER_OF_NAMES)
+integer                  :: G_LSTK(G_MAX_NUMBER_OF_NAMES)
+integer                  :: G_MSTK(G_MAX_NUMBER_OF_NAMES)
+integer                  :: G_NSTK(G_MAX_NUMBER_OF_NAMES)
+integer                  :: G_BOT, G_TOP
+integer                  :: G_VSIZE
+!   Two large real arrays, G_STKR and G_STKI (for real and imaginary parts), are used to store all
+!   the matrices. Four integer arrays (G_IDSTK, G_MSTK, G_NSTK, G_LSTK) are used to store the names,
+!   the row and column dimensions, and the pointers into the real
+!   stacks. The following diagram illustrates this storage scheme.
+!
+!    TOP        IDSTK     MSTK NSTK LSTK               STKR      STKI
+!     --      -- -- -- --   --   --   --              --------   --------
+!    |  |--->|  |  |  |  | |  | |  | |  |----------->|        | |        |
+!     --      -- -- -- --   --   --   --              --------   --------
+!            |  |  |  |  | |  | |  | |  |            |        | |        |
+!             -- -- -- --   --   --   --              --------   --------
+!                  .         .    .    .                  .          .
+!                  .         .    .    .                  .          .
+!                  .         .    .    .                  .          .
+!             -- -- -- --   --   --   --              --------   --------
+!    BOT     |  |  |  |  | |  | |  | |  |            |        | |        |
+!     --      -- -- -- --   --   --   --              --------   --------
+!    |  |--->| X|  |  |  | | 2| | 1| |  |----------->|  3.14  | |  0.00  |
+!     --      -- -- -- --   --   --   --              --------   --------
+!            | A|  |  |  | | 2| | 2| |  |---------   |  0.00  | |  1.00  |
+!             -- -- -- --   --   --   --          \   --------   --------
+!            | E| P| S|  | | 1| | 1| |  |-------   ->| 11.00  | |  0.00  |
+!             -- -- -- --   --   --   --        \     --------   --------
+!            | F| L| O| P| | 1| | 2| |  |------  \   | 21.00  | |  0.00  |
+!             -- -- -- --   --   --   --       \  \   --------   --------
+!            | E| Y| E|  | |-1| |-1| |  |---    \ |  | 12.00  | |  0.00  |
+!             -- -- -- --   --   --   --    \   | |   --------   --------
+!            | R| A| N| D| | 1| | 1| |  |-   \  | |  | 22.00  | |  0.00  |
+!             -- -- -- --   --   --   --  \  |  \ \   --------   --------
+!                                         |  \   \ ->| 1.E-15 | |  0.00  |
+!                                         \   \   \   --------   --------
+!                                          \   \   ->|  0.00  | |  0.00  |
+!                                           \   \     --------   --------
+!                                            \   \   |  0.00  | |  0.00  |
+!                                             \   \   --------   --------
+!                                              \   ->|  1.00  | |  0.00  |
+!                                               \     --------   --------
+!                                                --->| URAND  | |  0.00  |
+!                                                     --------   --------
+!
+!   The top portion of the stack is used for temporary variables
+!   and the bottom portion for saved variables. The figure shows the
+!   situation after the line
+!
+!      A = <11,12; 21,22>,  x = <3.14, sqrt(-1)>'
+!
+!   has been processed. The four permanent names, EPS, FLOP, RAND
+!   and EYE, occupy the last four positions of the variable stacks.
+!   RAND has dimensions 1 by 1, but whenever its value is requested,
+!   a random number generator is used instead. EYE has dimensions -1
+!   by -1 to indicate that the actual dimensions must be determined
+!   later by context. The two saved variables have dimensions 2 by 2
+!   and 2 by 1 and so take up a total of 6 locations.
+!
+!   Subsequent statements involving A and x will result in
+!   temporary copies being made in the top of the stack for use in
+!   the actual calculations. Whenever the top of the stack reaches
+!   the bottom, a message indicating memory has been exceeded is
+!   printed, but the current variables are not affected.
+!
+!   This modular structure makes it possible to implement MAT88
+!   on a system with a limited amount of memory. The object code for
+!   the MATFN's and the LINPACK-EISPACK subroutines is rarely needed.
+!   Although it is not standard, many Fortran operating systems
+!   provide some overlay mechanism so that this code is brought into
+!   the main memory only when required. The variables, which occupy
+!   a relatively small portion of the memory, remain in place, while
+!   the subroutines which process them are loaded a few at a time.
+!==================================================================================================================================!
 integer,parameter        :: G_BIGMEM=200005
 doubleprecision          :: G_STKR(G_BIGMEM), G_STKI(G_BIGMEM)
 
@@ -666,14 +743,13 @@ integer,save                :: RAND(4)=  [27,10,23,13]
 !------------------------------------------------------------------------
 !
       G_VSIZE = G_BIGMEM
-      G_LSIZE = 48
       G_PSIZE = 32
-      G_BOT = G_LSIZE-3
+      G_BOT = G_MAX_NUMBER_OF_NAMES-3
       CALL mat_wset(5,0.0D0,0.0D0,G_STKR(G_VSIZE-4),G_STKI(G_VSIZE-4),1)
-      CALL mat_putid(G_IDSTK(1,G_LSIZE-3),EPS)
-      G_LSTK(G_LSIZE-3) = G_VSIZE-4
-      G_MSTK(G_LSIZE-3) = 1
-      G_NSTK(G_LSIZE-3) = 1
+      CALL mat_putid(G_IDSTK(1,G_MAX_NUMBER_OF_NAMES-3),EPS)
+      G_LSTK(G_MAX_NUMBER_OF_NAMES-3) = G_VSIZE-4
+      G_MSTK(G_MAX_NUMBER_OF_NAMES-3) = 1
+      G_NSTK(G_MAX_NUMBER_OF_NAMES-3) = 1
 
       S = 1.0D0
       SET_ST: do
@@ -684,19 +760,19 @@ integer,save                :: RAND(4)=  [27,10,23,13]
 
       G_STKR(G_VSIZE-4) = 2.0D0*S
 
-      CALL mat_putid(G_IDSTK(1,G_LSIZE-2),FLOPS)
-      G_LSTK(G_LSIZE-2) = G_VSIZE-3
-      G_MSTK(G_LSIZE-2) = 1
-      G_NSTK(G_LSIZE-2) = 2
-      CALL mat_putid(G_IDSTK(1,G_LSIZE-1), EYE)
-      G_LSTK(G_LSIZE-1) = G_VSIZE-1
-      G_MSTK(G_LSIZE-1) = -1
-      G_NSTK(G_LSIZE-1) = -1
+      CALL mat_putid(G_IDSTK(1,G_MAX_NUMBER_OF_NAMES-2),FLOPS)
+      G_LSTK(G_MAX_NUMBER_OF_NAMES-2) = G_VSIZE-3
+      G_MSTK(G_MAX_NUMBER_OF_NAMES-2) = 1
+      G_NSTK(G_MAX_NUMBER_OF_NAMES-2) = 2
+      CALL mat_putid(G_IDSTK(1,G_MAX_NUMBER_OF_NAMES-1), EYE)
+      G_LSTK(G_MAX_NUMBER_OF_NAMES-1) = G_VSIZE-1
+      G_MSTK(G_MAX_NUMBER_OF_NAMES-1) = -1
+      G_NSTK(G_MAX_NUMBER_OF_NAMES-1) = -1
       G_STKR(G_VSIZE-1) = 1.0D0
-      CALL mat_putid(G_IDSTK(1,G_LSIZE), RAND)
-      G_LSTK(G_LSIZE) = G_VSIZE
-      G_MSTK(G_LSIZE) = 1
-      G_NSTK(G_LSIZE) = 1
+      CALL mat_putid(G_IDSTK(1,G_MAX_NUMBER_OF_NAMES), RAND)
+      G_LSTK(G_MAX_NUMBER_OF_NAMES) = G_VSIZE
+      G_MSTK(G_MAX_NUMBER_OF_NAMES) = 1
+      G_NSTK(G_MAX_NUMBER_OF_NAMES) = 1
       G_FMT = 1
       G_FLOP_COUNTER(1) = 0
       G_FLOP_COUNTER(2) = 0
@@ -1435,7 +1511,7 @@ integer            :: k
 !  function name was not found
    G_fin = 0
    return
-!  found name so great G_FIN and G_FUN value from corresponding FUNP code
+!  found name so get G_FIN and G_FUN value from corresponding FUNP code
 
 20 continue
    G_fin = mod(funp(k),100) ! which routine to call (SUBROUTINE ML_MATFN[1-6])
@@ -2476,9 +2552,9 @@ end subroutine mat_prntid
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_stackp(id)
+subroutine MAT_STACK_PUT(id)
 
-! ident_26="@(#)M_matrix::mat_stackp(3fp): put variables into storage"
+! ident_26="@(#)M_matrix::MAT_STACK_PUT(3fp): put variables into storage"
 
 integer             :: id(4)
 character(len=100)  :: mline
@@ -2539,7 +2615,7 @@ integer             :: nt
 !
 !     DOES VARIABLE ALREADY EXIST
    call mat_putid(G_IDSTK(1,G_BOT-1),id)
-   k = G_LSIZE+1
+   k = G_MAX_NUMBER_OF_NAMES+1
 05 continue
    k = k-1
    if (.not.mat_eqid(G_IDSTK(1,k),id)) goto 05
@@ -2562,7 +2638,7 @@ integer             :: nt
 !     DOES IT FIT
 20 continue
    if (G_rhs.eq.0 .and. mn.eq.mnk) goto 40
-   if (k .ge. G_LSIZE-3) call mat_err(13)
+   if (k .ge. G_MAX_NUMBER_OF_NAMES-3) call mat_err(13)
    if (G_err .gt. 0) return
 !
 !     SHIFT STORAGE
@@ -2595,7 +2671,7 @@ integer             :: nt
 !
 !     STORE
 40 continue
-   if (k .lt. G_LSIZE) G_LSTK(k) = G_LSTK(k+1) - mn
+   if (k .lt. G_MAX_NUMBER_OF_NAMES) G_LSTK(k) = G_LSTK(k+1) - mn
    G_MSTK(k) = m
    G_NSTK(k) = n
    lk = G_LSTK(k)
@@ -2704,7 +2780,7 @@ integer             :: nt
 99 continue
    if (m .ne. 0) G_top = G_top - 1 - G_rhs
    if (m .eq. 0) G_top = G_top - 1
-end subroutine mat_stackp
+end subroutine MAT_STACK_PUT
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -3070,7 +3146,7 @@ integer            :: n
 !     STORE RESULTS
    60 CONTINUE
       G_RHS = G_PSTK(G_PT)
-      CALL mat_stackp(G_IDS(1,G_PT))
+      CALL MAT_STACK_PUT(G_IDS(1,G_PT))
       IF (G_ERR .GT. 0) GOTO 01
       G_PT = G_PT-1
       G_LHS = G_LHS-1
@@ -3241,11 +3317,11 @@ integer            :: l
          G_MSTK(G_TOP) = 0
          G_NSTK(G_TOP) = 0
          G_RHS = 0
-         CALL mat_stackp(G_SYN)
+         CALL MAT_STACK_PUT(G_SYN)
          IF (G_ERR .GT. 0) RETURN
          G_FIN = 1
       else
-         G_BOT = G_LSIZE-3
+         G_BOT = G_MAX_NUMBER_OF_NAMES-3
       endif
 !===================================================================================================================================
 !     COMMAND::FOR, WHILE, IF, ELSE, END
@@ -3326,7 +3402,7 @@ integer            :: l
 !===================================================================================================================================
       case(14) !     COMMAND::WHO
       call journal(' Your current variables are...')
-      CALL mat_prntid(G_IDSTK(1,G_BOT),G_LSIZE-G_BOT+1)
+      CALL mat_prntid(G_IDSTK(1,G_BOT),G_MAX_NUMBER_OF_NAMES-G_BOT+1)
       L = G_VSIZE-G_LSTK(G_BOT)+1
       WRITE(mline,161) L,G_VSIZE
   161 FORMAT(1X,'using ',I7,' out of ',I7,' elements.')
@@ -4672,8 +4748,8 @@ logical             :: isfound
       IF (LUN .LT. 0) LUNIT = 1
       IF (LUN .LT. 0) CALL mat_files(LUNIT,G_BUF)
       IF (LUN .GT. 0) LUNIT = LUN
-      K = G_LSIZE-4
-      IF (K .LT. G_BOT) K = G_LSIZE
+      K = G_MAX_NUMBER_OF_NAMES-4
+      IF (K .LT. G_BOT) K = G_MAX_NUMBER_OF_NAMES
       IF (G_RHS .EQ. 2) K = TOP2
       IF (G_RHS .EQ. 2) CALL mat_putid(G_IDSTK(1,K),G_SYN)
       do
@@ -4714,7 +4790,7 @@ logical             :: isfound
             enddo
             G_SYM = SEMI
             G_RHS = 0
-            CALL mat_stackp(ID)
+            CALL MAT_STACK_PUT(ID)
             G_TOP = G_TOP + 1
          else
             exit
@@ -4874,77 +4950,56 @@ end subroutine mat_matfn5
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-SUBROUTINE mat_stackg(ID)
+SUBROUTINE MAT_STACK_GET(ID)
 
-! ident_35="@(#)M_matrix::mat_stackg(3fp): get variables from storage"
+! ident_35="@(#)M_matrix::MAT_STACK_GET(3fp): get variables from storage"
 
-integer       :: id(4)
-integer       :: i
-integer       :: j
-integer       :: k
-integer       :: l
-integer       :: l2
-integer       :: l3
-integer       :: li
-integer       :: lj
-integer       :: lk
-integer       :: ll
-integer       :: ls
-integer       :: m
-integer       :: mk
-integer       :: mn
-integer       :: mnk
-integer       :: n
-      IF (G_DEBUG_LEVEL .EQ. 1)then
-         call journal('sc','STACKG(1)=',ID(1))
-         call journal('sc','STACKG(2)=',ID(2))
-         call journal('sc','STACKG(3)=',ID(3))
-         call journal('sc','STACKG(4)=',ID(4))
-      endif
-      CALL mat_putid(G_IDSTK(1,G_BOT-1), ID)
-      K = G_LSIZE+1
-!===================================================================================================================================
-   10 continue
-      K = K-1
-      IF (.NOT.mat_eqid(G_IDSTK(1,K), ID)) GOTO 10
-      IF (K .GE. G_LSIZE-1 .AND. G_RHS .GT. 0) GOTO 98
-      IF (K .EQ. G_BOT-1) GOTO 98
-      LK = G_LSTK(K)
-      IF (G_RHS .EQ. 1) GOTO 40
-      IF (G_RHS .EQ. 2) GOTO 60
-      IF (G_RHS .GT. 2) CALL mat_err(21)
-      IF (G_ERR .GT. 0) RETURN
-      L = 1
-      IF (G_TOP .GT. 0) L = G_LSTK(G_TOP) + G_MSTK(G_TOP)*G_NSTK(G_TOP)
-      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
-      IF (G_ERR .GT. 0) RETURN
-      G_TOP = G_TOP+1
-!
-!     LOAD VARIABLE TO TOP OF STACK
-      G_LSTK(G_TOP) = L
-      G_MSTK(G_TOP) = G_MSTK(K)
-      G_NSTK(G_TOP) = G_NSTK(K)
-      MN = G_MSTK(K)*G_NSTK(K)
-      G_ERR = L+MN - G_LSTK(G_BOT)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
-!     IF RAND, MATFN6 GENERATES RANDOM NUMBER
-      IF (K .EQ. G_LSIZE) GOTO 97
-      CALL mat_wcopy(MN,G_STKR(LK),G_STKI(LK),1,G_STKR(L),G_STKI(L),1)
-      GOTO 99
-!===================================================================================================================================
-!     VECT(ARG)
-   40 continue
+integer,intent(in)  :: id(4)
+integer             :: i
+integer             :: j
+integer             :: k
+integer             :: l
+integer             :: l2
+integer             :: l3
+integer             :: li
+integer             :: lj
+integer             :: lk
+integer             :: ll
+integer             :: ls
+integer             :: m
+integer             :: mk
+integer             :: mn
+integer             :: mnk
+integer             :: n
+character(len=4)    :: id_name
+   if (G_DEBUG_LEVEL .eq. 1)then
+      call mat_buf2str(id_name,id,4)                                                     ! convert ADE buffer to character
+      call journal('sc','*MAT_STACK_GET* ID(1)=',id(1), id(2), id(3), id(4),id_name)
+   endif
+   call mat_putid(G_IDSTK(1,G_BOT-1), ID)  ! copy ID to next blank entry in G_IDSTK in case it is not there(?)
+
+   do k=G_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
+      if (mat_eqid(G_IDSTK(1,k), id))exit                ! if found name exit loop
+   enddo
+   ! if (?)
+   ! or if matched the name inserted above did not find it.
+   if ( (k .ge. G_MAX_NUMBER_OF_NAMES-1 .and. G_RHS .gt. 0) .or. (k .eq. G_BOT-1) ) then
+      g_fin = 0
+      return
+   endif
+
+   LK = G_LSTK(K)                                                     ! found it, so this is the location where the data begins
+   IF (G_RHS .EQ. 1) then                                             ! VECT(ARG)
       IF (G_MSTK(G_TOP) .EQ. 0) GOTO 99
       L = G_LSTK(G_TOP)
       MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
-      MNK = G_MSTK(K)*G_NSTK(K)
+      MNK = G_MSTK(K)*G_NSTK(K)                                       ! number of values in this variable
       IF (G_MSTK(G_TOP) .LT. 0) MN = MNK
       DO I = 1, MN
         LL = L+I-1
         LS = LK+I-1
         IF (G_MSTK(G_TOP) .GT. 0) LS = LK + IDINT(G_STKR(LL)) - 1
-        IF (LS .LT. LK .OR. LS .GE. LK+MNK) CALL mat_err(21)
+        IF (LS .LT. LK .OR. LS .GE. LK+MNK) CALL mat_err(21)          ! Subscript out of range
         IF (G_ERR .GT. 0) RETURN
         G_STKR(LL) = G_STKR(LS)
         G_STKI(LL) = G_STKI(LS)
@@ -4954,9 +5009,7 @@ integer       :: n
       IF (G_MSTK(K) .GT. 1) G_MSTK(G_TOP) = MN
       IF (G_MSTK(K) .EQ. 1) G_NSTK(G_TOP) = MN
       GOTO 99
-!===================================================================================================================================
-!     MATRIX(ARG,ARG)
-   60 continue
+   elseif (G_RHS .EQ. 2) then                                              ! MATRIX(ARG,ARG)
       G_TOP = G_TOP-1
       L = G_LSTK(G_TOP)
       IF (G_MSTK(G_TOP+1) .EQ. 0) G_MSTK(G_TOP) = 0
@@ -4988,21 +5041,42 @@ integer       :: n
       G_MSTK(G_TOP) = M
       G_NSTK(G_TOP) = N
       GOTO 99
-!===================================================================================================================================
-   97 continue
-      G_FIN = 7
-      G_FUN = 6
-      RETURN
-!===================================================================================================================================
-   98 continue
-      G_FIN = 0
-      RETURN
-!===================================================================================================================================
-   99 continue
-      G_FIN = -1
-      G_FUN = 0
-!===================================================================================================================================
-END SUBROUTINE mat_stackg
+   elseif (G_RHS .GT. 2) then
+      CALL mat_err(21)                                                     ! Subscript out of range
+      IF (G_ERR .GT. 0) RETURN
+   else                                                                    ! SCALAR
+      L = 1
+      IF (G_TOP .GT. 0) L = G_LSTK(G_TOP) + G_MSTK(G_TOP)*G_NSTK(G_TOP)
+      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)                             ! Too many names
+      IF (G_ERR .GT. 0) RETURN
+
+      G_TOP = G_TOP+1
+
+      !  LOAD VARIABLE TO TOP OF STACK
+      G_LSTK(G_TOP) = L
+      G_MSTK(G_TOP) = G_MSTK(K)
+      G_NSTK(G_TOP) = G_NSTK(K)
+      MN = G_MSTK(K)*G_NSTK(K)
+      G_ERR = L+MN - G_LSTK(G_BOT)
+      IF (G_ERR .GT. 0) then
+         CALL mat_err(17)                                                  ! Too much memory required
+         RETURN
+      endif
+
+      !  IF RAND, MATFN6 GENERATES RANDOM NUMBER
+      IF (K .EQ. G_MAX_NUMBER_OF_NAMES) then
+         G_FIN = 7
+         G_FUN = 6
+         RETURN
+      endif
+      CALL mat_wcopy(MN,G_STKR(LK),G_STKI(LK),1,G_STKR(L),G_STKI(L),1)
+   endif
+
+99 continue
+   G_FIN = -1
+   G_FUN = 0
+
+END SUBROUTINE MAT_STACK_GET
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -5566,7 +5640,7 @@ integer            :: n
    IF (G_ERR .GT. 0) RETURN
    CALL mat_wcopy(M,G_STKR(LJ),G_STKI(LJ),1,G_STKR(L2),G_STKI(L2),1)
    G_RHS = 0
-   CALL mat_stackp(G_IDS(1,G_PT))
+   CALL MAT_STACK_PUT(G_IDS(1,G_PT))
    IF (G_ERR .GT. 0) RETURN
    G_PSTK(G_PT-1) = J
    G_PSTK(G_PT) = G_LPT(4)
@@ -5579,7 +5653,7 @@ integer            :: n
    G_MSTK(G_TOP) = 0
    G_NSTK(G_TOP) = 0
    G_RHS = 0
-   CALL mat_stackp(G_IDS(1,G_PT))
+   CALL MAT_STACK_PUT(G_IDS(1,G_PT))
    IF (G_ERR .GT. 0) RETURN
    G_PT = G_PT-2
    GOTO 80
@@ -5998,7 +6072,7 @@ integer           :: n
    CALL mat_funs(ID)
    IF (G_FIN .NE. 0) CALL mat_err(25)
    IF (G_ERR .GT. 0) RETURN
-   CALL mat_stackg(ID)
+   CALL MAT_STACK_GET(ID)
    IF (G_ERR .GT. 0) RETURN
    IF (G_FIN .EQ. 7) GOTO 50
    IF (G_FIN .EQ. 0) CALL mat_putid(G_IDS(1,G_PT+1),ID)
@@ -6026,7 +6100,7 @@ integer           :: n
    IF (G_SYM .EQ. RPAREN) CALL mat_getsym()
    IF (ID(1) .EQ. BLANK) GOTO 60
    G_RHS = EXCNT
-   CALL mat_stackg(ID)
+   CALL MAT_STACK_GET(ID)
    IF (G_ERR .GT. 0) RETURN
    IF (G_FIN .EQ. 0) CALL mat_funs(ID)
    IF (G_FIN .EQ. 0) CALL mat_err(4)
@@ -9196,74 +9270,6 @@ write(io,'(a)')'   whenever "serious" matrix computations are required. They are
 write(io,'(a)')'   interface routines which call the various LINPACK and EISPACK'
 write(io,'(a)')'   subroutines. MATFN5 primarily handles the file access tasks.'
 write(io,'(a)')''
-write(io,'(a)')'   Two large real arrays, G_STKR and G_STKI, are used to store all'
-write(io,'(a)')'   the matrices. Four integer arrays are used to store the names,'
-write(io,'(a)')'   the row and column dimensions, and the pointers into the real'
-write(io,'(a)')'   stacks. The following diagram illustrates this storage scheme.'
-write(io,'(a)')''
-write(io,'(a)')'    TOP        IDSTK     MSTK NSTK LSTK               STKR      STKI'
-write(io,'(a)')'     --      -- -- -- --   --   --   --              --------   --------'
-write(io,'(a)')'    |  |--->|  |  |  |  | |  | |  | |  |----------->|        | |        |'
-write(io,'(a)')'     --      -- -- -- --   --   --   --              --------   --------'
-write(io,'(a)')'            |  |  |  |  | |  | |  | |  |            |        | |        |'
-write(io,'(a)')'             -- -- -- --   --   --   --              --------   --------'
-write(io,'(a)')'                  .         .    .    .                  .          .'
-write(io,'(a)')'                  .         .    .    .                  .          .'
-write(io,'(a)')'                  .         .    .    .                  .          .'
-write(io,'(a)')'             -- -- -- --   --   --   --              --------   --------'
-write(io,'(a)')'    BOT     |  |  |  |  | |  | |  | |  |            |        | |        |'
-write(io,'(a)')'     --      -- -- -- --   --   --   --              --------   --------'
-write(io,'(a)')'    |  |--->| X|  |  |  | | 2| | 1| |  |----------->|  3.14  | |  0.00  |'
-write(io,'(a)')'     --      -- -- -- --   --   --   --              --------   --------'
-write(io,'(a)')'            | A|  |  |  | | 2| | 2| |  |---------   |  0.00  | |  1.00  |'
-write(io,'(a)')'             -- -- -- --   --   --   --          \   --------   --------'
-write(io,'(a)')'            | E| P| S|  | | 1| | 1| |  |-------   ->| 11.00  | |  0.00  |'
-write(io,'(a)')'             -- -- -- --   --   --   --        \     --------   --------'
-write(io,'(a)')'            | F| L| O| P| | 1| | 2| |  |------  \   | 21.00  | |  0.00  |'
-write(io,'(a)')'             -- -- -- --   --   --   --       \  \   --------   --------'
-write(io,'(a)')'            | E| Y| E|  | |-1| |-1| |  |---    \ |  | 12.00  | |  0.00  |'
-write(io,'(a)')'             -- -- -- --   --   --   --    \   | |   --------   --------'
-write(io,'(a)')'            | R| A| N| D| | 1| | 1| |  |-   \  | |  | 22.00  | |  0.00  |'
-write(io,'(a)')'             -- -- -- --   --   --   --  \  |  \ \   --------   --------'
-write(io,'(a)')'                                         |  \   \ ->| 1.E-15 | |  0.00  |'
-write(io,'(a)')'                                         \   \   \   --------   --------'
-write(io,'(a)')'                                          \   \   ->|  0.00  | |  0.00  |'
-write(io,'(a)')'                                           \   \     --------   --------'
-write(io,'(a)')'                                            \   \   |  0.00  | |  0.00  |'
-write(io,'(a)')'                                             \   \   --------   --------'
-write(io,'(a)')'                                              \   ->|  1.00  | |  0.00  |'
-write(io,'(a)')'                                               \     --------   --------'
-write(io,'(a)')'                                                --->| URAND  | |  0.00  |'
-write(io,'(a)')'                                                     --------   --------'
-write(io,'(a)')''
-write(io,'(a)')'   The top portion of the stack is used for temporary variables'
-write(io,'(a)')'   and the bottom portion for saved variables. The figure shows the'
-write(io,'(a)')'   situation after the line'
-write(io,'(a)')''
-write(io,'(a)')'      A = <11,12; 21,22>,  x = <3.14, sqrt(-1)>'''
-write(io,'(a)')''
-write(io,'(a)')'   has been processed. The four permanent names, EPS, FLOP, RAND'
-write(io,'(a)')'   and EYE, occupy the last four positions of the variable stacks.'
-write(io,'(a)')'   RAND has dimensions 1 by 1, but whenever its value is requested,'
-write(io,'(a)')'   a random number generator is used instead. EYE has dimensions -1'
-write(io,'(a)')'   by -1 to indicate that the actual dimensions must be determined'
-write(io,'(a)')'   later by context. The two saved variables have dimensions 2 by 2'
-write(io,'(a)')'   and 2 by 1 and so take up a total of 6 locations.'
-write(io,'(a)')''
-write(io,'(a)')'   Subsequent statements involving A and x will result in'
-write(io,'(a)')'   temporary copies being made in the top of the stack for use in'
-write(io,'(a)')'   the actual calculations. Whenever the top of the stack reaches'
-write(io,'(a)')'   the bottom, a message indicating memory has been exceeded is'
-write(io,'(a)')'   printed, but the current variables are not affected.'
-write(io,'(a)')''
-write(io,'(a)')'   This modular structure makes it possible to implement MAT88'
-write(io,'(a)')'   on a system with a limited amount of memory. The object code for'
-write(io,'(a)')'   the MATFN''s and the LINPACK-EISPACK subroutines is rarely needed.'
-write(io,'(a)')'   Although it is not standard, many Fortran operating systems'
-write(io,'(a)')'   provide some overlay mechanism so that this code is brought into'
-write(io,'(a)')'   the main memory only when required. The variables, which occupy'
-write(io,'(a)')'   a relatively small portion of the memory, remain in place, while'
-write(io,'(a)')'   the subroutines which process them are loaded a few at a time.'
 write(io,'(a)')''
 write(io,'(a)')'11. THE NUMERICAL ALGORITHMS'
 write(io,'(a)')''
@@ -9854,11 +9860,19 @@ INTEGER                     :: JOB
                                           !         = 11  PUT IMAG PART OF A INTO MATLAB.
 INTEGER                     :: IERR       ! RETURN WITH NONZERO IERR AFTER MATLAB ERROR MESSAGE.
 !
-!     USES MATLAB ROUTINES ML_STACKG, ML_STACKP AND ML_ERROR
+!     USES MATLAB ROUTINES MAT_STACK_GET, MAT_STACK_PUT AND MAT_ERROR
 !
 INTEGER ID(4)
 
+
       call mat_str2buf(cid,id,len(cid))
+      call mat_stack_get(id)
+      write(*,*)'G_TOP=',G_TOP
+      write(*,*)'G_LSTK(G_TOP)=',G_LSTK(G_TOP)
+      write(*,*)'G_MSTK(G_TOP)=',G_MSTK(G_TOP)
+      write(*,*)'G_NSTK(G_TOP)=',G_NSTK(G_TOP)
+      write(*,*)'G_IDSTK(G_TOP)=',G_IDSTK(G_TOP,:)
+      write(*,*)'ID=',ID(:)
 !
 END SUBROUTINE MAT_MATZ
 !===================================================================================================================================
@@ -9915,7 +9929,7 @@ use M_verify, only : unit_check_level
    call test_mat_savlod()
    call test_mat_stack1()
    call test_mat_stack2()
-   call test_mat_stackg()
+   call test_MAT_STACK_GET()
    call test_mat_stackp()
    call test_mat_str2buf()
    call test_mat_term()
@@ -10276,18 +10290,18 @@ subroutine test_mat_stack2()
    call unit_check_done('mat_stack2',msg='')
 end subroutine test_mat_stack2
 !TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_stackg()
+subroutine test_MAT_STACK_GET()
 
-   call unit_check_start('mat_stackg',msg='')
-   !!call unit_check('mat_stackg', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_stackg',msg='')
-end subroutine test_mat_stackg
+   call unit_check_start('MAT_STACK_GET',msg='')
+   !!call unit_check('MAT_STACK_GET', 0.eq.0, 'checking', 100)
+   call unit_check_done('MAT_STACK_GET',msg='')
+end subroutine test_MAT_STACK_GET
 !TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 subroutine test_mat_stackp()
 
-   call unit_check_start('mat_stackp',msg='')
-   !!call unit_check('mat_stackp', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_stackp',msg='')
+   call unit_check_start('MAT_STACK_PUT',msg='')
+   !!call unit_check('MAT_STACK_PUT', 0.eq.0, 'checking', 100)
+   call unit_check_done('MAT_STACK_PUT',msg='')
 end subroutine test_mat_stackp
 !TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 subroutine test_mat_str2buf()
