@@ -6,12 +6,15 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
-**2021-04-19**  John S. Urban  <https://github.com/urbanjost>
+**2021-04-24**  John S. Urban  <https://github.com/urbanjost>
 ### :green_circle: DIFF:
 
 Variable names now have 32 significant characters instead of 4. 
 
 Up to 480 unique variable names are allowed instead of a limit of 48.
+
+The inverse Hilbert function was renamed from "hilb" to "invh" or
+"inverse_hilbert".
 
 <!-- ======================================================================== -->
 ---
