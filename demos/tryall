@@ -3,11 +3,15 @@ a=magic(8)
 n=3
 exec('avg')
 b=random(8,8)
-exec('cdiv')
-exec('exp')
-exec('four')
-exec('gs')
-exec('jacobi')
+
+names=< 
+ 'cdiv  ';
+ 'exp   ';
+ 'four  ';
+ 'gs    ';
+ 'jacobi' >
+for i=1:5, disp(names(i,:)),exec(names(i,:))
+
 // jacstep
 exec('kron')
 exec('lanczos')

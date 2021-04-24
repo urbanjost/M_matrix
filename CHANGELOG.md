@@ -4,6 +4,14 @@ The intent of this changelog is to keep everyone in the loop about
 what's new in the M_matrix project. It is a curated, chronologically ordered
 list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
+<!-- ======================================================================== -->
+---
+**2021-04-19**  John S. Urban  <https://github.com/urbanjost>
+### :green_circle: DIFF:
+
+Variable names now have 32 significant characters instead of 4. 
+
+Up to 480 unique variable names are allowed instead of a limit of 48.
 
 <!-- ======================================================================== -->
 ---
@@ -31,6 +39,36 @@ initial commit
 
 The "." command enters command recall/edit mode. Enter "?" at the prompt
 after entering "." for help.
+<!-- ======================================================================== -->
+---
+**????-??-??**  John S. Urban  <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+
+Converted to do most I/O via journal() so can be used with my codes
+more easily. Also allow additional comment indicator (# in column 1)
+so can read back in trail files made by DIARY command.
+
+That is, the log file created by diary() prefixes output lines with a
+pound character and a pound character beginning a line is now considered
+a second type of comment line so that a diary() file can be replayed
+with exec().
+
+
+Made case-sensitive
+
+Can now take directives from string on MAT88() routine call
+
+Allowing longer filenames
+
+Partly converted program away from use of HOLLERITH towards use of ADE
+or maybe even character variables (enough to be able to use GNU g95
+compiler, anyway). Might have to change the way I make a letter
+"hollerith" on non little-endian non-32bit platforms.
+
+changed RETURN command to QUIT
+
+help document is now built-in 
 <!-- ======================================================================== -->
 ---
 <!--
