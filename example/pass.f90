@@ -1,8 +1,10 @@
 program try_matz
 use M_matrix, only : mat88, mat88_get, mat88_put
+implicit none
 integer,parameter :: lda=10
-integer           :: m,n, i,j
+integer           :: m,n, i,j, ierr
 doubleprecision   :: arr(lda,lda),x(lda,lda)
+doubleprecision,allocatable   :: answer(:,:)
    call mat88(-1,' ') ! iquiet initialization of  mat88().
    call mat88( 2,'b=<1 2 3 4; 5 6 7 8>') ! create some values in mat88(3f)
    call mat88( 2,'a=magic(4)') ! create some values in mat88(3f)
@@ -26,18 +28,29 @@ doubleprecision   :: arr(lda,lda),x(lda,lda)
 !      call mat88(1,'X=inv(A)')
 !      call mat88(1,'A')
       call mat88(2,'who')
+      call mat88(1,' ')
       ! The second call to mat_MATZ will retrieve X .
-      call mat88_get(x,lda,m,n,'a',0,ierr)
-      if (ierr .ne. 0) write(*,*)'<ERROR>',ierr
-      call mat88_get(x,lda,m,n,'b',0,ierr)
-      if (ierr .ne. 0) write(*,*)'<ERROR>',ierr
-      call mat88_get(x,lda,m,n,'c',0,ierr)
-      if (ierr .ne. 0) write(*,*)'<ERROR>',ierr
-      call mat88_get(x,lda,m,n,'unknown',0,ierr)
-      if (ierr .ne. 0) write(*,*)'<ERROR>',ierr
+      ierr=0
+      call mat88_get(answer,'a',0,ierr); call checkit()
+      call mat88_get(answer,'b',0,ierr); call checkit()
+      call mat88_get(answer,'c',0,ierr); call checkit()
+      call mat88_get(answer,'unknown',0,ierr); call checkit()
       ! The next call to mat88() will place you in interactive mode in mat88().
       ! Entering "return" will return back to the main program.
       call mat88(1,' ')
    endblock RUN
    ! By the way, this matrix X is interesting. Take a look at round(2*(n-1)*X).
+contains
+
+subroutine checkit()
+   if (ierr .ne. 0)then
+      write(*,*)'<ERROR>',ierr
+   else
+      m=size(answer,dim=1)
+      n=size(answer,dim=2)
+      write(*,*)'<INFO>',new_line('A'),(( int(answer(i,j)),i=1,m),new_line('A'),j=1,n ),&
+      & ' SIZE=',size(answer),'ROWS=',m,'COLS=',n,'IERR=',ierr
+   endif
+end subroutine checkit
+
 end program try_matz

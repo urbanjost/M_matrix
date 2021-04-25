@@ -41,44 +41,88 @@ use M_journal, only : journal
 use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
 implicit none
 !private
-public MAT88
+public mat88
 public mat88_get
 public mat88_put
+
+! for other routines
+public mat_flop
+public mat_wasum
+public mat_wdotcr
+public mat_wdotci
+
 public test_suite_M_matrix
+
 ! till get rid of type mismatches, the following are public
 !==================================================================================================================================!
-integer,parameter        :: G_LINELEN=1024
-character(len=1024),save :: G_STRING
-integer,save             :: G_ISTRING
+! program limits
+integer,parameter        :: GG_LINELEN=1024
+integer,parameter        :: GG_MAX_NUMBER_OF_NAMES=480
+integer,parameter        :: GG_BIGMEM=200005
+integer,parameter        :: GG_MAX_NAME_LENGTH=32       ! <WARNING> just began changing this to a constant
+
+integer,parameter        :: GG_PAD(*)=[36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36]
+!==================================================================================================================================!
 integer,save             :: G_INIT
-!==================================================================================================================================!
-integer                  :: G_DEBUG_LEVEL       ! select which debug messages to display. zero (0) is off
-logical                  :: G_FILE_OPEN_ERROR   ! flag whether file open error occurred or not
-integer,parameter        :: G_eol=99
-integer                  :: G_LINECOUNT(4)      ! [1] lines displayed since count started
-                                                ! [2] line limit before warning (ie. page length+1)
-                                                ! [3]
-                                                ! [4]
-integer                  :: G_ERR, G_FMT, G_LIN(1024), G_LPT(6), G_RIO, G_RTE, G_WTE
-integer                  :: G_SYM, G_BUF(1024), G_CHRA, G_FLOP_COUNTER(2), G_FUN, G_LHS, G_RHS, G_RAN(2)
+character(len=1024),save :: G_INPUT_STRING   ! allow for input line to be passed from program instead of read from file
+integer,save             :: G_STRING_LENGTH
+
+integer,parameter        :: G_EOL=99
+integer                  :: G_LIN(GG_LINELEN)
+
+integer                  :: G_LHS ! number of arguments on LHS
+integer                  :: G_RHS ! number of arguments on RHS
 integer                  :: G_FIN
+integer                  :: G_FUN
+integer                  :: G_FMT
+integer                  :: G_RIO
+integer                  :: G_INPUT_LUN
+integer                  :: G_OUTPUT_LUN
+integer                  :: G_PTZ
+integer                  :: G_SYM
+integer                  :: G_SYN(GG_MAX_NAME_LENGTH)
 !==================================================================================================================================!
-integer,parameter        :: G_MAX_NUMBER_OF_NAMES=480
-integer,parameter        :: G_MAX_NAME_LENGTH=32  ! <WARNING> just began changing this to a constant
-integer                  :: G_IDS(G_MAX_NAME_LENGTH,32)
-integer                  :: G_PSTK(32), G_RSTK(32), G_PSIZE, G_PT, G_PTZ
-integer,parameter        :: G_PAD(*)=[36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36]
-integer                  :: G_SYN(G_MAX_NAME_LENGTH)
-integer                  :: G_IDSTK(G_MAX_NAME_LENGTH, G_MAX_NUMBER_OF_NAMES)
-integer                  :: G_LSTK(G_MAX_NUMBER_OF_NAMES)
-integer                  :: G_MSTK(G_MAX_NUMBER_OF_NAMES)
-integer                  :: G_NSTK(G_MAX_NUMBER_OF_NAMES)
-integer                  :: G_BOT, G_TOP
-integer                  :: G_VSIZE
-!   Two large real arrays, G_STKR and G_STKI (for real and imaginary parts), are used to store all
-!   the matrices. Four integer arrays (G_IDSTK, G_MSTK, G_NSTK, G_LSTK) are used to store the names,
-!   the row and column dimensions, and the pointers into the real
-!   stacks. The following diagram illustrates this storage scheme.
+integer                  :: G_CURRENT_RANDOM_SEED
+integer                  :: G_CURRENT_RANDOM_TYPE     ! [0] uniform distribution
+                                                      ! [*] normal distribution
+integer                  :: G_FLOP_COUNTER(2)
+integer                  :: G_DEBUG_LEVEL             ! select which debug messages to display. zero (0) is off
+logical                  :: G_FILE_OPEN_ERROR         ! flag whether file open error occurred or not
+integer                  :: G_ERR
+integer                  :: G_LINECOUNT(4)            ! [1] lines displayed since count started
+                                                      ! [2] line limit before warning (ie. page length+1)
+                                                      ! [3]
+                                                      ! [4]
+
+integer                  :: G_BUF(GG_LINELEN)
+!==================================================================================================================================!
+! PARSING
+integer,parameter        :: G_PSIZE=32                        ! stack size for pseudo-recursion
+integer                  :: G_IDS(GG_MAX_NAME_LENGTH,G_PSIZE)
+integer                  :: G_PSTK(G_PSIZE)
+integer                  :: G_RSTK(G_PSIZE)
+integer                  :: G_PT
+
+integer                  :: G_CHRA ! current character in line
+integer                  :: G_LINE_POINTER(6) ! [1]
+                                              ! [2]
+                                              ! [3]
+                                              ! [4] pointer to current line being processed
+                                              ! [5]
+                                              ! [6]
+!==================================================================================================================================!
+
+integer                  :: G_STACK_IDS(GG_MAX_NAME_LENGTH, GG_MAX_NUMBER_OF_NAMES)
+integer                  :: G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES)
+integer                  :: G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES)
+integer                  :: G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES)
+doubleprecision          :: G_STACK_REALS(GG_BIGMEM), G_STACK_IMAGS(GG_BIGMEM)
+
+integer                  :: G_TOP_OF_SAVED, G_BOTTOM_OF_SCRATCH_IN_USE
+
+!   Two large real arrays, G_STACK_REALS and G_STACK_IMAGS (for real and imaginary parts), are used to store all
+!   the matrices. Four integer arrays (G_STACK_IDS, G_STACK_ROWS, G_STACK_COLS, G_STACK_ID_LOC) are used to store the names,
+!   the row and column dimensions, and the pointers into the real stacks. The following diagram illustrates this storage scheme.
 !
 !    TOP        IDSTK     MSTK NSTK LSTK               STKR      STKI
 !     --      -- -- -- --   --   --   --              --------   --------
@@ -115,11 +159,10 @@ integer                  :: G_VSIZE
 !                                                --->| URAND  | |  0.00  |
 !                                                     --------   --------
 !
-!   The top portion of the stack is used for temporary variables
-!   and the bottom portion for saved variables. The figure shows the
+!   The top portion of the stack is used for temporary variables and the bottom portion for saved variables. The figure shows the
 !   situation after the line
 !
-!      A = <11,12; 21,22>,  x = <3.14, sqrt(-1)>'
+!      A = [11,12; 21,22],  x = [3.14, sqrt(-1)]'
 !
 !   has been processed. The four permanent names, "eps", "flop", "rand"
 !   and "eye", occupy the last four positions of the variable stacks.
@@ -143,9 +186,6 @@ integer                  :: G_VSIZE
 !   the main memory only when required. The variables, which occupy
 !   a relatively small portion of the memory, remain in place, while
 !   the subroutines which process them are loaded a few at a time.
-!==================================================================================================================================!
-integer,parameter        :: G_BIGMEM=200005
-doubleprecision          :: G_STKR(G_BIGMEM), G_STKI(G_BIGMEM)
 !==================================================================================================================================!
 !
 ! CHARACTER SET
@@ -273,415 +313,471 @@ contains
 !!    program bigmat
 !!    use M_matrix, only : mat88
 !!    ! pass strings to MAT88 but do not enter interactive mode
-!!    call mat88(-1,' ')                    ! initialize
-!!    call mat88( 2,'a=<1 2 3 4; 5 6 7 8>')
+!!    call mat88(-1,' ')                  ! initialize silently
+!!    call mat88( 2,'a=[1 2 3 4; 5 6 7 8]')
 !!    call mat88( 2,'save("file1")')
 !!    call mat88( 2,'help INTRO')
-!!    end
+!!    end program bigmat
 !!
 !!  Example inputs
-!! avg:for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
-!!      avg:   a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
 !!
-!!      cdiv:// ======================================================
-!!      cdiv:// cdiv
-!!      cdiv:a=sqrt(random(8)
-!!      cdiv:   ar = real(a); ai = imag(a); br = real(b); bi = imag(b);
-!!      cdiv:   p = bi/br;
-!!      cdiv:   t = (ai - p*ar)/(br + p*bi);
-!!      cdiv:   cr = p*t + ar/br;
-!!      cdiv:   ci = t;
-!!      cdiv:   p2 = br/bi;
-!!      cdiv:   t2 = (ai + p2*ar)/(bi + p2*br);
-!!      cdiv:   ci2 = p2*t2 - ar/bi;
-!!      cdiv:   cr2 = t2;
-!!      cdiv:   s = abs(br) + abs(bi);
-!!      cdiv:   ars = ar/s;
-!!      cdiv:   ais = ai/s;
-!!      cdiv:   brs = br/s;
-!!      cdiv:   bis = bi/s;
-!!      cdiv:   s = brs**2 + bis**2;
-!!      cdiv:   cr3 = (ars*brs + ais*bis)/s;
-!!      cdiv:   ci3 = (ais*brs - ars*bis)/s;
-!!      cdiv:   <cr ci; cr2 ci2; cr3 ci3>
-!!      cdiv:// ======================================================
+!!     :avg:
 !!
-!!      exp:t = 0*x + eye; s = 0*eye(x); n = 1;
-!!      exp:while abs(s+t-s) > 0, s = s+t, t = x*t/n, n = n + 1
+!!     for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
+!!     a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
 !!
-!!      four:n
-!!      four:pi = 4*atan(1);
-!!      four:i = sqrt(-1);
-!!      four:w = exp(2*pi*i/n);
-!!      four:F = <>;
-!!      four:for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
-!!      four:F = F/sqrt(n);
-!!      four:G_CHARSET = r*pi;
-!!      four:rho = exp(i*G_CHARSET);
-!!      four:S = log(rho*F)/i - G_CHARSET*eye;
-!!      four:serr = norm(imag(S),1);
-!!      four:S = real(S);
-!!      four:serr = serr + norm(S-S',1)
-!!      four:S = (S + S')/2;
-!!      four:ferr = norm(F-exp(i*S),1)
+!!     :cdiv:
 !!
-!!      gs:for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)'; x(k,:) = x(k,:) - d*x(j,:); ...
-!!      gs:   end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;
+!!     // ======================================================
+!!     // cdiv
+!!     a=sqrt(random(8)
+!!     ar = real(a); ai = imag(a); br = real(b); bi = imag(b);
+!!     p = bi/br;
+!!     t = (ai - p*ar)/(br + p*bi);
+!!     cr = p*t + ar/br;
+!!     ci = t;
+!!     p2 = br/bi;
+!!     t2 = (ai + p2*ar)/(bi + p2*br);
+!!     ci2 = p2*t2 - ar/bi;
+!!     cr2 = t2;
+!!     s = abs(br) + abs(bi);
+!!     ars = ar/s;
+!!     ais = ai/s;
+!!     brs = br/s;
+!!     bis = bi/s;
+!!     s = brs**2 + bis**2;
+!!     cr3 = (ars*brs + ais*bis)/s;
+!!     ci3 = (ais*brs - ars*bis)/s;
+!!     [cr ci; cr2 ci2; cr3 ci3]
+!!     // ======================================================
 !!
-!!      jacobi:<n, n> = size(A);
-!!      jacobi:X = eye(n);
-!!      jacobi:anorm = norm(A,'fro');
-!!      jacobi:cnt = 1;
-!!      jacobi:while cnt > 0,...
-!!      jacobi:  cnt = 0;...
-!!      jacobi:  for p = 1:n-1,...
-!!      jacobi:    for q = p+1:n,...
-!!      jacobi:      if anorm + abs(a(p,q)) > anorm,...
-!!      jacobi:        cnt = cnt + 1;...
-!!      jacobi:        exec('jacstep');...
-!!      jacobi:      end,...
-!!      jacobi:    end,...
-!!      jacobi:  end,...
-!!      jacobi:  display(rat(A)),...
-!!      jacobi:end
+!!     :exp:
 !!
-!!      jacstep:        d = (a(q,q)-a(p,p))*0.5/a(p,q);
-!!      jacstep:        t = 1/(abs(d)+sqrt(d*d+1));
-!!      jacstep:        if d < 0, t = -t; end;
-!!      jacstep:        c = 1/sqrt(1+t*t);  s = t*c;
-!!      jacstep:        R = eye(n); r(p,p)=c; r(q,q)=c; r(p,q)=s; r(q,p)=-s;
-!!      jacstep:        X = X*R;
-!!      jacstep:        A = R'*A*R;
+!!     t = 0*x + eye; s = 0*eye(x); n = 1;
+!!     while abs(s+t-s) > 0, s = s+t, t = x*t/n, n = n + 1
 !!
-!!      kron://  C = Kronecker product of A and B
-!!      kron:<m, n> = size(A);
-!!      kron:for i = 1:m, ...
-!!      kron:   ci = a(i,1)*B; ...
-!!      kron:   for j = 2:n, ci = <ci a(i,j)*B>; end ...
-!!      kron:   if i = 1, C = ci; else, C = <C; ci>;
+!!     :four:
+!!      n
+!!      pi = 4*atan(1);
+!!      i = sqrt(-1);
+!!      w = exp(2*pi*i/n);
+!!      F = [];
+!!      for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
+!!      F = F/sqrt(n);
+!!      alpha = r*pi;
+!!      rho = exp(i*alpha);
+!!      S = log(rho*F)/i - alpha*eye;
+!!      serr = norm(imag(S),1);
+!!      S = real(S);
+!!      serr = serr + norm(S-S',1)
+!!      S = (S + S')/2;
+!!      ferr = norm(F-exp(i*S),1)
 !!
-!!      lanczos:<n,n> = size(A);
-!!      lanczos:q1 = rand(n,1);
-!!      lanczos:ort
-!!      lanczos:G_CHARSET = <>; beta = <>;
-!!      lanczos:q = q1/norm(q1); r = A*q(:,1);
-!!      lanczos:for j = 1:n, exec('lanstep',0);
+!!      :gs:
+!!      for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)'; x(k,:) = x(k,:) - d*x(j,:); ...
+!!      end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;
 !!
-!!      lanstep:G_CHARSET(j) = q(:,j)'*r;
-!!      lanstep:r = r - G_CHARSET(j)*q(:,j);
-!!      lanstep:if ort <> 0, for k = 1:j-1, r = r - r'*q(:,k)*q(:,k);
-!!      lanstep:beta(j) = norm(r);
-!!      lanstep:q(:,j+1) = r/beta(j);
-!!      lanstep:r = A*q(:,j+1) - beta(j)*q(:,j);
-!!      lanstep:if j > 1, T = diag(beta(1:j-1),1); T = diag(G_CHARSET) + T + T'; eig(T)
+!!      :jacobi:
+!!      [n, n] = size(A);
+!!      X = eye(n);
+!!      anorm = norm(A,'fro');
+!!      cnt = 1;
+!!      while cnt > 0, ...
+!!        cnt = 0; ...
+!!        for p = 1:n-1, ...
+!!          for q = p+1:n, ...
+!!            if anorm + abs(a(p,q)) > anorm, ...
+!!              cnt = cnt + 1; ...
+!!              exec('jacstep'); ...
+!!            end, ...
+!!          end, ...
+!!        end, ...
+!!        display(rat(A)), ...
+!!      end
 !!
-!!      mgs:for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; ...
-!!      mgs:   for j = k+1:n, d = x(j,:)*x(k,:)'; x(j,:) = x(j,:) - d*x(k,:);
+!!      :jacstep:
 !!
-!!      net:C = <
-!!      net:1   2   15  .   .   .
-!!      net:2   1   3   .   .   .
-!!      net:3   2   4   11  .   .
-!!      net:4   3   5   .   .   .
-!!      net:5   4   6   7   .   .
-!!      net:6   5   8   .   .   .
-!!      net:7   5   9   30  .   .
-!!      net:8   6   9   10  11  .
-!!      net:9   7   8   30  .   .
-!!      net:10  8   12  30  31  34
-!!      net:11  3   8   12  13  .
-!!      net:12  10  11  34  36  .
-!!      net:13  11  14  .   .   .
-!!      net:14  13  15  16  38  .
-!!      net:15  1   14  .   .   .
-!!      net:16  14  17  20  35  37
-!!      net:17  16  18  .   .   .
-!!      net:18  17  19  .   .   .
-!!      net:19  18  20  .   .   .
-!!      net:20  16  19  21  .   .
-!!      net:21  20  22  .   .   .
-!!      net:22  21  23  .   .   .
-!!      net:23  22  24  35  .   .
-!!      net:24  23  25  39  .   .
-!!      net:25  24  .   .   .   .
-!!      net:26  27  33  39  .   .
-!!      net:27  26  32  .   .   .
-!!      net:28  29  32  .   .   .
-!!      net:29  28  30  .   .   .
-!!      net:30  7   9   10  29  .
-!!      net:31  10  32  .   .   .
-!!      net:32  27  28  31  34  .
-!!      net:33  26  34  .   .   .
-!!      net:34  10  12  32  33  35
-!!      net:35  16  23  34  36  .
-!!      net:36  12  35  38  .   .
-!!      net:37  16  38  .   .   .
-!!      net:38  14  36  37  .   .
-!!      net:39  24  26  .   .   .
-!!      net:>;
-!!      net:<n, m> = size(C);
-!!      net:A = 0*ones(n,n);
-!!      net:for i=1:n, for j=2:m, k=c(i,j); if k>0, a(i,k)=1;
-!!      net:check = norm(A-A',1), if check > 0, quit
-!!      net:<X,D> = eig(A+eye);
-!!      net:D = diag(D);  D = D(n:-1:1)
-!!      net:X = X(:,n:-1:1);
-!!      net:<x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)>
+!!      d = (a(q,q)-a(p,p))*0.5/a(p,q);
+!!      t = 1/(abs(d)+sqrt(d*d+1));
+!!      if d < 0, t = -t; end;
+!!      c = 1/sqrt(1+t*t);  s = t*c;
+!!      R = eye(n); r(p,p)=c; r(q,q)=c; r(p,q)=s; r(q,p)=-s;
+!!      X = X*R;
+!!      A = R'*A*R;
 !!
-!!      pascal://Generate next Pascal matrix
-!!      pascal:<k,k> = size(L);
-!!      pascal:k = k + 1;
-!!      pascal:L(k,1:k) = <L(k-1,:) 0> + <0 L(k-1,:)>;
+!!      :kron:
 !!
-!!      pdq:G_CHARSET = <>; beta = 0; q = <>; p = p(:,1)/norm(p(:,1));
-!!      pdq:t = A'*p(:,1);
-!!      pdq:G_CHARSET(1) = norm(t);
-!!      pdq:q(:,1) = t/G_CHARSET(1);
-!!      pdq:X = p(:,1)*(G_CHARSET(1)*q(:,1))'
-!!      pdq:e(1) = norm(A-X,1)
-!!      pdq:for j = 2:r, exec('pdqstep',ip); ...
-!!      pdq:   X = X + p(:,j)*(G_CHARSET(j)*q(:,j)+beta(j)*q(:,j-1))', ...
-!!      pdq:   e(j) = norm(A-X,1)
+!!      //  C = Kronecker product of A and B
+!!      [m, n] = size(A);
+!!      for i = 1:m, ...
+!!         ci = a(i,1)*B; ...
+!!         for j = 2:n, ci = [ci a(i,j)*B]; end ...
+!!         if i = 1, C = ci; else, C = [C; ci];
 !!
-!!      pdqstep:t = A*q(:,j-1) - G_CHARSET(j-1)*p(:,j-1);
-!!      pdqstep:   if ort>0, for i = 1:j-1, t = t - t'*p(:,i)*p(:,i);
-!!      pdqstep:beta(j) = norm(t);
-!!      pdqstep:p(:,j) = t/beta(j);
-!!      pdqstep:t = A'*p(:,j) - beta(j)*q(:,j-1);
-!!      pdqstep:   if ort>0, for i = 1:j-1, t = t - t'*q(:,i)*q(:,i);
-!!      pdqstep:G_CHARSET(j) = norm(t);
-!!      pdqstep:q(:,j) = t/G_CHARSET(j);
+!!      :lanczos:
 !!
-!!      pop:y = < 75.995   91.972  105.711  123.203   ...
-!!      pop:     131.669  150.697  179.323  203.212>'
-!!      pop:t = < 1900:10:1970 >'
-!!      pop:t = (t - 1940*ones(t))/40;   <t y>
-!!      pop:n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
-!!      pop:A
-!!      pop:c = A\y
+!!      [n,n] = size(A);
+!!      q1 = rand(n,1);
+!!      ort
+!!      alpha = []; beta = [];
+!!      q = q1/norm(q1); r = A*q(:,1);
+!!      for j = 1:n, exec('lanstep',0);
 !!
-!!      qr:scale = s(m);
-!!      qr:sm = s(m)/scale; smm1 = s(m-1)/scale; emm1 = e(m-1)/scale;
-!!      qr:sl = s(l)/scale; el = e(l)/scale;
-!!      qr:b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
-!!      qr:c = (sm*emm1)**2;
-!!      qr:shift = sqrt(b**2+c); if b < 0, shift = -shift;
-!!      qr:shift = c/(b + shift)
-!!      qr:f = (sl + sm)*(sl-sm) - shift
-!!      qr:g = sl*el
-!!      qr:for k = l: m-1, exec('qrstep',ip)
-!!      qr:e(m-1) = f
+!!      :lanstep:
 !!
-!!      qrstep:exec('rot');
-!!      qrstep:if k <> l, e(k-1) = f
-!!      qrstep:f = cs*s(k) + sn*e(k)
-!!      qrstep:e(k) = cs*e(k) - sn*s(k)
-!!      qrstep:g = sn*s(k+1)
-!!      qrstep:s(k+1) = cs*s(k+1)
-!!      qrstep:exec('rot');
-!!      qrstep:s(k) = f
-!!      qrstep:f = cs*e(k) + sn*s(k+1)
-!!      qrstep:s(k+1) = -sn*e(k) + cs*s(k+1)
-!!      qrstep:g = sn*e(k+1)
-!!      qrstep:e(k+1) = cs*e(k+1)
+!!      alpha(j) = q(:,j)'*r;
+!!      r = r - alpha(j)*q(:,j);
+!!      if ort <> 0, for k = 1:j-1, r = r - r'*q(:,k)*q(:,k);
+!!      beta(j) = norm(r);
+!!      q(:,j+1) = r/beta(j);
+!!      r = A*q(:,j+1) - beta(j)*q(:,j);
+!!      if j > 1, T = diag(beta(1:j-1),1); T = diag(alpha) + T + T'; eig(T)
 !!
-!!      rho://Conductivity example.
-!!      rho://Parameters ---
-!!      rho:   rho       //radius of cylindrical inclusion
-!!      rho:   n         //number of terms in solution
-!!      rho:   m         //number of boundary points
-!!      rho://initialize operation counter
-!!      rho:   flop = <0 0>;
-!!      rho://initialize variables
-!!      rho:   m1 = round(m/3);   //number of points on each straight edge
-!!      rho:   m2 = m - m1;       //number of points with Dirichlet conditions
-!!      rho:   pi = 4*atan(1);
-!!      rho://generate points in Cartesian coordinates
-!!      rho:   //right hand edge
-!!      rho:   for i = 1:m1, x(i) = 1; y(i) = (1-rho)*(i-1)/(m1-1);
-!!      rho:   //top edge
-!!      rho:   for i = m2+1:m, x(i) = (1-rho)*(m-i)/(m-m2-1); y(i) = 1;
-!!      rho:   //circular edge
-!!      rho:   for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); ...
-!!      rho:      x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);
-!!      rho://convert to polar coordinates
-!!      rho:   for i = 1:m-1, th(i) = atan(y(i)/x(i));  ...
-!!      rho:      r(i) = sqrt(x(i)**2+y(i)**2);
-!!      rho:   th(m) = pi/2;  r(m) = 1;
-!!      rho://generate matrix
-!!      rho:   //Dirichlet conditions
-!!      rho:   for i = 1:m2, for j = 1:n, k = 2*j-1; ...
-!!      rho:      a(i,j) = r(i)**k*cos(k*th(i));
-!!      rho:   //Neumann conditions
-!!      rho:   for i = m2+1:m, for j = 1:n, k = 2*j-1; ...
-!!      rho:      a(i,j) = k*r(i)**(k-1)*sin((k-1)*th(i));
-!!      rho://generate right hand side
-!!      rho:   for i = 1:m2, b(i) = 1;
-!!      rho:   for i = m2+1:m, b(i) = 0;
-!!      rho://solve for coefficients
-!!      rho:   c = A$b
-!!      rho://compute effective conductivity
-!!      rho:   c(2:2:n) = -c(2:2:n)
-!!      rho:   sigma = sum(c)
-!!      rho://output total operation count
-!!      rho:   ops = flop(2)
+!!      :mgs:
 !!
-!!      rogers.exec:exec('d.boug');                        // reads data
-!!      rogers.exec:<g,k> = size(p);               // p is matrix of gene frequencies
-!!      rogers.exec:wv = ncen/sum(ncen);           // ncen contains population sizes
-!!      rogers.exec:pbar = wv*p;                   // weighted average of p
-!!      rogers.exec:p = p - ones(g,1)*pbar;        // deviations from mean
-!!      rogers.exec:p = sqrt(diag(wv)) * p;        // weight rows of p by sqrt of pop size
-!!      rogers.exec:h = diag(pbar); h = h*(eye-h); // diagonal contains binomial variance: p*(1-p)
-!!      rogers.exec:r = p*inv(h)*p'/k;             // normalized covariance matrix
-!!      rogers.exec:eig(r)'
+!!      for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; ...
+!!         for j = k+1:n, d = x(j,:)*x(k,:)'; x(j,:) = x(j,:) - d*x(k,:);
 !!
-!!      rosser:A  = <
-!!      rosser:  611.  196. -192.  407.   -8.  -52.  -49.   29.
-!!      rosser:  196.  899.  113. -192.  -71.  -43.   -8.  -44.
-!!      rosser: -192.  113.  899.  196.   61.   49.    8.   52.
-!!      rosser:  407. -192.  196.  611.    8.   44.   59.  -23.
-!!      rosser:   -8.  -71.   61.    8.  411. -599.  208.  208.
-!!      rosser:  -52.  -43.   49.   44. -599.  411.  208.  208.
-!!      rosser:  -49.   -8.    8.   59.  208.  208.   99. -911.
-!!      rosser:   29.  -44.   52.  -23.  208.  208. -911.   99.  >;
+!!      :net:
 !!
-!!      rot:// subexec rot(f,g,cs,sn)
-!!      rot:      rho = g; if abs(f) > abs(g), rho = f;
-!!      rot:      cs = 1.0; sn = 0.0; z = 1.0;
-!!      rot:      r = norm(<f g>); if rho < 0, r = -r; r
-!!      rot:      if r <> 0.0, cs = f/r
-!!      rot:      if r <> 0.0, sn = g/r
-!!      rot:      if abs(f) > abs(g), z = sn;
-!!      rot:      if abs(g) >= abs(f), if cs <> 0, z = 1/cs;
-!!      rot:      f = r;
-!!      rot:      g = z;
+!!      C = [
+!!      1   2   15  .   .   .
+!!      2   1   3   .   .   .
+!!      3   2   4   11  .   .
+!!      4   3   5   .   .   .
+!!      5   4   6   7   .   .
+!!      6   5   8   .   .   .
+!!      7   5   9   30  .   .
+!!      8   6   9   10  11  .
+!!      9   7   8   30  .   .
+!!      10  8   12  30  31  34
+!!      11  3   8   12  13  .
+!!      12  10  11  34  36  .
+!!      13  11  14  .   .   .
+!!      14  13  15  16  38  .
+!!      15  1   14  .   .   .
+!!      16  14  17  20  35  37
+!!      17  16  18  .   .   .
+!!      18  17  19  .   .   .
+!!      19  18  20  .   .   .
+!!      20  16  19  21  .   .
+!!      21  20  22  .   .   .
+!!      22  21  23  .   .   .
+!!      23  22  24  35  .   .
+!!      24  23  25  39  .   .
+!!      25  24  .   .   .   .
+!!      26  27  33  39  .   .
+!!      27  26  32  .   .   .
+!!      28  29  32  .   .   .
+!!      29  28  30  .   .   .
+!!      30  7   9   10  29  .
+!!      31  10  32  .   .   .
+!!      32  27  28  31  34  .
+!!      33  26  34  .   .   .
+!!      34  10  12  32  33  35
+!!      35  16  23  34  36  .
+!!      36  12  35  38  .   .
+!!      37  16  38  .   .   .
+!!      38  14  36  37  .   .
+!!      39  24  26  .   .   .
+!!      ];
+!!      [n, m] = size(C);
+!!      A = 0*ones(n,n);
+!!      for i=1:n, for j=2:m, k=c(i,j); if k>0, a(i,k)=1;
+!!      check = norm(A-A',1), if check > 0, quit
+!!      [X,D] = eig(A+eye);
+!!      D = diag(D);  D = D(n:-1:1)
+!!      X = X(:,n:-1:1);
+!!      [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
 !!
-!!      rqi:rho = (x'*A*x)
-!!      rqi:x = (A-rho*eye)\x;
-!!      rqi:x = x/norm(x)
+!!      :pascal:
 !!
-!!      setup:diary('xxx')
-!!      setup:!tail -f xxx > /dev/tty1 &
-!!      setup:!tail -f xxx > /dev/tty2 &
+!!      //Generate next Pascal matrix
+!!      [k,k] = size(L);
+!!      k = k + 1;
+!!      L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];
 !!
-!!      sigma:RHO = .5  M = 20  N = 10   SIGMA =  1.488934271883534
-!!      sigma:RHO = .5  M = 40  N = 20   SIGMA =  1.488920312974229
-!!      sigma:RHO = .5  M = 60  N = 30   SIGMA =  1.488920697912116
+!!      :pdq:
 !!
-!!      strut.mat:// Structure problem, Forsythe, Malcolm and Moler, p. 62
-!!      strut.mat:s =  sqrt(2)/2;
-!!      strut.mat:A = <
-!!      strut.mat:-s  .  .  1  s   .  .  .  .  .  .  .  .  .  .  .  .
-!!      strut.mat:-s  . -1  . -s   .  .  .  .  .  .  .  .  .  .  .  .
-!!      strut.mat: . -1  .  .  .   1  .  .  .  .  .  .  .  .  .  .  .
-!!      strut.mat: .  .  1  .  .   .  .  .  .  .  .  .  .  .  .  .  .
-!!      strut.mat: .  .  . -1  .   .  .  1  .  .  .  .  .  .  .  .  .
-!!      strut.mat: .  .  .  .  .   . -1  .  .  .  .  .  .  .  .  .  .
-!!      strut.mat: .  .  .  . -s -1  .  .  s  1  .  .  .   .  .  .  .
-!!      strut.mat: .  .  .  .  s   .  1  .  s  .  .  .  .  .  .  .  .
-!!      strut.mat: .  .  .  .  .   .  . -1 -s  .  .  1  s  .  .  .  .
-!!      strut.mat: .  .  .  .  .   .  .  . -s  . -1  . -s  .  .  .  .
-!!      strut.mat: .  .  .  .  .   .  .  .  . -1  .  .  .  1  .  .  .
-!!      strut.mat: .  .  .  .  .   .  .  .  .  .  1  .  .  .  .  .  .
-!!      strut.mat: .  .  .  .  .   .  .  .  .  .  . -1  .  .  .  s  .
-!!      strut.mat: .  .  .  .  .   .  .  .  .  .  .  .  .  . -1 -s  .
-!!      strut.mat: .  .  .  .  .   .  .  .  .  .  .  . -s -1  .  .  1
-!!      strut.mat: .  .  .  .  .   .  .  .  .  .  .  .  s  .  1  .  .
-!!      strut.mat: .  .  .  .  .   .  .  .  .  .  .  .  .  .  . -s -1>;
-!!      strut.mat:b = <
-!!      strut.mat: .  .  . 10  .   .  . 15  .  .  .  .  .  .  . 10  .>';
+!!      alpha = []; beta = 0; q = []; p = p(:,1)/norm(p(:,1));
+!!      t = A'*p(:,1);
+!!      alpha(1) = norm(t);
+!!      q(:,1) = t/alpha(1);
+!!      X = p(:,1)*(alpha(1)*q(:,1))'
+!!      e(1) = norm(A-X,1)
+!!      for j = 2:r, exec('pdqstep',ip); ...
+!!         X = X + p(:,j)*(alpha(j)*q(:,j)+beta(j)*q(:,j-1))', ...
+!!         e(j) = norm(A-X,1)
 !!
-!!      test1:// -----------------------------------------------------------------
-!!      test1:// start a new log file
-!!      test1:sh rm -fv log.txt
-!!      test1:diary('log.txt')
-!!      test1:// -----------------------------------------------------------------
-!!      test1:titles=<'GNP deflator'
-!!      test1: 'GNP         '
-!!      test1: 'Unemployment'
-!!      test1: 'Armed Force '
-!!      test1: 'Population  '
-!!      test1: 'Year        '
-!!      test1: 'Employment  '>;
-!!      test1:data = ...
-!!      test1:< 83.0  234.289  235.6  159.0  107.608  1947  60.323
-!!      test1:  88.5  259.426  232.5  145.6  108.632  1948  61.122
-!!      test1:  88.2  258.054  368.2  161.6  109.773  1949  60.171
-!!      test1:  89.5  284.599  335.1  165.0  110.929  1950  61.187
-!!      test1:  96.2  328.975  209.9  309.9  112.075  1951  63.221
-!!      test1:  98.1  346.999  193.2  359.4  113.270  1952  63.639
-!!      test1:  99.0  365.385  187.0  354.7  115.094  1953  64.989
-!!      test1: 100.0  363.112  357.8  335.0  116.219  1954  63.761
-!!      test1: 101.2  397.469  290.4  304.8  117.388  1955  66.019
-!!      test1: 104.6  419.180  282.2  285.7  118.734  1956  67.857
-!!      test1: 108.4  442.769  293.6  279.8  120.445  1957  68.169
-!!      test1: 110.8  444.546  468.1  263.7  121.950  1958  66.513
-!!      test1: 112.6  482.704  381.3  255.2  123.366  1959  68.655
-!!      test1: 114.2  502.601  393.1  251.4  125.368  1960  69.564
-!!      test1: 115.7  518.173  480.6  257.2  127.852  1961  69.331
-!!      test1: 116.9  554.894  400.7  282.7  130.081  1962  70.551>;
-!!      test1:short
-!!      test1:X = data;
-!!      test1:<n,p> = size(X)
-!!      test1:mu = ones(1,n)*X/n
-!!      test1:X = X - ones(n,1)*mu;  X = X/diag(sqrt(diag(X'*X)))
-!!      test1:corr = X'*X
-!!      test1:y = data(:,p); X = <ones(y) data(:,1:p-1)>;
-!!      test1:long e
-!!      test1:beta = X\y
-!!      test1:expected = < ...
-!!      test1:   -3.482258634594421D+03
-!!      test1:    1.506187227124484D-02
-!!      test1:   -3.581917929257409D-02
-!!      test1:   -2.020229803816908D-02
-!!      test1:   -1.033226867173703D-02
-!!      test1:   -5.110410565317738D-02
-!!      test1:    1.829151464612817D+00
-!!      test1:>
-!!      test1:display('EXPE and BETA should be the same')
+!!      :pdqstep:
 !!
-!!      tryall:diary('log.txt')
-!!      tryall:a=magic(8)
-!!      tryall:n=3
-!!      tryall:exec('avg')
-!!      tryall:b=random(8,8)
-!!      tryall:exec('cdiv')
-!!      tryall:exec('exp')
-!!      tryall:exec('four')
-!!      tryall:exec('gs')
-!!      tryall:exec('jacobi')
-!!      tryall:// jacstep
-!!      tryall:exec('kron')
-!!      tryall:exec('lanczos')
-!!      tryall:// lanstep
-!!      tryall:exec('longley')
-!!      tryall:exec('mgs')
-!!      tryall:exec('net')
-!!      tryall:exec('pascal')
-!!      tryall:exec('pdq')
-!!      tryall:// pdqstep
-!!      tryall:exec('pop')
-!!      tryall:exec('qr')
-!!      tryall:// qrstep
-!!      tryall:exec('rho')
-!!      tryall:exec('rosser')
-!!      tryall:// rot
-!!      tryall:exec('rqi')
-!!      tryall:exec('setup')
-!!      tryall:exec('sigma')
-!!      tryall:exec('strut.mat')
-!!      tryall:exec('w5')
-!!      tryall:exec('rogers.exec
-!!      tryall:exec('rogers.load
+!!      t = A*q(:,j-1) - alpha(j-1)*p(:,j-1);
+!!         if ort>0, for i = 1:j-1, t = t - t'*p(:,i)*p(:,i);
+!!      beta(j) = norm(t);
+!!      p(:,j) = t/beta(j);
+!!      t = A'*p(:,j) - beta(j)*q(:,j-1);
+!!         if ort>0, for i = 1:j-1, t = t - t'*q(:,i)*q(:,i);
+!!      alpha(j) = norm(t);
+!!      q(:,j) = t/alpha(j);
 !!
-!!      w5:w5    = <
-!!      w5:          1.          1.          0.          0.          0.
-!!      w5:        -10.          1.          1.          0.          0.
-!!      w5:         40.          0.          1.          1.          0.
-!!      w5:       -205.          0.          0.          1.          1.
-!!      w5:       1024.          0.          0.          0.         -4.
-!!      w5:         >
+!!      :pop:
+!!
+!!      y = [ 75.995   91.972  105.711  123.203   ...
+!!           131.669  150.697  179.323  203.212]'
+!!      t = [ 1900:10:1970 ]'
+!!      t = (t - 1940*ones(t))/40;   [t y]
+!!      n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
+!!      A
+!!      c = A\y
+!!
+!!      :qr:
+!!
+!!      scale = s(m);
+!!      sm = s(m)/scale; smm1 = s(m-1)/scale; emm1 = e(m-1)/scale;
+!!      sl = s(l)/scale; el = e(l)/scale;
+!!      b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
+!!      c = (sm*emm1)**2;
+!!      shift = sqrt(b**2+c); if b < 0, shift = -shift;
+!!      shift = c/(b + shift)
+!!      f = (sl + sm)*(sl-sm) - shift
+!!      g = sl*el
+!!      for k = l: m-1, exec('qrstep',ip)
+!!      e(m-1) = f
+!!
+!!      :qrstep:
+!!
+!!      exec('rot');
+!!      if k <> l, e(k-1) = f
+!!      f = cs*s(k) + sn*e(k)
+!!      e(k) = cs*e(k) - sn*s(k)
+!!      g = sn*s(k+1)
+!!      s(k+1) = cs*s(k+1)
+!!      exec('rot');
+!!      s(k) = f
+!!      f = cs*e(k) + sn*s(k+1)
+!!      s(k+1) = -sn*e(k) + cs*s(k+1)
+!!      g = sn*e(k+1)
+!!      e(k+1) = cs*e(k+1)
+!!
+!!      :rho:
+!!
+!!      //Conductivity example.
+!!      //Parameters ---
+!!         rho       //radius of cylindrical inclusion
+!!         n         //number of terms in solution
+!!         m         //number of boundary points
+!!      //initialize operation counter
+!!         flop = [0 0];
+!!      //initialize variables
+!!         m1 = round(m/3);   //number of points on each straight edge
+!!         m2 = m - m1;       //number of points with Dirichlet conditions
+!!         pi = 4*atan(1);
+!!      //generate points in Cartesian coordinates
+!!         //right hand edge
+!!         for i = 1:m1, x(i) = 1; y(i) = (1-rho)*(i-1)/(m1-1);
+!!         //top edge
+!!         for i = m2+1:m, x(i) = (1-rho)*(m-i)/(m-m2-1); y(i) = 1;
+!!         //circular edge
+!!         for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); ...
+!!            x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);
+!!      //convert to polar coordinates
+!!         for i = 1:m-1, th(i) = atan(y(i)/x(i));  ...
+!!            r(i) = sqrt(x(i)**2+y(i)**2);
+!!         th(m) = pi/2;  r(m) = 1;
+!!      //generate matrix
+!!         //Dirichlet conditions
+!!         for i = 1:m2, for j = 1:n, k = 2*j-1; ...
+!!            a(i,j) = r(i)**k*cos(k*th(i));
+!!         //Neumann conditions
+!!         for i = m2+1:m, for j = 1:n, k = 2*j-1; ...
+!!            a(i,j) = k*r(i)**(k-1)*sin((k-1)*th(i));
+!!      //generate right hand side
+!!         for i = 1:m2, b(i) = 1;
+!!         for i = m2+1:m, b(i) = 0;
+!!      //solve for coefficients
+!!         c = A$b
+!!      //compute effective conductivity
+!!         c(2:2:n) = -c(2:2:n)
+!!         sigma = sum(c)
+!!      //output total operation count
+!!         ops = flop(2)
+!!
+!!      :rogers.exec:
+!!
+!!      exec('d.boug');                        // reads data
+!!      [g,k] = size(p);               // p is matrix of gene frequencies
+!!      wv = ncen/sum(ncen);           // ncen contains population sizes
+!!      pbar = wv*p;                   // weighted average of p
+!!      p = p - ones(g,1)*pbar;        // deviations from mean
+!!      p = sqrt(diag(wv)) * p;        // weight rows of p by sqrt of pop size
+!!      h = diag(pbar); h = h*(eye-h); // diagonal contains binomial variance: p*(1-p)
+!!      r = p*inv(h)*p'/k;             // normalized covariance matrix
+!!      eig(r)'
+!!
+!!      :rosser:
+!!
+!!      A  = [
+!!        611.  196. -192.  407.   -8.  -52.  -49.   29.
+!!        196.  899.  113. -192.  -71.  -43.   -8.  -44.
+!!       -192.  113.  899.  196.   61.   49.    8.   52.
+!!        407. -192.  196.  611.    8.   44.   59.  -23.
+!!         -8.  -71.   61.    8.  411. -599.  208.  208.
+!!        -52.  -43.   49.   44. -599.  411.  208.  208.
+!!        -49.   -8.    8.   59.  208.  208.   99. -911.
+!!         29.  -44.   52.  -23.  208.  208. -911.   99.  ];
+!!
+!!      :rot:
+!!
+!!      // subexec rot(f,g,cs,sn)
+!!         rho = g; if abs(f) > abs(g), rho = f;
+!!         cs = 1.0; sn = 0.0; z = 1.0;
+!!         r = norm([f g]); if rho < 0, r = -r; r
+!!         if r <> 0.0, cs = f/r
+!!         if r <> 0.0, sn = g/r
+!!         if abs(f) > abs(g), z = sn;
+!!         if abs(g) >= abs(f), if cs <> 0, z = 1/cs;
+!!         f = r;
+!!         g = z;
+!!
+!!      :rqi:
+!!
+!!      rho = (x'*A*x)
+!!      x = (A-rho*eye)\x;
+!!      x = x/norm(x)
+!!
+!!      :setup:
+!!
+!!      diary('xxx')
+!!      !tail -f xxx > /dev/tty1 &
+!!      !tail -f xxx > /dev/tty2 &
+!!
+!!      :sigma:
+!!
+!!      RHO = .5  M = 20  N = 10   SIGMA =  1.488934271883534
+!!      RHO = .5  M = 40  N = 20   SIGMA =  1.488920312974229
+!!      RHO = .5  M = 60  N = 30   SIGMA =  1.488920697912116
+!!
+!!      :strut.mat:
+!!
+!!      // Structure problem, Forsythe, Malcolm and Moler, p. 62
+!!      s =  sqrt(2)/2;
+!!      A = [
+!!      -s  .  .  1  s   .  .  .  .  .  .  .  .  .  .  .  .
+!!      -s  . -1  . -s   .  .  .  .  .  .  .  .  .  .  .  .
+!!       . -1  .  .  .   1  .  .  .  .  .  .  .  .  .  .  .
+!!       .  .  1  .  .   .  .  .  .  .  .  .  .  .  .  .  .
+!!       .  .  . -1  .   .  .  1  .  .  .  .  .  .  .  .  .
+!!       .  .  .  .  .   . -1  .  .  .  .  .  .  .  .  .  .
+!!       .  .  .  . -s -1  .  .  s  1  .  .  .   .  .  .  .
+!!       .  .  .  .  s   .  1  .  s  .  .  .  .  .  .  .  .
+!!       .  .  .  .  .   .  . -1 -s  .  .  1  s  .  .  .  .
+!!       .  .  .  .  .   .  .  . -s  . -1  . -s  .  .  .  .
+!!       .  .  .  .  .   .  .  .  . -1  .  .  .  1  .  .  .
+!!       .  .  .  .  .   .  .  .  .  .  1  .  .  .  .  .  .
+!!       .  .  .  .  .   .  .  .  .  .  . -1  .  .  .  s  .
+!!       .  .  .  .  .   .  .  .  .  .  .  .  .  . -1 -s  .
+!!       .  .  .  .  .   .  .  .  .  .  .  . -s -1  .  .  1
+!!       .  .  .  .  .   .  .  .  .  .  .  .  s  .  1  .  .
+!!       .  .  .  .  .   .  .  .  .  .  .  .  .  .  . -s -1];
+!!      b = [
+!!       .  .  . 10  .   .  . 15  .  .  .  .  .  .  . 10  .]';
+!!
+!!      :test1:
+!!
+!!      // -----------------------------------------------------------------
+!!      // start a new log file
+!!      sh rm -fv log.txt
+!!      diary('log.txt')
+!!      // -----------------------------------------------------------------
+!!      titles=['GNP deflator'
+!!       'GNP         '
+!!       'Unemployment'
+!!       'Armed Force '
+!!       'Population  '
+!!       'Year        '
+!!       'Employment  '];
+!!      data = ...
+!!      [ 83.0  234.289  235.6  159.0  107.608  1947  60.323
+!!        88.5  259.426  232.5  145.6  108.632  1948  61.122
+!!        88.2  258.054  368.2  161.6  109.773  1949  60.171
+!!        89.5  284.599  335.1  165.0  110.929  1950  61.187
+!!        96.2  328.975  209.9  309.9  112.075  1951  63.221
+!!        98.1  346.999  193.2  359.4  113.270  1952  63.639
+!!        99.0  365.385  187.0  354.7  115.094  1953  64.989
+!!       100.0  363.112  357.8  335.0  116.219  1954  63.761
+!!       101.2  397.469  290.4  304.8  117.388  1955  66.019
+!!       104.6  419.180  282.2  285.7  118.734  1956  67.857
+!!       108.4  442.769  293.6  279.8  120.445  1957  68.169
+!!       110.8  444.546  468.1  263.7  121.950  1958  66.513
+!!       112.6  482.704  381.3  255.2  123.366  1959  68.655
+!!       114.2  502.601  393.1  251.4  125.368  1960  69.564
+!!       115.7  518.173  480.6  257.2  127.852  1961  69.331
+!!       116.9  554.894  400.7  282.7  130.081  1962  70.551];
+!!      short
+!!      X = data;
+!!      [n,p] = size(X)
+!!      mu = ones(1,n)*X/n
+!!      X = X - ones(n,1)*mu;  X = X/diag(sqrt(diag(X'*X)))
+!!      corr = X'*X
+!!      y = data(:,p); X = [ones(y) data(:,1:p-1)];
+!!      long e
+!!      beta = X\y
+!!      expected = [ ...
+!!         -3.482258634594421D+03
+!!          1.506187227124484D-02
+!!         -3.581917929257409D-02
+!!         -2.020229803816908D-02
+!!         -1.033226867173703D-02
+!!         -5.110410565317738D-02
+!!          1.829151464612817D+00
+!!      ]
+!!      display('EXPE and BETA should be the same')
+!!
+!!      :tryall:
+!!
+!!      diary('log.txt')
+!!      a=magic(8)
+!!      n=3
+!!      exec('avg')
+!!      b=random(8,8)
+!!      exec('cdiv')
+!!      exec('exp')
+!!      exec('four')
+!!      exec('gs')
+!!      exec('jacobi')
+!!      // jacstep
+!!      exec('kron')
+!!      exec('lanczos')
+!!      // lanstep
+!!      exec('longley')
+!!      exec('mgs')
+!!      exec('net')
+!!      exec('pascal')
+!!      exec('pdq')
+!!      // pdqstep
+!!      exec('pop')
+!!      exec('qr')
+!!      // qrstep
+!!      exec('rho')
+!!      exec('rosser')
+!!      // rot
+!!      exec('rqi')
+!!      exec('setup')
+!!      exec('sigma')
+!!      exec('strut.mat')
+!!      exec('w5')
+!!      exec('rogers.exec
+!!      exec('rogers.load
+!!
+!!      :w5:
+!!
+!!      w5 = [
+!!              1.     1.      0.      0.      0.
+!!            -10.     1.      1.      0.      0.
+!!             40.     0.      1.      1.      0.
+!!            205.     0.      0.      1.      1.
+!!            024.     0.      0.      0.     -4.
+!!           ]
 subroutine MAT88(init,string0)
 
 ! ident_1="@(#)M_matrix::mat88(3f): initialize and/or pass commands to matrix laboratory interpreter"
@@ -690,48 +786,47 @@ character(len=*),intent(in) :: string0
 integer                     :: init
 integer                     :: istring0
 doubleprecision             :: s,t
-integer,save                :: EPS(G_MAX_NAME_LENGTH)=   [14,25,28,36,36,G_PAD(2:)]
-integer,save                :: FLOPS(G_MAX_NAME_LENGTH)= [15,21,24,25,28,G_PAD(2:)]
-integer,save                :: EYE(G_MAX_NAME_LENGTH)=   [14,34,14,36,36,G_PAD(2:)]
-integer,save                :: RAND(G_MAX_NAME_LENGTH)=  [27,10,23,13,36,G_PAD(2:)]
-   G_STRING=STRING0
+integer,parameter           :: EPS(GG_MAX_NAME_LENGTH)=   [14,25,28,36,36,GG_PAD(2:)]
+integer,parameter           :: FLOPS(GG_MAX_NAME_LENGTH)= [15,21,24,25,28,GG_PAD(2:)]
+integer,parameter           :: EYE(GG_MAX_NAME_LENGTH)=   [14,34,14,36,36,GG_PAD(2:)]
+integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [27,10,23,13,36,GG_PAD(2:)]
+   G_INPUT_STRING=STRING0
    ISTRING0=LEN(STRING0)
-   G_ISTRING=len_trim(STRING0(1:ISTRING0))
-   IF(G_ISTRING.LE.0.AND.INIT.EQ.2)THEN
-      G_STRING='quit'
-      G_ISTRING=4
+   G_STRING_LENGTH=len_trim(STRING0(1:ISTRING0))
+   IF(G_STRING_LENGTH.LE.0.AND.INIT.EQ.2)THEN
+      G_INPUT_STRING='quit'
+      G_STRING_LENGTH=4
    ENDIF
    G_INIT=INIT
 !----------------------------------------------------------------
-   IF (INIT .eq. 0 .or. INIT .eq. -1) then              ! initialize the routine
-      G_RTE = STDIN                                     ! unit number for terminal input
-      CALL mat_files(G_RTE,G_BUF)
-      G_RIO = G_RTE                                     ! current file to read commands from
-      G_WTE = STDOUT                                    ! unit number for terminal output
-      CALL mat_files(G_WTE,G_BUF)
+   IF (INIT .eq. 0 .or. INIT .eq. -1) then                                   ! initialize the routine
+      G_INPUT_LUN = STDIN                                                    ! unit number for terminal input
+      CALL mat_files(G_INPUT_LUN,G_BUF)
+      G_RIO = G_INPUT_LUN                                                    ! current file to read commands from
+      G_OUTPUT_LUN = STDOUT                                                  ! unit number for terminal output
+      CALL mat_files(G_OUTPUT_LUN,G_BUF)
 
-      IF (INIT .GE. 0) then                             ! initializing verbose
+      IF (INIT .GE. 0) then                                                  ! initializing verbose
          call journal('< MAT88 > modeled on the MATLAB version of 05/25/82')
       endif
 
-      call mat_help_text()                              ! initialize help text
-      G_RAN(1) = 0                                      ! RANDOM NUMBER SEED
-      G_LINECOUNT(2) = 25                               ! INITIAL LINE LIMIT
+      call mat_help_text()                                                   ! initialize help text
+      G_CURRENT_RANDOM_SEED = 0                                              ! random number seed
+      G_CURRENT_RANDOM_TYPE = 0                                              ! set the type of random numbers to compute
+      G_LINECOUNT(2) = 25                                                    ! initial line limit for paging output
 
-!------------------------------------------------------------------------
-      call mat_str2buf(G_DEFINE_CHARSET,G_CHARSET,G_CHARSET_SIZE)         ! convert string to hollerith
-      call mat_str2buf(G_DEFINE_ALT_CHARSET,G_ALT_CHARSET,G_CHARSET_SIZE) ! convert string to hollerith
-!------------------------------------------------------------------------
-!
-      G_VSIZE = G_BIGMEM
-      G_PSIZE = 32
-      G_BOT = G_MAX_NUMBER_OF_NAMES-3
-      CALL mat_wset(5,0.0D0,0.0D0,G_STKR(G_VSIZE-4),G_STKI(G_VSIZE-4),1)
-      CALL mat_putid(G_IDSTK(1,G_MAX_NUMBER_OF_NAMES-3),EPS)
-      G_LSTK(G_MAX_NUMBER_OF_NAMES-3) = G_VSIZE-4
-      G_MSTK(G_MAX_NUMBER_OF_NAMES-3) = 1
-      G_NSTK(G_MAX_NUMBER_OF_NAMES-3) = 1
+      call mat_str2buf(G_DEFINE_CHARSET,G_CHARSET,G_CHARSET_SIZE)            ! convert character set string to hollerith
+      call mat_str2buf(G_DEFINE_ALT_CHARSET,G_ALT_CHARSET,G_CHARSET_SIZE)    ! convert character set string to hollerith
 
+      G_TOP_OF_SAVED = GG_MAX_NUMBER_OF_NAMES-3  ! move up to allow room for the built-in values eps, flops, eye, rand
+
+      CALL mat_wset(5,0.0D0,0.0D0,G_STACK_REALS(GG_BIGMEM-4),G_STACK_IMAGS(GG_BIGMEM-4),1)
+
+      CALL mat_putid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-3),EPS)
+      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-3) = GG_BIGMEM-4
+      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-3) = 1
+      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-3) = 1
+      ! interesting way to calculate the epsilon value of a machine
       S = 1.0D0
       SET_ST: do
          S = S/2.0D0
@@ -739,26 +834,28 @@ integer,save                :: RAND(G_MAX_NAME_LENGTH)=  [27,10,23,13,36,G_PAD(2
          IF (T .le. 1.0D0) exit
       enddo SET_ST
 
-      G_STKR(G_VSIZE-4) = 2.0D0*S
+      G_STACK_REALS(GG_BIGMEM-4) = 2.0D0*S
 
-      CALL mat_putid(G_IDSTK(1,G_MAX_NUMBER_OF_NAMES-2),FLOPS)
-      G_LSTK(G_MAX_NUMBER_OF_NAMES-2) = G_VSIZE-3
-      G_MSTK(G_MAX_NUMBER_OF_NAMES-2) = 1
-      G_NSTK(G_MAX_NUMBER_OF_NAMES-2) = 2
-      CALL mat_putid(G_IDSTK(1,G_MAX_NUMBER_OF_NAMES-1), EYE)
-      G_LSTK(G_MAX_NUMBER_OF_NAMES-1) = G_VSIZE-1
-      G_MSTK(G_MAX_NUMBER_OF_NAMES-1) = -1
-      G_NSTK(G_MAX_NUMBER_OF_NAMES-1) = -1
-      G_STKR(G_VSIZE-1) = 1.0D0
-      CALL mat_putid(G_IDSTK(1,G_MAX_NUMBER_OF_NAMES), RAND)
-      G_LSTK(G_MAX_NUMBER_OF_NAMES) = G_VSIZE
-      G_MSTK(G_MAX_NUMBER_OF_NAMES) = 1
-      G_NSTK(G_MAX_NUMBER_OF_NAMES) = 1
+      CALL mat_putid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-2),FLOPS)
+      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-2) = GG_BIGMEM-3
+      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-2) = 1
+      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-2) = 2
+
+      CALL mat_putid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-1), EYE)
+      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-1) = GG_BIGMEM-1
+      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-1) = -1
+      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-1) = -1
+      G_STACK_REALS(GG_BIGMEM-1) = 1.0D0
+
+      CALL mat_putid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES), RAND)
+      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES) = GG_BIGMEM
+      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES) = 1
+      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES) = 1
+
       G_FMT = 1
       G_FLOP_COUNTER(1) = 0
       G_FLOP_COUNTER(2) = 0
       G_DEBUG_LEVEL = 0
-      G_RAN(2) = 0
       G_PTZ = 0
       G_PT = G_PTZ
       G_ERR = 0
@@ -792,24 +889,19 @@ integer,intent(in)   :: n
 
 integer              :: i
 integer              :: k
-integer              :: kk
 integer              :: lb
 integer              :: lt
 character(len=255)   :: msg
 
+   G_err = n
    select case(n)
     case(1);  msg='Improper multiple assignment'
     case(2);  msg='Improper factor'
     case(3);  msg='Expected right parenthesis'
-!.......................................................................
     case(4);
-      DO I = 1, G_MAX_NAME_LENGTH             ! extract variable name into buffer
-         KK = G_IDS(I,G_PT+1)
-         G_BUF(I) = G_CHARSET(KK+1)
-      enddo
-      call mat_buf2str(msg,G_buf,G_MAX_NAME_LENGTH)           ! convert buffer to string
-      msg='Undefined variable: '//msg(1:G_MAX_NAME_LENGTH)
-!.......................................................................
+      G_BUF(:GG_MAX_NAME_LENGTH) = G_CHARSET(G_IDS(:GG_MAX_NAME_LENGTH,G_PT+1)+1) ! extract variable name into buffer
+      call mat_buf2str(msg,G_buf,GG_MAX_NAME_LENGTH)                             ! convert buffer to string
+      msg='Undefined variable: '//msg(1:GG_MAX_NAME_LENGTH)
     case(5);  msg='Column lengths do not match'
     case(6);  msg='Row lengths do not match'
     case(7);  msg='Text too long'
@@ -822,22 +914,18 @@ character(len=255)   :: msg
     case(14); msg='EYE-dentity undefined by CONTEXT'
     case(15); msg='Improper assignment to submatrix'
     case(16); msg='Improper command'
-!.......................................................................
     case(17)
-      lb = G_VSIZE - G_LSTK(G_BOT) + 1
-      lt = g_err + G_LSTK(G_BOT)
+      lb = GG_BIGMEM - G_STACK_ID_LOC(G_TOP_OF_SAVED) + 1
+      lt = g_err + G_STACK_ID_LOC(G_TOP_OF_SAVED)
       call journal(' Too much memory required')
-      write(msg,'(1X,I7,'' Variables,'',I7,'' Temporaries,'',I7,'' Available.'')') lb,lt,G_VSIZE
-!.......................................................................
+      write(msg,'(1X,I7,'' Variables,'',I7,'' Temporaries,'',I7,'' Available.'')') lb,lt,GG_BIGMEM
     case(18); msg='Too many names'
     case(19); msg='Matrix is singular to working precision'
     case(20); msg='Matrix must be square'
     case(21); msg='Subscript out of range'
-!.......................................................................
     case(22)
       write(msg,122) (G_RSTK(I),I=1,G_PT)
-122   format(1X,'Recursion difficulties',10I4)
-!.......................................................................
+122   format(1X,'Recursion difficulties',*(I4))
     case(23); msg='Only 1, 2 or INF norm of matrix'
     case(24); msg='No convergence'
     case(25); msg='Can not use function name as variable'
@@ -856,16 +944,15 @@ character(len=255)   :: msg
     case(38); msg='Improper file name'
     case(39); msg='Incorrect number of arguments'
     case(40); msg='Expecting statement terminator'
-!.......................................................................
     case default
        write(msg,'("*mat_err* internal error: unknown error code =",i0)')n
-!.......................................................................
+       call journal()
+       return
    end select
 
-   k = max(1,G_LPT(2) - G_LPT(1)) ! number of spaces to shift arrow by
+   k = max(1,G_LINE_POINTER(2) - G_LINE_POINTER(1)) ! number of spaces to shift arrow by
    call journal(' '//repeat(' ',k)//'/\--ERROR:'//msg)
 
-   G_err = n
 end subroutine mat_err
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -900,10 +987,10 @@ endif
 !.......................................................................
    G_FILE_OPEN_ERROR=.false.
    select case(lunit)
-    case(0) ! error catcher
-    case(5) ! if unit is standard input return
-    case(6) ! if unit is standard output return
-    case(8) ! diary file
+    case(0)      ! error catcher
+    case(stdin)  ! if unit is standard input return
+    case(stdout) ! if unit is standard output return
+    case(8)      ! diary file
        call mat_buf2str(name,iname,256)
        call journal('O',trim(name)) ! open up trail file
     case(:-1)
@@ -919,7 +1006,7 @@ endif
       if(ios.ne.0)then                                               ! general file open failure
          call journal('OPEN failed on file '//name)
          G_FILE_OPEN_ERROR=.true.                                    ! set the flag a file error occurred
-         G_RIO=G_RTE                                                 ! set current file to read input lines from/to G_RTE
+         G_RIO=G_INPUT_LUN                                           ! set current file to read input lines from/to G_INPUT_LUN
       else
          G_FILE_OPEN_ERROR=.false.                                   ! set the flag a file error did not occurr
       endif
@@ -960,74 +1047,74 @@ integer      :: SS
 integer      :: i
 !.......................................................................
    INFINITE : do
-      if (G_chra .ne. blank) exit INFINITE
+      if (G_CHRA .ne. blank) exit INFINITE
       call mat_getch() ! get next character
    enddo INFINITE
 !.......................................................................
-   G_LPT(2) = G_LPT(3)
-   G_LPT(3) = G_LPT(4)
-   if (G_chra .le. 9) goto 50                                     ! numeric character (0-9)
-   if (G_chra .le. z.or.(G_chra.ge.a2.and.G_chra.le.z2)) goto 30  ! alphameric (A-Z OR a-z)
+   G_LINE_POINTER(2) = G_LINE_POINTER(3)
+   G_LINE_POINTER(3) = G_LINE_POINTER(4)
+   if (G_CHRA .le. 9) goto 50                                     ! numeric character (0-9)
+   if (G_CHRA .le. z.or.(G_CHRA.ge.a2.and.G_CHRA.le.z2)) goto 30  ! alphameric (A-Z OR a-z)
 !.......................................................................
 !     special character
    ss = G_sym
-   G_sym = G_chra
+   G_sym = G_CHRA
    call mat_getch() ! get next character
    if (G_sym .ne. dot) goto 90
 !
 !     is dot part of number or operator
    syv = 0.0d0
-   if (G_chra .le. 9) goto 55  ! a number character
-   if (G_chra.eq.star.or.G_chra.eq.slash.or.G_chra.eq.bslash) goto 90
+   if (G_CHRA .le. 9) goto 55  ! a number character
+   if (G_CHRA.eq.star.or.G_CHRA.eq.slash.or.G_CHRA.eq.bslash) goto 90
    if (ss.eq.star .or. ss.eq.slash .or. ss.eq.bslash) goto 90
    goto 55
 !.......................................................................
 !     name
 30 continue
    G_sym = name
-   G_syn(1) = G_chra
+   G_syn(1) = G_CHRA
    chcnt = 1
 40 continue
    call mat_getch() ! get next character
    chcnt = chcnt+1
-   if (G_chra .ge. a2.and.G_chra.le.z2) goto  44! alternate case letter
-   if (G_chra .gt. z) goto 45  ! a control character not alphanumeric and not special like eol
+   if (G_CHRA .ge. a2.and.G_CHRA.le.z2) goto  44! alternate case letter
+   if (G_CHRA .gt. z) goto 45  ! a control character not alphanumeric and not special like eol
 44 continue
-   if (chcnt .le. G_MAX_NAME_LENGTH) G_syn(chcnt) = G_chra
+   if (chcnt .le. GG_MAX_NAME_LENGTH) G_syn(chcnt) = G_CHRA
    goto 40
 45 continue
-   if (chcnt .gt. G_MAX_NAME_LENGTH) goto 47
-   do i = chcnt, G_MAX_NAME_LENGTH
+   if (chcnt .gt. GG_MAX_NAME_LENGTH) goto 47
+   do i = chcnt, GG_MAX_NAME_LENGTH
       G_syn(i) = blank
    enddo
 47 continue
    goto 90
 !.......................................................................
-!     number
+! number
 50 continue
    call mat_getval(syv)
-   if (G_chra .ne. dot) goto 60
+   if (G_CHRA .ne. dot) goto 60
    call mat_getch() ! get next character
 55 continue
-   chcnt = G_LPT(4)
+   chcnt = G_LINE_POINTER(4)
    call mat_getval(s)
-   chcnt = G_LPT(4) - chcnt
-   if (G_chra .eq. G_eol) chcnt = chcnt+1
+   chcnt = G_LINE_POINTER(4) - chcnt
+   if (G_CHRA .eq. G_EOL) chcnt = chcnt+1
    syv = syv + s/10.0d0**chcnt
 60 continue
-   if (G_chra.ne.d .and. G_chra.ne.e .and. G_chra.ne.d_up .and. G_chra.ne.e_up ) goto 70
+   if (G_CHRA.ne.d .and. G_CHRA.ne.e .and. G_CHRA.ne.d_up .and. G_CHRA.ne.e_up ) goto 70
    call mat_getch() ! get next character
-   sign = G_chra
+   sign = G_CHRA
    if (sign.eq.minus .or. sign.eq.plus) call mat_getch() ! get next character
    call mat_getval(s)
    if (sign .ne. minus) syv = syv*10.0d0**s
    if (sign .eq. minus) syv = syv/10.0d0**s
 70 continue
-   G_STKI(G_VSIZE) = mat_flop(syv)
+   G_STACK_IMAGS(GG_BIGMEM) = mat_flop(syv)
    G_sym = num
 !
 90 continue
-   if (G_chra .ne. blank) goto 99
+   if (G_CHRA .ne. blank) goto 99
    call mat_getch() ! get next character
    goto 90
 99 continue
@@ -1036,7 +1123,7 @@ integer      :: i
       call journal(char(G_CHARSET(G_sym+1)))
    endif
    if (G_sym .ge. G_CHARSET_SIZE) call journal('eol')
-   if (G_sym .eq. name) call mat_prntid(G_syn,1)
+   if (G_sym .eq. name) call mat_print_id(G_syn,1)
    if (G_sym .eq. num) then
       write(message,'(1x,g8.2)') syv
       call journal(message)
@@ -1158,94 +1245,117 @@ integer :: nn
 
 integer,parameter :: semi=39
 INTEGER,parameter :: BLANK=36
-integer,save      :: unifor(G_MAX_NAME_LENGTH) =[30,23,18,15,24,27,22,G_PAD(4:)]
-integer,save      :: normal(G_MAX_NAME_LENGTH) =[23,24,27,22,10,21,36,G_PAD(4:)]
-integer,save      :: seed(G_MAX_NAME_LENGTH)   =[28,14,14,13,36,36,36,G_PAD(4:)]
-integer           :: id(G_MAX_NAME_LENGTH)
+integer,parameter :: unifor(GG_MAX_NAME_LENGTH) =[30,23,18,15,24,27,22,GG_PAD(4:)]
+integer,parameter :: normal(GG_MAX_NAME_LENGTH) =[23,24,27,22,10,21,36,GG_PAD(4:)]
+integer,parameter :: seed(GG_MAX_NAME_LENGTH)   =[28,14,14,13,36,36,36,GG_PAD(4:)]
+integer           :: id(GG_MAX_NAME_LENGTH)
 doubleprecision   :: eps0,eps,s,sr,si,t
 character(len=80) :: message
 !
       IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN6* ',G_FIN)
 !     FUNCTIONS/G_FIN
-!     MAGI DIAG SUM  PROD USER EYE  RAND ONES CHOP SIZE KRON  TRIL TRIU
-!       1    2    3    4    5    6    7    8    9   10  11-13  14   15
-      L = G_LSTK(G_TOP)
-      M = G_MSTK(G_TOP)
-      N = G_NSTK(G_TOP)
+!     MAGI DIAG SUM  PROD USER EYE  RAND ONES CHOP SIZE KRON  TRIL TRIU ZEROS
+!       1    2    3    4    5    6    7    8    9   10  11-13  14   15   16
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       FUN6: select case(G_fin)
+!===================================================================================================================================
+      case(1) ! COMMAND::MAGIC
+      N = MAX0(int(G_STACK_REALS(L)),0)
+      IF (N .EQ. 2) N = 0
+      IF (N .GT. 0) CALL mat_magic(G_STACK_REALS(L),N,N)
+      CALL mat_rset(N*N,0.0D0,G_STACK_IMAGS(L),1)
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
 !===================================================================================================================================
 !  COMMAND::KRONECKER PRODUCT
    case(11,12,13)
-      IF (G_RHS .NE. 2) CALL mat_err(39)
+      IF (G_RHS .NE. 2) CALL mat_err(39) ! Incorrect number of arguments
       IF (G_ERR .GT. 0) RETURN
-      G_TOP = G_TOP - 1
-      L = G_LSTK(G_TOP)
-      MA = G_MSTK(G_TOP)
-      NA = G_NSTK(G_TOP)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      MA = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      NA = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       LA = L + MAX0(M*N*MA*NA,M*N+MA*NA)
       LB = LA + MA*NA
-      G_ERR = LB + M*N - G_LSTK(G_BOT)
+      G_ERR = LB + M*N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
 !     MOVE A AND B ABOVE RESULT
-      CALL mat_wcopy(MA*NA+M*N,G_STKR(L),G_STKI(L),1,G_STKR(LA),G_STKI(LA),1)
+      CALL mat_wcopy(MA*NA+M*N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LA),G_STACK_IMAGS(LA),1)
       DO JA = 1, NA
         DO J = 1, N
           LJ = LB + (J-1)*M
           DO IA = 1, MA
 !           GET J-TH COLUMN OF B
-            CALL mat_wcopy(M,G_STKR(LJ),G_STKI(LJ),1,G_STKR(L),G_STKI(L),1)
+            CALL mat_wcopy(M,G_STACK_REALS(LJ),G_STACK_IMAGS(LJ),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
 !           ADDRESS OF A(IA,JA)
             LS = LA + IA-1 + (JA-1)*MA
             DO I = 1, M
 !             A(IA,JA) OP B(I,J)
-              IF (G_FIN .EQ. 11) CALL mat_wmul(G_STKR(LS),G_STKI(LS),G_STKR(L),G_STKI(L),G_STKR(L),G_STKI(L))
-              IF (G_FIN .EQ. 12) CALL mat_wdiv(G_STKR(LS),G_STKI(LS),G_STKR(L),G_STKI(L),G_STKR(L),G_STKI(L))
-              IF (G_FIN .EQ. 13) CALL mat_wdiv(G_STKR(L),G_STKI(L),G_STKR(LS),G_STKI(LS),G_STKR(L),G_STKI(L))
+              IF (G_FIN .EQ. 11) &
+              CALL mat_wmul( G_STACK_REALS(LS), G_STACK_IMAGS(LS), &
+                             G_STACK_REALS(L),  G_STACK_IMAGS(L),  &
+                             G_STACK_REALS(L),  G_STACK_IMAGS(L))
+              IF (G_FIN .EQ. 12) &
+              CALL mat_wdiv( G_STACK_REALS(LS), G_STACK_IMAGS(LS), &
+                             G_STACK_REALS(L),  G_STACK_IMAGS(L),  &
+                             G_STACK_REALS(L),  G_STACK_IMAGS(L))
+              IF (G_FIN .EQ. 13)  &
+              CALL mat_wdiv( G_STACK_REALS(L),  G_STACK_IMAGS(L),  &
+                             G_STACK_REALS(LS), G_STACK_IMAGS(LS), &
+                             G_STACK_REALS(L),  G_STACK_IMAGS(L))
               IF (G_ERR .GT. 0) RETURN
               L = L + 1
             ENDDO
           enddo
         enddo
       enddo
-      G_MSTK(G_TOP) = M*MA
-      G_NSTK(G_TOP) = N*NA
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M*MA
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N*NA
 !===================================================================================================================================
       case(9) ! COMMAND::CHOP
-      EPS0 = 1.0D0
-   61 continue
-      EPS0 = EPS0/2.0D0
-      T = mat_flop(1.0D0 + EPS0)
-      IF (T .GT. 1.0D0) GOTO 61
-      EPS0 = 2.0D0*EPS0
-      G_FLOP_COUNTER(2) = int(G_STKR(L))
-      IF (G_SYM .NE. SEMI) then
-         WRITE(message,'(''CHOP '',I2,'' PLACES.'')') G_FLOP_COUNTER(2)
+
+      eps0 = 1.0d0
+      do                                                                  ! recalculate epsilon
+         eps0 = eps0/2.0d0
+         t = mat_flop(1.0d0 + eps0)
+         if (t .le. 1.0d0) exit
+      enddo
+      eps0 = 2.0d0*eps0
+
+      G_FLOP_COUNTER(2) = int(G_STACK_REALS(L))
+      if (G_SYM .ne. SEMI) then
+         write(message,'(''CHOP '',I2,'' PLACES.'')') G_FLOP_COUNTER(2)
          call journal(message)
       endif
-      EPS = 1.0D0
-   63 continue
-      EPS = EPS/2.0D0
-      T = mat_flop(1.0D0 + EPS)
-      IF (T .GT. 1.0D0) GOTO 63
-      EPS = 2.0D0*EPS
-      T = G_STKR(G_VSIZE-4)
-      IF (T.LT.EPS .OR. T.EQ.EPS0) G_STKR(G_VSIZE-4) = EPS
-      G_MSTK(G_TOP) = 0
+
+      eps = 1.0d0
+      do                                                                  ! recalculate epsilon
+         eps = eps/2.0d0
+         t = mat_flop(1.0d0 + eps)
+         if (t .le. 1.0d0) exit
+      enddo
+      eps = 2.0d0*eps
+
+      t = G_STACK_REALS(GG_BIGMEM-4)
+      if (t.lt.eps .or. t.eq.eps0) G_STACK_REALS(GG_BIGMEM-4) = eps
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(3) ! COMMAND::SUM
-      SR = 0.0D0
-      SI = 0.0D0
-      MN = M*N
-      DO I = 1, MN
-         LS = L+I-1
-         SR = mat_flop(SR+G_STKR(LS))
-         SI = mat_flop(SI+G_STKI(LS))
+      sr = 0.0d0
+      si = 0.0d0
+      mn = m*n
+      do i = 1, mn
+         ls = l+i-1
+         sr = mat_flop(SR+G_STACK_REALS(LS))
+         si = mat_flop(SI+G_STACK_IMAGS(LS))
       enddo
-      G_STKR(L) = SR
-      G_STKI(L) = SI
-      G_MSTK(G_TOP) = 1
-      G_NSTK(G_TOP) = 1
+      G_STACK_REALS(l) = sr
+      G_STACK_IMAGS(l) = si
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
       case(4) ! COMMAND::PROD
       SR = 1.0D0
@@ -1253,175 +1363,196 @@ character(len=80) :: message
       MN = M*N
       DO I = 1, MN
          LS = L+I-1
-         CALL mat_wmul(G_STKR(LS),G_STKI(LS),SR,SI,SR,SI)
+         CALL mat_wmul(G_STACK_REALS(LS),G_STACK_IMAGS(LS),SR,SI,SR,SI)
       enddo
-      G_STKR(L) = SR
-      G_STKI(L) = SI
-      G_MSTK(G_TOP) = 1
-      G_NSTK(G_TOP) = 1
+      G_STACK_REALS(L) = SR
+      G_STACK_IMAGS(L) = SI
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
       case(5) ! COMMAND::USER
       S = 0.0D0
       T = 0.0D0
       IF (G_RHS .LT. 2) GOTO 72
       IF (G_RHS .LT. 3) GOTO 71
-      T = G_STKR(L)
-      G_TOP = G_TOP-1
-      L = G_LSTK(G_TOP)
-      M = G_MSTK(G_TOP)
-      N = G_NSTK(G_TOP)
+      T = G_STACK_REALS(L)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    71 continue
-      S = G_STKR(L)
-      G_TOP = G_TOP-1
-      L = G_LSTK(G_TOP)
-      M = G_MSTK(G_TOP)
-      N = G_NSTK(G_TOP)
+      S = G_STACK_REALS(L)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    72 continue
-      CALL mat88_user(G_STKR(L),M,N,S,T)
-      CALL mat_rset(M*N,0.0D0,G_STKI(L),1)
-      G_MSTK(G_TOP) = M
-      G_NSTK(G_TOP) = N
-!===================================================================================================================================
-      case(1) ! COMMAND::MAGIC
-      N = MAX0(int(G_STKR(L)),0)
-      IF (N .EQ. 2) N = 0
-      IF (N .GT. 0) CALL mat_magic(G_STKR(L),N,N)
-      CALL mat_rset(N*N,0.0D0,G_STKI(L),1)
-      G_MSTK(G_TOP) = N
-      G_NSTK(G_TOP) = N
+
+      CALL mat88_user(G_STACK_REALS(L),M,N,S,T)
+      CALL mat_rset(M*N,0.0D0,G_STACK_IMAGS(L),1)
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
 !===================================================================================================================================
       case(10) ! COMMAND::SIZE
-      G_STKR(L) = M
-      G_STKR(L+1) = N
-      G_STKI(L) = 0.0D0
-      G_STKI(L+1) = 0.0D0
-      G_MSTK(G_TOP) = 1
-      G_NSTK(G_TOP) = 2
+      G_STACK_REALS(L) = M
+      G_STACK_REALS(L+1) = N
+      G_STACK_IMAGS(L) = 0.0D0
+      G_STACK_IMAGS(L+1) = 0.0D0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 2
       IF (G_LHS .EQ. 1) exit FUN6
-      G_NSTK(G_TOP) = 1
-      G_TOP = G_TOP + 1
-      G_LSTK(G_TOP) = L+1
-      G_MSTK(G_TOP) = 1
-      G_NSTK(G_TOP) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L+1
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
-      case(2,14,15) ! COMMAND::DIAG=2 ! COMMAND::TRIL=14 ! COMMAND::TRIU=15
-      K = 0
-      IF (G_RHS .EQ. 2) then
-         K = int(G_STKR(L))
-         G_TOP = G_TOP-1
-         L = G_LSTK(G_TOP)
-         M = G_MSTK(G_TOP)
-         N = G_NSTK(G_TOP)
-      endif
-      IF (G_FIN .GE. 14) GOTO 85
-      IF (M .EQ. 1 .OR. N .EQ. 1) GOTO 83
-      IF (K.GE.0) MN=MIN0(M,N-K)
-      IF (K.LT.0) MN=MIN0(M+K,N)
-      G_MSTK(G_TOP) = MAX0(MN,0)
-      G_NSTK(G_TOP) = 1
-      IF (MN .LE. 0) exit FUN6
-      DO I = 1, MN
-         IF (K.GE.0) LS = L+(I-1)+(I+K-1)*M
-         IF (K.LT.0) LS = L+(I-K-1)+(I-1)*M
-         LL = L+I-1
-         G_STKR(LL) = G_STKR(LS)
-         G_STKI(LL) = G_STKI(LS)
-      enddo
-      exit FUN6
-!-----------------------------------------------------------------------------------------------------------------------------------
-   83 continue
-      N = MAX0(M,N)+IABS(K)
-      G_ERR = L+N*N - G_LSTK(G_BOT)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
-      G_MSTK(G_TOP) = N
-      G_NSTK(G_TOP) = N
-      DO JB = 1, N
-         DO IB = 1, N
-            J = N+1-JB
-            I = N+1-IB
-            SR = 0.0D0
-            SI = 0.0D0
-            IF (K.GE.0) LS = L+I-1
-            IF (K.LT.0) LS = L+J-1
-            LL = L+I-1+(J-1)*N
-            IF (J-I .EQ. K) SR = G_STKR(LS)
-            IF (J-I .EQ. K) SI = G_STKI(LS)
-            G_STKR(LL) = SR
-            G_STKI(LL) = SI
-         enddo
-      enddo
-      exit FUN6
-!-----------------------------------------------------------------------------------------------------------------------------------
-! COMMAND::TRIL, COMMAND::TRIU
-   85 continue
-      DO J = 1, N
-         LD = L + J - K - 1 + (J-1)*M
-         select case(G_FIN)
-         case(14)
-                  LL = J - K - 1
-                  LS = LD - LL
-         case(15)
-                  LL = M - J + K
-                  LS = LD + 1
-         end select
-         IF (LL .GT. 0) CALL mat_wset(LL,0.0D0,0.0D0,G_STKR(LS),G_STKI(LS),1)
-      enddo
-!===================================================================================================================================
-      case(6,7,8) ! COMMAND::EYE, COMMAND::RAND, COMMAND::ONES
-      IF (M.GT.1 .OR. G_RHS.EQ.0) GOTO 94
-      IF (G_RHS .eq. 2) then
-         NN = int(G_STKR(L))
-         G_TOP = G_TOP-1
-         L = G_LSTK(G_TOP)
-         N = G_NSTK(G_TOP)
+      case(2,14,15) ! COMMAND::DIAG=2
+                    ! COMMAND::TRIL=14
+                    ! COMMAND::TRIU=15
+      k = 0
+      if (G_RHS .eq. 2) then
+         k = int(G_STACK_REALS(l))
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+         l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+         n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       endif
 
-      IF (G_FIN.EQ.7.and.N.lt.G_MAX_NAME_LENGTH)then    ! a call to RAND might be RAND('UNIFORM'|'SEED'|'NORMAL')
-         ID=BLANK
-         DO I = 1, MIN(G_MAX_NAME_LENGTH,N)  ! in case it is one of these words store it in the ID array to test if it matches
-            LS = L+I-1
-            ID(I) = int(G_STKR(LS))
+      if (G_FIN .ge. 14) then ! COMMAND::TRIL, COMMAND::TRIU
+            do j = 1, n
+               ld = l + j - k - 1 + (j-1)*m
+               select case(G_FIN)
+               case(14)
+                        ll = j - k - 1
+                        ls = ld - ll
+               case(15)
+                        ll = m - j + k
+                        ls = ld + 1
+               end select
+               if (ll .gt. 0) call mat_wset(ll, 0.0d0, 0.0d0, G_STACK_REALS(ls), G_STACK_IMAGS(ls), 1)
+            enddo
+      elseif (m .eq. 1 .or. n .eq. 1) then
+         n = max0(m,n)+iabs(k)
+         G_ERR = l+n*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
+         if (G_ERR .gt. 0) then
+            call mat_err(17)
+            return
+         endif
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+         do jb = 1, n
+            do ib = 1, n
+               j = n+1-jb
+               i = n+1-ib
+               sr = 0.0d0
+               si = 0.0d0
+               if (k.ge.0) ls = l+i-1
+               if (k.lt.0) ls = l+j-1
+               ll = l+i-1+(j-1)*n
+               if (j-i .eq. k) sr = G_STACK_REALS(ls)
+               if (j-i .eq. k) si = G_STACK_IMAGS(ls)
+               G_STACK_REALS(LL) = sr
+               G_STACK_IMAGS(LL) = si
+            enddo
          enddo
-         IF (mat_eqid(ID,UNIFOR).OR.mat_eqid(ID,NORMAL))then ! SWITCH UNIFORM AND NORMAL (if a matrix just happens to match, a bug)
-            G_RAN(2) = ID(1) - UNIFOR(1)
-            G_MSTK(G_TOP) = 0
+      else
+         if (k.ge.0) mn=min0(m,n-k)
+         if (k.lt.0) mn=min0(m+k,n)
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = max0(mn,0)
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+         if (mn .le. 0) exit FUN6
+         do i = 1, mn
+            if (k.ge.0) ls = l+(i-1)+(i+k-1)*m
+            if (k.lt.0) ls = l+(i-k-1)+(i-1)*m
+            ll = l+i-1
+            G_STACK_REALS(ll) = G_STACK_REALS(ls)
+            G_STACK_IMAGS(ll) = G_STACK_IMAGS(ls)
+         enddo
+      endif
+      exit FUN6
+!-----------------------------------------------------------------------------------------------------------------------------------
+      case(6,7,8,16) ! COMMAND::EYE,
+                     ! COMMAND::RAND,
+                     ! COMMAND::ONES,
+                     ! COMMAND::ZEROS
+      if (m.gt.1 .or. G_RHS.eq.0) goto 94
+
+      if (G_RHS .eq. 2) then
+         nn = int(G_STACK_REALS(L))
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+         l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      endif
+
+      if (G_FIN.eq.7.and.n.lt.GG_MAX_NAME_LENGTH)then        ! a call to RAND might be RAND('UNIFORM'|'SEED'|'NORMAL')
+         id=blank
+         do i = 1, min(GG_MAX_NAME_LENGTH,n)  ! in case it is one of these words store it in the ID array to test if it matches
+            ls = l+i-1
+            id(i) = int(G_STACK_REALS(ls))
+         enddo
+         IF (mat_eqid(id,unifor).or.mat_eqid(id,normal))then ! SWITCH UNIFORM AND NORMAL (if a matrix just happens to match, a bug)
+            G_CURRENT_RANDOM_TYPE = id(1) - unifor(1)        ! set random type to generate by seeing if first letter is a "u"
+            G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
             exit FUN6
-         elseif (mat_eqid(ID,SEED)) then ! COMMAND::SEED    ! if a matrix just happens to match, a bug)
-            IF (G_RHS .EQ. 2) G_RAN(1) = NN
-            G_STKR(L) = G_RAN(1)
-            G_MSTK(G_TOP) = 1
-            IF (G_RHS .EQ. 2) G_MSTK(G_TOP) = 0
-            G_NSTK(G_TOP) = 1
+         elseif (mat_eqid(id,seed)) then                     ! if a matrix just happens to match "seed" , a bug)
+            if (G_RHS .eq. 2) G_CURRENT_RANDOM_SEED = nn
+            G_STACK_REALS(l) = G_CURRENT_RANDOM_SEED
+            G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+            if (G_RHS .eq. 2) G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+            G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
             exit FUN6
          endif
       endif
-      IF (N .GT. 1) GOTO 94
-      M = MAX0(int(G_STKR(L)),0)
-      IF (G_RHS .EQ. 2) N = MAX0(NN,0)
-      IF (G_RHS .NE. 2) N = M
-      G_ERR = L+M*N - G_LSTK(G_BOT)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
-      G_MSTK(G_TOP) = M
-      G_NSTK(G_TOP) = N
-      IF (M*N .EQ. 0) exit FUN6
+
+      if (n .le. 1) then
+         m = max0(int(G_STACK_REALS(l)),0)
+         if (G_RHS .eq. 2) n = max0(nn,0)
+         if (G_RHS .ne. 2) n = m
+         G_ERR = l+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
+         if (G_ERR .gt. 0) call mat_err(17)
+         if (G_ERR .gt. 0) return
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+         if (m*n .eq. 0) exit FUN6
+      endif
+
    94 continue
-      DO J = 1, N
-         DO I = 1, M
-           LL = L+I-1+(J-1)*M
-           G_STKR(LL) = 0.0D0
-           G_STKI(LL) = 0.0D0
-           IF(I.EQ.J .OR. G_FIN.EQ.8) G_STKR(LL) = 1.0D0
-           IF(G_FIN.EQ.7 .AND. G_RAN(2).EQ.0)G_STKR(LL)=mat_flop(mat_urand(G_RAN(1)))
-           IF(G_FIN.NE.7 .OR. G_RAN(2).EQ.0) cycle
-           do
-              SR = 2.0D0*mat_urand(G_RAN(1))-1.0D0
-              SI = 2.0D0*mat_urand(G_RAN(1))-1.0D0
-              T = SR*SR + SI*SI
-              IF (T .LE. 1.0D0) exit
-           enddo
-           G_STKR(LL) = mat_flop(SR*DSQRT((-(2.0D0*DLOG(T)))/T))
+
+      do j = 1, n
+         do i = 1, m
+
+           ll = l+i-1+(j-1)*m             ! location to place value
+
+           G_STACK_IMAGS(ll) = 0.0d0      ! all of these functions set imaginary values to zero
+
+           select case(G_FIN)
+           case( 6 ) !::EYE
+              if(i.eq.j)then               ! on the diagonal
+                 G_STACK_REALS(ll) = 1.0d0
+              else
+                 G_STACK_REALS(ll) = 0.0d0
+              endif
+           case( 7 ) !::RAND
+              IF(G_CURRENT_RANDOM_TYPE.EQ.0) then
+                 G_STACK_REALS(ll)=mat_flop(mat_urand(G_CURRENT_RANDOM_SEED))
+              else
+                 do
+                    sr = 2.0d0*mat_urand(G_CURRENT_RANDOM_SEED)-1.0d0
+                    si = 2.0d0*mat_urand(G_CURRENT_RANDOM_SEED)-1.0d0
+                    t = sr*sr + si*si
+                    if (t .le. 1.0d0) exit
+                 enddo
+
+                 G_STACK_REALS(ll) = mat_flop(sr*dsqrt((-(2.0d0*dlog(t)))/t))
+              endif
+           case( 8 ) !::ONES
+              G_STACK_REALS(ll) = 1.0d0
+           case( 16) !::ZEROS
+              G_STACK_REALS(ll) = 0.0d0
+           case default
+              call journal('should not get here: internal error')
+           end select
          enddo
       enddo
       exit FUN6
@@ -1435,20 +1566,27 @@ subroutine mat_funs(id)
 
 ! ident_8="@(#)M_matrix::ml_funcs(3fp):scan function list"
 
-integer,intent(in)               :: id(G_MAX_NAME_LENGTH)
+integer,intent(in)               :: id(GG_MAX_NAME_LENGTH)
 integer                          :: selector
-character(len=G_MAX_NAME_LENGTH) :: name
+character(len=GG_MAX_NAME_LENGTH) :: name
 integer                          :: i
 
    !  print function names and return
    if (id(1).eq.0) then
       call journal('sc', ' FUNCTIONS:                                                     ')
-      call journal('sc', ' abs    atan  base   char      chol  chop   cond   conjg   cos   debug')
-      call journal('sc', ' det    diag  diary  display   doc   eig    eps    exec    exp   eye')
-      call journal('sc', ' flop   hess  invh   imag      inv   kron   line   load    log   lu')
-      call journal('sc', ' magic  norm  ones   orth      pinv  plot   poly   print  prod  qr')
-      call journal('sc', ' rand   rank  rat    rcond     real  roots  round  rref   save  schur')
-      call journal('sc', ' sin    size  sqrt   sum       svd   tril   triu   user')
+      call journal('sc', '#-------#------#-------#---------#------#-------#-------#-------#------#-------#')
+      call journal('sc', '| abs   | atan | base  | char    | chol | chop  | cond  | conjg | cos  | debug |')
+      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
+      call journal('sc', '| det   | diag | diary | display | doc  | eig   | eps   | exec  | exp  | eye   |')
+      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
+      call journal('sc', '| flop  | hess | invh  | imag    | inv  | kron  | line  | load  | log  | lu    |')
+      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
+      call journal('sc', '| magic | norm | ones  | orth    | pinv | plot  | poly  | print | prod | qr    |')
+      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
+      call journal('sc', '| rand  | rank | rat   | rcond   | real | roots | round | rref  | save | schur |')
+      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
+      call journal('sc', '| sin   | size | sqrt  | sum     | svd  | tril  | triu  | user  | zeros|       |')
+      call journal('sc', '#-------#------#-------#---------#------#-------#-------#-------#------#-------#')
       return
    endif
 
@@ -1465,67 +1603,75 @@ integer                          :: i
    enddo
    !
    !  find value for given function name to determine what to call for each name.
-   !     o first digit indicates which routine to call (SUBROUTINE ML_MATFN[1-6])
+   !     o first digit indicates which routine to call (SUBROUTINE MAT_MATFN[1-6])
    !     o remaining digits indicate nth number in computed goto in called routine
    select case(name)
-   case('abs');             selector=221  !  calling  codes  corresponding  to  the  function  names
-   case('atan');            selector=203
-   case('base');            selector=507
-   case('char');            selector=509
-   case('chol');            selector=106
-   case('chop');            selector=609
-   case('cond');            selector=303
-   case('conjg');           selector=225
-   case('cos');             selector=202
-   case('debug');           selector=512
+   case('eps');             selector=000
+   case('flop');            selector=000
+
+   case('inv');             selector=101
    case('det');             selector=102
-   case('diag');            selector=602
+   case('rcond');           selector=103
+   case('lu');              selector=104
+   case('invh','inverse_hilbert','invhilb');  selector=105
+   case('chol');            selector=106
+   case('rref');            selector=107
+
+   case('sin');             selector=201
+   case('cos');             selector=202
+   case('atan');            selector=203
+   case('exp');             selector=204
+   case('sqrt');            selector=205
+   case('log');             selector=206
+   case('eig');             selector=211
+   case('schur');           selector=212
+   case('hess');            selector=213
+   case('poly');            selector=214
+   case('roots');           selector=215
+   case('abs');             selector=221  !  calling  codes  corresponding  to  the  function  names
+   case('round');           selector=222
+   case('real');            selector=223
+   case('imag');            selector=224
+   case('conjg');           selector=225
+
+   case('svd');             selector=301
+   case('pinv');            selector=302
+   case('cond');            selector=303
+   case('norm');            selector=304
+   case('rank');            selector=305
+
+   case('qr');              selector=401
+   case('orth');            selector=402
+
+   case('exec');            selector=501
+   case('save');            selector=502
+   case('load');            selector=503
+   case('print');           selector=504
    case('diary');           selector=505
    case('disp','display');  selector=506
-   case('doc');             selector=513
-   case('eig');             selector=211
-   case('eps');             selector=000
-   case('exec');            selector=501
-   case('exp');             selector=204
-   case('eye');             selector=606
-   case('flop');            selector=000
-   case('hess');            selector=213
-   case('invh','inverse_hilbert');  selector=105
-   case('imag');            selector=224
-   case('inv');             selector=101
-   case('kron');            selector=611
-   case('line');            selector=508
-   case('load');            selector=503
-   case('log');             selector=206
-   case('lu');              selector=104
-   case('magic');           selector=601
-   case('norm');            selector=304
-   case('ones');            selector=608
-   case('orth');            selector=402
-   case('pinv');            selector=302
+   case('base');            selector=507
+   case('lines');           selector=508
+   case('char');            selector=509
    case('plot');            selector=510
-   case('poly');            selector=214
-   case('print');           selector=504
-   case('prod');            selector=604
-   case('qr');              selector=401
-   case('rand');            selector=607
-   case('rank');            selector=305
    case('rat');             selector=511
-   case('rcond');           selector=103
-   case('real');            selector=223
-   case('roots');           selector=215
-   case('round');           selector=222
-   case('rref');            selector=107
-   case('save');            selector=502
-   case('schur');           selector=212
-   case('sin');             selector=201
-   case('size');            selector=610
-   case('sqrt');            selector=205
+   case('debug');           selector=512
+   case('doc');             selector=513
+
+   case('magic');           selector=601
+   case('diag');            selector=602
    case('sum');             selector=603
-   case('svd');             selector=301
+   case('prod');            selector=604
+   case('user');            selector=605
+   case('eye');             selector=606
+   case('rand');            selector=607
+   case('ones');            selector=608
+   case('chop');            selector=609
+   case('size');            selector=610
+   case('kron');            selector=611
    case('tril');            selector=614
    case('triu');            selector=615
-   case('user');            selector=605
+   case('zeros');           selector=616
+
    case default !  function name was not found
       G_fin = 0
       return
@@ -1533,7 +1679,7 @@ integer                          :: i
 
 !  found name so get G_FIN and G_FUN value from corresponding code
 
-   G_fin = mod(selector,100) ! which routine to call (SUBROUTINE ML_MATFN[1-6])
+   G_fin = mod(selector,100) ! which routine to call (SUBROUTINE MAT_MATFN[1-6])
    G_fun = selector/100      ! which case to select in called procedure
 
    if (G_rhs.eq.0 .and. selector.eq.606) G_fin = 0
@@ -1544,12 +1690,12 @@ end subroutine mat_funs
 !==================================================================================================================================!
 subroutine mat_putid(x,y)
 
-! ident_9="@(#)M_matrix::mat_putid(3fp): store a name"
+! ident_9="@(#)M_matrix::mat_putid(3fp): copy a name to allow an easy way to store a name"
 
-integer,intent(out) :: x(G_MAX_NAME_LENGTH)
-integer,intent(in)  :: y(G_MAX_NAME_LENGTH)
+integer,intent(out) :: x(GG_MAX_NAME_LENGTH)
+integer,intent(in)  :: y(GG_MAX_NAME_LENGTH)
 integer             :: i
-      do i = 1, G_MAX_NAME_LENGTH
+      do i = 1, GG_MAX_NAME_LENGTH
          x(i) = y(i)
       enddo
 end subroutine mat_putid
@@ -1558,13 +1704,13 @@ end subroutine mat_putid
 !==================================================================================================================================!
 subroutine mat_getval(s)
 
-! ident_10="@(#)M_matrix::mat_getval(3fp): form numerical value"
+! ident_10="@(#)M_matrix::mat_getval(3fp): form numerical value from string of integer characters"
 
 doubleprecision,intent(out) :: s
       s = 0.0d0
       INFINITE: do
-         if (G_chra .gt. 9) exit INFINITE
-         s = 10.0d0*s + dble(G_chra)
+         if (G_CHRA .gt. 9) exit INFINITE
+         s = 10.0d0*s + dble(G_CHRA)
          call mat_getch() ! get next character
       enddo INFINITE
 end subroutine mat_getval
@@ -1577,9 +1723,9 @@ subroutine mat_getch()
 
 integer :: l
 
-   l = G_LPT(4)
-   G_chra = G_LIN(l)
-   if (G_chra .ne. G_eol) G_LPT(4) = l + 1
+   l = G_LINE_POINTER(4)
+   G_CHRA = G_LIN(l)
+   if (G_CHRA .ne. G_EOL) G_LINE_POINTER(4) = l + 1
 
 end subroutine mat_getch
 !==================================================================================================================================!
@@ -1881,7 +2027,7 @@ subroutine mat_print(ID,K)
 
 ! ident_15="@(#)M_matrix::mat_print(3fp): primary output routine"
 
-integer           :: id(G_MAX_NAME_LENGTH)
+integer           :: id(GG_MAX_NAME_LENGTH)
 integer           :: k
 
 character(len=81) :: message
@@ -1923,17 +2069,17 @@ integer           :: itype
 !.......................................................................
    if (G_LINECOUNT(1) .lt. 0) goto 99
 !.......................................................................
-   l = G_LSTK(k)
-   m = G_MSTK(k)
-   n = G_NSTK(k)
+   l = G_STACK_ID_LOC(k)
+   m = G_STACK_ROWS(k)
+   n = G_STACK_COLS(k)
    mn = m*n
    typ = 1
    s = 0.0d0
    itype=-9999
    do i = 1, mn
       ls = l+i-1
-      tr = G_STKR(ls)
-      ti = G_STKI(ls)
+      tr = G_STACK_REALS(ls)
+      ti = G_STACK_IMAGS(ls)
       s = dmax1(s,dabs(tr),dabs(ti))
       if (mat_round(tr) .ne. tr) typ = max0(2,typ)
       if (ti .ne. 0.0d0) typ = 3
@@ -1977,44 +2123,44 @@ integer           :: itype
       WRITE(message, "(' AT LEAST ',I5,' MORE LINES.','  ENTER BLANK LINE TO CONTINUE OUTPUT.')") LS
       call journal(message)
 
-      READ(G_RTE,'(a1)',END=19) LS_CHAR  ! read response to pause from standard input
+      READ(G_INPUT_LUN,'(a1)',END=19) LS_CHAR  ! read response to pause from standard input
       IF (LS_CHAR .EQ. ' ') GOTO 20      ! if blank or a return display the values
       G_LINECOUNT(1) = -1
       GOTO 99
    19 continue
-      CALL mat_files(-G_RTE,G_BUF)
+      CALL mat_files(-G_INPUT_LUN,G_BUF)
    endif
    20 continue
 !.......................................................................
    call journal(' ')
-   call mat_prntid(ID,-1)
+   call mat_print_id(ID,-1)
    G_LINECOUNT(1) = G_LINECOUNT(1)+2
    if (s .ne. 1.0d0)then
       write(message,'(''  '',1PD9.1," *")') s
-      if(G_WTE.eq.STDOUT)then
+      if(G_OUTPUT_LUN.eq.STDOUT)then
          call journal(message)
       else
-         write(G_WTE,'(a)')message(1:80)
+         write(G_OUTPUT_LUN,'(a)')message(1:80)
       endif
    endif
    do j1 = 1, n, jinc
       j2 = min0(n, j1+jinc-1)
       if (n .gt. jinc)then
          write(message,'(''     COLUMNS'',I6,'' THRU'',I6)') j1,j2
-         if(G_WTE.eq.STDOUT)then
+         if(G_OUTPUT_LUN.eq.STDOUT)then
             call journal(message)
          else
-            write(G_WTE,'(a)')message(1:80)
+            write(G_OUTPUT_LUN,'(a)')message(1:80)
          endif
       endif
       do i = 1, m
          jm = j2-j1+1
          do j = 1, jm
             ls = l+i-1+(j+j1-2)*m
-            pr(j) = G_STKR(ls)/s
-            pi(j) = dabs(G_STKI(ls)/s)
+            pr(j) = G_STACK_REALS(ls)/s
+            pi(j) = dabs(G_STACK_IMAGS(ls)/s)
             sig(j) = G_CHARSET(plus+1)
-            if (G_STKI(ls) .lt. 0.0d0) sig(j) = G_CHARSET(minus+1)
+            if (G_STACK_IMAGS(ls) .lt. 0.0d0) sig(j) = G_CHARSET(minus+1)
          enddo
 
          select case(F)
@@ -2059,7 +2205,7 @@ integer           :: itype
             istep=3
             itype= 888
          case(-1)
-            call mat_formz(G_WTE,G_STKR(ls),G_STKI(ls))
+            call mat_formz(G_OUTPUT_LUN,G_STACK_REALS(ls),G_STACK_IMAGS(ls))
             istep=-1
             itype=-1
          case default
@@ -2075,10 +2221,10 @@ integer           :: itype
                case(999); write(message,form)(pr(j),j=j3,min(j3+istep,jm))
                case(888); write(message,form)(pr(j),sig(j),pi(j),j=j3,min(j3+istep-1,jm))
                end select
-               if(G_WTE.eq.STDOUT)then
+               if(G_OUTPUT_LUN.eq.STDOUT)then
                   call journal(message)
                else
-                  write(G_WTE,'(a)')message(1:80)
+                  write(G_OUTPUT_LUN,'(a)')message(1:80)
                endif
             enddo
          endif
@@ -2088,7 +2234,7 @@ integer           :: itype
    enddo
 
 99 continue
-   if(G_WTE.ne.STDOUT)flush(unit=G_WTE,iostat=ios)
+   if(G_OUTPUT_LUN.ne.STDOUT)flush(unit=G_OUTPUT_LUN,iostat=ios)
 
 end subroutine mat_print
 !==================================================================================================================================!
@@ -2119,23 +2265,25 @@ end subroutine mat_wsqrt
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_wlog(xr,xi,yr,yi)
+subroutine mat_wlog(in_real,in_imag,out_real,out_imag)
 
 ! ident_17="@(#)M_matrix::mat_wlog(3fp): y = log(x)"
 
-doubleprecision :: xr
-doubleprecision :: xi
-doubleprecision :: yr
-doubleprecision :: yi
+doubleprecision :: in_real, in_imag
+doubleprecision :: out_real, out_imag
 doubleprecision :: t
 doubleprecision :: r
-   r = mat_pythag(xr,xi)
-   if (r .eq. 0.0d0) call mat_err(32)
-   if (r .eq. 0.0d0) return
-   t = datan2(xi,xr)
-   if (xi.eq.0.0d0 .and. xr.lt.0.0d0) t = dabs(t)
-   yr = dlog(r)
-   yi = t
+   r = mat_pythag(in_real,in_imag)
+
+   if (r .eq. 0.0d0) then
+      call mat_err(32) !  Singularity of LOG or ATAN
+   else
+      t = datan2(in_imag,in_real)
+      if (in_imag.eq.0.0d0 .and. in_real.lt.0.0d0) t = dabs(t)
+      out_real = dlog(r)
+      out_imag = t
+   endif
+
 end subroutine mat_wlog
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2169,16 +2317,16 @@ integer,intent(in) :: pause
 character(len=1)   :: dummy
 
    ! paranoid checks
-   if(G_WTE.le.0)then
-      call journal('*mat_prompt* internal error: G_WTE <= 0')
-   elseif(G_RTE.lt.0)then
-      call journal('*mat_prompt* internal error: G_RTE <= 0')
+   if(G_OUTPUT_LUN.le.0)then
+      call journal('*mat_prompt* internal error: G_OUTPUT_LUN <= 0')
+   elseif(G_INPUT_LUN.lt.0)then
+      call journal('*mat_prompt* internal error: G_INPUT_LUN <= 0')
    else
       ! write prompt using format that stays on current line
-      if(G_WTE.eq.STDOUT)then
-         WRITE(G_WTE,'(''<>'')',advance='no')   ! write prompt to interactive input
+      if(G_OUTPUT_LUN.eq.STDOUT)then
+         WRITE(G_OUTPUT_LUN,'(''<>'')',advance='no')   ! write prompt to interactive input
       endif
-      if (pause .eq. 1) read(G_RTE,'(a1)') dummy
+      if (pause .eq. 1) read(G_INPUT_LUN,'(a1)') dummy
    endif
 
 end subroutine mat_prompt
@@ -2433,29 +2581,29 @@ integer           :: mn
 integer           :: n
 
    IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','mat_stack1 ',OP)
-   L = G_LSTK(G_TOP)
-   M = G_MSTK(G_TOP)
-   N = G_NSTK(G_TOP)
+   L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    MN = M*N
    IF (MN .EQ. 0) then
    elseIF (OP .ne. QUOTE) then                                 ! UNARY MINUS
-      CALL mat_wrscal(MN,-1.0D0,G_STKR(L),G_STKI(L),1)
+      CALL mat_wrscal(MN,-1.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
    else                                                        ! TRANSPOSE
       LL = L + MN
-      G_ERR = LL+MN - G_LSTK(G_BOT)
+      G_ERR = LL+MN - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      CALL mat_wcopy(MN,G_STKR(L),G_STKI(L),1,G_STKR(LL),G_STKI(LL),1)
-      M = G_NSTK(G_TOP)
-      N = G_MSTK(G_TOP)
-      G_MSTK(G_TOP) = M
-      G_NSTK(G_TOP) = N
+      CALL mat_wcopy(MN,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
+      M = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       DO I = 1, M
          DO J = 1, N
             LS = L+MN+(J-1)+(I-1)*N
             LL = L+(I-1)+(J-1)*M
-            G_STKR(LL) = G_STKR(LS)
-            G_STKI(LL) = -G_STKI(LS)
+            G_STACK_REALS(LL) = G_STACK_REALS(LS)
+            G_STACK_IMAGS(LL) = -G_STACK_IMAGS(LS)
          enddo
       enddo
    endif
@@ -2519,19 +2667,19 @@ end subroutine mat_rset
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_prntid(id,argcnt)
+subroutine mat_print_id(id,argcnt)
 
-! ident_25="@(#)M_matrix::mat_prntid(3fp): print table of variable id names (up to) eight per line"
+! ident_25="@(#)M_matrix::mat_print_id(3fp): print table of variable id names (up to) eight per line"
 
-!     ID     IS ARRAY OF G_MAX_NAME_LENGTH CHARACTER IDS TO PRINT
+!     ID     IS ARRAY OF GG_MAX_NAME_LENGTH CHARACTER IDS TO PRINT
 !     ARGCNT IS NUMBER OF IDS TO PRINT
 !            IF = -1, PRINT ONE ID WITH AN "  =" SUFFIX
 !
-integer             :: id(G_MAX_NAME_LENGTH,*)
+integer             :: id(GG_MAX_NAME_LENGTH,*)
 integer             :: argcnt
 
 character(len=80)   :: mline                                 ! scratch space for building line to print
-integer             :: linebuf(8*G_MAX_NAME_LENGTH+2*8+1)    ! scratch buffer for building up line
+integer             :: linebuf(8*GG_MAX_NAME_LENGTH+2*8+1)    ! scratch buffer for building up line
 
 integer,parameter   ::  hollerith_blank=ichar(' ')+538976304-48
 integer,parameter   ::  hollerith_equal=ichar('=')+538976304-48
@@ -2543,7 +2691,7 @@ integer             :: i, j, k, l
       linebuf(1)=hollerith_blank          ! put a space at beginning of line
       l = 2                               ! pointer into output line being built
       do j = j1,min0(j1+7,iabs(argcnt))   ! copy up to eight names into buffer
-         do i = 1, G_MAX_NAME_LENGTH      ! copy one name into buffer
+         do i = 1, GG_MAX_NAME_LENGTH      ! copy one name into buffer
             k = id(i,j)+1                 ! this is the kth letter of the set
             linebuf(l) = G_CHARSET(k)
             if(linebuf(l).ne.hollerith_blank)l = l+1   ! increment pointer into output
@@ -2559,16 +2707,16 @@ integer             :: i, j, k, l
       endif
       !-----------------------------------------------
       call mat_buf2str(mline,linebuf,l)   ! write LINEBUF(1:L) line to a character variable
-      if(G_WTE.eq.STDOUT)then
+      if(G_OUTPUT_LUN.eq.STDOUT)then
          call journal(mline)              ! print the line
       else
-         write(G_WTE,'(a)')mline(1:80)    ! print the line
+         write(G_OUTPUT_LUN,'(a)')mline(1:80)    ! print the line
       endif
       !-----------------------------------------------
       j1 = j1+8                           ! prepare to get up to eight more IDs
       if (j1 .gt. iabs(argcnt)) exit INFINITE   ! if not done do another line
    enddo INFINITE
-end subroutine mat_prntid
+end subroutine mat_print_id
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -2576,8 +2724,8 @@ subroutine MAT_STACK_PUT(id)
 
 ! ident_26="@(#)M_matrix::mat_stack_put(3fp): put variables into storage"
 
-integer             :: id(G_MAX_NAME_LENGTH)
-character(len=100)  :: mline
+integer                    :: id(GG_MAX_NAME_LENGTH)
+character(len=GG_LINELEN)  :: mline
 integer,parameter   :: semi=39
 integer             :: i
 integer             :: ib
@@ -2607,11 +2755,11 @@ integer             :: nk
 integer             :: nt
 
    if (G_DEBUG_LEVEL .eq. 1) then
-      write(mline,'('' STACKP '',4i4)') id
+      write(mline,'('' STACKP '',*(i4))') id
       call journal(mline)
    endif
 
-   if (G_top .le. 0) then
+   if (G_BOTTOM_OF_SCRATCH_IN_USE .le. 0) then
       call mat_err(1)
       return
    endif
@@ -2622,9 +2770,9 @@ integer             :: nt
       return
    endif
 
-   m = G_MSTK(G_top)
-   n = G_NSTK(G_top)
-   if (m .gt. 0) l = G_LSTK(G_top)
+   m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   if (m .gt. 0) l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
 
    if (m .lt. 0) then
       call mat_err(14)
@@ -2641,15 +2789,15 @@ integer             :: nt
    nt = 0
 !
 !     DOES VARIABLE ALREADY EXIST
-   call mat_putid(G_IDSTK(1,G_BOT-1),id)
-   k = G_MAX_NUMBER_OF_NAMES+1
+   call mat_putid(G_STACK_IDS(1,G_TOP_OF_SAVED-1),id)
+   k = GG_MAX_NUMBER_OF_NAMES+1
 05 continue
    k = k-1
-   if (.not.mat_eqid(G_IDSTK(1,k),id)) goto 05
-   if (k .eq. G_BOT-1) goto 30
-   lk = G_LSTK(k)
-   mk = G_MSTK(k)
-   nk = G_NSTK(k)
+   if (.not.mat_eqid(G_STACK_IDS(1,k),id)) goto 05
+   if (k .eq. G_TOP_OF_SAVED-1) goto 30
+   lk = G_STACK_ID_LOC(k)
+   mk = G_STACK_ROWS(k)
+   nk = G_STACK_COLS(k)
    mnk = mk*nk
    if (G_rhs .eq. 0) goto 20
    if (G_rhs .gt. 2) call mat_err(15)
@@ -2657,94 +2805,94 @@ integer             :: nt
    mt = mk
    nt = nk
    lt = l + mn
-   G_err = lt + mnk - G_LSTK(G_BOT)
+   G_err = lt + mnk - G_STACK_ID_LOC(G_TOP_OF_SAVED)
    if (G_err .gt. 0) call mat_err(17)
    if (G_err .gt. 0) return
-   call mat_wcopy(mnk,G_stkr(lk),G_STKI(lk),1,G_stkr(lt),G_STKI(lt),1)
+   call mat_wcopy(mnk,G_STACK_REALS(lk),G_STACK_IMAGS(lk),1,G_STACK_REALS(lt),G_STACK_IMAGS(lt),1)
 !
 !     DOES IT FIT
 20 continue
    if (G_rhs.eq.0 .and. mn.eq.mnk) goto 40
-   if (k .ge. G_MAX_NUMBER_OF_NAMES-3) call mat_err(13)
+   if (k .ge. GG_MAX_NUMBER_OF_NAMES-3) call mat_err(13)
    if (G_err .gt. 0) return
 !
 !     SHIFT STORAGE
-   if (k .eq. G_BOT) goto 25
-   ls = G_LSTK(G_BOT)
+   if (k .eq. G_TOP_OF_SAVED) goto 25
+   ls = G_STACK_ID_LOC(G_TOP_OF_SAVED)
    ll = ls + mnk
-   call mat_wcopy(lk-ls,G_stkr(ls),G_STKI(ls),-1,G_stkr(ll),G_STKI(ll),-1)
+   call mat_wcopy(lk-ls,G_STACK_REALS(ls),G_STACK_IMAGS(ls),-1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),-1)
    km1 = k-1
-   do ib = G_BOT, km1
-      i = G_BOT+km1-ib
-      call mat_putid(G_IDSTK(1,i+1),G_IDSTK(1,i))
-      G_MSTK(i+1) = G_MSTK(i)
-      G_NSTK(i+1) = G_NSTK(i)
-      G_LSTK(i+1) = G_LSTK(i)+mnk
+   do ib = G_TOP_OF_SAVED, km1
+      i = G_TOP_OF_SAVED+km1-ib
+      call mat_putid(G_STACK_IDS(1,i+1),G_STACK_IDS(1,i))
+      G_STACK_ROWS(i+1) = G_STACK_ROWS(i)
+      G_STACK_COLS(i+1) = G_STACK_COLS(i)
+      G_STACK_ID_LOC(i+1) = G_STACK_ID_LOC(i)+mnk
    enddo
 !
 !     DESTROY OLD VARIABLE
 25 continue
-   G_BOT = G_BOT+1
+   G_TOP_OF_SAVED = G_TOP_OF_SAVED+1
 !
 !     CREATE NEW VARIABLE
 30 continue
    if (mn .eq. 0) goto 99
-   if (G_BOT-2 .le. G_top) call mat_err(18)
+   if (G_TOP_OF_SAVED-2 .le. G_BOTTOM_OF_SCRATCH_IN_USE) call mat_err(18)
    if (G_err .gt. 0) return
-   k = G_BOT-1
-   call mat_putid(G_IDSTK(1,k), id)
+   k = G_TOP_OF_SAVED-1
+   call mat_putid(G_STACK_IDS(1,k), id)
    if (G_rhs .eq. 1) goto 50
    if (G_rhs .eq. 2) goto 55
 !
 !     STORE
 40 continue
-   if (k .lt. G_MAX_NUMBER_OF_NAMES) G_LSTK(k) = G_LSTK(k+1) - mn
-   G_MSTK(k) = m
-   G_NSTK(k) = n
-   lk = G_LSTK(k)
-   call mat_wcopy(mn,G_stkr(l),G_STKI(l),-1,G_stkr(lk),G_STKI(lk),-1)
+   if (k .lt. GG_MAX_NUMBER_OF_NAMES) G_STACK_ID_LOC(k) = G_STACK_ID_LOC(k+1) - mn
+   G_STACK_ROWS(k) = m
+   G_STACK_COLS(k) = n
+   lk = G_STACK_ID_LOC(k)
+   call mat_wcopy(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
    goto 90
 !
 !     VECT(ARG)
 50 continue
-   if (G_MSTK(G_top-1) .lt. 0) goto 59
+   if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-1) .lt. 0) goto 59
    mn1 = 1
    mn2 = 1
    l1 = 0
    l2 = 0
    if (n.ne.1 .or. nk.ne.1) goto 52
-   l1 = G_LSTK(G_top-1)
-   m1 = G_MSTK(G_top-1)
-   mn1 = m1*G_NSTK(G_top-1)
+   l1 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE-1)
+   m1 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-1)
+   mn1 = m1*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE-1)
    m2 = -1
    goto 60
 52 continue
    if (m.ne.1 .or. mk.ne.1) call mat_err(15)
    if (G_err .gt. 0) return
-   l2 = G_LSTK(G_top-1)
-   m2 = G_MSTK(G_top-1)
-   mn2 = m2*G_NSTK(G_top-1)
+   l2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE-1)
+   m2 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-1)
+   mn2 = m2*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE-1)
    m1 = -1
    goto 60
 !
 !     matrix(arg,arg)
 55 continue
-   if (G_MSTK(G_top-1).lt.0 .and. G_MSTK(G_top-2).lt.0) goto 59
-   l2 = G_LSTK(G_top-1)
-   m2 = G_MSTK(G_top-1)
-   mn2 = m2*G_NSTK(G_top-1)
+   if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-1).lt.0 .and. G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-2).lt.0) goto 59
+   l2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE-1)
+   m2 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-1)
+   mn2 = m2*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE-1)
    if (m2 .lt. 0) mn2 = n
-   l1 = G_LSTK(G_top-2)
-   m1 = G_MSTK(G_top-2)
-   mn1 = m1*G_NSTK(G_top-2)
+   l1 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE-2)
+   m1 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-2)
+   mn1 = m1*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE-2)
    if (m1 .lt. 0) mn1 = m
    goto 60
 !
 59 continue
    if (mn .ne. mnk) call mat_err(15)
    if (G_err .gt. 0) return
-   lk = G_LSTK(k)
-   call mat_wcopy(mn,G_stkr(l),G_STKI(l),-1,G_stkr(lk),G_STKI(lk),-1)
+   lk = G_STACK_ID_LOC(k)
+   call mat_wcopy(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
    goto 90
 !
 60 continue
@@ -2754,47 +2902,47 @@ integer             :: nt
    if (m1 .lt. 0) goto 62
    do i = 1, mn1
       ls = l1+i-1
-      mk = max0(mk,int(G_stkr(ls)))
-      ll = min0(ll,int(G_stkr(ls)))
+      mk = max0(mk,int(G_STACK_REALS(ls)))
+      ll = min0(ll,int(G_STACK_REALS(ls)))
    enddo
 62 continue
    mk = max0(mk,m)
    if (m2 .lt. 0) goto 64
    do i = 1, mn2
       ls = l2+i-1
-      nk = max0(nk,int(G_stkr(ls)))
-      ll = min0(ll,int(G_stkr(ls)))
+      nk = max0(nk,int(G_STACK_REALS(ls)))
+      ll = min0(ll,int(G_STACK_REALS(ls)))
    enddo
 64 continue
    nk = max0(nk,n)
    if (ll .lt. 1) call mat_err(21)
    if (G_err .gt. 0) return
    mnk = mk*nk
-   lk = G_LSTK(k+1) - mnk
+   lk = G_STACK_ID_LOC(k+1) - mnk
    G_err = lt + mt*nt - lk
    if (G_err .gt. 0) call mat_err(17)
    if (G_err .gt. 0) return
-   G_LSTK(k) = lk
-   G_MSTK(k) = mk
-   G_NSTK(k) = nk
-   call mat_wset(mnk,0.0d0,0.0d0,G_stkr(lk),G_STKI(lk),1)
+   G_STACK_ID_LOC(k) = lk
+   G_STACK_ROWS(k) = mk
+   G_STACK_COLS(k) = nk
+   call mat_wset(mnk,0.0d0,0.0d0,G_STACK_REALS(lk),G_STACK_IMAGS(lk),1)
    if (nt .lt. 1) goto 67
    do j = 1, nt
       ls = lt+(j-1)*mt
       ll = lk+(j-1)*mk
-      call mat_wcopy(mt,G_stkr(ls),G_STKI(ls),-1,G_stkr(ll),G_STKI(ll),-1)
+      call mat_wcopy(mt,G_STACK_REALS(ls),G_STACK_IMAGS(ls),-1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),-1)
    enddo
 67 continue
    do j = 1, n
       do i = 1, m
          li = l1+i-1
-         if (m1 .gt. 0) li = l1 + int(G_stkr(li)) - 1
+         if (m1 .gt. 0) li = l1 + int(G_STACK_REALS(li)) - 1
          lj = l2+j-1
-         if (m2 .gt. 0) lj = l2 + int(G_stkr(lj)) - 1
+         if (m2 .gt. 0) lj = l2 + int(G_STACK_REALS(lj)) - 1
          ll = lk+li-l1+(lj-l2)*mk
          ls = l+i-1+(j-1)*m
-         G_stkr(ll) = G_stkr(ls)
-         G_STKI(ll) = G_STKI(ls)
+         G_STACK_REALS(ll) = G_STACK_REALS(ls)
+         G_STACK_IMAGS(ll) = G_STACK_IMAGS(ls)
       enddo
    enddo
    goto 90
@@ -2803,10 +2951,10 @@ integer             :: nt
 90 continue
    if (G_sym.ne.semi .and. G_LINECOUNT(3).eq.0) call mat_print(id,k)
    if (G_sym.eq.semi .and. G_LINECOUNT(3).eq.1) call mat_print(id,k)
-   if (k .eq. G_BOT-1) G_BOT = G_BOT-1
+   if (k .eq. G_TOP_OF_SAVED-1) G_TOP_OF_SAVED = G_TOP_OF_SAVED-1
 99 continue
-   if (m .ne. 0) G_top = G_top - 1 - G_rhs
-   if (m .eq. 0) G_top = G_top - 1
+   if (m .ne. 0) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1 - G_rhs
+   if (m .eq. 0) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
 end subroutine MAT_STACK_PUT
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2869,7 +3017,7 @@ doubleprecision :: ti
       yr = -(ti/2.0d0)
       yi = tr/2.0d0
    else
-      call mat_err(32)
+      call mat_err(32) ! Singularity of LOG or ATAN
    endif
 
 end subroutine mat_watan
@@ -2929,7 +3077,7 @@ SUBROUTINE mat_parse(INIT)
 integer            :: init
 INTEGER,parameter  :: SEMI=39
 integer,parameter  :: EQUAL=46
-integer            :: ID(G_MAX_NAME_LENGTH)
+integer            :: ID(GG_MAX_NAME_LENGTH)
 integer            :: EXCNT
 integer,parameter  :: LPAREN=37
 integer,parameter  :: RPAREN=38
@@ -2940,9 +3088,9 @@ integer,parameter  :: COMMA=48
 integer,parameter  :: LESS=50
 integer,parameter  :: GREAT=51
 integer            :: NAME=1
-integer,parameter  :: ANS(G_MAX_NAME_LENGTH) =[10,23,28,36,G_PAD(:)]
-integer,parameter  :: ENND(G_MAX_NAME_LENGTH)=[14,23,13,36,G_PAD(:)]
-integer,parameter  :: ELSE(G_MAX_NAME_LENGTH)=[14,21,28,14,G_PAD(:)]
+integer,parameter  :: ANS(GG_MAX_NAME_LENGTH) =[10,23,28,36,GG_PAD(:)]
+integer,parameter  :: ENND(GG_MAX_NAME_LENGTH)=[14,23,13,36,GG_PAD(:)]
+integer,parameter  :: ELSE(GG_MAX_NAME_LENGTH)=[14,21,28,14,GG_PAD(:)]
 integer            :: P
 integer            :: R
 character(len=80)  :: mline
@@ -2960,29 +3108,30 @@ integer            :: n
       IF (G_ERR .GT. 0) G_PTZ = 0
       IF (G_ERR.LE.0 .AND. G_PT.GT.G_PTZ) R = G_RSTK(G_PT)
       IF (G_DEBUG_LEVEL .EQ. 1) THEN
-         WRITE(MLINE,'('' PARSE'',4I4)') G_PT,R,G_PTZ,G_ERR
+         WRITE(MLINE,'('' PARSE'',*(I4))') G_PT,R,G_PTZ,G_ERR
          CALL JOURNAL(MLINE)
       ENDIF
       IF (R.EQ.15) GOTO 93
       IF (R.EQ.16 .OR. R.EQ.17) GOTO 94
       G_SYM = G_EOL
-      G_TOP = 0
-      IF (G_RIO .NE. G_RTE) CALL mat_files(-G_RIO,G_BUF)
-      G_RIO = G_RTE
+      G_BOTTOM_OF_SCRATCH_IN_USE = 0
+      IF (G_RIO .NE. G_INPUT_LUN) CALL mat_files(-G_RIO,G_BUF)
+      G_RIO = G_INPUT_LUN
       G_LINECOUNT(3) = 0
       G_LINECOUNT(4) = 2
-      G_LPT(1) = 1
+      G_LINE_POINTER(1) = 1
    10 CONTINUE
       IF (G_SYM.EQ.G_EOL.AND.MOD(G_LINECOUNT(4)/2,2).EQ.1) CALL mat_prompt(G_LINECOUNT(4)/4)
       IF (G_SYM .EQ. G_EOL) CALL mat_getlin()
       G_ERR = 0
       G_PT = G_PTZ
+
    15 CONTINUE
       EXCNT = 0
       IF (G_DEBUG_LEVEL .EQ. 1) THEN
          MLINE='STATE'
          CALL mat_appnum(REAL(G_PT),MLINE,ILEN,IERR)
-         CALL mat_appnum(REAL(G_TOP),MLINE,ILEN,IERR)
+         CALL mat_appnum(REAL(G_BOTTOM_OF_SCRATCH_IN_USE),MLINE,ILEN,IERR)
          call journal(mline)
       ENDIF
       G_LHS = 1
@@ -3006,7 +3155,7 @@ integer            :: n
       IF (G_FIN .GT. 0) GOTO 70
 !     IF NAME IS A FUNCTION, MUST BE RHS
       G_RHS = 0
-      CALL mat_funs(G_SYN)
+      call mat_funs(G_SYN)
       IF (G_FIN .NE. 0) GOTO 50
 !     PEEK ONE CHARACTER AHEAD
       IF (G_CHRA.EQ.SEMI .OR. G_CHRA.EQ.COMMA .OR. G_CHRA.EQ.G_EOL) CALL mat_putid(ID,G_SYN)
@@ -3023,7 +3172,7 @@ integer            :: n
 !.......................................................................
 !     LHS IS NAME(...)
    30 CONTINUE
-      G_LPT(5) = G_LPT(4)
+      G_LINE_POINTER(5) = G_LINE_POINTER(4)
       CALL mat_putid(ID,G_SYN)
       CALL mat_getsym()
    32 CONTINUE
@@ -3047,8 +3196,8 @@ integer            :: n
       IF (G_SYM .EQ. RPAREN) CALL mat_getsym()
       IF (G_SYM .EQ. EQUAL) GOTO 50
 !     LHS IS REALLY RHS, FORGET SCAN JUST DONE
-      G_TOP = G_TOP - EXCNT
-      G_LPT(4) = G_LPT(5)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - EXCNT
+      G_LINE_POINTER(4) = G_LINE_POINTER(5)
       G_CHRA = LPAREN
       G_SYM = NAME
       CALL mat_putid(G_SYN,ID)
@@ -3058,7 +3207,7 @@ integer            :: n
 !.......................................................................
 !     MULTIPLE LHS
    40 CONTINUE
-      G_LPT(5) = G_LPT(4)
+      G_LINE_POINTER(5) = G_LINE_POINTER(4)
       PTS = G_PT
       CALL mat_getsym()
    41 CONTINUE
@@ -3076,12 +3225,11 @@ integer            :: n
       CALL mat_getsym()
       IF (G_SYM .EQ. EQUAL) GOTO 50
    43 CONTINUE
-      G_LPT(4) = G_LPT(5)
+      G_LINE_POINTER(4) = G_LINE_POINTER(5)
       G_PT = PTS
       G_LHS = 1
       G_SYM = LESS
-      G_CHRA = G_LPT(4)-1
-      G_CHRA = G_LIN(G_CHRA)
+      G_CHRA = G_LIN(G_LINE_POINTER(4)-1)
       CALL mat_putid(ID,ANS)
       GOTO 50
 !.......................................................................
@@ -3091,7 +3239,7 @@ integer            :: n
       IF (G_DEBUG_LEVEL .EQ. 1) THEN
          MLINE='MACRO'
          CALL mat_appnum(REAL(G_PT),MLINE,ILEN,IERR)
-         CALL mat_appnum(REAL(G_TOP),MLINE,ILEN,IERR)
+         CALL mat_appnum(REAL(G_BOTTOM_OF_SCRATCH_IN_USE),MLINE,ILEN,IERR)
       ENDIF
       IF (G_SYM.EQ.LESS .AND. G_CHRA.EQ.G_EOL) CALL mat_err(28)
       IF (G_ERR .GT. 0) GOTO 01
@@ -3102,22 +3250,22 @@ integer            :: n
 !.......................................................................
    46 CONTINUE
       G_PT = G_PT-1
-      IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37)
+      IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37) ! Improper MACRO
       IF (G_ERR .GT. 0) GOTO 01
       IF (G_SYM .EQ. LESS) CALL mat_getsym()
-      K = G_LPT(6)
-      G_LIN(K+1) = G_LPT(1)
-      G_LIN(K+2) = G_LPT(2)
-      G_LIN(K+3) = G_LPT(6)
-      G_LPT(1) = K + 4
+      K = G_LINE_POINTER(6)
+      G_LIN(K+1) = G_LINE_POINTER(1)
+      G_LIN(K+2) = G_LINE_POINTER(2)
+      G_LIN(K+3) = G_LINE_POINTER(6)
+      G_LINE_POINTER(1) = K + 4
 !     TRANSFER STACK TO INPUT LINE
-      K = G_LPT(1)
-      L = G_LSTK(G_TOP)
-      N = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+      K = G_LINE_POINTER(1)
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       DO J = 1, N
          LS = L + J-1
-         G_LIN(K) = int(G_STKR(LS))
-         IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_CHARSET_SIZE) CALL mat_err(37)
+         G_LIN(K) = int(G_STACK_REALS(LS))
+         IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_CHARSET_SIZE) CALL mat_err(37) ! Improper MACRO
          IF (G_ERR .GT. 0) RETURN
          IF (K.LT.1024) K = K+1
          IF (K.EQ.1024) then
@@ -3126,16 +3274,16 @@ integer            :: n
           endif
       enddo
    47 FORMAT(1X,'INPUT BUFFER LIMIT IS ',I4,' CHARACTERS.')
-      G_TOP = G_TOP-1
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
       G_LIN(K) = G_EOL
-      G_LPT(6) = K
-      G_LPT(4) = G_LPT(1)
-      G_LPT(3) = 0
-      G_LPT(2) = 0
+      G_LINE_POINTER(6) = K
+      G_LINE_POINTER(4) = G_LINE_POINTER(1)
+      G_LINE_POINTER(3) = 0
+      G_LINE_POINTER(2) = 0
       G_LINECOUNT(1) = 0
       G_CHRA = BLANK
       G_PT = G_PT+1
-      G_PSTK(G_PT) = G_LPT(1)
+      G_PSTK(G_PT) = G_LINE_POINTER(1)
       G_RSTK(G_PT) = 21
 !     *CALL* PARSE
       GOTO 15
@@ -3143,13 +3291,13 @@ integer            :: n
    49 CONTINUE
       G_PT = G_PT-1
       IF (G_DEBUG_LEVEL .EQ. 1)then
-         WRITE(mline,'('' MACEND '',2I4)') G_PT,G_TOP
+         WRITE(mline,'('' MACEND '',2I4)') G_PT,G_BOTTOM_OF_SCRATCH_IN_USE
          call journal(mline)
       endif
-      K = G_LPT(1) - 4
-      G_LPT(1) = G_LIN(K+1)
-      G_LPT(4) = G_LIN(K+2)
-      G_LPT(6) = G_LIN(K+3)
+      K = G_LINE_POINTER(1) - 4
+      G_LINE_POINTER(1) = G_LIN(K+1)
+      G_LINE_POINTER(4) = G_LIN(K+2)
+      G_LINE_POINTER(6) = G_LIN(K+3)
       G_CHRA = BLANK
       CALL mat_getsym()
       GOTO 80
@@ -3184,8 +3332,8 @@ integer            :: n
 !     UPDATE AND POSSIBLY PRINT OPERATION COUNTS
    70 CONTINUE
       K = G_FLOP_COUNTER(1)
-      IF (K .NE. 0) G_STKR(G_VSIZE-3) = dble(K)
-      G_STKR(G_VSIZE-2) = G_STKR(G_VSIZE-2) + dble(K)
+      IF (K .NE. 0) G_STACK_REALS(GG_BIGMEM-3) = dble(K)
+      G_STACK_REALS(GG_BIGMEM-2) = G_STACK_REALS(GG_BIGMEM-2) + dble(K)
       G_FLOP_COUNTER(1) = 0
       IF (.NOT.(G_CHRA.EQ.COMMA .OR. (G_SYM.EQ.COMMA .AND. G_CHRA.EQ.G_EOL)))GOTO 80
       CALL mat_getsym()
@@ -3212,15 +3360,14 @@ integer            :: n
       IF (G_PT .GT. 0) P = G_PSTK(G_PT)
       IF (G_PT .GT. 0) R = G_RSTK(G_PT)
       IF (G_DEBUG_LEVEL .EQ. 1)then
-         WRITE(mline,'('' FINISH'',5I4)') G_PT,G_PTZ,P,R,G_LPT(1)
+         WRITE(mline,'('' FINISH'',5I4)') G_PT,G_PTZ,P,R,G_LINE_POINTER(1)
          call journal(mline)
       endif
       IF (G_SYM.EQ.COMMA .OR. G_SYM.EQ.SEMI) GOTO 15
-      IF (R.EQ.21 .AND. P.EQ.G_LPT(1)) GOTO 49
+      IF (R.EQ.21 .AND. P.EQ.G_LINE_POINTER(1)) GOTO 49
       IF (G_PT .GT. G_PTZ) GOTO 91
       GOTO 10
 !.......................................................................
-!
 !     SIMULATE RECURSION
    91 CONTINUE
       CALL mat_clause()
@@ -3249,12 +3396,12 @@ integer            :: n
       GOTO (99,99,99,99,99,99,99,93,93,92,92,94,99,99,99,95,95,92,92),R
 !.......................................................................
 !
-!     CALL ML_MATFNS BY RETURNING TO MAT88
+!     CALL MAT_MATFNS BY RETURNING TO MAT88
    95 CONTINUE
-      if(G_TOP.LT.1)then
-         !call journal('*mat_parse* stack emptied',G_top)
+      if(G_BOTTOM_OF_SCRATCH_IN_USE.LT.1)then
+         !call journal('*mat_parse* stack emptied',G_BOTTOM_OF_SCRATCH_IN_USE)
       else
-         IF (G_FIN.GT.0 .AND. G_MSTK(G_TOP).LT.0) CALL mat_err(14)
+         IF (G_FIN.GT.0 .AND. G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE).LT.0) CALL mat_err(14)
       endif
       IF (G_ERR .GT. 0) GOTO 01
       RETURN
@@ -3269,12 +3416,12 @@ END SUBROUTINE mat_parse
 !==================================================================================================================================!
 subroutine mat_comand(id)
 
-integer              :: id(G_MAX_NAME_LENGTH)
+integer              :: id(GG_MAX_NAME_LENGTH)
 integer,parameter    :: lrecl=256
 character(len=lrecl) :: mline
-integer              :: h(G_MAX_NAME_LENGTH)
+integer              :: h(GG_MAX_NAME_LENGTH)
 integer,parameter    :: linelen=255
-integer              :: cmd(G_MAX_NAME_LENGTH,17)
+integer              :: cmd(GG_MAX_NAME_LENGTH,17)
 integer              :: ch
 integer,save         :: cmdl=17
 !                   0---------1---------2---------3---------4--------- 5---------6---------7-------
@@ -3302,27 +3449,26 @@ integer            :: l
 !.......................................................................
 !                         1         2         3         4         5
 !       COUNT   01234567890123456789012345678901234567890123456789012
-!               0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ ();:+-*/\=.,''<>
-!
+!               0123456789abcdefghijklmnopqrstuvwxyz ();:+-*/\=.,''<>
 !.......................................................................
-cmd(:,  1)=[12,21,14,10,27,G_PAD(2:)] ! clear
-cmd(:,  2)=[14,21,28,14,36,G_PAD(2:)] ! else
-cmd(:,  3)=[14,23,13,36,36,G_PAD(2:)] ! end
-cmd(:,  4)=[14,33,18,29,36,G_PAD(2:)] ! exit
-cmd(:,  5)=[15,24,27,36,36,G_PAD(2:)] ! for
-cmd(:,  6)=[17,14,21,25,36,G_PAD(2:)] ! help
-cmd(:,  7)=[18,15,36,36,36,G_PAD(2:)] ! if
-cmd(:,  8)=[21,24,23,16,36,G_PAD(2:)] ! long
-cmd(:,  9)=[26,30,18,29,36,G_PAD(2:)] ! quit
-cmd(:, 10)=[28,14,22,18,36,G_PAD(2:)] ! semi
-cmd(:, 11)=[28,17,24,27,29,G_PAD(2:)] ! short
-cmd(:, 12)=[32,17,10,29,36,G_PAD(2:)] ! what
-cmd(:, 13)=[32,17,18,21,14,G_PAD(2:)] ! while
-cmd(:, 14)=[32,17,24,36,36,G_PAD(2:)] ! who
-cmd(:, 15)=[28,17,36,36,36,G_PAD(2:)] ! sh
-cmd(:, 16)=[21,10,21,10,36,G_PAD(2:)] ! lala
-cmd(:, 17)=[28,17,14,21,21,G_PAD(2:)] ! shell
-!.......................................................................
+cmd(:,  1)=[12,21,14,10,27,GG_PAD(2:)] ! clear
+cmd(:,  2)=[14,21,28,14,36,GG_PAD(2:)] ! else
+cmd(:,  3)=[14,23,13,36,36,GG_PAD(2:)] ! end
+cmd(:,  4)=[14,33,18,29,36,GG_PAD(2:)] ! exit
+cmd(:,  5)=[15,24,27,36,36,GG_PAD(2:)] ! for
+cmd(:,  6)=[17,14,21,25,36,GG_PAD(2:)] ! help
+cmd(:,  7)=[18,15,36,36,36,GG_PAD(2:)] ! if
+cmd(:,  8)=[21,24,23,16,36,GG_PAD(2:)] ! long
+cmd(:,  9)=[26,30,18,29,36,GG_PAD(2:)] ! quit
+cmd(:, 10)=[28,14,22,18,36,GG_PAD(2:)] ! semi
+cmd(:, 11)=[28,17,24,27,29,GG_PAD(2:)] ! short
+cmd(:, 12)=[32,17,10,29,36,GG_PAD(2:)] ! what
+cmd(:, 13)=[32,17,18,21,14,GG_PAD(2:)] ! while
+cmd(:, 14)=[32,17,24,36,36,GG_PAD(2:)] ! who
+cmd(:, 15)=[28,17,36,36,36,GG_PAD(2:)] ! sh
+cmd(:, 16)=[21,10,21,10,36,GG_PAD(2:)] ! lala
+cmd(:, 17)=[28,17,14,21,21,GG_PAD(2:)] ! shell
+
 FINISHED: block
 !
       IF (G_DEBUG_LEVEL .EQ. 1)call journal('MAT_COMAND')
@@ -3347,15 +3493,15 @@ FINISHED: block
       case(1) ! COMMAND::CLEAR
       IF ((G_CHRA.GE.A.AND.G_CHRA.LE.Z).or.(G_CHRA.GE.a_up.AND.G_CHRA.LE.z_up)) then ! alphameric character
          CALL mat_getsym()
-         G_TOP = G_TOP+1
-         G_MSTK(G_TOP) = 0
-         G_NSTK(G_TOP) = 0
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
          G_RHS = 0
          CALL MAT_STACK_PUT(G_SYN)
          IF (G_ERR .GT. 0) RETURN
          G_FIN = 1
       else
-         G_BOT = G_MAX_NUMBER_OF_NAMES-3
+         G_TOP_OF_SAVED = GG_MAX_NUMBER_OF_NAMES-3
       endif
 !===================================================================================================================================
 !     COMMAND::FOR, WHILE, IF, ELSE, END
@@ -3378,12 +3524,10 @@ FINISHED: block
    case(4) ! COMMAND::EXIT
       IF (G_PT .GT. G_PTZ) G_FIN = -16
       IF (G_PT .GT. G_PTZ) exit COMAND
-      K = int(G_STKR(G_VSIZE-2))
+      K = int(G_STACK_REALS(GG_BIGMEM-2))
       call journal('sc',' total flops ',k)
 
-      ! for serendipity's sake
-      ii=mat_urand(G_RAN(1))*9
-      select case(ii)
+      select case( int(mat_urand(G_CURRENT_RANDOM_SEED)*9) )    ! for serendipity's sake randomly pick a sign-off
       case(1); call journal(' adios')
       case(2); call journal(' adieu')
       case(3); call journal(' arrivederci')
@@ -3398,15 +3542,15 @@ FINISHED: block
       G_FUN = 99
 !===================================================================================================================================
       case(9) ! COMMAND::QUIT
-      K = G_LPT(1) - 7
+      K = G_LINE_POINTER(1) - 7
       IF (K .LE. 0)then
          G_FUN = 99
          exit COMAND
       endif
       CALL mat_files(-G_RIO,G_BUF)
-      G_LPT(1) = G_LIN(K+1)
-      G_LPT(4) = G_LIN(K+2)
-      G_LPT(6) = G_LIN(K+3)
+      G_LINE_POINTER(1) = G_LIN(K+1)
+      G_LINE_POINTER(4) = G_LIN(K+2)
+      G_LINE_POINTER(6) = G_LIN(K+3)
       G_PTZ = G_LIN(K+4)
       G_RIO = G_LIN(K+5)
       G_LINECOUNT(4) = G_LIN(K+6)
@@ -3426,7 +3570,7 @@ FINISHED: block
       else
          G_FMT = 2
       endif
-      IF (G_CHRA.EQ.E .OR. G_CHRA.EQ.D .or. G_chra.eq.e_up .or. chr.eq.d_up ) G_FMT = G_FMT+2
+      IF (G_CHRA.EQ.E .OR. G_CHRA.EQ.D .or. G_CHRA.eq.e_up .or. chr.eq.d_up ) G_FMT = G_FMT+2
       IF (G_CHRA .EQ. Z) G_FMT = 5
       IF (G_CHRA.EQ.E    .OR. G_CHRA.EQ.D    .OR. G_CHRA.EQ.Z   ) CALL mat_getsym()
       IF (G_CHRA.EQ.E_up .OR. G_CHRA.EQ.D_up .OR. G_CHRA.EQ.Z_up) CALL mat_getsym()
@@ -3436,9 +3580,9 @@ FINISHED: block
 !===================================================================================================================================
       case(14) !     COMMAND::WHO
       call journal(' Your current variables are...')
-      CALL mat_prntid(G_IDSTK(1,G_BOT),G_MAX_NUMBER_OF_NAMES-G_BOT+1)
-      L = G_VSIZE-G_LSTK(G_BOT)+1
-      WRITE(mline,161) L,G_VSIZE
+      CALL mat_print_id(G_STACK_IDS(1,G_TOP_OF_SAVED),GG_MAX_NUMBER_OF_NAMES-G_TOP_OF_SAVED+1)
+      L = GG_BIGMEM-G_STACK_ID_LOC(G_TOP_OF_SAVED)+1
+      WRITE(mline,161) L,GG_BIGMEM
   161 format(1X,'using ',I7,' out of ',I7,' elements.')
       call journal(mline)
 !===================================================================================================================================
@@ -3446,7 +3590,7 @@ FINISHED: block
       call journal('The functions and commands are...')
       H(1) = 0
       call mat_funs(H)
-      call mat_prntid(CMD,CMDL-2)
+      call mat_print_id(CMD,CMDL-2)
 !===================================================================================================================================
       case(15) !     COMMAND::SH
       call sh_command()
@@ -3466,7 +3610,7 @@ subroutine sh_command()
 
 ! ident_30="@(#)M_matrix::sh_command(3f): start system shell interactively"
 
-character(len=G_LINELEN) :: line
+character(len=GG_LINELEN) :: line
 integer                  :: istat
    call get_environment_variable('SHELL',line)               ! get command to execute
    IF (G_CHRA .eq. G_EOL )then                               ! if next character on stack is end-of-line call interactive shell
@@ -3482,33 +3626,33 @@ subroutine help_command(cmd,cmdl)
 
 ! ident_31="@(#)M_matrix::help_command(3f): display help text"
 
-integer,intent(in)               :: cmd(G_MAX_NAME_LENGTH,17)
-integer,intent(in)               :: cmdl
+integer,intent(in)                :: cmd(GG_MAX_NAME_LENGTH,17)
+integer,intent(in)                :: cmdl
 
-integer,parameter                :: lrecl=256
-character(len=lrecl)             :: mline
-character(len=G_MAX_NAME_LENGTH) :: topic_name
-integer                          :: i, j, k, jj
-integer,parameter                :: a=10
-integer,parameter                :: a_up=52
-integer,parameter                :: blank=36
-integer,parameter                :: dot=47
-integer,parameter                :: name=1
-integer                          :: ch
-integer                          :: start
-integer                          :: end_of_first_word
-integer                          :: start_of_topic
-integer                          :: ios
-character(len=1)                 :: ls_char
+integer,parameter                 :: lrecl=256
+character(len=lrecl)              :: mline
+character(len=GG_MAX_NAME_LENGTH) :: topic_name
+integer                           :: i, j, k, jj
+integer,parameter                 :: a=10
+integer,parameter                 :: a_up=52
+integer,parameter                 :: blank=36
+integer,parameter                 :: dot=47
+integer,parameter                 :: name=1
+integer                           :: ch
+integer                           :: start
+integer                           :: end_of_first_word
+integer                           :: start_of_topic
+integer                           :: ios
+character(len=1)                  :: ls_char
 
    if (G_CHRA .eq. G_EOL) then                                           ! if no topic
       call journal('Type "help" followed by ...')
       call journal(' INTRO   (To get started)')
       call journal(' SAMPLE  (simple samples)')
       call journal(' NEWS    (recent revisions)')
-      call mat_funs([(0,i=1,G_MAX_NAME_LENGTH)])
+      call mat_funs([(0,i=1,GG_MAX_NAME_LENGTH)])
       call journal(' COMMANDS:')
-      call mat_prntid(cmd,cmdl-2)
+      call mat_print_id(cmd,cmdl-2)
       j = blank+2
       call journal(' OTHER TOPICS:')
       call journal(' ans   EDIT  FILE  FUN   MACRO')
@@ -3529,7 +3673,7 @@ character(len=1)                 :: ls_char
          G_BUF(1) = G_CHARSET(G_SYM+1)
          G_BUF(2:) = G_CHARSET(blank+1)
       else
-         do i = 1, G_MAX_NAME_LENGTH  ! assuming G_BUF can hold at least G_MAX_NAME_LENGTH characters
+         do i = 1, GG_MAX_NAME_LENGTH  ! assuming G_BUF can hold at least GG_MAX_NAME_LENGTH characters
            ch = G_SYN(i)
            G_BUF(i) = G_CHARSET(ch+1)
          enddo
@@ -3566,7 +3710,7 @@ character(len=1)                 :: ls_char
             G_LINECOUNT(1) = G_LINECOUNT(1) + 1
             if(G_LINECOUNT(1) .gt. G_LINECOUNT(2)) then
                call journal('continue ..')
-               read(G_RTE,'(a1)',iostat=ios) ls_char  ! read response to pause from standard input
+               read(G_INPUT_LUN,'(a1)',iostat=ios) ls_char  ! read response to pause from standard input
                If (ls_char .ne. ' ') then             ! if blank or a return display the values
                   G_LINECOUNT(1) = -1
                   exit
@@ -3703,26 +3847,26 @@ integer           :: nn
 !
    IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN1* ', G_FIN)
 !
-   L = G_LSTK(G_TOP)
-   M = G_MSTK(G_TOP)
-   N = G_NSTK(G_TOP)
+   L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 !===================================================================================================================================
    select case(G_FIN)
 !===================================================================================================================================
     case(-1) ! MATRIX RIGHT DIVISION, A/A2
-      l2 = G_LSTK(G_top+1)
-      m2 = G_MSTK(G_top+1)
-      n2 = G_NSTK(G_top+1)
+      l2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      m2 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      n2 = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
       if (m2 .ne. n2) call mat_err(20)
       if (G_err .gt. 0) return
       if (m*n .eq. 1) goto 16
       if (n .ne. n2) call mat_err(11)
       if (G_err .gt. 0) return
       l3 = l2 + m2*n2
-      G_err = l3+n2 - G_LSTK(G_BOT)
+      G_err = l3+n2 - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wgeco(G_stkr(l2),G_STKI(l2),m2,n2,G_buf,rcond,G_stkr(l3),G_STKI(l3))
+      call ml_wgeco(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
@@ -3742,51 +3886,51 @@ integer           :: nn
          do j = 1, n
             ls = l+i-1+(j-1)*m
             ll = l3+j-1
-            G_stkr(ll) = G_stkr(ls)
-            G_STKI(ll) = -G_STKI(ls)
+            G_STACK_REALS(ll) = G_STACK_REALS(ls)
+            G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ls)
          enddo
-         call ml_wgesl(G_stkr(l2),G_STKI(l2),m2,n2,G_buf,G_stkr(l3),G_STKI(l3),1)
+         call ml_wgesl(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_buf,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
          do j = 1, n
             ll = l+i-1+(j-1)*m
             ls = l3+j-1
-            G_stkr(ll) = G_stkr(ls)
-            G_STKI(ll) = -G_STKI(ls)
+            G_STACK_REALS(ll) = G_STACK_REALS(ls)
+            G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ls)
          enddo
       enddo
       if (G_fun .ne. 21) goto 99
 !
 !     CHECK FOR IMAGINARY ROUNDOFF IN MATRIX FUNCTIONS
-      sr(1) = mat_wasum(n*n,G_stkr(l),G_stkr(l),1)
-      si(1) = mat_wasum(n*n,G_STKI(l),G_STKI(l),1)
-      eps = G_stkr(G_VSIZE-4)
+      sr(1) = mat_wasum(n*n,G_STACK_REALS(l),G_STACK_REALS(l),1)
+      si(1) = mat_wasum(n*n,G_STACK_IMAGS(l),G_STACK_IMAGS(l),1)
+      eps = G_STACK_REALS(GG_BIGMEM-4)
       t = eps*sr(1)
       if (G_DEBUG_LEVEL .eq. 18)then
-         WRITE(G_WTE,'('' SR,SI,EPS,T'',1P4D13.4)') SR(1),SI(1),EPS,T ! debug 18
+         WRITE(G_OUTPUT_LUN,'('' SR,SI,EPS,T'',1P4D13.4)') SR(1),SI(1),EPS,T ! debug 18
       endif
-      if (si(1) .le. eps*sr(1)) call mat_rset(n*n,0.0d0,G_STKI(l),1)
+      if (si(1) .le. eps*sr(1)) call mat_rset(n*n,0.0d0,G_STACK_IMAGS(l),1)
       goto 99
 !
 16    continue
-      sr(1) = G_stkr(l)
-      si(1) = G_STKI(l)
+      sr(1) = G_STACK_REALS(l)
+      si(1) = G_STACK_IMAGS(l)
       n = n2
       m = n
-      G_MSTK(G_top) = n
-      G_NSTK(G_top) = n
-      call mat_wcopy(n*n,G_stkr(l2),G_STKI(l2),1,G_stkr(l),G_STKI(l),1)
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+      call mat_wcopy(n*n,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
 !===================================================================================================================================
     case(-2) ! MATRIX LEFT DIVISION A BACKSLASH A2
-      l2 = G_LSTK(G_top+1)
-      m2 = G_MSTK(G_top+1)
-      n2 = G_NSTK(G_top+1)
+      l2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      m2 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      n2 = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
       if (m2*n2 .eq. 1) goto 26
       l3 = l2 + m2*n2
-      G_err = l3+n - G_LSTK(G_BOT)
+      G_err = l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wgeco(G_stkr(l),G_STKI(l),m,n,G_buf,rcond,G_stkr(l3),G_STKI(l3))
+      call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
@@ -3800,14 +3944,14 @@ integer           :: nn
       if (G_err .gt. 0) return
       do j = 1, n2
          lj = l2+(j-1)*m2
-         call ml_wgesl(G_stkr(l),G_STKI(l),m,n,G_buf,G_stkr(lj),G_STKI(lj),0)
+         call ml_wgesl(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,G_STACK_REALS(lj),G_STACK_IMAGS(lj),0)
       enddo
-      G_NSTK(G_top) = n2
-      call mat_wcopy(m2*n2,G_stkr(l2),G_STKI(l2),1,G_stkr(l),G_STKI(l),1)
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n2
+      call mat_wcopy(m2*n2,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
       goto 99
 26    continue
-      sr(1) = G_stkr(l2)
-      si(1) = G_STKI(l2)
+      sr(1) = G_STACK_REALS(l2)
+      si(1) = G_STACK_IMAGS(l2)
 !===================================================================================================================================
    end select
 !===================================================================================================================================
@@ -3820,21 +3964,21 @@ integer           :: nn
       do j = 1, n
          do i = 1, n
             ls = l+i-1+(j-1)*n
-            t0 = G_stkr(ls)
+            t0 = G_STACK_REALS(ls)
             t1 = mat_flop(1.0d0/(dble(i+j-1)))
             if (t0 .ne. t1) goto 32
          enddo
       enddo
-      call mat_inverse_hilbert(G_stkr(l),n,n)
-      call mat_rset(n*n,0.0d0,G_STKI(l),1)
-      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_stkr(l),G_STKI(l),1)
+      call mat_inverse_hilbert(G_STACK_REALS(l),n,n)
+      call mat_rset(n*n,0.0d0,G_STACK_IMAGS(l),1)
+      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(l),G_STACK_IMAGS(l),1)
       goto 99
 32    continue
       l3 = l + n*n
-      G_err = l3+n - G_LSTK(G_BOT)
+      G_err = l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wgeco(G_stkr(l),G_STKI(l),m,n,G_buf,rcond,G_stkr(l3),G_STKI(l3))
+      call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
@@ -3844,15 +3988,15 @@ integer           :: nn
          write(mline,'(''results may be inaccurate. rcond='',1pd13.4)') rcond
          call journal(mline)
       endif
-      call ml_wgedi(G_stkr(l),G_STKI(l),m,n,G_buf,dtr,dti,G_stkr(l3),G_STKI(l3),1)
-      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_stkr(l),G_STKI(l),1)
+      call ml_wgedi(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,dtr,dti,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
+      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(l),G_STACK_IMAGS(l),1)
 !===================================================================================================================================
     case (2) ! COMMAND::DET
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call ml_wgefa(G_stkr(l),G_STKI(l),m,n,G_buf,info)
+      call ml_wgefa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,info)
       !SUBROUTINE ML_WGEDI(ar,ai,LDA,N,ipvt,detr,deti,workr,worki,JOB)
-      call ml_wgedi(G_stkr(l),G_STKI(l),m,n,G_buf,dtr,dti,sr(1),si(1),10)
+      call ml_wgedi(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,dtr,dti,sr(1),si(1),10)
       k = int(dtr(2))
       ka = iabs(k)+2
       t = 1.0d0
@@ -3860,10 +4004,10 @@ integer           :: nn
          t = t/10.0d0
          if (t .eq. 0.0d0) goto 42
       enddo
-      G_stkr(l) = dtr(1)*10.d0**k
-      G_STKI(l) = dti(1)*10.d0**k
-      G_MSTK(G_top) = 1
-      G_NSTK(G_top) = 1
+      G_STACK_REALS(l) = dtr(1)*10.d0**k
+      G_STACK_IMAGS(l) = dti(1)*10.d0**k
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       goto 99
 42    continue
       if (dti(1) .eq. 0.0d0)then
@@ -3875,47 +4019,47 @@ integer           :: nn
 44       format(' det =  ',f7.4,' + ',f7.4,' i ',7h * 10**,i4)
          call journal(mline)
       endif
-      G_stkr(l) = dtr(1)
-      G_STKI(l) = dti(1)
-      G_stkr(l+1) = dtr(2)
-      G_STKI(l+1) = 0.0d0
-      G_MSTK(G_top) = 1
-      G_NSTK(G_top) = 2
+      G_STACK_REALS(l) = dtr(1)
+      G_STACK_IMAGS(l) = dti(1)
+      G_STACK_REALS(l+1) = dtr(2)
+      G_STACK_IMAGS(l+1) = 0.0d0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 2
 !===================================================================================================================================
     case(3) ! COMMAND::RCOND
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
       l3 = l + n*n
-      G_err = l3+n - G_LSTK(G_BOT)
+      G_err = l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wgeco(G_stkr(l),G_STKI(l),m,n,G_buf,rcond,G_stkr(l3),G_STKI(l3))
-      G_stkr(l) = rcond
-      G_STKI(l) = 0.0d0
-      G_MSTK(G_top) = 1
-      G_NSTK(G_top) = 1
+      call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+      G_STACK_REALS(l) = rcond
+      G_STACK_IMAGS(l) = 0.0d0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       if (G_lhs .ne. 1)then
          l = l + 1
-         call mat_wcopy(n,G_stkr(l3),G_STKI(l3),1,G_stkr(l),G_STKI(l),1)
-         G_top = G_top + 1
-         G_LSTK(G_top) = l
-         G_MSTK(G_top) = n
-         G_NSTK(G_top) = 1
+         call mat_wcopy(n,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
+         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       endif
 !===================================================================================================================================
     case(4) ! COMMAND::LU
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call ml_wgefa(G_stkr(l),G_STKI(l),m,n,G_buf,info)
+      call ml_wgefa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,info)
       if (G_lhs .ne. 2) goto 99
       nn = n*n
-      if (G_top+1 .ge. G_BOT) call mat_err(18)
+      if (G_BOTTOM_OF_SCRATCH_IN_USE+1 .ge. G_TOP_OF_SAVED) call mat_err(18)
       if (G_err .gt. 0) return
-      G_top = G_top+1
-      G_LSTK(G_top) = l + nn
-      G_MSTK(G_top) = n
-      G_NSTK(G_top) = n
-      G_err = l+nn+nn - G_LSTK(G_BOT)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l + nn
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+      G_err = l+nn+nn - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
       do kb = 1, n
@@ -3923,53 +4067,53 @@ integer           :: nn
          do i = 1, n
             ll = l+i-1+(k-1)*n
             lu = ll + nn
-            if (i .le. k) G_stkr(lu) = G_stkr(ll)
-            if (i .le. k) G_STKI(lu) = G_STKI(ll)
-            if (i .gt. k) G_stkr(lu) = 0.0d0
-            if (i .gt. k) G_STKI(lu) = 0.0d0
-            if (i .lt. k) G_stkr(ll) = 0.0d0
-            if (i .lt. k) G_STKI(ll) = 0.0d0
-            if (i .eq. k) G_stkr(ll) = 1.0d0
-            if (i .eq. k) G_STKI(ll) = 0.0d0
-            if (i .gt. k) G_stkr(ll) = -G_stkr(ll)
-            if (i .gt. k) G_STKI(ll) = -G_STKI(ll)
+            if (i .le. k) G_STACK_REALS(lu) = G_STACK_REALS(ll)
+            if (i .le. k) G_STACK_IMAGS(lu) = G_STACK_IMAGS(ll)
+            if (i .gt. k) G_STACK_REALS(lu) = 0.0d0
+            if (i .gt. k) G_STACK_IMAGS(lu) = 0.0d0
+            if (i .lt. k) G_STACK_REALS(ll) = 0.0d0
+            if (i .lt. k) G_STACK_IMAGS(ll) = 0.0d0
+            if (i .eq. k) G_STACK_REALS(ll) = 1.0d0
+            if (i .eq. k) G_STACK_IMAGS(ll) = 0.0d0
+            if (i .gt. k) G_STACK_REALS(ll) = -G_STACK_REALS(ll)
+            if (i .gt. k) G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ll)
          enddo
          i = G_buf(k)
          if (i .eq. k) cycle
          li = l+i-1+(k-1)*n
          lk = l+k-1+(k-1)*n
-         call mat_wswap(n-k+1,G_stkr(li),G_STKI(li),n,G_stkr(lk),G_STKI(lk),n)
+         call mat_wswap(n-k+1,G_STACK_REALS(li),G_STACK_IMAGS(li),n,G_STACK_REALS(lk),G_STACK_IMAGS(lk),n)
       enddo
 !===================================================================================================================================
     case(5) ! COMMAND::inverse_hilbert
-      n = int(G_stkr(l))
-      G_MSTK(G_top) = n
-      G_NSTK(G_top) = n
-      call mat_inverse_hilbert(G_stkr(l),n,n)
-      call mat_rset(n*n,0.0d0,G_STKI(l),1)
-      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_stkr(l),G_STKI(l),1)
+      n = int(G_STACK_REALS(l))
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+      call mat_inverse_hilbert(G_STACK_REALS(l),n,n)
+      call mat_rset(n*n,0.0d0,G_STACK_IMAGS(l),1)
+      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(l),G_STACK_IMAGS(l),1)
 !===================================================================================================================================
     case(6) ! COMMAND::CHOLESKY
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call mat_wpofa(G_stkr(l),G_STKI(l),m,n,G_err)
+      call mat_wpofa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_err)
       if (G_err .ne. 0) call mat_err(29)
       if (G_err .gt. 0) return
       do j = 1, n
          ll = l+j+(j-1)*m
-         call mat_wset(m-j,0.0d0,0.0d0,G_stkr(ll),G_STKI(ll),1)
+         call mat_wset(m-j,0.0d0,0.0d0,G_STACK_REALS(ll),G_STACK_IMAGS(ll),1)
       enddo
 !===================================================================================================================================
     case(7) ! COMMAND::RREF
       if (G_rhs .ge. 2)then
-         G_top = G_top-1
-         l = G_LSTK(G_top)
-         if (G_MSTK(G_top) .ne. m) call mat_err(5)
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+         l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .ne. m) call mat_err(5)
          if (G_err .gt. 0) return
-         n = n + G_NSTK(G_top)
+         n = n + G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       endif
-      call mat_rref(G_stkr(l),G_STKI(l),m,m,n,G_stkr(G_VSIZE-4))
-      G_NSTK(G_top) = n
+      call mat_rref(G_STACK_REALS(l),G_STACK_IMAGS(l),m,m,n,G_STACK_REALS(GG_BIGMEM-4))
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
 !===================================================================================================================================
    end select
 !
@@ -4013,19 +4157,21 @@ integer          :: nn
 !    ABS  ROUN REAL IMAG CONJ
 !     21   22   23   24   25
       IF (G_FIN .NE. 0) GOTO 05
-         L = G_LSTK(G_TOP+1)
-         POWR = G_STKR(L)
-         POWI = G_STKI(L)
+         L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+         POWR = G_STACK_REALS(L)
+         POWI = G_STACK_IMAGS(L)
    05 continue
-      L = G_LSTK(G_TOP)
-      M = G_MSTK(G_TOP)
-      N = G_NSTK(G_TOP)
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       IF (G_FIN .GE. 11 .AND. G_FIN .LE. 13) GOTO 10
       IF (G_FIN .EQ. 14 .AND. (M.EQ.1 .OR. N.EQ.1)) GOTO 50
       IF (G_FIN .EQ. 14) GOTO 10
       IF (G_FIN .EQ. 15) GOTO 60
+
       IF (G_FIN .GT. 20) GOTO 40
       IF (M .EQ. 1 .OR. N .EQ. 1) GOTO 40
+      ! what about fall-though?
 !===================================================================================================================================
 !     EIGENVALUES AND VECTORS
    10 continue
@@ -4039,10 +4185,10 @@ integer          :: nn
       LD = L2 + NN
       LE = LD + N
       LW = LE + N
-      G_ERR = LW+N - G_LSTK(G_BOT)
+      G_ERR = LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      CALL mat_wcopy(NN,G_STKR(L),G_STKI(L),1,G_STKR(L2),G_STKI(L2),1)
+      CALL mat_wcopy(NN,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
 !
 !     CHECK IF HERMITIAN
       HERM=.FALSE.
@@ -4050,45 +4196,55 @@ integer          :: nn
          DO I = 1, J
             LS = L+I-1+(J-1)*N
             LL = L+(I-1)*N+J-1
-            HERM = G_STKR(LL).EQ.G_STKR(LS) .AND. G_STKI(LL).EQ.-G_STKI(LS)
+            HERM = G_STACK_REALS(LL).EQ.G_STACK_REALS(LS) .AND. G_STACK_IMAGS(LL).EQ.-G_STACK_IMAGS(LS)
             IF (.NOT. HERM) GOTO 30
          enddo
       enddo
 !
 !     HERMITIAN EIGENVALUE PROBLEM
-      CALL mat_wset(NN,0.0D0,0.0D0,G_STKR(L),G_STKI(L),1)
-      CALL mat_wset(N,1.0D0,0.0D0,G_STKR(L),G_STKI(L),N+1)
-      CALL mat_wset(N,0.0D0,0.0D0,G_STKI(LD),G_STKI(LE),1)
-      JOB = 0
+      CALL mat_wset(NN,0.0D0,0.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      CALL mat_wset(N,1.0D0,0.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),N+1)
+      CALL mat_wset(N,0.0D0,0.0D0,G_STACK_IMAGS(LD),G_STACK_IMAGS(LE),1)
+      job = 0
       IF (VECT) JOB = 1
-      CALL ML_HTRIDI(N,N,G_STKR(L2),G_STKI(L2),G_STKR(LD),G_STKR(LE),G_STKR(LE),G_STKR(LW))
-      IF(.NOT.HESS)CALL ML_IMTQL2(N,N,G_STKR(LD),G_STKR(LE),G_STKR(L),G_ERR,JOB)
+      CALL ML_HTRIDI(N,N, &
+      G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
+      G_STACK_REALS(LD),G_STACK_REALS(LE), &
+      G_STACK_REALS(LE),G_STACK_REALS(LW))
+      IF(.NOT.HESS)CALL ML_IMTQL2(N,N,G_STACK_REALS(LD),G_STACK_REALS(LE),G_STACK_REALS(L),G_ERR,JOB)
       IF (G_ERR .GT. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
-      IF (JOB .NE. 0) CALL ML_HTRIBK(N,N,G_STKR(L2),G_STKI(L2),G_STKR(LW),N,G_STKR(L),G_STKI(L))
+      IF (JOB .NE. 0) CALL ML_HTRIBK(N,N,G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
+                                         G_STACK_REALS(LW),N,G_STACK_REALS(L), &
+                                         G_STACK_IMAGS(L))
       GOTO 31
 !
 !     NON-HERMITIAN EIGENVALUE PROBLEM
    30 continue
-      CALL ML_CORTH(N,N,1,N,G_STKR(L2),G_STKI(L2),G_STKR(LW),G_STKI(LW))
+      CALL ML_CORTH(N,N,1,N,G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
+                            G_STACK_REALS(LW),G_STACK_IMAGS(LW))
       IF (.NOT.VECT .AND. HESS) GOTO 31
       JOB = 0
       IF (VECT) JOB = 2
       IF (VECT .AND. SCHUR) JOB = 1
       IF (HESS) JOB = 3
-      CALL ML_COMQR3(N,N,1,N,G_STKR(LW),G_STKI(LW),G_STKR(L2),G_STKI(L2), G_STKR(LD),G_STKI(LD),G_STKR(L),G_STKI(L),G_ERR,JOB)
+      CALL ML_COMQR3(N,N,1,N,G_STACK_REALS(LW),G_STACK_IMAGS(LW), &
+                             G_STACK_REALS(L2),G_STACK_IMAGS(L2),  &
+                             G_STACK_REALS(LD),G_STACK_IMAGS(LD), &
+                             G_STACK_REALS(L),G_STACK_IMAGS(L), &
+                             G_ERR,JOB)
       IF (G_ERR .GT. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
 !
 !     VECTORS
    31 continue
       IF (.NOT.VECT) GOTO 34
-      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
+      IF (G_BOTTOM_OF_SCRATCH_IN_USE+1 .GE. G_TOP_OF_SAVED) CALL mat_err(18)
       IF (G_ERR .GT. 0) RETURN
-      G_TOP = G_TOP+1
-      G_LSTK(G_TOP) = L2
-      G_MSTK(G_TOP) = N
-      G_NSTK(G_TOP) = N
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L2
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
 !
 !     DIAGONAL OF VALUES OR CANONICAL FORMS
    34 continue
@@ -4098,23 +4254,23 @@ integer          :: nn
          IF (SCHUR .AND. (.NOT.HERM)) LJ = LJ+J
          IF (HESS .AND. (.NOT.HERM)) LJ = LJ+J+1
          LL = L2+J*N-LJ
-         CALL mat_wset(LL,0.0D0,0.0D0,G_STKR(LJ),G_STKI(LJ),1)
+         CALL mat_wset(LL,0.0D0,0.0D0,G_STACK_REALS(LJ),G_STACK_IMAGS(LJ),1)
       enddo
-      IF (.NOT.HESS .OR. HERM) CALL mat_wcopy(N,G_STKR(LD),G_STKI(LD),1,G_STKR(L2),G_STKI(L2),N+1)
+      IF (.NOT.HESS .OR. HERM) CALL mat_wcopy(N,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),N+1)
       LL = L2+1
-      IF (HESS .AND. HERM)CALL mat_wcopy(N-1,G_STKR(LE+1),G_STKI(LE+1),1,G_STKR(LL),G_STKI(LL),N+1)
+      IF (HESS .AND. HERM)CALL mat_wcopy(N-1,G_STACK_REALS(LE+1),G_STACK_IMAGS(LE+1),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),N+1)
       LL = L2+N
-      IF (HESS .AND. HERM)CALL mat_wcopy(N-1,G_STKR(LE+1),G_STKI(LE+1),1,G_STKR(LL),G_STKI(LL),N+1)
+      IF (HESS .AND. HERM)CALL mat_wcopy(N-1,G_STACK_REALS(LE+1),G_STACK_IMAGS(LE+1),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),N+1)
       IF (G_FIN .LT. 10) GOTO 42
       IF (VECT .OR. .NOT.(SCHUR.OR.HESS)) GOTO 99
-      CALL mat_wcopy(NN,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
+      CALL mat_wcopy(NN,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
       GOTO 99
 !
 !     VECTOR OF EIGENVALUES
    37 continue
       IF (G_FIN .EQ. 14) GOTO 52
-      CALL mat_wcopy(N,G_STKR(LD),G_STKI(LD),1,G_STKR(L),G_STKI(L),1)
-      G_NSTK(G_TOP) = 1
+      CALL mat_wcopy(N,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       GOTO 99
 !===================================================================================================================================
 !     ELEMENTARY FUNCTIONS
@@ -4129,8 +4285,8 @@ integer          :: nn
    44 continue
       DO J = 1, N
         LS = L2+(J-1)*INC
-        SR = G_STKR(LS)
-        SI = G_STKI(LS)
+        SR = G_STACK_REALS(LS)
+        SI = G_STACK_IMAGS(LS)
         TI = 0.0D0
         IF (G_FIN .eq. 0) then
           CALL mat_wlog(SR,SI,SR,SI)
@@ -4169,24 +4325,24 @@ integer          :: nn
         end select
 
         IF (G_ERR .GT. 0) RETURN
-        G_STKR(LS) = mat_flop(TR(1))
-        G_STKI(LS) = 0.0D0
-        IF (TI(1) .NE. 0.0D0) G_STKI(LS) = mat_flop(TI(1))
+        G_STACK_REALS(LS) = mat_flop(TR(1))
+        G_STACK_IMAGS(LS) = 0.0D0
+        IF (TI(1) .NE. 0.0D0) G_STACK_IMAGS(LS) = mat_flop(TI(1))
       enddo
       IF (INC .EQ. 1) GOTO 99
       DO J = 1, N
         LS = L2+(J-1)*INC
-        SR = G_STKR(LS)
-        SI = G_STKI(LS)
+        SR = G_STACK_REALS(LS)
+        SI = G_STACK_IMAGS(LS)
         LS = L+(J-1)*N
         LL = L2+(J-1)*N
-        CALL mat_wcopy(N,G_STKR(LS),G_STKI(LS),1,G_STKR(LL),G_STKI(LL),1)
-        CALL mat_wscal(N,SR,SI,G_STKR(LS),G_STKI(LS),1)
+        CALL mat_wcopy(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
+        CALL mat_wscal(N,SR,SI,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1)
       enddo
 !     SIGNAL MATFN1 TO DIVIDE BY EIGENVECTORS
       G_FUN = 21
       G_FIN = -1
-      G_TOP = G_TOP-1
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
       GOTO 99
 !===================================================================================================================================
 !     POLY
@@ -4194,52 +4350,61 @@ integer          :: nn
    50 continue
       N = MAX0(M,N)
       LD = L+N+1
-      CALL mat_wcopy(N,G_STKR(L),G_STKI(L),1,G_STKR(LD),G_STKI(LD),1)
+      CALL mat_wcopy(N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1)
 !
 !     FORM CHARACTERISTIC POLYNOMIAL
    52 continue
-      CALL mat_wset(N+1,0.0D0,0.0D0,G_STKR(L),G_STKI(L),1)
-      G_STKR(L) = 1.0D0
+      CALL mat_wset(N+1,0.0D0,0.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      G_STACK_REALS(L) = 1.0D0
       DO J = 1, N
-         CALL matX_waxpy(J,-G_STKR(LD),-G_STKI(LD),G_STKR(L),G_STKI(L),-1, G_STKR(L+1),G_STKI(L+1),-1)
+         CALL matX_waxpy(J,-G_STACK_REALS(LD),-G_STACK_IMAGS(LD), &
+                            G_STACK_REALS(L),G_STACK_IMAGS(L), &
+                            -1,  &
+                            G_STACK_REALS(L+1),G_STACK_IMAGS(L+1), &
+                            -1)
          LD = LD+1
       enddo
-      G_MSTK(G_TOP) = N+1
-      G_NSTK(G_TOP) = 1
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N+1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       GOTO 99
 !===================================================================================================================================
 !     ROOTS
    60 continue
       LL = L+M*N
-      G_STKR(LL) = -1.0D0
-      G_STKI(LL) = 0.0D0
+      G_STACK_REALS(LL) = -1.0D0
+      G_STACK_IMAGS(LL) = 0.0D0
       K = -1
    61 continue
       K = K+1
       L1 = L+K
-      IF (DABS(G_STKR(L1))+DABS(G_STKI(L1)) .EQ. 0.0D0) GOTO 61
+      IF (DABS(G_STACK_REALS(L1))+DABS(G_STACK_IMAGS(L1)) .EQ. 0.0D0) GOTO 61
       N = MAX0(M*N - K-1, 0)
       IF (N .LE. 0) GOTO 65
       L2 = L1+N+1
       LW = L2+N*N
-      G_ERR = LW+N - G_LSTK(G_BOT)
+      G_ERR = LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      CALL mat_wset(N*N+N,0.0D0,0.0D0,G_STKR(L2),G_STKI(L2),1)
+      CALL mat_wset(N*N+N,0.0D0,0.0D0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
       DO J = 1, N
          LL = L2+J+(J-1)*N
-         G_STKR(LL) = 1.0D0
+         G_STACK_REALS(LL) = 1.0D0
          LS = L1+J
          LL = L2+(J-1)*N
-         CALL mat_wdiv(-G_STKR(LS),-G_STKI(LS),G_STKR(L1),G_STKI(L1), G_STKR(LL),G_STKI(LL))
+         CALL mat_wdiv(-G_STACK_REALS(LS),-G_STACK_IMAGS(LS), &
+                        G_STACK_REALS(L1),G_STACK_IMAGS(L1),  &
+                        G_STACK_REALS(LL),G_STACK_IMAGS(LL))
          IF (G_ERR .GT. 0) RETURN
       enddo
-      CALL ML_COMQR3(N,N,1,N,G_STKR(LW),G_STKI(LW),G_STKR(L2),G_STKI(L2),G_STKR(L),G_STKI(L),TR,TI,G_ERR,0)
+      CALL ML_COMQR3(N,N,1,N,G_STACK_REALS(LW),G_STACK_IMAGS(LW), &
+                             G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
+                             G_STACK_REALS(L),G_STACK_IMAGS(L), &
+                             TR,TI,G_ERR,0)
       IF (G_ERR .GT. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
    65 continue
-      G_MSTK(G_TOP) = N
-      G_NSTK(G_TOP) = 1
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       GOTO 99
 !===================================================================================================================================
    99 continue
@@ -4274,10 +4439,10 @@ doubleprecision :: p,s,t(1,1),tol,eps
 !
    if (G_DEBUG_LEVEL .eq. 1) call journal('sc','*MATFN3* ', G_FIN)
 !
-   if (G_fin.eq.1 .and. G_rhs.eq.2) G_top = G_top-1
-   l = G_LSTK(G_top)
-   m = G_MSTK(G_top)
-   n = G_NSTK(G_top)
+   if (G_fin.eq.1 .and. G_rhs.eq.2) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    mn = m*n
    !      SVD PINV COND NORM RANK
    !        1    2    3    4    5
@@ -4287,37 +4452,42 @@ doubleprecision :: p,s,t(1,1),tol,eps
       ld = l + m*n
       l1 = ld + min0(m+1,n)
       l2 = l1 + n
-      G_err = l2+min0(m,n) - G_LSTK(G_BOT)
+      G_err = l2+min0(m,n) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       if (G_err .gt. 0) call mat_err(17)
       if (G_err .gt. 0) return
-      call ml_wsvdc(G_stkr(l),G_STKI(l),m,m,n, &
-      & G_stkr(ld),G_STKI(ld),G_stkr(l1),G_STKI(l1),t,t,1,t,t,1,G_stkr(l2),G_STKI(l2),0,G_err)
+      call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l),   &
+                  & m,m,n,                               &
+                  & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
+                  & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
+                  & t,t,1,t,t,1,                         &
+                  & G_STACK_REALS(l2),G_STACK_IMAGS(l2), &
+                  & 0,G_err)
       if (G_err .ne. 0) call mat_err(24)
       if (G_err .gt. 0) return
-      s = G_stkr(ld)
+      s = G_STACK_REALS(ld)
       ld = ld + min0(m,n) - 1
-      t(1,1) = G_stkr(ld)
+      t(1,1) = G_STACK_REALS(ld)
       if (t(1,1) .ne. 0.0d0) then
-         G_stkr(l) = mat_flop(s/t(1,1))
-         G_STKI(l) = 0.0d0
-         G_MSTK(G_top) = 1
-         G_NSTK(G_top) = 1
+         G_STACK_REALS(l) = mat_flop(s/t(1,1))
+         G_STACK_IMAGS(l) = 0.0d0
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       else
          call journal(' CONDITION IS INFINITE')
-         G_MSTK(G_top) = 0
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       endif
 !===================================================================================================================================
     case(4) ! command::norm
       p = 2.0d0
       inf = .false.
       if (G_rhs .eq. 2)then
-         fro = int(G_stkr(l)).eq.15 .and. mn.gt.1
-         inf = int(G_stkr(l)).eq.18 .and. mn.gt.1
-         if (.not. fro) p = G_stkr(l)
-         G_top = G_top-1
-         l = G_LSTK(G_top)
-         m = G_MSTK(G_top)
-         n = G_NSTK(G_top)
+         fro = int(G_STACK_REALS(l)).eq.15 .and. mn.gt.1
+         inf = int(G_STACK_REALS(l)).eq.18 .and. mn.gt.1
+         if (.not. fro) p = G_STACK_REALS(l)
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+         l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+         n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
          mn = m*n
          if (fro) m = mn
          if (fro) n = 1
@@ -4325,22 +4495,22 @@ doubleprecision :: p,s,t(1,1),tol,eps
       if (m .gt. 1 .and. n .gt. 1) goto 40
       if (p .eq. 1.0d0) goto 36
       if (p .eq. 2.0d0) goto 38
-      i = mat_iwamax(mn,G_stkr(l),G_STKI(l),1) + l - 1
-      s = dabs(G_stkr(i)) + dabs(G_STKI(i))
+      i = mat_iwamax(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),1) + l - 1
+      s = dabs(G_STACK_REALS(i)) + dabs(G_STACK_IMAGS(i))
       if (inf .or. s .eq. 0.0d0) goto 49
       t(1,1) = 0.0d0
       do i = 1, mn
          ls = l+i-1
-         t(1,1) = mat_flop(t(1,1) + (mat_pythag(G_stkr(ls),G_STKI(ls))/s)**p)
+         t(1,1) = mat_flop(t(1,1) + (mat_pythag(G_STACK_REALS(ls),G_STACK_IMAGS(ls))/s)**p)
       enddo
       if (p .ne. 0.0d0) p = 1.0d0/p
       s = mat_flop(s*t(1,1)**p)
       GOTO 49
 36    continue
-      S = mat_wasum(MN,G_STKR(L),G_STKI(L),1)
+      S = mat_wasum(MN,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
       GOTO 49
 38    continue
-      S = mat_wnrm2(MN,G_STKR(L),G_STKI(L),1)
+      S = mat_wnrm2(MN,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
       GOTO 49
 40    continue !     MATRIX NORM
       IF (INF) GOTO 43
@@ -4350,20 +4520,25 @@ doubleprecision :: p,s,t(1,1),tol,eps
       LD = L + M*N
       L1 = LD + MIN0(M+1,N)
       L2 = L1 + N
-      G_ERR = L2+MIN0(M,N) - G_LSTK(G_BOT)
+      G_ERR = L2+MIN0(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      call ml_wsvdc(G_stkr(l),G_STKI(l),m,m,n, &
-      & G_stkr(ld),G_STKI(ld),G_stkr(l1),G_STKI(l1),t,t,1,t,t,1,G_stkr(l2),G_STKI(l2),0,G_err)
+      call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l), &
+                  & m,m,n, &
+                  & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
+                  & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
+                  & t,t,1,t,t,1, &
+                  & G_STACK_REALS(l2),G_STACK_IMAGS(l2), &
+                  & 0,G_err)
       IF (G_ERR .NE. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
-      S = G_STKR(LD)
+      S = G_STACK_REALS(LD)
       GOTO 49
 43    continue
       S = 0.0D0
       DO I = 1, M
          LI = L+I-1
-         T(1,1) = mat_wasum(N,G_STKR(LI),G_STKI(LI),M)
+         T(1,1) = mat_wasum(N,G_STACK_REALS(LI),G_STACK_IMAGS(LI),M)
          S = DMAX1(S,T(1,1))
       enddo
       GOTO 49
@@ -4371,15 +4546,15 @@ doubleprecision :: p,s,t(1,1),tol,eps
       S = 0.0D0
       DO J = 1, N
          LJ = L+(J-1)*M
-         T(1,1) = mat_wasum(M,G_STKR(LJ),G_STKI(LJ),1)
+         T(1,1) = mat_wasum(M,G_STACK_REALS(LJ),G_STACK_IMAGS(LJ),1)
          S = DMAX1(S,T(1,1))
       enddo
       GOTO 49
 49    continue
-      G_STKR(L) = S
-      G_STKI(L) = 0.0D0
-      G_MSTK(G_TOP) = 1
-      G_NSTK(G_TOP) = 1
+      G_STACK_REALS(L) = S
+      G_STACK_IMAGS(L) = 0.0D0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
     case(1) !     COMMAND::SVD
       IF (G_LHS .EQ. 3)then
@@ -4390,69 +4565,80 @@ doubleprecision :: p,s,t(1,1),tol,eps
          LV = LD + K*N
          L1 = LV + N*N
          L2 = L1 + N
-         G_ERR = L2+MIN0(M,N) - G_LSTK(G_BOT)
+         G_ERR = L2+MIN0(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
          IF (G_ERR .GT. 0) CALL mat_err(17)
          IF (G_ERR .GT. 0) RETURN
          JOB = 11
          IF (G_RHS .EQ. 2) JOB = 21
-         call ml_wsvdc(G_stkr(l),G_STKI(l),m,m,n, &
-         & G_stkr(ld),G_STKI(ld),G_stkr(l1),G_STKI(l1),G_stkr(lu),G_STKI(lu),m,G_stkr(lv),G_STKI(lv), &
-         & n,G_stkr(l2),G_STKI(l2),job,G_err)
+         call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l), &
+         & m,m,n, &
+         & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
+         & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
+         & G_STACK_REALS(lu),G_STACK_IMAGS(lu), &
+         & m, &
+         & G_STACK_REALS(lv),G_STACK_IMAGS(lv), &
+         & n, &
+         & G_STACK_REALS(l2),G_STACK_IMAGS(l2), &
+         & job,G_err)
          DO JB = 1, N
             DO I = 1, K
                J = N+1-JB
                LL = LD+I-1+(J-1)*K
-               IF (I.NE.J) G_STKR(LL) = 0.0D0
-               G_STKI(LL) = 0.0D0
+               IF (I.NE.J) G_STACK_REALS(LL) = 0.0D0
+               G_STACK_IMAGS(LL) = 0.0D0
                LS = LD+I-1
-               IF (I.EQ.J) G_STKR(LL) = G_STKR(LS)
+               IF (I.EQ.J) G_STACK_REALS(LL) = G_STACK_REALS(LS)
                LS = L1+I-1
-               IF (G_ERR.NE.0 .AND. I.EQ.J-1) G_STKR(LL) = G_STKR(LS)
+               IF (G_ERR.NE.0 .AND. I.EQ.J-1) G_STACK_REALS(LL) = G_STACK_REALS(LS)
             enddo
          enddo
          IF (G_ERR .NE. 0) CALL mat_err(24)
          G_ERR = 0
-         CALL mat_wcopy(M*K+K*N+N*N,G_STKR(LU),G_STKI(LU),1,G_STKR(L),G_STKI(L),1)
-         G_MSTK(G_TOP) = M
-         G_NSTK(G_TOP) = K
-         IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
+         CALL mat_wcopy(M*K+K*N+N*N, &
+                      & G_STACK_REALS(LU),G_STACK_IMAGS(LU), &
+                      & 1, &
+                      & G_STACK_REALS(L),G_STACK_IMAGS(L), &
+                      & 1)
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = K
+         IF (G_BOTTOM_OF_SCRATCH_IN_USE+1 .GE. G_TOP_OF_SAVED) CALL mat_err(18)
          IF (G_ERR .GT. 0) RETURN
-         G_TOP = G_TOP+1
-         G_LSTK(G_TOP) = L + M*K
-         G_MSTK(G_TOP) = K
-         G_NSTK(G_TOP) = N
-         IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
+         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L + M*K
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = K
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+         IF (G_BOTTOM_OF_SCRATCH_IN_USE+1 .GE. G_TOP_OF_SAVED) CALL mat_err(18)
          IF (G_ERR .GT. 0) RETURN
-         G_TOP = G_TOP+1
-         G_LSTK(G_TOP) = L + M*K + K*N
-         G_MSTK(G_TOP) = N
-         G_NSTK(G_TOP) = N
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
+         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L + M*K + K*N
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       else
          LD = L + M*N
          L1 = LD + MIN0(M+1,N)
          L2 = L1 + N
-         G_ERR = L2+MIN0(M,N) - G_LSTK(G_BOT)
+         G_ERR = L2+MIN0(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
          IF (G_ERR .GT. 0) CALL mat_err(17)
          IF (G_ERR .GT. 0) RETURN
-         call ml_wsvdc(G_stkr(l),G_STKI(l),m,m,n, &
-         & G_stkr(ld),G_STKI(ld),G_stkr(l1),G_STKI(l1), &
-         & t,t,1,t,t,1,G_stkr(l2),G_STKI(l2),0,G_err)
+         call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l),m,m,n, &
+         & G_STACK_REALS(ld),G_STACK_IMAGS(ld),G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
+         & t,t,1,t,t,1,G_STACK_REALS(l2),G_STACK_IMAGS(l2),0,G_err)
          IF (G_ERR .NE. 0) CALL mat_err(24)
          IF (G_ERR .GT. 0) RETURN
          K = MIN0(M,N)
-         CALL mat_wcopy(K,G_STKR(LD),G_STKI(LD),1,G_STKR(L),G_STKI(L),1)
-         G_MSTK(G_TOP) = K
-         G_NSTK(G_TOP) = 1
+         CALL mat_wcopy(K,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = K
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       endif
 !===================================================================================================================================
     case(2,5) ! COMMAND::PINV AND RANK
       TOL = -1.0D0
       IF (G_RHS .EQ. 2) then
-         TOL = G_STKR(L)
-         G_TOP = G_TOP-1
-         L = G_LSTK(G_TOP)
-         M = G_MSTK(G_TOP)
-         N = G_NSTK(G_TOP)
+         TOL = G_STACK_REALS(L)
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+         L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+         N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       endif
       LU = L + M*N
       LD = LU + M*M
@@ -4461,27 +4647,33 @@ doubleprecision :: p,s,t(1,1),tol,eps
       L1 = LV + N*N
       IF (G_FIN .EQ. 5) L1 = LD + N
       L2 = L1 + N
-      G_ERR = L2+MIN0(M,N) - G_LSTK(G_BOT)
+      G_ERR = L2+MIN0(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
       IF (G_FIN .EQ. 2) JOB = 11
       IF (G_FIN .EQ. 5) JOB = 0
-      CALL ML_WSVDC(G_STKR(L),G_STKI(L),M,M,N, &
-      & G_STKR(LD),G_STKI(LD),G_STKR(L1),G_STKI(L1),G_STKR(LU),G_STKI(LU),M,G_STKR(LV),G_STKI(LV), &
-      &        N,G_STKR(L2),G_STKI(L2),JOB,G_ERR)
+      CALL ML_WSVDC(G_STACK_REALS(L),G_STACK_IMAGS(L),M,M,N, &
+                  & G_STACK_REALS(LD),G_STACK_IMAGS(LD), &
+                  & G_STACK_REALS(L1),G_STACK_IMAGS(L1), &
+                  & G_STACK_REALS(LU),G_STACK_IMAGS(LU), &
+                  & M, &
+                  & G_STACK_REALS(LV),G_STACK_IMAGS(LV), &
+                  & N, &
+                  & G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
+                  & JOB,G_ERR)
       IF (G_ERR .NE. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
-      EPS = G_STKR(G_VSIZE-4)
-      IF (TOL .LT. 0.0D0) TOL = mat_flop(dble(MAX0(M,N))*EPS*G_STKR(LD))
+      EPS = G_STACK_REALS(GG_BIGMEM-4)
+      IF (TOL .LT. 0.0D0) TOL = mat_flop(dble(MAX0(M,N))*EPS*G_STACK_REALS(LD))
       MN = MIN0(M,N)
       K = 0
       DO J = 1, MN
          LS = LD+J-1
-         S = G_STKR(LS)
+         S = G_STACK_REALS(LS)
          IF (S .LE. TOL) exit
          K = J
          LL = LV+(J-1)*N
-         IF (G_FIN .EQ. 2) CALL mat_wrscal(N,1.0D0/S,G_STKR(LL),G_STKI(LL),1)
+         IF (G_FIN .EQ. 2) CALL mat_wrscal(N,1.0D0/S,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
       enddo
       if (G_fin .ne. 5) then
          do j = 1, m
@@ -4489,17 +4681,17 @@ doubleprecision :: p,s,t(1,1),tol,eps
                ll = l+i-1+(j-1)*n
                l1 = lv+i-1
                l2 = lu+j-1
-               G_stkr(ll) = mat_wdotcr(k,G_stkr(l2),G_STKI(l2),m,G_stkr(l1),G_STKI(l1),n)
-               G_STKI(ll) = mat_wdotci(k,G_stkr(l2),G_STKI(l2),m,G_stkr(l1),G_STKI(l1),n)
+               G_STACK_REALS(ll) = mat_wdotcr(k,G_STACK_REALS(l2),G_STACK_IMAGS(l2),m,G_STACK_REALS(l1),G_STACK_IMAGS(l1),n)
+               G_STACK_IMAGS(ll) = mat_wdotci(k,G_STACK_REALS(l2),G_STACK_IMAGS(l2),m,G_STACK_REALS(l1),G_STACK_IMAGS(l1),n)
             enddo
          enddo
-         G_MSTK(G_top) = n
-         G_NSTK(G_top) = m
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       else
-         G_stkr(l) = dble(k)
-         G_STKI(l) = 0.0d0
-         G_MSTK(G_top) = 1
-         G_NSTK(G_top) = 1
+         G_STACK_REALS(l) = dble(k)
+         G_STACK_IMAGS(l) = 0.0d0
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       endif
 !===================================================================================================================================
    end select FUN3
@@ -4536,32 +4728,32 @@ INTEGER,parameter :: QUOTE= 49
 !
       IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN4* ', G_FIN)
 !
-      L = G_LSTK(G_TOP)
-      M = G_MSTK(G_TOP)
-      N = G_NSTK(G_TOP)
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       IF (G_FIN .EQ. -1) GOTO 10
       IF (G_FIN .EQ. -2) GOTO 20
       GOTO 40
 !
 !     RECTANGULAR MATRIX RIGHT DIVISION, A/A2
    10 continue
-      L2 = G_LSTK(G_TOP+1)
-      M2 = G_MSTK(G_TOP+1)
-      N2 = G_NSTK(G_TOP+1)
-      G_TOP = G_TOP + 1
+      L2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      M2 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      N2 = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
       IF (N.GT.1 .AND. N.NE.N2) CALL mat_err(11)
       IF (G_ERR .GT. 0) RETURN
       CALL mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) RETURN
       LL = L2+M2*N2
-      CALL mat_wcopy(M*N,G_STKR(L),G_STKI(L),1,G_STKR(LL),G_STKI(LL),1)
-      CALL mat_wcopy(M*N+M2*N2,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
-      G_LSTK(G_TOP) = L+M2*N2
-      G_MSTK(G_TOP) = M
-      G_NSTK(G_TOP) = N
+      CALL mat_wcopy(M*N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
+      CALL mat_wcopy(M*N+M2*N2,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L+M2*N2
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       CALL mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) RETURN
-      G_TOP = G_TOP - 1
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
       M = N2
       N = M2
       GOTO 20
@@ -4569,23 +4761,23 @@ INTEGER,parameter :: QUOTE= 49
 !     RECTANGULAR MATRIX LEFT DIVISION A BACKSLASH A2
 !
    20 continue
-      L2 = G_LSTK(G_TOP+1)
-      M2 = G_MSTK(G_TOP+1)
-      N2 = G_NSTK(G_TOP+1)
+      L2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      M2 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      N2 = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
       IF (M2*N2 .GT. 1) GOTO 21
         M2 = M
         N2 = M
-        G_ERR = L2+M*M - G_LSTK(G_BOT)
+        G_ERR = L2+M*M - G_STACK_ID_LOC(G_TOP_OF_SAVED)
         IF (G_ERR .GT. 0) CALL mat_err(17)
         IF (G_ERR .GT. 0) RETURN
-        CALL mat_wset(M*M-1,0.0D0,0.0D0,G_STKR(L2+1),G_STKI(L2+1),1)
-        CALL mat_wcopy(M,G_STKR(L2),G_STKI(L2),0,G_STKR(L2),G_STKI(L2),M+1)
+        CALL mat_wset(M*M-1,0.0D0,0.0D0,G_STACK_REALS(L2+1),G_STACK_IMAGS(L2+1),1)
+        CALL mat_wcopy(M,G_STACK_REALS(L2),G_STACK_IMAGS(L2),0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),M+1)
    21 continue
       IF (M2 .NE. M) CALL mat_err(12)
       IF (G_ERR .GT. 0) RETURN
       L3 = L2 + MAX0(M,N)*N2
       L4 = L3 + N
-      G_ERR = L4 + N - G_LSTK(G_BOT)
+      G_ERR = L4 + N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
       IF (M .GT. N) GOTO 23
@@ -4593,21 +4785,26 @@ INTEGER,parameter :: QUOTE= 49
         J = N+1-JB
         LS = L2 + (J-1)*M
         LL = L2 + (J-1)*N
-        CALL mat_wcopy(M,G_STKR(LS),G_STKI(LS),-1,G_STKR(LL),G_STKI(LL),-1)
+        CALL mat_wcopy(M,G_STACK_REALS(LS),G_STACK_IMAGS(LS),-1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),-1)
       enddo
    23 continue
       DO J = 1, N
         G_BUF(J) = 0
       enddo
-      CALL ML_WQRDC(G_STKR(L),G_STKI(L),M,M,N,G_STKR(L4),G_STKI(L4),G_BUF,G_STKR(L3),G_STKI(L3),1)
+      CALL ML_WQRDC(G_STACK_REALS(L),G_STACK_IMAGS(L), &
+                  & M,M,N, &
+                  & G_STACK_REALS(L4),G_STACK_IMAGS(L4), &
+                  & G_BUF, &
+                  & G_STACK_REALS(L3),G_STACK_IMAGS(L3), &
+                  & 1)
       K = 0
-      EPS = G_STKR(G_VSIZE-4)
-      T(1) = DABS(G_STKR(L))+DABS(G_STKI(L))
+      EPS = G_STACK_REALS(GG_BIGMEM-4)
+      T(1) = DABS(G_STACK_REALS(L))+DABS(G_STACK_IMAGS(L))
       TOL = mat_flop(dble(MAX0(M,N))*EPS*T(1))
       MN = MIN0(M,N)
       DO J = 1, MN
         LS = L+J-1+(J-1)*M
-        T(1) = DABS(G_STKR(LS)) + DABS(G_STKI(LS))
+        T(1) = DABS(G_STACK_REALS(LS)) + DABS(G_STACK_IMAGS(LS))
         IF (T(1) .GT. TOL) K = J
       enddo
       IF (K .LT. MN) then
@@ -4617,10 +4814,16 @@ INTEGER,parameter :: QUOTE= 49
       MN = MAX0(M,N)
       DO J = 1, N2
         LS = L2+(J-1)*MN
-        CALL ML_WQRSL(G_STKR(L),G_STKI(L),M,M,K,G_STKR(L4),G_STKI(L4),G_STKR(LS),G_STKI(LS),T,T,G_STKR(LS),G_STKI(LS),G_STKR(LS), &
-       & G_STKI(LS),T,T,T,T,100,INFO)
+        CALL ML_WQRSL(G_STACK_REALS(L),G_STACK_IMAGS(L), &
+                        & M,M,K, &
+                        & G_STACK_REALS(L4),G_STACK_IMAGS(L4), &
+                        & G_STACK_REALS(LS),G_STACK_IMAGS(LS), &
+                        & T,T, &
+                        & G_STACK_REALS(LS),G_STACK_IMAGS(LS), &
+                        & G_STACK_REALS(LS),G_STACK_IMAGS(LS), &
+                        & T,T,T,T,100,INFO)
         LL = LS+K
-        CALL mat_wset(N-K,0.0D0,0.0D0,G_STKR(LL),G_STKI(LL),1)
+        CALL mat_wset(N-K,0.0D0,0.0D0,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
       enddo
       DO J = 1, N
         G_BUF(J) = -G_BUF(J)
@@ -4633,7 +4836,7 @@ INTEGER,parameter :: QUOTE= 49
           IF (K .EQ. J) cycle
           LS = L2+J-1
           LL = L2+K-1
-          CALL mat_wswap(N2,G_STKR(LS),G_STKI(LS),MN,G_STKR(LL),G_STKI(LL),MN)
+          CALL mat_wswap(N2,G_STACK_REALS(LS),G_STACK_IMAGS(LS),MN,G_STACK_REALS(LL),G_STACK_IMAGS(LL),MN)
           G_BUF(K) = -G_BUF(K)
           K = G_BUF(K)
           GOTO 33
@@ -4641,10 +4844,10 @@ INTEGER,parameter :: QUOTE= 49
       DO J = 1, N2
         LS = L2+(J-1)*MN
         LL = L+(J-1)*N
-        CALL mat_wcopy(N,G_STKR(LS),G_STKI(LS),1,G_STKR(LL),G_STKI(LL),1)
+        CALL mat_wcopy(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
       enddo
-      G_MSTK(G_TOP) = N
-      G_NSTK(G_TOP) = N2
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N2
       IF (G_FIN .EQ. -1) CALL mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) RETURN
       GOTO 99
@@ -4657,49 +4860,54 @@ INTEGER,parameter :: QUOTE= 49
       IF (G_LHS.EQ.1 .AND. G_FIN.EQ.1) LS = L
       LE = LS + M*N
       L4 = LE + MM
-      G_ERR = L4+MM - G_LSTK(G_BOT)
+      G_ERR = L4+MM - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) RETURN
-      IF (LS.NE.L) CALL mat_wcopy(M*N,G_STKR(L),G_STKI(L),1,G_STKR(LS),G_STKI(LS),1)
+      IF (LS.NE.L) CALL mat_wcopy(M*N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1)
       JOB = 1
       IF (G_LHS.LT.3) JOB = 0
       DO J = 1, N
         G_BUF(J) = 0
       enddo
-      CALL ML_WQRDC(G_STKR(LS),G_STKI(LS),M,M,N,G_STKR(L4),G_STKI(L4),G_BUF,G_STKR(LE),G_STKI(LE),JOB)
+      CALL ML_WQRDC(G_STACK_REALS(LS),G_STACK_IMAGS(LS), &
+       & M,M,N, &
+       & G_STACK_REALS(L4),G_STACK_IMAGS(L4), &
+       & G_BUF, &
+       & G_STACK_REALS(LE),G_STACK_IMAGS(LE), &
+       & JOB)
       IF (G_LHS.EQ.1 .AND. G_FIN.EQ.1) GOTO 99
-      CALL mat_wset(M*M,0.0D0,0.0D0,G_STKR(L),G_STKI(L),1)
-      CALL mat_wset(M,1.0D0,0.0D0,G_STKR(L),G_STKI(L),M+1)
+      CALL mat_wset(M*M,0.0D0,0.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      CALL mat_wset(M,1.0D0,0.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),M+1)
       DO J = 1, M
         LL = L+(J-1)*M
-        CALL ML_WQRSL(G_STKR(LS),G_STKI(LS),M,M,N,G_STKR(L4),G_STKI(L4),   &
-     &             G_STKR(LL),G_STKI(LL),G_STKR(LL),G_STKI(LL),T,T,        &
+        CALL ML_WQRSL(G_STACK_REALS(LS),G_STACK_IMAGS(LS),M,M,N,G_STACK_REALS(L4),G_STACK_IMAGS(L4),   &
+     &             G_STACK_REALS(LL),G_STACK_IMAGS(LL),G_STACK_REALS(LL),G_STACK_IMAGS(LL),T,T,        &
      &             T,T,T,T,T,T,10000,INFO)
       enddo
       IF (G_FIN .EQ. 2) GOTO 99
-      G_NSTK(G_TOP) = M
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
       DO J = 1, N
         LL = LS+J+(J-1)*M
-        CALL mat_wset(M-J,0.0D0,0.0D0,G_STKR(LL),G_STKI(LL),1)
+        CALL mat_wset(M-J,0.0D0,0.0D0,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
       enddo
-      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
+      IF (G_BOTTOM_OF_SCRATCH_IN_USE+1 .GE. G_TOP_OF_SAVED) CALL mat_err(18)
       IF (G_ERR .GT. 0) RETURN
-      G_TOP = G_TOP+1
-      G_LSTK(G_TOP) = LS
-      G_MSTK(G_TOP) = M
-      G_NSTK(G_TOP) = N
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = LS
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       IF (G_LHS .EQ. 2) GOTO 99
-      CALL mat_wset(N*N,0.0D0,0.0D0,G_STKR(LE),G_STKI(LE),1)
+      CALL mat_wset(N*N,0.0D0,0.0D0,G_STACK_REALS(LE),G_STACK_IMAGS(LE),1)
       DO J = 1, N
         LL = LE+G_BUF(J)-1+(J-1)*N
-        G_STKR(LL) = 1.0D0
+        G_STACK_REALS(LL) = 1.0D0
       enddo
-      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
+      IF (G_BOTTOM_OF_SCRATCH_IN_USE+1 .GE. G_TOP_OF_SAVED) CALL mat_err(18)
       IF (G_ERR .GT. 0) RETURN
-      G_TOP = G_TOP+1
-      G_LSTK(G_TOP) = LE
-      G_MSTK(G_TOP) = N
-      G_NSTK(G_TOP) = N
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = LE
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       GOTO 99
 !
    99 continue
@@ -4723,7 +4931,7 @@ integer,parameter   :: blank=36, plus=41, minus=42, quote=49, semi=39
 integer,save        :: lrat=5
 integer,save        :: mrat=100
 integer             :: ch,top2,ch1(1)
-integer             :: id(G_MAX_NAME_LENGTH)
+integer             :: id(GG_MAX_NAME_LENGTH)
 doubleprecision     :: eps,b,s,t,tdum(2)
 logical             :: text
 integer             :: i, j, k, l, m, n
@@ -4744,9 +4952,9 @@ logical             :: isfound
 !     FUNCTIONS/G_FIN
 !     EXEC SAVE LOAD PRIN DIAR DISP BASE LINE CHAR PLOT RAT  DEBU DOC
 !      1    2    3    4    5    6    7    8    9   10   11   12   13
-      L = G_LSTK(G_TOP)
-      M = G_MSTK(G_TOP)
-      N = G_NSTK(G_TOP)
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 
       select case(G_fin)
       case(:5,13)
@@ -4758,19 +4966,19 @@ logical             :: isfound
             FLAG = 3
          endif
          IF (G_RHS .GE. 2) THEN            ! if more than one parameter on exec('filename',flag) get value of FLAG
-            FLAG = int(G_STKR(L))
-            TOP2 = G_TOP
-            G_TOP = G_TOP-1
-            L = G_LSTK(G_TOP)
-            MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+            FLAG = int(G_STACK_REALS(L))
+            TOP2 = G_BOTTOM_OF_SCRATCH_IN_USE
+            G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+            L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+            MN = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
          ENDIF
          LUN = -1
-         IF (MN.EQ.1 .AND. G_STKR(L).LT.10.0D0) LUN = int(G_STKR(L))
+         IF (MN.EQ.1 .AND. G_STACK_REALS(L).LT.10.0D0) LUN = int(G_STACK_REALS(L))
 
          IF (LUN .LT. 0) THEN
              DO J = 1, 255
                 LS = L+J-1
-                IF (J .LE. MN) CH = int(G_STKR(LS))
+                IF (J .LE. MN) CH = int(G_STACK_REALS(LS))
                 IF (J .GT. MN) CH = BLANK
                 IF (CH.LT.0 .OR. CH.GE.G_CHARSET_SIZE) CALL mat_err(38)
                 IF (G_ERR .GT. 0) RETURN
@@ -4785,84 +4993,88 @@ logical             :: isfound
 !===================================================================================================================================
       case(1)                                               ! COMMAND::EXEC
       IF (LUN .EQ. 0) THEN                                  ! EXEC(0)
-         G_RIO = G_RTE
+         G_RIO = G_INPUT_LUN
          G_ERR = 99
       else
-         K = G_LPT(6)
-         G_LIN(K+1) = G_LPT(1)
-         G_LIN(K+2) = G_LPT(3)
-         G_LIN(K+3) = G_LPT(6)
+         K = G_LINE_POINTER(6)
+         G_LIN(K+1) = G_LINE_POINTER(1)
+         G_LIN(K+2) = G_LINE_POINTER(3)
+         G_LIN(K+3) = G_LINE_POINTER(6)
          G_LIN(K+4) = G_PTZ
          G_LIN(K+5) = G_RIO
          G_LIN(K+6) = G_LINECOUNT(4)
-         G_LPT(1) = K + 7
+         G_LINE_POINTER(1) = K + 7
          G_LINECOUNT(4) = FLAG
          G_PTZ = G_PT - 4
-         IF (G_RIO .EQ. G_RTE) G_RIO = 12
+         IF (G_RIO .EQ. G_INPUT_LUN) G_RIO = 12
          G_RIO = G_RIO + 1
          IF (LUN .GT. 0) G_RIO = LUN
          !!call find_exec_file(G_BUF,isfound)
          IF (LUN .LT. 0) CALL mat_files(G_RIO,G_BUF,status='old')
          IF (FLAG .GE. 4)call journal(' PAUSE MODE. Enter blank lines.')
          G_SYM = G_EOL
-         G_MSTK(G_TOP) = 0
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       endif
 !===================================================================================================================================
       case(4) ! COMMAND::PRINT
-      K = G_WTE                                       ! HOLD
-      G_WTE = LUN
-      IF (LUN .LT. 0) G_WTE = 7
-      IF (LUN .LT. 0) CALL mat_files(G_WTE,G_BUF)
+      K = G_OUTPUT_LUN                                ! HOLD
+      G_OUTPUT_LUN = LUN
+      IF (LUN .LT. 0) G_OUTPUT_LUN = 7
+      IF (LUN .LT. 0) CALL mat_files(G_OUTPUT_LUN,G_BUF)
 
       L = G_LINECOUNT(2)                              ! HOLD
       G_LINECOUNT(2) = 999999                         ! turn off paging of output
       IF (G_RHS .GT. 1) CALL mat_print(G_SYN,TOP2)
 
       G_LINECOUNT(2) = L                              ! RESTORE
-      G_WTE = K                                       ! RESTORE
+      G_OUTPUT_LUN = K                                ! RESTORE
 
-      G_MSTK(G_TOP) = 0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(5) ! COMMAND::DIARY
       IF (LUN < 0) CALL mat_files(8,G_BUF)
-      G_MSTK(G_TOP) = 0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(2) ! COMMAND::SAVE
       IF (LUN .LT. 0) LUNIT = 1
       IF (LUN .LT. 0) CALL mat_files(LUNIT,G_BUF)
       IF (LUN .GT. 0) LUNIT = LUN
-      K = G_MAX_NUMBER_OF_NAMES-4
-      IF (K .LT. G_BOT) K = G_MAX_NUMBER_OF_NAMES
+      K = GG_MAX_NUMBER_OF_NAMES-4
+      IF (K .LT. G_TOP_OF_SAVED) K = GG_MAX_NUMBER_OF_NAMES
       IF (G_RHS .EQ. 2) K = TOP2
-      IF (G_RHS .EQ. 2) CALL mat_putid(G_IDSTK(1,K),G_SYN)
+      IF (G_RHS .EQ. 2) CALL mat_putid(G_STACK_IDS(1,K),G_SYN)
       do
-         L = G_LSTK(K)
-         M = G_MSTK(K)
-         N = G_NSTK(K)
-         DO I = 1, G_MAX_NAME_LENGTH
-            J = G_IDSTK(I,K)+1
+         L = G_STACK_ID_LOC(K)
+         M = G_STACK_ROWS(K)
+         N = G_STACK_COLS(K)
+         DO I = 1, GG_MAX_NAME_LENGTH
+            J = G_STACK_IDS(I,K)+1
             G_BUF(I) = G_CHARSET(J)
          enddo
          IMG = 0
-         IF (mat_wasum(M*N,G_STKI(L),G_STKI(L),1) .NE. 0.0D0) IMG = 1
-         IF(.not.G_FILE_OPEN_ERROR)CALL mat_savlod(LUNIT,G_BUF,M,N,IMG,0,G_STKR(L),G_STKI(L))
+         IF (mat_wasum(M*N,G_STACK_IMAGS(L),G_STACK_IMAGS(L),1) .NE. 0.0D0) IMG = 1
+         IF(.not.G_FILE_OPEN_ERROR)CALL mat_savlod(LUNIT,G_BUF,M,N,IMG,0,G_STACK_REALS(L),G_STACK_IMAGS(L))
          K = K-1
-         IF (K .LT. G_BOT) exit
+         IF (K .LT. G_TOP_OF_SAVED) exit
       enddo
       CALL mat_files(-LUNIT,G_BUF)
-      G_MSTK(G_TOP) = 0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(3) ! COMMAND::LOAD
       IF (LUN .LT. 0) LUNIT = 2
       IF (LUN .LT. 0) CALL mat_files(LUNIT,G_BUF) ! open the unit
       IF (LUN .GT. 0) LUNIT = LUN
       do
-         JOB = G_LSTK(G_BOT) - L
-         IF(.not.G_FILE_OPEN_ERROR)CALL mat_savlod(LUNIT,ID,G_MSTK(G_TOP),G_NSTK(G_TOP),IMG,JOB,G_STKR(L),G_STKI(L))
-         MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+         JOB = G_STACK_ID_LOC(G_TOP_OF_SAVED) - L
+         IF(.not.G_FILE_OPEN_ERROR)CALL mat_savlod(LUNIT,ID, &
+                                                 & G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE), &
+                                                 & G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE), &
+                                                 & IMG,JOB, &
+                                                 & G_STACK_REALS(L),G_STACK_IMAGS(L))
+         MN = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
          IF (MN .NE. 0)then
-            IF (IMG .EQ. 0) CALL mat_rset(MN,0.0D0,G_STKI(L),1)
-            DO I = 1, G_MAX_NAME_LENGTH
+            IF (IMG .EQ. 0) CALL mat_rset(MN,0.0D0,G_STACK_IMAGS(L),1)
+            DO I = 1, GG_MAX_NAME_LENGTH
                J = 0
                do
                   J = J+1
@@ -4874,56 +5086,56 @@ logical             :: isfound
             G_SYM = SEMI
             G_RHS = 0
             CALL MAT_STACK_PUT(ID)
-            G_TOP = G_TOP + 1
+            G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
          else
             exit
          endif
       enddo
       CALL mat_files(-LUNIT,G_BUF) ! close unit
-      G_MSTK(G_TOP) = 0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
-      case(11) !     COMMAND::RAT
+      case(11) ! COMMAND::RAT
       if (G_rhs .ne. 2) then
          mn = m*n
          l2 = l
          if (G_lhs .eq. 2) l2 = l + mn
          lw = l2 + mn
-         G_err = lw + lrat - G_LSTK(G_BOT)
+         G_err = lw + lrat - G_STACK_ID_LOC(G_TOP_OF_SAVED)
          if (G_err .gt. 0) call mat_err(17)
          if (G_err .gt. 0) return
-         if (G_lhs .eq. 2) G_top = G_top + 1
-         G_LSTK(G_top) = l2
-         G_MSTK(G_top) = m
-         G_NSTK(G_top) = n
-         call mat_rset(G_lhs*mn,0.0d0,G_STKI(l),1)
+         if (G_lhs .eq. 2) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
+         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l2
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+         call mat_rset(G_lhs*mn,0.0d0,G_STACK_IMAGS(l),1)
          do i = 1, mn
-            call mat_rat(G_stkr(l),lrat,mrat,s,t,G_stkr(lw))
-            G_stkr(l) = s
-            G_stkr(l2) = t
-            if (G_lhs .eq. 1) G_stkr(l) = mat_flop(s/t)
+            call mat_rat(G_STACK_REALS(l),lrat,mrat,s,t,G_STACK_REALS(lw))
+            G_STACK_REALS(l) = s
+            G_STACK_REALS(l2) = t
+            if (G_lhs .eq. 1) G_STACK_REALS(l) = mat_flop(s/t)
             l = l + 1
             l2 = l2 + 1
          enddo
       else
-         mrat = int(G_stkr(l))
-         lrat = int(G_stkr(l-1))
-         G_top = G_top - 1
-         G_MSTK(G_top) = 0
+         mrat = int(G_STACK_REALS(l))
+         lrat = int(G_STACK_REALS(l-1))
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       endif
 !===================================================================================================================================
       case(9) !     COMMAND::CHAR
-      K = IABS(int(G_STKR(L)))
+      K = IABS(int(G_STACK_REALS(L)))
       IF (M*N.NE.1 .OR. K.GE.G_CHARSET_SIZE) CALL mat_err(36)
       IF (G_ERR .GT. 0) exit FUN5
       CH = G_CHARSET(K+1)
-      IF (G_STKR(L) .LT. 0.0D0) CH = G_ALT_CHARSET(K+1)
+      IF (G_STACK_REALS(L) .LT. 0.0D0) CH = G_ALT_CHARSET(K+1)
       WRITE(mline,'('' REPLACE CHARACTER '',A1)') CHAR(CH)
       call journal(mline)
-      READ(G_RTE,'(A1)') CH_CHAR
+      READ(G_INPUT_LUN,'(A1)') CH_CHAR
       call mat_str2buf(ch_char,ch1,1); ch=ch1(1)
-      IF (G_STKR(L) .GE. 0.0D0) G_CHARSET(K+1) = CH
-      IF (G_STKR(L) .LT. 0.0D0) G_ALT_CHARSET(K+1) = CH
-      G_MSTK(G_TOP) = 0
+      IF (G_STACK_REALS(L) .GE. 0.0D0) G_CHARSET(K+1) = CH
+      IF (G_STACK_REALS(L) .LT. 0.0D0) G_ALT_CHARSET(K+1) = CH
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(6,7) !     COMMAND::DISPLAY
 60    continue
@@ -4934,64 +5146,64 @@ logical             :: isfound
       TEXT = .TRUE.
       DO I = 1, MN
         LS = L+I-1
-        CH = int(G_STKR(LS))
+        CH = int(G_STACK_REALS(LS))
         TEXT = TEXT .AND. (CH.GE.0) .AND. (CH.LT.G_CHARSET_SIZE)
-        TEXT = TEXT .AND. (dble(CH).EQ.G_STKR(LS))
+        TEXT = TEXT .AND. (dble(CH).EQ.G_STACK_REALS(LS))
       enddo
 
       DO I = 1, M
          DO J = 1, N
            LS = L+I-1+(J-1)*M
-           IF (G_STKR(LS) .EQ. 0.0D0) CH = BLANK
-           IF (G_STKR(LS) .GT. 0.0D0) CH = PLUS
-           IF (G_STKR(LS) .LT. 0.0D0) CH = MINUS
-           IF (TEXT) CH = int(G_STKR(LS))
+           IF (G_STACK_REALS(LS) .EQ. 0.0D0) CH = BLANK
+           IF (G_STACK_REALS(LS) .GT. 0.0D0) CH = PLUS
+           IF (G_STACK_REALS(LS) .LT. 0.0D0) CH = MINUS
+           IF (TEXT) CH = int(G_STACK_REALS(LS))
            G_BUF(J) = G_CHARSET(CH+1)
          enddo
          call mat_buf2str(mline,G_buf,n)
          call journal(mline)
       enddo
-      G_MSTK(G_TOP) = 0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       exit FUN5
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 !     COMMAND::BASE
    65 CONTINUE
-      IF (G_RHS .NE. 2) CALL mat_err(39)
-      IF (G_STKR(L) .LE. 1.0D0) CALL mat_err(36)
+      IF (G_RHS .NE. 2) CALL mat_err(39) ! Incorrect number of arguments
+      IF (G_STACK_REALS(L) .LE. 1.0D0) CALL mat_err(36)
       IF (G_ERR .GT. 0) exit FUN5
-      B = G_STKR(L)
+      B = G_STACK_REALS(L)
       L2 = L
-      G_TOP = G_TOP-1
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
       G_RHS = 1
-      L = G_LSTK(G_TOP)
-      M = G_MSTK(G_TOP)*G_NSTK(G_TOP)
-      EPS = G_STKR(G_VSIZE-4)
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      EPS = G_STACK_REALS(GG_BIGMEM-4)
       DO I = 1, M
          LS = L2+(I-1)*N
          LL = L+I-1
-         CALL mat_base(G_STKR(LL),B,EPS,G_STKR(LS),N)
+         CALL mat_base(G_STACK_REALS(LL),B,EPS,G_STACK_REALS(LS),N)
       enddo
-      CALL mat_rset(M*N,0.0D0,G_STKI(L2),1)
-      CALL mat_wcopy(M*N,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
-      G_MSTK(G_TOP) = N
-      G_NSTK(G_TOP) = M
+      CALL mat_rset(M*N,0.0D0,G_STACK_IMAGS(L2),1)
+      CALL mat_wcopy(M*N,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
       CALL mat_stack1(QUOTE)
       IF (G_FIN .EQ. 6) GOTO 60
 !===================================================================================================================================
       case(8)
 !     COMMAND::LINES
-      G_LINECOUNT(2) = int(G_STKR(L))
-      G_MSTK(G_TOP) = 0
+      G_LINECOUNT(2) = int(G_STACK_REALS(L))
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(10) !     COMMAND::PLOT
       IF (G_RHS .GE. 2) GOTO 82
       N = M*N
       DO I = 1, N
          LL = L+I-1
-         G_STKI(LL) = dble(I)
+         G_STACK_IMAGS(LL) = dble(I)
       enddo
-      CALL mat_plot(G_WTE,G_STKI(L),G_STKR(L),N,TDUM,0)
-      G_MSTK(G_TOP) = 0
+      CALL mat_plot(G_OUTPUT_LUN,G_STACK_IMAGS(L),G_STACK_REALS(L),N,TDUM,0)
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       exit FUN5
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -4999,20 +5211,20 @@ logical             :: isfound
       IF (G_RHS .EQ. 2) K = 0
       IF (G_RHS .EQ. 3) K = M*N
       IF (G_RHS .GT. 3) K = G_RHS - 2
-      G_TOP = G_TOP - (G_RHS - 1)
-      N = G_MSTK(G_TOP)*G_NSTK(G_TOP)
-      IF (G_MSTK(G_TOP+1)*G_NSTK(G_TOP+1) .NE. N) CALL mat_err(5)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - (G_RHS - 1)
+      N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE+1) .NE. N) CALL mat_err(5)
       IF (G_ERR .GT. 0) exit FUN5
-      LX = G_LSTK(G_TOP)
-      LY = G_LSTK(G_TOP+1)
-      IF (G_RHS .GT. 3) L = G_LSTK(G_TOP+2)
-      CALL mat_plot(G_WTE,G_STKR(LX),G_STKR(LY),N,G_STKR(L),K)
-      G_MSTK(G_TOP) = 0
+      LX = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      LY = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      IF (G_RHS .GT. 3) L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+2)
+      CALL mat_plot(G_OUTPUT_LUN,G_STACK_REALS(LX),G_STACK_REALS(LY),N,G_STACK_REALS(L),K)
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(12) !     COMMAND::DEBUG
-      G_DEBUG_LEVEL = int(G_STKR(L))
+      G_DEBUG_LEVEL = int(G_STACK_REALS(L))
       call journal('sc',' DEBUG ',G_DEBUG_LEVEL)
-      G_MSTK(G_TOP) = 0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(13) !     COMMAND::DOC
       call mat_buf2str(name,G_buf,256)
@@ -5025,7 +5237,7 @@ logical             :: isfound
          else
             call journal(trim(errmsg))
          endif
-      G_MSTK(G_TOP) = 0
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       end select FUN5
 !===================================================================================================================================
@@ -5037,7 +5249,7 @@ SUBROUTINE MAT_STACK_GET(ID)
 
 ! ident_37="@(#)M_matrix::mat_stack_get(3fp): get variables from storage"
 
-integer,intent(in)  :: id(G_MAX_NAME_LENGTH)
+integer,intent(in)  :: id(GG_MAX_NAME_LENGTH)
 integer             :: i
 integer             :: j
 integer             :: k
@@ -5054,104 +5266,108 @@ integer             :: mk
 integer             :: mn
 integer             :: mnk
 integer             :: n
-character(len=G_MAX_NAME_LENGTH)    :: id_name
+character(len=GG_MAX_NAME_LENGTH)    :: id_name
+
    if (G_DEBUG_LEVEL .eq. 1)then
       call journal('sc','*MAT_STACK_GET* ID(1)=',id(1), id(2), id(3), id(4))
    endif
-   call mat_putid(G_IDSTK(1,G_BOT-1), ID)  ! copy ID to next blank entry in G_IDSTK in case it is not there(?)
 
-   do k=G_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
-      if (mat_eqid(G_IDSTK(1,k), id))exit                ! if found name exit loop
+   call mat_putid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)    ! copy ID to next blank entry in G_STACK_IDS in case it is not there(?)
+
+   do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
+      if (mat_eqid(G_STACK_IDS(1,k), id))exit             ! if found name exit loop
    enddo
    ! if (?)
    ! or if matched the name inserted above did not find it.
-   if ( (k .ge. G_MAX_NUMBER_OF_NAMES-1 .and. G_RHS .gt. 0) .or. (k .eq. G_BOT-1) ) then
+   if ( (k .ge. GG_MAX_NUMBER_OF_NAMES-1 .and. G_RHS .gt. 0) .or. (k .eq. G_TOP_OF_SAVED-1) ) then
       g_fin = 0
       return
    endif
 
-   current_location = G_LSTK(K)                                       ! found it, so this is the location where the data begins
+   current_location = G_STACK_ID_LOC(K)                               ! found it, so this is the location where the data begins
    IF (G_RHS .EQ. 1) then                                             ! VECT(ARG)
-      IF (G_MSTK(G_TOP) .EQ. 0) GOTO 99
-      L = G_LSTK(G_TOP)
-      MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
-      MNK = G_MSTK(K)*G_NSTK(K)                                       ! number of values in this variable
-      IF (G_MSTK(G_TOP) .LT. 0) MN = MNK
+      IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .EQ. 0) GOTO 99
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      MN = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      MNK = G_STACK_ROWS(K)*G_STACK_COLS(K)                            ! number of values in this variable
+      IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .LT. 0) MN = MNK
       DO I = 1, MN
         LL = L+I-1
         LS = current_location+I-1
-        IF (G_MSTK(G_TOP) .GT. 0) LS = current_location + int(G_STKR(LL)) - 1
+        IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .GT. 0) LS = current_location + int(G_STACK_REALS(LL)) - 1
         IF (LS .LT. current_location .OR. LS .GE. current_location+MNK) CALL mat_err(21)          ! Subscript out of range
         IF (G_ERR .GT. 0) RETURN
-        G_STKR(LL) = G_STKR(LS)
-        G_STKI(LL) = G_STKI(LS)
+        G_STACK_REALS(LL) = G_STACK_REALS(LS)
+        G_STACK_IMAGS(LL) = G_STACK_IMAGS(LS)
       enddo
-      G_MSTK(G_TOP) = 1
-      G_NSTK(G_TOP) = 1
-      IF (G_MSTK(K) .GT. 1) G_MSTK(G_TOP) = MN
-      IF (G_MSTK(K) .EQ. 1) G_NSTK(G_TOP) = MN
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      IF (G_STACK_ROWS(K) .GT. 1) G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = MN
+      IF (G_STACK_ROWS(K) .EQ. 1) G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = MN
       GOTO 99
    elseif (G_RHS .EQ. 2) then                                              ! MATRIX(ARG,ARG)
-      G_TOP = G_TOP-1
-      L = G_LSTK(G_TOP)
-      IF (G_MSTK(G_TOP+1) .EQ. 0) G_MSTK(G_TOP) = 0
-      IF (G_MSTK(G_TOP) .EQ. 0) GOTO 99
-      L2 = G_LSTK(G_TOP+1)
-      M = G_MSTK(G_TOP)*G_NSTK(G_TOP)
-      IF (G_MSTK(G_TOP) .LT. 0) M = G_MSTK(K)
-      N = G_MSTK(G_TOP+1)*G_NSTK(G_TOP+1)
-      IF (G_MSTK(G_TOP+1) .LT. 0) N = G_NSTK(K)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1) .EQ. 0) G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+      IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .EQ. 0) GOTO 99
+      L2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .LT. 0) M = G_STACK_ROWS(K)
+      N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+      IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1) .LT. 0) N = G_STACK_COLS(K)
       L3 = L2 + N
-      MK = G_MSTK(K)
-      MNK = G_MSTK(K)*G_NSTK(K)
+      MK = G_STACK_ROWS(K)
+      MNK = G_STACK_ROWS(K)*G_STACK_COLS(K)
       DO J = 1, N
          DO I = 1, M
            LI = L+I-1
-           IF (G_MSTK(G_TOP) .GT. 0) LI = L + int(G_STKR(LI)) - 1
+           IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .GT. 0) LI = L + int(G_STACK_REALS(LI)) - 1
            LJ = L2+J-1
-           IF (G_MSTK(G_TOP+1) .GT. 0) LJ = L2 + int(G_STKR(LJ)) - 1
+           IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1) .GT. 0) LJ = L2 + int(G_STACK_REALS(LJ)) - 1
            LS = current_location + LI-L + (LJ-L2)*MK
            IF (LS.LT.current_location .OR. LS.GE.current_location+MNK) CALL mat_err(21)
            IF (G_ERR .GT. 0) RETURN
            LL = L3 + I-1 + (J-1)*M
-           G_STKR(LL) = G_STKR(LS)
-           G_STKI(LL) = G_STKI(LS)
+           G_STACK_REALS(LL) = G_STACK_REALS(LS)
+           G_STACK_IMAGS(LL) = G_STACK_IMAGS(LS)
          enddo
       enddo
       MN = M*N
-      CALL mat_wcopy(MN,G_STKR(L3),G_STKI(L3),1,G_STKR(L),G_STKI(L),1)
-      G_MSTK(G_TOP) = M
-      G_NSTK(G_TOP) = N
+      CALL mat_wcopy(MN,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       GOTO 99
    elseif (G_RHS .GT. 2) then
       CALL mat_err(21)                                                     ! Subscript out of range
       IF (G_ERR .GT. 0) RETURN
    else                                                                    ! SCALAR
       L = 1
-      IF (G_TOP .GT. 0) L = G_LSTK(G_TOP) + G_MSTK(G_TOP)*G_NSTK(G_TOP)
-      IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)                             ! Too many names
+      IF (G_BOTTOM_OF_SCRATCH_IN_USE .GT. 0) &
+        & L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) + &
+        & G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      IF (G_BOTTOM_OF_SCRATCH_IN_USE+1 .GE. G_TOP_OF_SAVED) CALL mat_err(18)  ! Too many names
       IF (G_ERR .GT. 0) RETURN
 
-      G_TOP = G_TOP+1
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
 
       !  LOAD VARIABLE TO TOP OF STACK
-      G_LSTK(G_TOP) = L
-      G_MSTK(G_TOP) = G_MSTK(K)
-      G_NSTK(G_TOP) = G_NSTK(K)
-      MN = G_MSTK(K)*G_NSTK(K)
-      G_ERR = L+MN - G_LSTK(G_BOT)
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_ROWS(K)
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_COLS(K)
+      MN = G_STACK_ROWS(K)*G_STACK_COLS(K)
+      G_ERR = L+MN - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) then
          CALL mat_err(17)                                                  ! Too much memory required
          RETURN
       endif
 
       !  IF RAND, MATFN6 GENERATES RANDOM NUMBER
-      IF (K .EQ. G_MAX_NUMBER_OF_NAMES) then
+      IF (K .EQ. GG_MAX_NUMBER_OF_NAMES) then
          G_FIN = 7
          G_FUN = 6
          RETURN
       endif
-      CALL mat_wcopy(MN,G_STKR(current_location),G_STKI(current_location),1,G_STKR(L),G_STKI(L),1)
+      CALL mat_wcopy(MN,G_STACK_REALS(current_location),G_STACK_IMAGS(current_location),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
    endif
 
 99 continue
@@ -5199,13 +5415,13 @@ integer           ::  nexp
 integer           :: op_select
 
    IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc',',STACK2 ',OP)
-   L2 = G_LSTK(G_TOP)
-   M2 = G_MSTK(G_TOP)
-   N2 = G_NSTK(G_TOP)
-   G_TOP = G_TOP-1
-   L = G_LSTK(G_TOP)
-   M = G_MSTK(G_TOP)
-   N = G_NSTK(G_TOP)
+   L2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   M2 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   N2 = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+   L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    G_FUN = 0
 
    if(op.eq.dstar)then
@@ -5223,11 +5439,11 @@ integer           :: op_select
          endif
          m = m2
          n = n2
-         g_mstk(g_top) = m
-         g_nstk(g_top) = n
-         sr = g_stkr(l)
-         si = g_stki(l)
-         call mat_wcopy(m*n,g_stkr(l+1),g_stki(l+1),1,g_stkr(l),g_stki(l),1)
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+         sr = G_STACK_REALS(l)
+         si = G_STACK_IMAGS(l)
+         call mat_wcopy(m*n,G_STACK_REALS(l+1),G_STACK_IMAGS(l+1),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
          call finish()
          exit do_op
       endif
@@ -5236,8 +5452,8 @@ integer           :: op_select
          if (g_err .gt. 0) then
             exit do_op
          endif
-         sr = g_stkr(l2)
-         si = g_stki(l2)
+         sr = G_STACK_REALS(l2)
+         si = G_STACK_IMAGS(l2)
          call finish()
          exit do_op
       endif
@@ -5249,7 +5465,7 @@ integer           :: op_select
       if (g_err .gt. 0)then
          exit do_op
       endif
-      CALL matX_waxpy(M*N,1.0D0,0.0D0,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
+      CALL matX_waxpy(M*N,1.0D0,0.0D0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (MINUS) ! SUBTRACTION
       IF (M .LT. 0) then
@@ -5259,12 +5475,12 @@ integer           :: op_select
          endif
          M = M2
          N = N2
-         G_MSTK(G_TOP) = M
-         G_NSTK(G_TOP) = N
-         SR = G_STKR(L)
-         SI = G_STKI(L)
-         CALL mat_wcopy(M*N,G_STKR(L+1),G_STKI(L+1),1,G_STKR(L),G_STKI(L),1)
-         CALL mat_wrscal(M*N,-1.0D0,G_STKR(L),G_STKI(L),1)
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+         SR = G_STACK_REALS(L)
+         SI = G_STACK_IMAGS(L)
+         CALL mat_wcopy(M*N,G_STACK_REALS(L+1),G_STACK_IMAGS(L+1),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+         CALL mat_wrscal(M*N,-1.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
          call finish()
          exit DO_OP
       endif
@@ -5274,8 +5490,8 @@ integer           :: op_select
          IF (G_ERR .GT. 0) then
             exit do_op
          endif
-         SR = -G_STKR(L2)
-         SI = -G_STKI(L2)
+         SR = -G_STACK_REALS(L2)
+         SI = -G_STACK_IMAGS(L2)
          call finish()
          exit DO_OP
       endif
@@ -5287,7 +5503,7 @@ integer           :: op_select
       IF (G_ERR .GT. 0) then
          exit do_op
       endif
-      CALL matX_waxpy(M*N,-1.0D0,0.0D0,G_STKR(L2),G_STKI(L2),1,G_STKR(L),G_STKI(L),1)
+      CALL matX_waxpy(M*N,-1.0D0,0.0D0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (STAR) ! MULTIPLICATION
       IF (M2*M2*N2 .EQ. 1) GOTO 10
@@ -5299,40 +5515,40 @@ integer           :: op_select
       endif
       MN = M*N2
       LL = L + MN
-      G_ERR = LL+M*N+M2*N2 - G_LSTK(G_BOT)
+      G_ERR = LL+M*N+M2*N2 - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) then
          exit do_op
       endif
-      CALL mat_wcopy(M*N+M2*N2,G_STKR(L),G_STKI(L),-1,G_STKR(LL),G_STKI(LL),-1)
+      CALL mat_wcopy(M*N+M2*N2,G_STACK_REALS(L),G_STACK_IMAGS(L),-1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),-1)
       DO J = 1, N2
          DO I = 1, M
             K1 = L + MN + (I-1)
             K2 = L2 + MN + (J-1)*M2
             K = L + (I-1) + (J-1)*M
-            G_STKR(K) = mat_wdotur(N,G_STKR(K1),G_STKI(K1),M,G_STKR(K2),G_STKI(K2),1)
-            G_STKI(K) = mat_wdotui(N,G_STKR(K1),G_STKI(K1),M,G_STKR(K2),G_STKI(K2),1)
+            G_STACK_REALS(K) = mat_wdotur(N,G_STACK_REALS(K1),G_STACK_IMAGS(K1),M,G_STACK_REALS(K2),G_STACK_IMAGS(K2),1)
+            G_STACK_IMAGS(K) = mat_wdotui(N,G_STACK_REALS(K1),G_STACK_IMAGS(K1),M,G_STACK_REALS(K2),G_STACK_IMAGS(K2),1)
          enddo
       enddo
-      G_NSTK(G_TOP) = N2
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N2
       exit do_op
 !-----------------------------------------------------------------------------------------------------------------------------------
    !     MULTIPLICATION BY SCALAR
    10 continue
-      SR = G_STKR(L2)
-      SI = G_STKI(L2)
+      SR = G_STACK_REALS(L2)
+      SI = G_STACK_IMAGS(L2)
       L1 = L
       GOTO 13
    11 continue
-      SR = G_STKR(L)
-      SI = G_STKI(L)
+      SR = G_STACK_REALS(L)
+      SI = G_STACK_IMAGS(L)
       L1 = L+1
-      G_MSTK(G_TOP) = M2
-      G_NSTK(G_TOP) = N2
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M2
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N2
    13 continue
-      MN = G_MSTK(G_TOP)*G_NSTK(G_TOP)
-      CALL mat_wscal(MN,SR,SI,G_STKR(L1),G_STKI(L1),1)
-      IF (L1.NE.L) CALL mat_wcopy(MN,G_STKR(L1),G_STKI(L1),1,G_STKR(L),G_STKI(L),1)
+      MN = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      CALL mat_wscal(MN,SR,SI,G_STACK_REALS(L1),G_STACK_IMAGS(L1),1)
+      IF (L1.NE.L) CALL mat_wcopy(MN,G_STACK_REALS(L1),G_STACK_IMAGS(L1),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (-DSTAR) ! POWER
       IF (M2*N2 .NE. 1) CALL mat_err(30)
@@ -5343,9 +5559,9 @@ integer           :: op_select
       IF (G_ERR .GT. 0) then
          exit do_op
       endif
-      NEXP = int(G_STKR(L2))
+      NEXP = int(G_STACK_REALS(L2))
 
-      IF ( (G_STKR(L2) .NE. dble(NEXP)) .or. (G_STKI(L2) .NE. 0.0D0) .or. (NEXP .LT. 2) )then
+      IF ( (G_STACK_REALS(L2) .NE. dble(NEXP)) .or. (G_STACK_IMAGS(L2) .NE. 0.0D0) .or. (NEXP .LT. 2) )then
          ! NONINTEGER OR NONPOSITIVE POWER, USE EIGENVECTORS
          G_FUN = 2
          G_FIN = 0
@@ -5353,22 +5569,22 @@ integer           :: op_select
       endif
 
       MN = M*N
-      G_ERR = L2+MN+N - G_LSTK(G_BOT)
+      G_ERR = L2+MN+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) then
          exit do_op
       endif
-      CALL mat_wcopy(MN,G_STKR(L),G_STKI(L),1,G_STKR(L2),G_STKI(L2),1)
+      CALL mat_wcopy(MN,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
       L3 = L2+MN
       DO KEXP = 2, NEXP
          DO J = 1, N
             LS = L+(J-1)*N
-            CALL mat_wcopy(N,G_STKR(LS),G_STKI(LS),1,G_STKR(L3),G_STKI(L3),1)
+            CALL mat_wcopy(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1)
             DO I = 1, N
                LS = L2+I-1
                LL = L+I-1+(J-1)*N
-               G_STKR(LL)=mat_wdotur(N,G_STKR(LS),G_STKI(LS),N,G_STKR(L3),G_STKI(L3),1)
-               G_STKI(LL)=mat_wdotui(N,G_STKR(LS),G_STKI(LS),N,G_STKR(L3),G_STKI(L3),1)
+               G_STACK_REALS(LL)=mat_wdotur(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),N,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1)
+               G_STACK_IMAGS(LL)=mat_wdotui(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),N,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1)
             enddo
          enddo
       enddo
@@ -5381,12 +5597,12 @@ integer           :: op_select
          G_RHS = 2
          exit DO_OP
       endif
-      SR = G_STKR(L2)
-      SI = G_STKI(L2)
+      SR = G_STACK_REALS(L2)
+      SI = G_STACK_IMAGS(L2)
       MN = M*N
       DO I = 1, MN
          LL = L+I-1
-         CALL mat_wdiv(G_STKR(LL),G_STKI(LL),SR,SI,G_STKR(LL),G_STKI(LL))
+         CALL mat_wdiv(G_STACK_REALS(LL),G_STACK_IMAGS(LL),SR,SI,G_STACK_REALS(LL),G_STACK_IMAGS(LL))
          IF (G_ERR .GT. 0) exit
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -5398,55 +5614,55 @@ integer           :: op_select
          G_RHS = 2
          exit DO_OP
       endif
-      SR = G_STKR(L)
-      SI = G_STKI(L)
-      G_MSTK(G_TOP) = M2
-      G_NSTK(G_TOP) = N2
+      SR = G_STACK_REALS(L)
+      SI = G_STACK_IMAGS(L)
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M2
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N2
       MN = M2*N2
       DO I = 1, MN
          LL = L+I-1
-         CALL mat_wdiv(G_STKR(LL+1),G_STKI(LL+1),SR,SI,G_STKR(LL),G_STKI(LL))
+         CALL mat_wdiv(G_STACK_REALS(LL+1),G_STACK_IMAGS(LL+1),SR,SI,G_STACK_REALS(LL),G_STACK_IMAGS(LL))
          IF (G_ERR .GT. 0) exit
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (COLON) ! COLON
-      E2 = G_STKR(L2)
+      E2 = G_STACK_REALS(L2)
       ST = 1.0D0
       N = 0
       IF (G_RHS .LT. 3) GOTO 61
-      ST = G_STKR(L)
-      G_TOP = G_TOP-1
-      L = G_LSTK(G_TOP)
+      ST = G_STACK_REALS(L)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       IF (ST .EQ. 0.0D0) GOTO 63
    61 continue
-      E1 = G_STKR(L)
+      E1 = G_STACK_REALS(L)
       ! CHECK FOR CLAUSE
       IF (G_RSTK(G_PT) .EQ. 3) then
    !     FOR CLAUSE
-         G_STKR(L) = E1
-         G_STKR(L+1) = ST
-         G_STKR(L+2) = E2
-         G_MSTK(G_TOP) = -3
-         G_NSTK(G_TOP) = -1
+         G_STACK_REALS(L) = E1
+         G_STACK_REALS(L+1) = ST
+         G_STACK_REALS(L+2) = E2
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = -3
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = -1
          exit DO_OP
       endif
-      G_ERR = L + MAX0(3,int((E2-E1)/ST)) - G_LSTK(G_BOT)
+      G_ERR = L + MAX0(3,int((E2-E1)/ST)) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
       IF (G_ERR .GT. 0) CALL mat_err(17)
       IF (G_ERR .GT. 0) then
          exit do_op
       endif
    62 continue
-      IF (ST .GT. 0.0D0 .AND. G_STKR(L) .GT. E2) GOTO 63
-      IF (ST .LT. 0.0D0 .AND. G_STKR(L) .LT. E2) GOTO 63
+      IF (ST .GT. 0.0D0 .AND. G_STACK_REALS(L) .GT. E2) GOTO 63
+      IF (ST .LT. 0.0D0 .AND. G_STACK_REALS(L) .LT. E2) GOTO 63
       N = N+1
       L = L+1
-      G_STKR(L) = E1 + dble(N)*ST
-      G_STKI(L) = 0.0D0
+      G_STACK_REALS(L) = E1 + dble(N)*ST
+      G_STACK_IMAGS(L) = 0.0D0
       GOTO 62
    63 continue
-      G_NSTK(G_TOP) = N
-      G_MSTK(G_TOP) = 1
-      IF (N .EQ. 0) G_MSTK(G_TOP) = 0
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      IF (N .EQ. 0) G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (DOT+1:2*DOT) ! ELEMENTWISE OPERATIONS
       OP = OP - DOT
@@ -5458,16 +5674,22 @@ integer           :: op_select
       DO I = 1, MN
          J = L+I-1
          K = L2+I-1
-         IF (OP .EQ. STAR)CALL mat_wmul(G_STKR(J),G_STKI(J),G_STKR(K),G_STKI(K),G_STKR(J),G_STKI(J))
-         IF (OP .EQ. SLASH)CALL mat_wdiv(G_STKR(J),G_STKI(J),G_STKR(K),G_STKI(K),G_STKR(J),G_STKI(J))
-         IF (OP .EQ. BSLASH)CALL mat_wdiv(G_STKR(K),G_STKI(K),G_STKR(J),G_STKI(J),G_STKR(J),G_STKI(J))
+         IF (OP .EQ. STAR)CALL mat_wmul(G_STACK_REALS(J),G_STACK_IMAGS(J), &
+                                        G_STACK_REALS(K),G_STACK_IMAGS(K), &
+                                        G_STACK_REALS(J),G_STACK_IMAGS(J))
+         IF (OP .EQ. SLASH)CALL mat_wdiv(G_STACK_REALS(J),G_STACK_IMAGS(J), &
+                                         G_STACK_REALS(K),G_STACK_IMAGS(K), &
+                                         G_STACK_REALS(J),G_STACK_IMAGS(J))
+         IF (OP .EQ. BSLASH)CALL mat_wdiv(G_STACK_REALS(K),G_STACK_IMAGS(K), &
+                                         G_STACK_REALS(J),G_STACK_IMAGS(J), &
+                                         G_STACK_REALS(J),G_STACK_IMAGS(J))
          IF (G_ERR .GT. 0) exit
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (2*DOT+1:) ! KRONECKER
       G_FIN = OP - 2*DOT - STAR + 11
       G_FUN = 6
-      G_TOP = G_TOP + 1
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
       G_RHS = 2
 !-----------------------------------------------------------------------------------------------------------------------------------
    case default
@@ -5479,8 +5701,8 @@ contains
 subroutine finish()
    DO I = 1, N
       LL = L + (I-1)*(N+1)
-      G_STKR(LL) = mat_flop(G_STKR(LL)+SR)
-      G_STKI(LL) = mat_flop(G_STKI(LL)+SI)
+      G_STACK_REALS(LL) = mat_flop(G_STACK_REALS(LL)+SR)
+      G_STACK_IMAGS(LL) = mat_flop(G_STACK_IMAGS(LL)+SI)
    enddo
 end subroutine finish
 END SUBROUTINE mat_stack2
@@ -5490,58 +5712,53 @@ END SUBROUTINE mat_stack2
 subroutine mat_getlin() ! get a new input line
 use m_history,only : redo
 
-character(len=1024) :: mline
-character(len=1024) :: shift_mline
+character(len=GG_LINELEN) :: mline
+character(len=GG_LINELEN) :: shift_mline
 
-integer,parameter   :: linelen=255
-integer             :: istat
-INTEGER,save        :: LRECL=linelen
-integer,parameter   :: SLASH=44
-integer,parameter   :: BSLASH=45
-integer,parameter   :: DOT=47
-integer,parameter   :: BLANK=36
-integer,parameter   :: RETU(G_MAX_NAME_LENGTH)=[26,30,18,29,G_PAD(:)]
-integer             :: i
-integer             :: j
-integer             :: k
-integer             :: l
-integer             :: n
+integer                   :: istat
+integer,parameter         :: slash=44
+integer,parameter         :: bslash=45
+integer,parameter         :: dot=47
+integer,parameter         :: blank=36
+integer,parameter         :: retu(GG_MAX_NAME_LENGTH)=[26,30,18,29,GG_PAD(:)] ! quit
+integer                   :: i
+integer                   :: j
+integer                   :: k
+integer                   :: l
+integer                   :: n
 !.......................................................................
    10 CONTINUE
-      L = G_LPT(1)
+      L = G_LINE_POINTER(1)
 !.......................................................................
    11 CONTINUE
-      DO J = 1, LRECL                           ! blank out buffer before reading it
-         G_BUF(J) = G_CHARSET(BLANK+1)
-      enddo
-!.......................................................................
-      N = LRECL+1
+      G_BUF(:GG_LINELEN)= G_CHARSET(blank+1)               ! blank out buffer before reading it
+      n = GG_LINELEN+1
 !     get line of input
-      IF(G_ISTRING.GT.0)THEN                    ! read from string instead of file
-         CALL REDO(G_STRING,'.')                ! This is a no-op except for storing the line into the input history
-         call mat_str2buf(G_STRING,G_buf,lrecl) ! read input line from MAT88 call string
-         call journal('c',G_STRING)             ! write as a comment
-         IF(G_INIT.EQ.2)THEN                    ! terminate after processing G_STRING
-            G_ISTRING=4
-            G_STRING='quit'
-         ELSE                                   ! go to normal MAT88 mode after processing G_STRING
-            G_ISTRING=0
+      IF(G_STRING_LENGTH.GT.0)THEN                         ! read from string instead of file
+         CALL REDO(G_INPUT_STRING,'.')                     ! This is a no-op except for storing the line into the input history
+         call mat_str2buf(G_INPUT_STRING,G_buf,GG_LINELEN) ! read input line from MAT88 call string
+         call journal('t',G_INPUT_STRING)                  ! write to log file
+         IF(G_INIT.EQ.2)THEN                               ! terminate after processing G_INPUT_STRING
+            G_STRING_LENGTH=4
+            G_INPUT_STRING='quit'
+         ELSE                                              ! go to normal MAT88 mode after processing G_INPUT_STRING
+            G_STRING_LENGTH=0
          ENDIF
       ELSE
          mline(:)=' '
 
-         READ(G_RIO,'(A)',END=50,ERR=15) mline  ! read input line from file
+         READ(G_RIO,'(A)',END=50,ERR=15) mline       ! read input line from file
          shift_mline=adjustl(mline)
-         if(shift_mline(1:2).eq.'!!')then                             ! edit command line history
+         if(shift_mline(1:2).eq.'!!')then            ! edit command line history
             mline='. '//mline(3:)
          endif
 
-         if(G_RIO.eq.5)then
+         if(G_RIO.eq.stdin)then
             call journal('t',mline)   ! reading from standard input, so copy to trail file
          else
             call journal('c',mline)   ! reading from an exec() command, so write as a comment
          endif
-         CALL REDO(mline,'.')         ! pass line to REDO(3f). This is a no-op except for storing the line into the input history
+         call redo(mline,'.')         ! pass line to REDO(3f). This is a no-op except for storing the line into the input history
                                       ! (unless the input line is the "r" command)
 
          ! look for other lines to immediately process and then ignore
@@ -5558,10 +5775,10 @@ integer             :: n
             mline=''
          endif
 
-         call mat_str2buf(mline,G_buf,lrecl)    ! convert input line to "Hollerith" buffer
-      ENDIF
+         call mat_str2buf(mline,G_buf,GG_LINELEN)    ! convert input line to "Hollerith" buffer
+      endif
 !.......................................................................
-   15 CONTINUE
+   15 continue
       N = N-1
       IF(N.LT.1)THEN
          N=1
@@ -5589,7 +5806,7 @@ integer             :: n
          K = K-1   ! K is index into ALF*, should be in range 0 to 51
          IF (K.EQ.SLASH .AND. G_BUF(J+1).EQ.G_BUF(J)) GOTO 45  ! if // rest is comment
          IF (K.EQ.DOT .AND. G_BUF(J+1).EQ.G_BUF(J)) GOTO 11    ! if .. line continuation
-         IF (K.EQ.BSLASH .AND. N.EQ.1) GOTO 60             ! if \ in column 1
+         IF (K.EQ.BSLASH .AND. N.EQ.1) GOTO 60                 ! if \ in column 1
          G_LIN(L) = K
          IF (L.LT.1024) L = L+1
          IF (L.EQ.1024) call journal('sc','input buffer limit exceeded=',L)
@@ -5597,10 +5814,10 @@ integer             :: n
 !.......................................................................
    45 CONTINUE      ! line is ready, reset line pointers
       G_LIN(L) = G_EOL
-      G_LPT(6) = L
-      G_LPT(4) = G_LPT(1)
-      G_LPT(3) = 0
-      G_LPT(2) = 0
+      G_LINE_POINTER(6) = L
+      G_LINE_POINTER(4) = G_LINE_POINTER(1)
+      G_LINE_POINTER(3) = 0
+      G_LINE_POINTER(2) = 0
       G_LINECOUNT(1) = 0
       CALL mat_getch() ! load first character onto G_CHRA
       RETURN
@@ -5611,39 +5828,37 @@ integer             :: n
       GOTO 45
 !.......................................................................
    60 CONTINUE
-      N = G_LPT(6) - G_LPT(1)
+      N = G_LINE_POINTER(6) - G_LINE_POINTER(1)
       DO I = 1, N
          J = L+I-1
          K = G_LIN(J)
          G_BUF(I) = G_CHARSET(K+1)
-      enddo    ! edit command history
-      !!CALL ML_EDIT(G_BUF,N)
-      !!N = N + 1
+      enddo
       GOTO 15
 !.......................................................................
 end subroutine mat_getlin
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-SUBROUTINE mat_clause()
+subroutine mat_clause()
 character(len=256) :: mline
-DOUBLEPRECISION    :: E1,E2
-INTEGER            :: OP
-integer,parameter  :: NAME=1
+doubleprecision    :: e1,e2
+integer            :: op
+integer,parameter  :: name=1
 integer            :: r
-integer,parameter  :: SEMI=39
-integer,parameter  :: EQUAL=46
-integer,parameter  :: BLANK=36
-integer,parameter  :: COMMA=48
-integer,parameter  :: LESS=50
-integer,parameter  :: GREAT=51
-integer,parameter  :: FOR(G_MAX_NAME_LENGTH)  =[15,24,27,36,36,G_PAD(2:)]
-integer,parameter  :: WHILE(G_MAX_NAME_LENGTH)=[32,17,18,21,14,G_PAD(2:)]
-integer,parameter  :: IFF(G_MAX_NAME_LENGTH)  =[18,15,36,36,36,G_PAD(2:)]
-integer,parameter  :: ELSE(G_MAX_NAME_LENGTH) =[14,21,28,14,36,G_PAD(2:)]
-integer,parameter  :: ENND(G_MAX_NAME_LENGTH) =[14,23,13,36,36,G_PAD(2:)]
-integer,parameter  :: DO(G_MAX_NAME_LENGTH)   =[13,24,36,36,36,G_PAD(2:)]
-integer,parameter  :: THENN(G_MAX_NAME_LENGTH)=[29,17,14,23,36,G_PAD(2:)]
+integer,parameter  :: semi=39
+integer,parameter  :: equal=46
+integer,parameter  :: blank=36
+integer,parameter  :: comma=48
+integer,parameter  :: less=50
+integer,parameter  :: great=51
+integer,parameter  :: for(GG_MAX_NAME_LENGTH)  =[15,24,27,36,36,GG_PAD(2:)]
+integer,parameter  :: while(GG_MAX_NAME_LENGTH)=[32,17,18,21,14,GG_PAD(2:)]
+integer,parameter  :: iff(GG_MAX_NAME_LENGTH)  =[18,15,36,36,36,GG_PAD(2:)]
+integer,parameter  :: else(GG_MAX_NAME_LENGTH) =[14,21,28,14,36,GG_PAD(2:)]
+integer,parameter  :: ennd(GG_MAX_NAME_LENGTH) =[14,23,13,36,36,GG_PAD(2:)]
+integer,parameter  :: do(GG_MAX_NAME_LENGTH)   =[13,24,36,36,36,GG_PAD(2:)]
+integer,parameter  :: thenn(GG_MAX_NAME_LENGTH)=[29,17,14,23,36,GG_PAD(2:)]
 integer            :: i
 integer            :: j
 integer            :: kount
@@ -5653,184 +5868,183 @@ integer            :: lj
 integer            :: m
 integer            :: n
 
-   R = -G_FIN-10
+   r = -G_FIN-10
    G_FIN = 0
-   IF (G_DEBUG_LEVEL .EQ. 1)then
-      WRITE(mline,'('' CLAUSE '',3I4)') G_PT,G_RSTK(G_PT),R
+   if (G_DEBUG_LEVEL .eq. 1)then
+      write(mline,'('' CLAUSE '',3I4)') G_PT,G_RSTK(G_PT),r
       call journal(mline)
    endif
-   IF (R.LT.1 .OR. R.GT.6) GOTO 01
-   GOTO (02,30,30,80,99,90),R
+   if (r.lt.1 .or. r.gt.6) goto 01
+   goto (02,30,30,80,99,90),R
 01 continue
-   R = G_RSTK(G_PT)
-   GOTO (99,99,05,40,45,99,99,99,99,99,99,99,15,55,99,99,99),R
+   r = G_RSTK(G_PT)
+   goto (99,99,05,40,45,99,99,99,99,99,99,99,15,55,99,99,99),R
    call journal('*mat_clause* -- internal error')
    goto 99
 !.......................................................................
 !     FOR
-!
 02 continue
-   CALL mat_getsym()
-   IF (G_SYM .NE. NAME) CALL mat_err(34) ! improper for clause
-   IF (G_ERR .GT. 0) RETURN
+   call mat_getsym()
+   if (G_SYM .ne. name) call mat_err(34) ! improper for clause
+   if (G_ERR .gt. 0) return
    G_PT = G_PT+2
-   CALL mat_putid(G_IDS(1,G_PT),G_SYN)
-   CALL mat_getsym()
-   IF (G_SYM .NE. EQUAL) CALL mat_err(34) ! improper for clause
-   IF (G_ERR .GT. 0) RETURN
-   CALL mat_getsym()
+   call mat_putid(G_IDS(1,G_PT),G_SYN)
+   call mat_getsym()
+   if (G_SYM .ne. equal) call mat_err(34) ! improper for clause
+   if (G_ERR .gt. 0) return
+   call mat_getsym()
    G_RSTK(G_PT) = 3
 !     *CALL* EXPR
-   RETURN
+   return
 05 continue
    G_PSTK(G_PT-1) = 0
-   G_PSTK(G_PT) = G_LPT(4) - 1
-   IF (mat_eqid(G_SYN,DO)) G_SYM = SEMI
-   IF (G_SYM .EQ. COMMA) G_SYM = SEMI
-   IF (G_SYM .NE. SEMI) CALL mat_err(34) ! improper for clause
-   IF (G_ERR .GT. 0) RETURN
+   G_PSTK(G_PT) = G_LINE_POINTER(4) - 1
+   if (mat_eqid(G_SYN,DO)) G_SYM = semi
+   if (G_SYM .eq. comma) G_SYM = semi
+   if (G_SYM .ne. semi) call mat_err(34) ! improper for clause
+   if (G_ERR .gt. 0) return
 10 continue
-   J = G_PSTK(G_PT-1)
-   G_LPT(4) = G_PSTK(G_PT)
-   G_SYM = SEMI
-   G_CHRA = BLANK
-   J = J+1
-   L = G_LSTK(G_TOP)
-   M = G_MSTK(G_TOP)
-   N = G_NSTK(G_TOP)
-   LJ = L+(J-1)*M
-   L2 = L + M*N
-   IF (M .NE. -3) GOTO 12
-   LJ = L+3
-   L2 = LJ
-   G_STKR(LJ) = G_STKR(L) + dble(J-1)*G_STKR(L+1)
-   G_STKI(LJ) = 0.0d0
-   IF (G_STKR(L+1).GT.0.0D0 .AND. G_STKR(LJ).GT.G_STKR(L+2)) GOTO 20
-   IF (G_STKR(L+1).LT.0.0D0 .AND. G_STKR(LJ).LT.G_STKR(L+2)) GOTO 20
-   M = 1
-   N = J
+   j = G_PSTK(G_PT-1)
+   G_LINE_POINTER(4) = G_PSTK(G_PT)
+   G_SYM = semi
+   G_CHRA = blank
+   j = j+1
+   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   lj = l+(j-1)*m
+   l2 = l + m*n
+   if (m .ne. -3) goto 12
+   lj = l+3
+   l2 = lj
+   G_STACK_REALS(lj) = G_STACK_REALS(l) + dble(j-1)*G_STACK_REALS(l+1)
+   G_STACK_IMAGS(lj) = 0.0d0
+   if (G_STACK_REALS(l+1).gt.0.0d0 .and. G_STACK_REALS(lj).gt.G_STACK_REALS(l+2)) goto 20
+   if (G_STACK_REALS(l+1).lt.0.0d0 .and. G_STACK_REALS(lj).lt.G_STACK_REALS(l+2)) goto 20
+   m = 1
+   n = j
 12 continue
-   IF (J .GT. N) GOTO 20
-   IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18) ! too many names
-   IF (G_ERR .GT. 0) RETURN
-   G_TOP = G_TOP+1
-   G_LSTK(G_TOP) = L2
-   G_MSTK(G_TOP) = M
-   G_NSTK(G_TOP) = 1
-   G_ERR = L2+M - G_LSTK(G_BOT)
-   IF (G_ERR .GT. 0) CALL mat_err(17)   ! too much memory required
-   IF (G_ERR .GT. 0) RETURN
-   CALL mat_wcopy(M,G_STKR(LJ),G_STKI(LJ),1,G_STKR(L2),G_STKI(L2),1)
+   if (j .gt. n) goto 20
+   if (G_BOTTOM_OF_SCRATCH_IN_USE+1 .ge. G_TOP_OF_SAVED) call mat_err(18) ! too many names
+   if (G_ERR .gt. 0) return
+   G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
+   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l2
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+   G_ERR = l2+m - G_STACK_ID_LOC(G_TOP_OF_SAVED)
+   if (G_ERR .gt. 0) call mat_err(17)   ! too much memory required
+   if (G_ERR .gt. 0) return
+   call mat_wcopy(m,G_STACK_REALS(lj),G_STACK_IMAGS(lj),1,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1)
    G_RHS = 0
-   CALL MAT_STACK_PUT(G_IDS(1,G_PT))
-   IF (G_ERR .GT. 0) RETURN
-   G_PSTK(G_PT-1) = J
-   G_PSTK(G_PT) = G_LPT(4)
+   call mat_stack_put(G_IDS(1,G_PT))
+   if (G_ERR .gt. 0) return
+   G_PSTK(G_PT-1) = j
+   G_PSTK(G_PT) = G_LINE_POINTER(4)
    G_RSTK(G_PT) = 13
 !     *CALL* PARSE
-   RETURN
+   return
 15 continue
-   GOTO 10
+   goto 10
 20 continue
-   G_MSTK(G_TOP) = 0
-   G_NSTK(G_TOP) = 0
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
    G_RHS = 0
-   CALL MAT_STACK_PUT(G_IDS(1,G_PT))
-   IF (G_ERR .GT. 0) RETURN
+   call mat_stack_put(G_IDS(1,G_PT))
+   if (G_ERR .gt. 0) return
    G_PT = G_PT-2
-   GOTO 80
+   goto 80
 !.......................................................................
 !
 !     WHILE OR IF
 !
 30 continue
    G_PT = G_PT+1
-   CALL mat_putid(G_IDS(1,G_PT),G_SYN)
-   G_PSTK(G_PT) = G_LPT(4)-1
+   call mat_putid(G_IDS(1,G_PT),G_SYN)
+   G_PSTK(G_PT) = G_LINE_POINTER(4)-1
 35 continue
-   G_LPT(4) = G_PSTK(G_PT)
-   G_CHRA = BLANK
-   CALL mat_getsym()
+   G_LINE_POINTER(4) = G_PSTK(G_PT)
+   G_CHRA = blank
+   call mat_getsym()
    G_RSTK(G_PT) = 4
 !     *CALL* EXPR
-   RETURN
+   return
 40 continue
-   IF (G_SYM.NE.EQUAL .AND. G_SYM.NE.LESS .AND. G_SYM.NE.GREAT)CALL mat_err(35)    ! improper WHILE or IF clause
-   IF (G_ERR .GT. 0) RETURN
-   OP = G_SYM
-   CALL mat_getsym()
-   IF (G_SYM.EQ.EQUAL .OR. G_SYM.EQ.GREAT) OP = OP + G_SYM
-   IF (OP .GT. GREAT) CALL mat_getsym()
-   G_PSTK(G_PT) = 256*G_PSTK(G_PT) + OP
+   if (G_SYM.ne.equal .and. G_SYM.NE.LESS .and. G_SYM.NE.GREAT)call mat_err(35)    ! improper WHILE or IF clause
+   if (G_ERR .gt. 0) return
+   op = G_SYM
+   call mat_getsym()
+   if (G_SYM.EQ.equal .or. G_SYM.EQ.great) op = op + G_SYM
+   if (op .gt. great) call mat_getsym()
+   G_PSTK(G_PT) = 256*G_PSTK(G_PT) + op
    G_RSTK(G_PT) = 5
 !     *CALL* EXPR
-   RETURN
+   return
 45 continue
-   OP = MOD(G_PSTK(G_PT),256)
+   op = mod(G_PSTK(G_PT),256)
    G_PSTK(G_PT) = G_PSTK(G_PT)/256
-   L = G_LSTK(G_TOP-1)
-   E1 = G_STKR(L)
-   L = G_LSTK(G_TOP)
-   E2 = G_STKR(L)
-   G_TOP = G_TOP - 2
-   IF (mat_eqid(G_SYN,DO) .OR. mat_eqid(G_SYN,THENN)) G_SYM = SEMI
-   IF (G_SYM .EQ. COMMA) G_SYM = SEMI
-   IF (G_SYM .NE. SEMI) CALL mat_err(35) ! improper WHILE or IF clause
-   IF (G_ERR .GT. 0) RETURN
-   IF (OP.EQ.EQUAL         .AND. E1.EQ.E2) GOTO 50
-   IF (OP.EQ.LESS          .AND. E1.LT.E2) GOTO 50
-   IF (OP.EQ.GREAT         .AND. E1.GT.E2) GOTO 50
-   IF (OP.EQ.(LESS+EQUAL)  .AND. E1.LE.E2) GOTO 50
-   IF (OP.EQ.(GREAT+EQUAL) .AND. E1.GE.E2) GOTO 50
-   IF (OP.EQ.(LESS+GREAT)  .AND. E1.NE.E2) GOTO 50
+   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE-1)
+   e1 = G_STACK_REALS(l)
+   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   e2 = G_STACK_REALS(l)
+   G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 2
+   if (mat_eqid(G_SYN,do) .or. mat_eqid(G_SYN,thenn)) G_SYM = semi
+   if (G_SYM .EQ. COMMA) G_SYM = SEMI
+   if (G_SYM .NE. SEMI) call mat_err(35) ! improper WHILE or IF clause
+   if (G_ERR .GT. 0) return
+   if (op.eq.equal         .and. e1.eq.e2) goto 50
+   if (op.eq.less          .and. e1.lt.e2) goto 50
+   if (op.eq.great         .and. e1.gt.e2) goto 50
+   if (op.eq.(less+equal)  .and. e1.le.e2) goto 50
+   if (op.eq.(great+equal) .and. e1.ge.e2) goto 50
+   if (op.eq.(less+great)  .and. e1.ne.e2) goto 50
    G_PT = G_PT-1
-   GOTO 80
+   goto 80
 50 continue
    G_RSTK(G_PT) = 14
 !     *CALL* PARSE
-   RETURN
+   return
 55 continue
-   IF (mat_eqid(G_IDS(1,G_PT),WHILE)) GOTO 35
+   IF (mat_eqid(G_IDS(1,G_PT),while)) goto 35
    G_PT = G_PT-1
-   IF (mat_eqid(G_SYN,ELSE)) GOTO 80
-   RETURN
+   if (mat_eqid(G_SYN,else)) goto 80
+   return
 !.......................................................................
-!
 !     SEARCH FOR MATCHING END OR ELSE
 80 continue
-   KOUNT = 0
-   CALL mat_getsym()
+   kount = 0
+   call mat_getsym()
 82 continue
-   IF (G_SYM .EQ. G_EOL) RETURN
-   IF (G_SYM .NE. NAME) GOTO 83
-   IF (mat_eqid(G_SYN,ENND) .AND. KOUNT.EQ.0) RETURN
-   IF (mat_eqid(G_SYN,ELSE) .AND. KOUNT.EQ.0) RETURN
-   IF (mat_eqid(G_SYN,ENND) .OR. mat_eqid(G_SYN,ELSE))KOUNT = KOUNT-1
-   IF (mat_eqid(G_SYN,FOR) .OR. mat_eqid(G_SYN,WHILE).OR.mat_eqid(G_SYN,IFF)) KOUNT = KOUNT+1
+   if (G_SYM .eq. G_EOL) return
+   if (G_SYM .ne. NAME) goto 83
+   if (mat_eqid(G_SYN,ennd) .and. kount.eq.0) return
+   if (mat_eqid(G_SYN,else) .and. kount.eq.0) return
+   if (mat_eqid(G_SYN,ennd) .or. mat_eqid(G_SYN,else))kount = kount-1
+   if (mat_eqid(G_SYN,for) .or. mat_eqid(G_SYN,while).or.mat_eqid(G_SYN,iff)) kount = kount+1
 83 continue
-   CALL mat_getsym()
-   GOTO 82
+   call mat_getsym()
+   goto 82
 !.......................................................................
-!
 !     EXIT FROM LOOP
 90 continue
-   IF (G_DEBUG_LEVEL .EQ. 1)then
-      WRITE(mline,'('' EXIT '',10I4)') (G_RSTK(I),I=1,G_PT)
+   if (G_DEBUG_LEVEL .eq. 1)then
+      write(mline,'('' EXIT '',10I4)') (G_RSTK(i),i=1,G_PT)
       call journal(mline)
    endif
-   IF (G_RSTK(G_PT) .EQ. 14) G_PT = G_PT-1
-   IF (G_PT .LE. G_PTZ) RETURN
-   IF (G_RSTK(G_PT) .EQ. 14) G_PT = G_PT-1
-   IF (G_PT-1 .LE. G_PTZ) RETURN
-   IF (G_RSTK(G_PT) .EQ. 13) G_TOP = G_TOP-1
-   IF (G_RSTK(G_PT) .EQ. 13) G_PT = G_PT-2
-   GOTO 80
+
+   if (G_RSTK(G_PT) .eq. 14) G_PT = G_PT-1
+   if (G_PT .le. G_PTZ) return
+
+   if (G_RSTK(G_PT) .eq. 14) G_PT = G_PT-1
+   if (G_PT-1 .le. G_PTZ) return
+
+   if (G_RSTK(G_PT) .eq. 13) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+   if (G_RSTK(G_PT) .eq. 13) G_PT = G_PT-2
+   goto 80
 !.......................................................................
 !
 99 continue
-   CALL mat_err(22)    ! recursion difficulties
-   IF (G_ERR .GT. 0) RETURN
-END SUBROUTINE mat_clause
+   call mat_err(22)    ! recursion difficulties
+end subroutine mat_clause
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -5870,7 +6084,7 @@ integer         :: k
    if (s .lt. 0.0d0) t = -t
    if (s .lt. 0.0d0) s = -s
    if (G_DEBUG_LEVEL .eq. 27)then
-      write(G_WTE,50) x,t,s,(d(i),i=1,k) ! debug 27
+      write(G_OUTPUT_LUN,50) x,t,s,(d(i),i=1,k) ! debug 27
 50    format(/1x,1pd23.15,0pf8.0,' /',f8.0,4x,6f5.0/(1x,45x,6f5.0))
    endif
    a = t
@@ -5888,7 +6102,7 @@ integer,parameter :: BLANK=36
 integer,parameter :: PLUS=41
 integer,parameter :: MINUS=42
 integer,parameter :: NAME=1
-integer,parameter :: EYE(G_MAX_NAME_LENGTH)=[14,34,14,36,G_PAD(:)]
+integer,parameter :: EYE(GG_MAX_NAME_LENGTH)=[14,34,14,36,GG_PAD(:)]
 integer           :: kount
 integer           :: ls
 integer           :: op
@@ -5899,7 +6113,9 @@ integer           :: op
    endif
    r = G_RSTK(G_pt)
 !===================================================================================================================================
-   GOTO (01,01,01,01,01,05,25,99,99,01,01,99,99,99,99,99,99,01,01,01),R
+!        1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 16 18 19 20
+   goto (01,01,01,01,01,05,25,99,99,01,01,99,99,99,99,99,99,01,01,01),R
+!  what about drop-though???
 !===================================================================================================================================
 01 continue
    if (G_sym .eq. colon) call mat_putid(G_syn,eye)
@@ -5914,8 +6130,9 @@ integer           :: op
    if (G_err .gt. 0) return
    G_PSTK(G_pt) = sign + 256*kount
    G_RSTK(G_pt) = 6
-!     *call* term
+   ! *call* term
    return
+!===================================================================================================================================
 05 continue
    sign = mod(G_PSTK(G_pt),256)
    kount = G_PSTK(G_pt)/256
@@ -5928,7 +6145,7 @@ integer           :: op
 20 continue
    if (G_RSTK(G_pt) .ne. 10) goto 21
 !     blank is delimiter inside angle brackets
-   ls = G_LPT(3) - 2
+   ls = G_LINE_POINTER(3) - 2
    if (G_LIN(ls) .eq. blank) goto 50
 21 continue
    op = G_sym
@@ -5938,6 +6155,7 @@ integer           :: op
    G_RSTK(G_pt) = 7
 !     *call* term
    return
+!===================================================================================================================================
 25 continue
    op = mod(G_PSTK(G_pt),256)
    kount = G_PSTK(G_pt)/256
@@ -5964,23 +6182,23 @@ end subroutine mat_expr
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-SUBROUTINE mat_factor()
+subroutine mat_factor()
 character(len=80) :: mline
-INTEGER           :: R
-INTEGER           :: ID(G_MAX_NAME_LENGTH)
-INTEGER           :: EXCNT
-integer,parameter :: DSTAR=54
-integer,parameter :: SEMI=39
-integer,parameter :: BLANK=36
-integer,parameter :: STAR=43
-integer,parameter :: COMMA=48
-integer,parameter :: LPAREN=37
-integer,parameter :: RPAREN=38
-integer,parameter :: LESS=50
-integer,parameter :: GREAT=51
-integer,parameter :: QUOTE=49
-integer,parameter :: NUM=0
-integer,parameter :: NAME=1
+integer           :: r
+integer           :: id(gg_max_name_length)
+integer           :: excnt
+integer,parameter :: dstar=54
+integer,parameter :: semi=39
+integer,parameter :: blank=36
+integer,parameter :: star=43
+integer,parameter :: comma=48
+integer,parameter :: lparen=37
+integer,parameter :: rparen=38
+integer,parameter :: less=50
+integer,parameter :: great=51
+integer,parameter :: quote=49
+integer,parameter :: num=0
+integer,parameter :: name=1
 integer           :: i
 integer           :: j
 integer           :: k
@@ -5989,178 +6207,196 @@ integer           :: ln
 integer           :: ls
 integer           :: n
 
-   IF (G_DEBUG_LEVEL .EQ. 1) then
-      WRITE(mline,'('' FACTOR '',3I4)') G_PT,G_RSTK(G_PT),G_SYM
+   if (G_DEBUG_LEVEL .eq. 1) then
+      write(mline,'('' FACTOR '',3I4)') G_PT,G_RSTK(G_PT),G_SYM
       call journal(mline)
    endif
-   R = G_RSTK(G_PT)
-   GOTO (99,99,99,99,99,99,99,01,01,25,45,65,99,99,99,55,75,32,37),R
-01 CONTINUE
-   IF (G_SYM.EQ.NUM .OR. G_SYM.EQ.QUOTE .OR.  G_SYM.EQ.LESS) GOTO 10
-   IF (G_SYM .EQ. GREAT) GOTO 30
-   EXCNT = 0
-   IF (G_SYM .EQ. NAME) GOTO 40
-   ID(1) = BLANK
-   IF (G_SYM .EQ. LPAREN) GOTO 42
-   CALL mat_err(2)
-   IF (G_ERR .GT. 0) RETURN
+
+   r = G_RSTK(G_PT)
+   !      1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
+   goto (99,99,99,99,99,99,99,01,01,25,45,65,99,99,99,55,75,32,37),r
+01 continue
+   if (G_SYM.eq.num .or. G_SYM.eq.quote .or.  G_SYM.EQ.less) goto 10
+   if (G_SYM .eq. great) goto 30
+   excnt = 0
+   if (G_SYM .eq. name) goto 40
+   id(1) = BLANK
+   if (G_SYM .eq. lparen) goto 42
+   call mat_err(2)
+   if (G_ERR .gt. 0) return
 !
 !     PUT SOMETHING ON THE STACK
-10 CONTINUE
-   L = 1
-   IF (G_TOP .GT. 0) L = G_LSTK(G_TOP) + G_MSTK(G_TOP)*G_NSTK(G_TOP)
-   IF (G_TOP+1 .GE. G_BOT) CALL mat_err(18)
-   IF (G_ERR .GT. 0) RETURN
-   G_TOP = G_TOP+1
-   G_LSTK(G_TOP) = L
-   IF (G_SYM .EQ. QUOTE) GOTO 15
-   IF (G_SYM .EQ. LESS) GOTO 20
+10 continue
+   l = 1
+   IF (G_BOTTOM_OF_SCRATCH_IN_USE .gt. 0) &
+      & l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) &
+      & + G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) &
+      & * G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   if (G_BOTTOM_OF_SCRATCH_IN_USE+1 .ge. G_TOP_OF_SAVED) call mat_err(18)
+   if (G_ERR .gt. 0) return
+
+   G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
+   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l
+   if (G_SYM .eq. QUOTE) goto 15
+   if (G_SYM .eq. LESS) goto 20
 !
-!     SINGLE NUMBER, GETSYM STORED IT IN G_STKI
-   G_MSTK(G_TOP) = 1
-   G_NSTK(G_TOP) = 1
-   G_STKR(L) = G_STKI(G_VSIZE)
-   G_STKI(L) = 0.0D0
-   CALL mat_getsym()
-   GOTO 60
+!  SINGLE NUMBER, GETSYM STORED IT IN G_STACK_IMAGS
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+   G_STACK_REALS(L) = G_STACK_IMAGS(GG_BIGMEM)
+   G_STACK_IMAGS(L) = 0.0D0
+   call mat_getsym()
+   goto 60
 !
-!     STRING
-15 CONTINUE
-   N = 0
-   G_LPT(4) = G_LPT(3)
-   CALL mat_getch()  ! get next character
-16 CONTINUE
-   IF (G_CHRA .EQ. QUOTE) GOTO 18
-17 CONTINUE
-   LN = L+N
-   IF (G_CHRA .EQ. G_EOL) CALL mat_err(31)
-   IF (G_ERR .GT. 0) RETURN
-   G_STKR(LN) = dble(G_CHRA)
-   G_STKI(LN) = 0.0D0
-   N = N+1
-   CALL mat_getch()  ! get next character
-   GOTO 16
-18 CONTINUE
-   CALL mat_getch()  ! get next character
-   IF (G_CHRA .EQ. QUOTE) GOTO 17
-   IF (N .LE. 0) CALL mat_err(31)
-   IF (G_ERR .GT. 0) RETURN
-   G_MSTK(G_TOP) = 1
-   G_NSTK(G_TOP) = N
-   CALL mat_getsym()
-   GOTO 60
+!  STRING
+15 continue
+   n = 0
+   G_LINE_POINTER(4) = G_LINE_POINTER(3)
+   call mat_getch()  ! get next character
+16 continue
+   if (G_CHRA .eq. QUOTE) goto 18
+17 continue
+   ln = l+n
+   if (G_CHRA .eq. G_EOL) call mat_err(31)
+   if (G_ERR .gt. 0) return
+   G_STACK_REALS(LN) = dble(G_CHRA)
+   G_STACK_IMAGS(LN) = 0.0d0
+   n = n+1
+   call mat_getch()  ! get next character
+   goto 16
+18 continue
+   call mat_getch()  ! get next character
+   if (G_CHRA .eq. QUOTE) goto 17
+   if (n .le. 0) call mat_err(31)
+   if (G_ERR .gt. 0) return
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+   call mat_getsym()
+   goto 60
 !
-!     EXPLICIT MATRIX
-20 CONTINUE
-   G_MSTK(G_TOP) = 0
-   G_NSTK(G_TOP) = 0
-21 CONTINUE
-   G_TOP = G_TOP + 1
-   G_LSTK(G_TOP) = G_LSTK(G_TOP-1) + G_MSTK(G_TOP-1)*G_NSTK(G_TOP-1)
-   G_MSTK(G_TOP) = 0
-   G_NSTK(G_TOP) = 0
-   CALL mat_getsym()
-22 CONTINUE
-   IF (G_SYM.EQ.SEMI .OR. G_SYM.EQ.GREAT .OR. G_SYM.EQ.G_EOL) GOTO 27
-   IF (G_SYM .EQ. COMMA) CALL mat_getsym()
+!  EXPLICIT MATRIX
+20 continue
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+21 continue
+   G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
+   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = &
+      &   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE-1) &
+      & + G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-1)&
+      & * G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE-1)
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+   call mat_getsym()
+22 continue
+   if (G_SYM.eq.semi .or. G_SYM.eq.great .or. G_SYM.eq.G_EOL) goto 27
+   if (G_SYM .eq. comma) call mat_getsym()
    G_PT = G_PT+1
    G_RSTK(G_PT) = 10
 !     *CALL* EXPR
-   RETURN
+   return
+!==================================================================================================================================!
 25 CONTINUE
    G_PT = G_PT-1
-   G_TOP = G_TOP - 1
-   IF (G_MSTK(G_TOP) .EQ. 0) G_MSTK(G_TOP) = G_MSTK(G_TOP+1)
-   IF (G_MSTK(G_TOP) .NE. G_MSTK(G_TOP+1)) CALL mat_err(5)
-   IF (G_ERR .GT. 0) RETURN
-   G_NSTK(G_TOP) = G_NSTK(G_TOP) + G_NSTK(G_TOP+1)
-   GOTO 22
-27 CONTINUE
-   IF (G_SYM.EQ.SEMI .AND. G_CHRA.EQ.G_EOL) CALL mat_getsym()
-   CALL mat_stack1(QUOTE)
-   IF (G_ERR .GT. 0) RETURN
-   G_TOP = G_TOP - 1
-   IF (G_MSTK(G_TOP) .EQ. 0) G_MSTK(G_TOP) = G_MSTK(G_TOP+1)
-   IF (G_MSTK(G_TOP).NE.G_MSTK(G_TOP+1).AND.G_MSTK(G_TOP+1).GT.0)CALL mat_err(6)
-   IF (G_ERR .GT. 0) RETURN
-   G_NSTK(G_TOP) = G_NSTK(G_TOP) + G_NSTK(G_TOP+1)
-   IF (G_SYM .EQ. G_EOL) CALL mat_getlin()
-   IF (G_SYM .NE. GREAT) GOTO 21
-   CALL mat_stack1(QUOTE)
-   IF (G_ERR .GT. 0) RETURN
-   CALL mat_getsym()
-   GOTO 60
-!
-!     MACRO STRING
-30 CONTINUE
-   CALL mat_getsym()
-   IF (G_SYM.EQ.LESS .AND. G_CHRA.EQ.G_EOL) CALL mat_err(28)
-   IF (G_ERR .GT. 0) RETURN
+   G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
+   if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .eq. 0)  &
+      & G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+   if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .ne. G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)) call mat_err(5)
+   if (G_ERR .gt. 0) return
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) =  &
+      & G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) + G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+   goto 22
+!==================================================================================================================================!
+27 continue
+   if (G_SYM.eq.semi .and. G_CHRA.eq.g_eol) call mat_getsym()
+   call mat_stack1(quote)
+   if (G_ERR .gt. 0) return
+   G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
+   if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .eq. 0)  &
+      & G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+   if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .ne. G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1) &
+      & .and. G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1) .gt. 0)call mat_err(6)
+   if (G_ERR .gt. 0) return
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) &
+      & + G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
+   if (G_SYM .eq. g_eol) call mat_getlin()
+   if (G_SYM .ne. great) goto 21
+   call mat_stack1(quote)
+   if (G_ERR .gt. 0) return
+   call mat_getsym()
+   goto 60
+!==================================================================================================================================!
+!  MACRO STRING
+30 continue
+   call mat_getsym()
+   if (G_SYM .eq. less .and. G_CHRA.EQ.G_EOL) call mat_err(28)
+   if (G_ERR .gt. 0) return
    G_PT = G_PT+1
    G_RSTK(G_PT) = 18
 !     *CALL* EXPR
-   RETURN
+   return
+!==================================================================================================================================!
 32 CONTINUE
    G_PT = G_PT-1
-   IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37)
+   IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37) ! Improper MACRO
    IF (G_ERR .GT. 0) RETURN
    IF (G_SYM .EQ. LESS) CALL mat_getsym()
-   K = G_LPT(6)
-   G_LIN(K+1) = G_LPT(1)
-   G_LIN(K+2) = G_LPT(2)
-   G_LIN(K+3) = G_LPT(6)
-   G_LPT(1) = K + 4
+   K = G_LINE_POINTER(6)
+   G_LIN(K+1) = G_LINE_POINTER(1)
+   G_LIN(K+2) = G_LINE_POINTER(2)
+   G_LIN(K+3) = G_LINE_POINTER(6)
+   G_LINE_POINTER(1) = K + 4
 !     TRANSFER STACK TO INPUT LINE
-   K = G_LPT(1)
-   L = G_LSTK(G_TOP)
-   N = G_MSTK(G_TOP)*G_NSTK(G_TOP)
+   K = G_LINE_POINTER(1)
+   L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    DO J = 1, N
       LS = L + J-1
-      G_LIN(K) = int(G_STKR(LS))
-      IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_CHARSET_SIZE) CALL mat_err(37)
-      IF (G_ERR .GT. 0) RETURN
-      IF (K.LT.1024) K = K+1
-      IF (K.EQ.1024)call journal('sc','INPUT BUFFER CHAR LIMIT EXCEEDED=',K)
+      G_LIN(K) = int(G_STACK_REALS(LS))
+      if (G_LIN(k).lt.0 .or. G_LIN(k).ge.G_CHARSET_SIZE) call mat_err(37) ! Improper MACRO
+      if (G_ERR .gt. 0) return
+      if (k.lt.1024) k = k+1
+      if (k.eq.1024)call journal('sc','Input buffer char limit exceeded=',K)
    enddo
-   G_TOP = G_TOP-1
-   G_LIN(K) = G_EOL
-   G_LPT(6) = K
-   G_LPT(4) = G_LPT(1)
-   G_LPT(3) = 0
-   G_LPT(2) = 0
+   G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+   G_LIN(k) = G_EOL
+   G_LINE_POINTER(6) = k
+   G_LINE_POINTER(4) = G_LINE_POINTER(1)
+   G_LINE_POINTER(3) = 0
+   G_LINE_POINTER(2) = 0
    G_LINECOUNT(1) = 0
-   G_CHRA = BLANK
-   CALL mat_getsym()
+   G_CHRA = blank
+   call mat_getsym()
    G_PT = G_PT+1
    G_RSTK(G_PT) = 19
 !     *CALL* EXPR
-   RETURN
+   return
+!==================================================================================================================================!
 37 CONTINUE
    G_PT = G_PT-1
-   K = G_LPT(1) - 4
-   G_LPT(1) = G_LIN(K+1)
-   G_LPT(4) = G_LIN(K+2)
-   G_LPT(6) = G_LIN(K+3)
+   K = G_LINE_POINTER(1) - 4
+   G_LINE_POINTER(1) = G_LIN(K+1)
+   G_LINE_POINTER(4) = G_LIN(K+2)
+   G_LINE_POINTER(6) = G_LIN(K+3)
    G_CHRA = BLANK
    CALL mat_getsym()
    GOTO 60
 !
-!     FUNCTION OR MATRIX ELEMENT
-40 CONTINUE
-   CALL mat_putid(ID,G_SYN)
-   CALL mat_getsym()
-   IF (G_SYM .EQ. LPAREN) GOTO 42
+!  FUNCTION OR MATRIX ELEMENT
+40 continue
+   call mat_putid(id,G_SYN)
+   call mat_getsym()
+   if (G_SYM .eq. lparen) goto 42
    G_RHS = 0
-   CALL mat_funs(ID)
-   IF (G_FIN .NE. 0) CALL mat_err(25)
-   IF (G_ERR .GT. 0) RETURN
-   CALL MAT_STACK_GET(ID)
-   IF (G_ERR .GT. 0) RETURN
-   IF (G_FIN .EQ. 7) GOTO 50
-   IF (G_FIN .EQ. 0) CALL mat_putid(G_IDS(1,G_PT+1),ID)
-   IF (G_FIN .EQ. 0) CALL mat_err(4)
-   IF (G_ERR .GT. 0) RETURN
-   GOTO 60
+   call mat_funs(ID)
+   if (G_FIN .ne. 0) call mat_err(25)
+   if (G_ERR .gt. 0) return
+   call mat_stack_get(id)
+   if (G_ERR .gt. 0) return
+   if (G_FIN .eq. 7) goto 50
+   if (G_FIN .eq. 0) call mat_putid(G_IDS(1,G_PT+1),id)
+   if (G_FIN .eq. 0) call mat_err(4)
+   if (G_ERR .gt. 0) return
+   goto 60
 !
 42 CONTINUE
    CALL mat_getsym()
@@ -6171,7 +6407,7 @@ integer           :: n
    G_RSTK(G_PT) = 11
 !     *CALL* EXPR
    RETURN
-!.......................................................................
+!==================================================================================================================================!
 45 CONTINUE
    CALL mat_putid(ID,G_IDS(1,G_PT))
    EXCNT = G_PSTK(G_PT)
@@ -6187,26 +6423,26 @@ integer           :: n
    IF (G_FIN .EQ. 0) CALL mat_funs(ID)
    IF (G_FIN .EQ. 0) CALL mat_err(4)
    IF (G_ERR .GT. 0) RETURN
-!
-!     EVALUATE MATRIX FUNCTION
+   ! EVALUATE MATRIX FUNCTION
 50 CONTINUE
    G_PT = G_PT+1
    G_RSTK(G_PT) = 16
-!     *CALL* MATFN
+   ! *CALL* MATFN
    RETURN
+!==================================================================================================================================!
 55 CONTINUE
    G_PT = G_PT-1
    GOTO 60
-!
-!     CHECK FOR QUOTE (TRANSPOSE) AND ** (POWER)
+!==================================================================================================================================!
+!  CHECK FOR QUOTE (TRANSPOSE) AND ** (POWER)
 60 CONTINUE
-   IF (G_SYM .NE. QUOTE) GOTO 62
-   I = G_LPT(3) - 2
-   IF (G_LIN(I) .EQ. BLANK) GOTO 90
-   CALL mat_stack1(QUOTE)
-   IF (G_ERR .GT. 0) RETURN
+   IF (G_SYM .eq. QUOTE) then
+      I = G_LINE_POINTER(3) - 2
+      IF (G_LIN(I) .EQ. BLANK) GOTO 90
+      CALL mat_stack1(QUOTE)
+      IF (G_ERR .GT. 0) RETURN
    CALL mat_getsym()
-62 CONTINUE
+   endif
    IF (G_SYM.NE.STAR .OR. G_CHRA.NE.STAR) GOTO 90
    CALL mat_getsym()
    CALL mat_getsym()
@@ -6214,20 +6450,23 @@ integer           :: n
    G_RSTK(G_PT) = 12
 !     *CALL* FACTOR
    GOTO 01
+!==================================================================================================================================!
 65 CONTINUE
    G_PT = G_PT-1
    CALL mat_stack2(DSTAR)
    IF (G_ERR .GT. 0) RETURN
    IF (G_FUN .NE. 2) GOTO 90
-!     MATRIX POWER, USE EIGENVECTORS
+   !  MATRIX POWER, USE EIGENVECTORS
    G_PT = G_PT+1
    G_RSTK(G_PT) = 17
-!     *CALL* MATFN
+   ! *CALL* MATFN
    RETURN
+!==================================================================================================================================!
 75 CONTINUE
    G_PT = G_PT-1
 90 CONTINUE
    RETURN
+!==================================================================================================================================!
 99 CONTINUE
    CALL mat_err(22)
    IF (G_ERR .GT. 0) RETURN
@@ -6259,29 +6498,29 @@ integer            :: ilen
    G_PT = G_PT+1
    G_RSTK(G_PT) = 8
 !     *CALL* FACTOR
-   RETURN
+   return
 !.......................................................................
-5  CONTINUE
+5  continue
    G_PT = G_PT-1
-10 CONTINUE
-   OP = 0
+10 continue
+   op = 0
    IF (G_SYM .EQ. DOT) OP = DOT
    IF (G_SYM .EQ. DOT) CALL mat_getsym
    IF (G_SYM.EQ.STAR .OR. G_SYM.EQ.SLASH .OR. G_SYM.EQ.BSLASH) GOTO 20
-   RETURN
+   return
 !.......................................................................
-20 CONTINUE
+20 continue
    OP = OP + G_SYM
-   CALL mat_getsym()
+   call mat_getsym()
    IF (G_SYM .EQ. DOT) OP = OP + G_SYM
    IF (G_SYM .EQ. DOT) CALL mat_getsym()
    G_PT = G_PT+1
    G_PSTK(G_PT) = OP
    G_RSTK(G_PT) = 9
 !     *CALL* FACTOR
-   RETURN
+   return
 !.......................................................................
-25 CONTINUE
+25 continue
    OP = G_PSTK(G_PT)
    G_PT = G_PT-1
    CALL mat_stack2(OP)
@@ -6291,31 +6530,31 @@ integer            :: ilen
    G_PT = G_PT+1
    G_RSTK(G_PT) = 15
 !     *CALL* MATFN
-   RETURN
+   return
 !.......................................................................
-35 CONTINUE
+35 continue
    G_PT = G_PT-1
-   GOTO 10
+   goto 10
 !.......................................................................
-99 CONTINUE
-   CALL mat_err(22)
+99 continue
+   call mat_err(22)
    IF (G_ERR .GT. 0) RETURN
-!.......................................................................
-END SUBROUTINE mat_term
+
+end subroutine mat_term
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 SUBROUTINE mat_savlod(LSAVE,ID,M,N,IMG,JOB,XREAL,XIMAG)
 
 integer                        :: lsave
-integer                        :: id(G_MAX_NAME_LENGTH)
+integer                        :: id(GG_MAX_NAME_LENGTH)
 integer                        :: m
 integer                        :: n
 integer                        :: img
 integer                        :: job
 doubleprecision                :: xreal(*)
 doubleprecision                :: ximag(*)
-character(len=G_MAX_NAME_LENGTH) :: cid
+character(len=GG_MAX_NAME_LENGTH) :: cid
 integer                        :: i,j,k,l
 
 ! ident_40="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
@@ -6328,28 +6567,28 @@ integer                        :: i,j,k,l
 !     M, N = DIMENSIONS
 !     IMG = NONZERO IF XIMAG IS NONZERO
 !           RETURNED ON A LOAD
-!     JOB = 0     FOR SAVE
+!     JOB = 0 FOR SAVE
 !         = SPACE AVAILABLE FOR LOAD
 !     XREAL, XIMAG = REAL AND OPTIONAL IMAGINARY PARTS
 !.......................................................................
-      IF (JOB .LE. 0) THEN   ! save
-         call mat_buf2str(cid,id,G_MAX_NAME_LENGTH) ! convert ID to a character string
+      IF (JOB .LE. 0) THEN                                              ! save
+         call mat_buf2str(cid,id,GG_MAX_NAME_LENGTH)                    ! convert ID to a character string
          WRITE(LSAVE,101) CID,M,N,IMG
          DO J = 1, N
             K = (J-1)*M+1
             L = J*M
-            WRITE(LSAVE,102) (XREAL(I),I=K,L)                 ! real
-            IF (IMG .NE. 0) WRITE(LSAVE,102) (XIMAG(I),I=K,L) ! imaginary
+            WRITE(LSAVE,102) (XREAL(I),I=K,L)                           ! real
+            IF (IMG .NE. 0) WRITE(LSAVE,102) (XIMAG(I),I=K,L)           ! imaginary
          enddo
 !.......................................................................
-      ELSE                   ! load
+      ELSE                                                              ! load
          READ(LSAVE,101,END=30) cid,M,N,IMG
-         call mat_str2buf(cid,id,G_MAX_NAME_LENGTH) ! convert character string to an ID
+         call mat_str2buf(cid,id,GG_MAX_NAME_LENGTH)                    ! convert character string to an ID
          IF (M*N .GT. JOB) GOTO 30
          DO J = 1, N
             K = (J-1)*M+1
             L = J*M
-            READ(LSAVE,102,END=30) (XREAL(I),I=K,L)   ! real
+            READ(LSAVE,102,END=30) (XREAL(I),I=K,L)                     ! real
             IF (IMG .NE. 0) READ(LSAVE,102,END=30) (XIMAG(I),I=K,L) !imaginary
          enddo
       ENDIF
@@ -6695,14 +6934,14 @@ logical function mat_eqid(x,y)
 
 !     check for equality of two integer arrays
 
-integer,intent(in) :: x(G_MAX_NAME_LENGTH)
-integer,intent(in) :: y(G_MAX_NAME_LENGTH)
+integer,intent(in) :: x(GG_MAX_NAME_LENGTH)
+integer,intent(in) :: y(GG_MAX_NAME_LENGTH)
 
 integer            :: i
 
    mat_eqid = .true.
 
-   do i = 1, G_MAX_NAME_LENGTH
+   do i = 1, GG_MAX_NAME_LENGTH
       mat_eqid = mat_eqid .and. (x(i).eq.y(i))
    enddo
 
@@ -6820,12 +7059,14 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      execution.                                                                ',&
 '================================================================================',&
 'SYNTAX                                                                          ',&
-'                                                                                ',&
-'<     < > Brackets used in forming vectors and matrices.                        ',&
-'      <6.9 9.64 sqrt(-1)> is a vector with three elements separated by          ',&
-'      blanks. <1+I 2-I 3> and <1 +I 2 -I 3> are not the same. The first         ',&
-'      has three elements, the second has five.  <11 12 13; 21 22 23>            ',&
-'      is a 2 by 3 matrix. The semicolon ends the first row.                     ',&
+'[     See "<"                                                                   ',&
+']     See "<"                                                                   ',&
+'>     See "<" . Also see MACRO.                                                 ',&
+'<     < > or [ ] are brackets used in forming vectors and matrices.             ',&
+'      "<6.9 9.64 sqrt(-1)>" is a vector with three elements separated by        ',&
+'      blanks. "[1+I 2-I 3]" and "[1 +I 2 -I 3]" are not the same. The           ',&
+'      first has three elements, the second has five.  <11 12 13; 21 22          ',&
+'      23> is a 2 by 3 matrix. The semicolon ends the first row.                 ',&
 '                                                                                ',&
 '      Vectors and matrices can be used inside < > brackets.  <A B; C>           ',&
 '      is allowed if the number of rows of A equals the number of rows           ',&
@@ -6839,26 +7080,28 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      For the use of < and > on the left of the = in multiple assignment        ',&
 '      statements, See "lu", "eig", "svd" and so on.                             ',&
 '                                                                                ',&
-'      In "while" and "if" clauses, <> means less than or greater than,          ',&
-'      i.e. not equal, < means less than, > means greater than, <= means         ',&
-'      less than or equal, >= means greater than or equal.                       ',&
+'      In "while" and "if" clauses, "<>" means less than or greater than,        ',&
+'      i.e. not equal, "<" means less than, ">" means greater than,              ',&
+'      "<=" means less than or equal, ">=" means greater than or equal.          ',&
 '                                                                                ',&
-'      For the use of > and < to delineate macros, see MACRO.                    ',&
+'      For the use of ">" and "<" to delineate macros, see MACRO.                ',&
 '                                                                                ',&
-'>     See < . Also see MACRO.                                                   ',&
 '                                                                                ',&
-'(     ( ) Used to indicate precedence in arithmetic expressions                 ',&
-'      in the usual way. Used to enclose arguments of functions in the           ',&
-'      usual way. Used to enclose subscripts of vectors and matrices             ',&
-'      in a manner somewhat more general than the usual way. If X and V          ',&
-'      are vectors, then X(V) is <X(V(1)), X(V(2)), ..., X(V(N))>. The           ',&
-'      components of V are rounded to nearest integers and used as               ',&
-'      subscripts. An error occurs if any such subscript is less than 1          ',&
-'      or greater than the dimension of X. Some examples:                        ',&
+'{     see "(".                                                                  ',&
+'}     see "(".                                                                  ',&
+')     See "(" .                                                                 ',&
+'(     ( ) or { } are used to indicate precedence in arithmetic expressions      ',&
+'      and to enclose arguments of functions in the usual way. They are          ',&
+'      also used to enclose subscripts of vectors and matrices in a manner       ',&
+'      somewhat more general than the usual way. If X and V are vectors,         ',&
+'      then X(V) is <X(V(1)), X(V(2)), ..., X(V(N))>. The components of V        ',&
+'      are rounded to nearest integers and used as subscripts. An error          ',&
+'      occurs if any such subscript is less than 1 or greater than the           ',&
+'      dimension of X. Some examples:                                            ',&
 '                                                                                ',&
 '         X(3) is the third element of X .                                       ',&
-'         X(<1 2 3>) is the first three elements of X. So is                     ',&
-'         X(<sqrt(2), sqrt(3), 4*atan(1)>) .                                     ',&
+'         X([1 2 3]) is the first three elements of X. So is                     ',&
+'         X([sqrt(2), sqrt(3), 4*atan(1)]) .                                     ',&
 '         If X has N components, X(N:-1:1) reverses them.                        ',&
 '                                                                                ',&
 '      The same indirect subscripting is used in matrices. If V has              ',&
@@ -6867,7 +7110,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      elements of V and W. For example...  A(<1,5>,:) = A(<5,1>,:)              ',&
 '      interchanges rows 1 and 5 of A.                                           ',&
 '                                                                                ',&
-')     See ( .                                                                   ',&
 '                                                                                ',&
 '=     Used in assignment statements and to mean equality in "while"             ',&
 '      and "if" clauses.                                                         ',&
@@ -7114,7 +7356,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      generates the NxN Hilbert matrix.                                         ',&
 '                                                                                ',&
-'      "invh" has an alias of "inverse_hilbert".                                 ',&
+'      "invh" has an alias of "inverse_hilbert" and "invhilb".                   ',&
 '                                                                                ',&
 'imag  "imag(X)" is the imaginary part of X .                                    ',&
 '                                                                                ',&
@@ -7330,7 +7572,12 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      "float(K)" . After the subroutine has been written, it must               ',&
 '      be compiled and linked to the MAT88 object code within the                ',&
 '      local operating system.                                                   ',&
+'zeros                                                                           ',&
+'      Returns a matrix of all zeros.                                            ',&
 '                                                                                ',&
+'         zeros(N)    returns an N by N matrix of zeroes.                        ',&
+'         zeros(M,N)  returns an M by N matrix of zeroes.                        ',&
+'         zeros(X)    returns a matrix of zeroes of the same order as X.         ',&
 '================================================================================',&
 'FLOW CONTROL                                                                    ',&
 '                                                                                ',&
@@ -7595,7 +7842,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '         t = 0:50;                                                              ',&
 '         plot( t.*cos(t), t.*sin(t) )                                           ',&
-'         opts='' -m 1 -title test plot -d pdf''                                 ',&
+'         opts='' -m -1 -title test plot -d pdf''                                ',&
 '         plot( t.*cos(t), t.*sin(t),opts)                                       ',&
 '================================================================================',&
 'PERFORMANCE INFORMATION                                                         ',&
@@ -7730,7 +7977,6 @@ end subroutine mat_help_text
 subroutine mat_make_manual(io)
 integer,intent(in) :: io
 write(io,'(a)')'6/24/81'
-write(io,'(a)')''
 write(io,'(a)')'                       MAT88 Users'' Guide'
 write(io,'(a)')'                            May, 1981'
 write(io,'(a)')'                            Dec, 2018'
@@ -7741,16 +7987,12 @@ write(io,'(a)')'                           Cleve Moler'
 write(io,'(a)')'                 Department of Computer Science'
 write(io,'(a)')'                    University of New Mexico'
 write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'          ABSTRACT. MAT88 is an interactive computer procedure'
-write(io,'(a)')'          that serves as a convenient "laboratory" for'
-write(io,'(a)')'          computations involving matrices. It provides easy'
-write(io,'(a)')'          access to matrix software developed by the LINPACK and'
-write(io,'(a)')'          EISPACK projects. The program is written in Fortran'
-write(io,'(a)')'          and is designed to be readily installed under any'
-write(io,'(a)')'          operating system which permits interactive execution of'
-write(io,'(a)')'          Fortran programs.'
-write(io,'(a)')''
+write(io,'(a)')'   <ABSTRACT> MAT88 is an interactive computer procedure that serves'
+write(io,'(a)')'   as a convenient "laboratory" for computations involving matrices. It'
+write(io,'(a)')'   provides easy access to matrix software developed by the LINPACK and'
+write(io,'(a)')'   EISPACK projects. The program is written in Fortran and is designed'
+write(io,'(a)')'   to be readily installed under any operating system which permits'
+write(io,'(a)')'   interactive execution of Fortran programs.'
 write(io,'(a)')''
 write(io,'(a)')'                            CONTENTS'
 write(io,'(a)')''
@@ -7846,9 +8088,7 @@ write(io,'(a)')'   numerical properties. The final section describes how MAT88 c
 write(io,'(a)')'   used with other programs. The appendix includes the HELP documentation'
 write(io,'(a)')'   available on-line.'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'1.  ELEMENTARY OPERATIONS'
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'   MAT88 works with essentially only one kind of object, a'
 write(io,'(a)')'   rectangular matrix with complex elements. If the imaginary parts'
@@ -8155,7 +8395,7 @@ write(io,'(a)')'      schur(A)        - Schur triangular form.'
 write(io,'(a)')'      hess(A)         - Hessenberg or tridiagonal form.'
 write(io,'(a)')'      poly(A)         - Characteristic polynomial.'
 write(io,'(a)')'      svd(A)          - Singular value decomposition.'
-write(io,'(a)')'      pinv(A,eps)     - Pseudoinverse with optional tolerance.'
+write(io,'(a)')'      pinv(A,eps)     - Pseudo-inverse with optional tolerance.'
 write(io,'(a)')'      rank(A,eps)     - Matrix rank with optional tolerance.'
 write(io,'(a)')'      lu(A)           - Factors from Gaussian elimination.'
 write(io,'(a)')'      chol(A)         - Factor from Cholesky factorization.'
@@ -8328,7 +8568,6 @@ write(io,'(a)')'      if abs(i-j) = 2, A(i,j) = 0;'
 write(io,'(a)')''
 write(io,'(a)')'5.  COMMANDS, TEXT, FILES AND MACROS.'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'   MAT88 has several commands which control the output format and the'
 write(io,'(a)')'   overall execution of the system.'
 write(io,'(a)')''
@@ -8400,7 +8639,6 @@ write(io,'(a)')'   in a completely machine-independent manner by portable Fortra
 write(io,'(a)')'   code. It is necessary for each particular installation to'
 write(io,'(a)')'   provide a subroutine which associates external text files with'
 write(io,'(a)')'   Fortran logical unit numbers.'
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'6.  CENSUS EXAMPLE'
 write(io,'(a)')''
@@ -8537,15 +8775,14 @@ write(io,'(a)')'   negative and the predicted populations of less than 200 milli
 write(io,'(a)')'   are probably unrealistic. The hopefully absurd prediction of the'
 write(io,'(a)')'   interpolating polynomial concludes the table.'
 write(io,'(a)')''
-write(io,'(a)')'   We wish to emphasize that roundoff errors are not'
-write(io,'(a)')'   significant here. Nearly identical results would be obtained on'
-write(io,'(a)')'   other computers, or with other algorithms. The results simply'
-write(io,'(a)')'   indicate the difficulties associated with extrapolation of'
-write(io,'(a)')'   polynomial fits of even modest degree.'
+write(io,'(a)')'   We wish to emphasize that roundoff errors are not significant'
+write(io,'(a)')'   here. Nearly identical results would be obtained on other computers,'
+write(io,'(a)')'   or with other algorithms. The results simply indicate the difficulties'
+write(io,'(a)')'   associated with extrapolation of polynomial fits of even modest degree.'
 write(io,'(a)')''
-write(io,'(a)')'   A stabilized fit by a seventh degree polynomial can be'
-write(io,'(a)')'   obtained using the pseudoinverse, but it requires a fairly'
-write(io,'(a)')'   delicate choice of a tolerance. The statement'
+write(io,'(a)')'   A stabilized fit by a seventh degree polynomial can be obtained using'
+write(io,'(a)')'   the pseudoinverse, but it requires a fairly delicate choice of a'
+write(io,'(a)')'   tolerance. The statement'
 write(io,'(a)')''
 write(io,'(a)')'      s = svd(A)'
 write(io,'(a)')''
@@ -8563,10 +8800,10 @@ write(io,'(a)')'         0.0134'
 write(io,'(a)')'         0.0029'
 write(io,'(a)')''
 write(io,'(a)')'   We see that the last three singular values are less than 0.1 ,'
-write(io,'(a)')'   consequently, A can be approximately by a matrix of rank five'
-write(io,'(a)')'   with an error less than 0.1 . The Moore-Penrose pseudoinverse of'
-write(io,'(a)')'   this rank five matrix is obtained from the singular value'
-write(io,'(a)')'   decomposition with the following statements'
+write(io,'(a)')'   consequently, A can be approximately by a matrix of rank five with an'
+write(io,'(a)')'   error less than 0.1 . The Moore-Penrose pseudoinverse of this rank'
+write(io,'(a)')'   five matrix is obtained from the singular value decomposition with'
+write(io,'(a)')'   the following statements'
 write(io,'(a)')''
 write(io,'(a)')'      c = pinv(A,0.1)*y, p = sum(c), e = norm(a*c-y,''inf'')'
 write(io,'(a)')''
@@ -8594,17 +8831,16 @@ write(io,'(a)')''
 write(io,'(a)')'   The resulting seventh degree polynomial has coefficients which'
 write(io,'(a)')'   are much smaller than those of the interpolating polynomial given'
 write(io,'(a)')'   earlier. The predicted population and the maximum deviation are'
-write(io,'(a)')'   reasonable. Any choice of the tolerance between the fifth and'
-write(io,'(a)')'   sixth singular values would produce the same results, but choices'
-write(io,'(a)')'   outside this range result in pseudoinverses of different rank and'
-write(io,'(a)')'   do not work as well.'
+write(io,'(a)')'   reasonable. Any choice of the tolerance between the fifth and sixth'
+write(io,'(a)')'   singular values would produce the same results, but choices outside'
+write(io,'(a)')'   this range result in pseudoinverses of different rank and do not work'
+write(io,'(a)')'   as well.'
 write(io,'(a)')''
 write(io,'(a)')'   The one term exponential approximation'
 write(io,'(a)')''
 write(io,'(a)')'        y(t) = k exp(pt)'
 write(io,'(a)')''
-write(io,'(a)')'   can be transformed into a linear approximation by taking'
-write(io,'(a)')'   logarithms.'
+write(io,'(a)')'   can be transformed into a linear approximation by taking logarithms.'
 write(io,'(a)')''
 write(io,'(a)')'        log(y(t)) = log k + pt'
 write(io,'(a)')''
@@ -8634,14 +8870,13 @@ write(io,'(a)')'      E     ='
 write(io,'(a)')''
 write(io,'(a)')'         4.9141'
 write(io,'(a)')''
-write(io,'(a)')'   The predicted population and maximum deviation appear'
-write(io,'(a)')'   satisfactory and indicate that the exponential model is a'
-write(io,'(a)')'   reasonable one to consider.'
+write(io,'(a)')'   The predicted population and maximum deviation appear satisfactory and'
+write(io,'(a)')'   indicate that the exponential model is a reasonable one to consider.'
 write(io,'(a)')''
-write(io,'(a)')'   As a curiosity, we return to the degree six polynomial.'
-write(io,'(a)')'   Since the coefficient of the high order term is negative and the'
-write(io,'(a)')'   value of the polynomial at t = 1 is positive, it must have a root'
-write(io,'(a)')'   at some value of t greater than one. The statements'
+write(io,'(a)')'   As a curiosity, we return to the degree six polynomial.  Since the'
+write(io,'(a)')'   coefficient of the high order term is negative and the value of the'
+write(io,'(a)')'   polynomial at t = 1 is positive, it must have a root at some value'
+write(io,'(a)')'   of t greater than one. The statements'
 write(io,'(a)')''
 write(io,'(a)')'      X = A(:,1:7);'
 write(io,'(a)')'      c = X\y;'
@@ -8671,20 +8906,19 @@ write(io,'(a)')'   early in February of 1984.'
 write(io,'(a)')''
 write(io,'(a)')'7. PARTIAL DIFFERENTIAL EQUATION EXAMPLE'
 write(io,'(a)')''
-write(io,'(a)')'   Our second extended example is a boundary value problem for'
-write(io,'(a)')'   Laplace''s equation. The underlying physical problem involves the'
-write(io,'(a)')'   conductivity of a medium with cylindrical inclusions and is'
-write(io,'(a)')'   considered by Keller and Sachs [7].'
+write(io,'(a)')'   Our second extended example is a boundary value problem for Laplace''s'
+write(io,'(a)')'   equation. The underlying physical problem involves the conductivity'
+write(io,'(a)')'   of a medium with cylindrical inclusions and is considered by Keller'
+write(io,'(a)')'   and Sachs [7].'
 write(io,'(a)')''
 write(io,'(a)')'        Find a function  u(x,y)  satisfying Laplace''s equation'
 write(io,'(a)')''
 write(io,'(a)')'                  u   + u   = 0'
 write(io,'(a)')'                   xx    yy'
 write(io,'(a)')''
-write(io,'(a)')'   The domain is a unit square with a quarter circle of radius rho'
-write(io,'(a)')'   removed from one corner. There are Neumann conditions on the top'
-write(io,'(a)')'   and bottom edges and Dirichlet conditions on the remainder of the'
-write(io,'(a)')'   boundary.'
+write(io,'(a)')'   The domain is a unit square with a quarter circle of radius rho removed'
+write(io,'(a)')'   from one corner. There are Neumann conditions on the top and bottom'
+write(io,'(a)')'   edges and Dirichlet conditions on the remainder of the boundary.'
 write(io,'(a)')''
 write(io,'(a)')'                            u  = 0'
 write(io,'(a)')'                             n'
@@ -8709,21 +8943,20 @@ write(io,'(a)')''
 write(io,'(a)')'                                 u  = 0'
 write(io,'(a)')'                                  n'
 write(io,'(a)')''
-write(io,'(a)')'   The effective conductivity of an medium is then given by the'
-write(io,'(a)')'   integral along the left edge,'
+write(io,'(a)')'   The effective conductivity of an medium is then given by the integral'
+write(io,'(a)')'   along the left edge,'
 write(io,'(a)')''
 write(io,'(a)')'                               1'
 write(io,'(a)')'                    sigma = integral  u (0,y) dy'
 write(io,'(a)')'                              0        n'
 write(io,'(a)')''
-write(io,'(a)')'   It is of interest to study the relation between the radius rho'
-write(io,'(a)')'   and the conductivity sigma. In particular, as rho approaches'
-write(io,'(a)')'   one, sigma becomes infinite.'
+write(io,'(a)')'   It is of interest to study the relation between the radius rho and'
+write(io,'(a)')'   the conductivity sigma. In particular, as rho approaches one, sigma'
+write(io,'(a)')'   becomes infinite.'
 write(io,'(a)')''
-write(io,'(a)')'   Keller and Sachs use a finite difference approximation. The'
-write(io,'(a)')'   following technique makes use of the fact that the equation is'
-write(io,'(a)')'   actually Laplace''s equation and leads to a much smaller matrix'
-write(io,'(a)')'   problem to solve.'
+write(io,'(a)')'   Keller and Sachs use a finite difference approximation. The following'
+write(io,'(a)')'   technique makes use of the fact that the equation is actually Laplace''s'
+write(io,'(a)')'   equation and leads to a much smaller matrix problem to solve.'
 write(io,'(a)')''
 write(io,'(a)')'        Consider an approximate solution of the form'
 write(io,'(a)')''
@@ -8731,44 +8964,40 @@ write(io,'(a)')'                    n      2j-1'
 write(io,'(a)')'              u =  sum  c r    cos(2j-1)t'
 write(io,'(a)')'                   j=1   j'
 write(io,'(a)')''
-write(io,'(a)')'   where r,t are polar coordinates (t is theta). The coefficients'
-write(io,'(a)')'   are to be determined. For any set of coefficients, this function'
-write(io,'(a)')'   already satisfies the differential equation because the basis'
-write(io,'(a)')'   functions are harmonic; it satisfies the normal derivative'
-write(io,'(a)')'   boundary condition on the bottom edge of the domain because we'
-write(io,'(a)')'   used cos t in preference to sin t ; and it satisfies the'
-write(io,'(a)')'   boundary condition on the left edge of the domain because we use'
-write(io,'(a)')'   only odd multiples of t .'
+write(io,'(a)')'   where r,t are polar coordinates (t is theta). The coefficients are'
+write(io,'(a)')'   to be determined. For any set of coefficients, this function already'
+write(io,'(a)')'   satisfies the differential equation because the basis functions are'
+write(io,'(a)')'   harmonic; it satisfies the normal derivative boundary condition on'
+write(io,'(a)')'   the bottom edge of the domain because we used cos t in preference to'
+write(io,'(a)')'   sin t ; and it satisfies the boundary condition on the left edge of'
+write(io,'(a)')'   the domain because we use only odd multiples of t .'
 write(io,'(a)')''
-write(io,'(a)')'   The computational task is to find coefficients so that the'
-write(io,'(a)')'   boundary conditions on the remaining edges are satisfied as well'
-write(io,'(a)')'   as possible. To accomplish this, pick m points (r,t) on the'
-write(io,'(a)')'   remaining edges. It is desirable to have m > n and in practice'
-write(io,'(a)')'   we usually choose m to be two or three times as large as n .'
-write(io,'(a)')'   Typical values of n are 10 or 20 and of m are 20 to 60. An'
-write(io,'(a)')'   m by n matrix A is generated. The i,j element is the j-th'
-write(io,'(a)')'   basis function, or its normal derivative, evaluated at the i-th'
-write(io,'(a)')'   boundary point. A right hand side with m components is also'
-write(io,'(a)')'   generated. In this example, the elements of the right hand side'
-write(io,'(a)')'   are either zero or one. The coefficients are then found by'
-write(io,'(a)')'   solving the overdetermined set of equations'
+write(io,'(a)')'   The computational task is to find coefficients so that the boundary'
+write(io,'(a)')'   conditions on the remaining edges are satisfied as well as possible. To'
+write(io,'(a)')'   accomplish this, pick m points (r,t) on the remaining edges. It is'
+write(io,'(a)')'   desirable to have m > n and in practice we usually choose m to be two'
+write(io,'(a)')'   or three times as large as n .  Typical values of n are 10 or 20 and'
+write(io,'(a)')'   of m are 20 to 60. An m by n matrix A is generated. The i,j element'
+write(io,'(a)')'   is the j-th basis function, or its normal derivative, evaluated at'
+write(io,'(a)')'   the i-th boundary point. A right hand side with m components is also'
+write(io,'(a)')'   generated. In this example, the elements of the right hand side are'
+write(io,'(a)')'   either zero or one. The coefficients are then found by solving the'
+write(io,'(a)')'   overdetermined set of equations'
 write(io,'(a)')''
 write(io,'(a)')'               Ac = b'
 write(io,'(a)')''
 write(io,'(a)')'   in a least squares sense.'
 write(io,'(a)')''
-write(io,'(a)')'   Once the coefficients have been determined, the approximate'
-write(io,'(a)')'   solution is defined everywhere on the domain. It is then'
-write(io,'(a)')'   possible to compute the effective conductivity sigma . In fact,'
-write(io,'(a)')'   a very simple formula results,'
+write(io,'(a)')'   Once the coefficients have been determined, the approximate solution'
+write(io,'(a)')'   is defined everywhere on the domain. It is then possible to compute the'
+write(io,'(a)')'   effective conductivity sigma . In fact, a very simple formula results,'
 write(io,'(a)')''
 write(io,'(a)')'                        n       j-1'
 write(io,'(a)')'              sigma =  sum  (-1)   c'
 write(io,'(a)')'                       j=1          j'
 write(io,'(a)')''
-write(io,'(a)')'   To use MAT88 for this problem, the following "program" is'
-write(io,'(a)')'   first stored in the local computer file system, say under the'
-write(io,'(a)')'   name "PDE".'
+write(io,'(a)')'   To use MAT88 for this problem, the following "program" is first stored'
+write(io,'(a)')'   in the local computer file system, say under the name "PDE".'
 write(io,'(a)')''
 write(io,'(a)')'      //Conductivity example.'
 write(io,'(a)')'      //Parameters ---'
@@ -8811,8 +9040,8 @@ write(io,'(a)')'         sigma = sum(c)'
 write(io,'(a)')'      //output total operation count'
 write(io,'(a)')'         ops = flop(2)'
 write(io,'(a)')''
-write(io,'(a)')'   The program can be used within MAT88 by setting the three'
-write(io,'(a)')'   parameters and then accessing the file. For example,'
+write(io,'(a)')'   The program can be used within MAT88 by setting the three parameters'
+write(io,'(a)')'   and then accessing the file. For example,'
 write(io,'(a)')''
 write(io,'(a)')'      rho = .9;'
 write(io,'(a)')'      n = 15;'
@@ -8859,19 +9088,18 @@ write(io,'(a)')'      ops   ='
 write(io,'(a)')''
 write(io,'(a)')'         16204.'
 write(io,'(a)')''
-write(io,'(a)')'   A total of 16204 floating point operations were necessary to'
-write(io,'(a)')'   set up the matrix, solve for the coefficients and compute the'
-write(io,'(a)')'   conductivity. The operation count is roughly proportional to'
-write(io,'(a)')'   m*n**2. The results obtained for sigma as a function of rho by'
-write(io,'(a)')'   this approach are essentially the same as those obtained by the'
-write(io,'(a)')'   finite difference technique of Keller and Sachs, but the'
-write(io,'(a)')'   computational effort involved is much less.'
+write(io,'(a)')'   A total of 16204 floating point operations were necessary to set up the'
+write(io,'(a)')'   matrix, solve for the coefficients and compute the conductivity. The'
+write(io,'(a)')'   operation count is roughly proportional to m*n**2. The results obtained'
+write(io,'(a)')'   for sigma as a function of rho by this approach are essentially the'
+write(io,'(a)')'   same as those obtained by the finite difference technique of Keller'
+write(io,'(a)')'   and Sachs, but the computational effort involved is much less.'
 write(io,'(a)')''
 write(io,'(a)')'8.  EIGENVALUE SENSITIVITY EXAMPLE'
 write(io,'(a)')''
-write(io,'(a)')'   In this example, we construct a matrix whose eigenvalues are'
-write(io,'(a)')'   moderately sensitive to perturbations and then analyze that'
-write(io,'(a)')'   sensitivity. We begin with the statement'
+write(io,'(a)')'   In this example, we construct a matrix whose eigenvalues are moderately'
+write(io,'(a)')'   sensitive to perturbations and then analyze that sensitivity. We'
+write(io,'(a)')'   begin with the statement'
 write(io,'(a)')''
 write(io,'(a)')'      B = <3 0 7; 0 2 0; 0 0 1>'
 write(io,'(a)')''
@@ -8883,13 +9111,13 @@ write(io,'(a)')'          3.    0.    7.'
 write(io,'(a)')'          0.    2.    0.'
 write(io,'(a)')'          0.    0.    1.'
 write(io,'(a)')''
-write(io,'(a)')'   Obviously, the eigenvalues of B are 1, 2 and 3 . Moreover,'
-write(io,'(a)')'   since B is not symmetric, these eigenvalues are slightly'
-write(io,'(a)')'   sensitive to perturbation. (The value b(1,3) = 7 was chosen so'
-write(io,'(a)')'   that the elements of the matrix A below are less than 1000.)'
+write(io,'(a)')'   Obviously, the eigenvalues of B are 1, 2 and 3 . Moreover, since'
+write(io,'(a)')'   B is not symmetric, these eigenvalues are slightly sensitive to'
+write(io,'(a)')'   perturbation. (The value b(1,3) = 7 was chosen so that the elements'
+write(io,'(a)')'   of the matrix A below are less than 1000.)'
 write(io,'(a)')''
-write(io,'(a)')'   We now generate a similarity transformation to disguise the'
-write(io,'(a)')'   eigenvalues and make them more sensitive.'
+write(io,'(a)')'   We now generate a similarity transformation to disguise the eigenvalues'
+write(io,'(a)')'   and make them more sensitive.'
 write(io,'(a)')''
 write(io,'(a)')'      L = <1 0 0; 2 1 0; -3 4 1>, M = L\L'''
 write(io,'(a)')''
@@ -8945,12 +9173,12 @@ write(io,'(a)')'          -.0891    3.4903   41.8091'
 write(io,'(a)')'           .1782   -9.1284  -62.7136'
 write(io,'(a)')'          -.9800   46.4473  376.2818'
 write(io,'(a)')''
-write(io,'(a)')'   Since A is similar to B, its eigenvalues are also 1, 2 and 3.'
-write(io,'(a)')'   They happen to be computed in another order by the EISPACK'
-write(io,'(a)')'   subroutines. The fact that the columns of X, which are the'
-write(io,'(a)')'   eigenvectors, are so far from being orthonormal is our first'
-write(io,'(a)')'   indication that the eigenvalues are sensitive. To see this'
-write(io,'(a)')'   sensitivity, we display more figures of the computed eigenvalues.'
+write(io,'(a)')'   Since A is similar to B, its eigenvalues are also 1, 2 and 3.  They'
+write(io,'(a)')'   happen to be computed in another order by the EISPACK subroutines. The'
+write(io,'(a)')'   fact that the columns of X, which are the eigenvectors, are so far'
+write(io,'(a)')'   from being orthonormal is our first indication that the eigenvalues'
+write(io,'(a)')'   are sensitive. To see this sensitivity, we display more figures of'
+write(io,'(a)')'   the computed eigenvalues.'
 write(io,'(a)')''
 write(io,'(a)')'      long, diag(D)'
 write(io,'(a)')''
@@ -8960,9 +9188,9 @@ write(io,'(a)')'         2.999999999973599'
 write(io,'(a)')'         1.000000000015625'
 write(io,'(a)')'         2.000000000011505'
 write(io,'(a)')''
-write(io,'(a)')'   We see that, on this computer, the last five significant figures'
-write(io,'(a)')'   are contaminated by roundoff error. A somewhat superficial'
-write(io,'(a)')'   explanation of this is provided by'
+write(io,'(a)')'   We see that, on this computer, the last five significant figures are'
+write(io,'(a)')'   contaminated by roundoff error. A somewhat superficial explanation'
+write(io,'(a)')'   of this is provided by'
 write(io,'(a)')''
 write(io,'(a)')'      short,  cond(X)'
 write(io,'(a)')''
@@ -8986,15 +9214,14 @@ write(io,'(a)')'      ans   ='
 write(io,'(a)')''
 write(io,'(a)')'         1.7692e+03'
 write(io,'(a)')''
-write(io,'(a)')'   Rescaling the eigenvectors so that their last components are'
-write(io,'(a)')'   all equal to one has two consequences. The condition of X is'
-write(io,'(a)')'   decreased by over two orders of magnitude. (This is about the'
-write(io,'(a)')'   minimum condition that can be obtained by such diagonal scaling.)'
-write(io,'(a)')'   Moreover, it is now apparent that the three eigenvectors are'
-write(io,'(a)')'   nearly parallel.'
+write(io,'(a)')'   Rescaling the eigenvectors so that their last components are all'
+write(io,'(a)')'   equal to one has two consequences. The condition of X is decreased'
+write(io,'(a)')'   by over two orders of magnitude. (This is about the minimum condition'
+write(io,'(a)')'   that can be obtained by such diagonal scaling.)  Moreover, it is now'
+write(io,'(a)')'   apparent that the three eigenvectors are nearly parallel.'
 write(io,'(a)')''
-write(io,'(a)')'   More detailed information on the sensitivity of the'
-write(io,'(a)')'   individual eigenvalues involves the left eigenvectors.'
+write(io,'(a)')'   More detailed information on the sensitivity of the individual'
+write(io,'(a)')'   eigenvalues involves the left eigenvectors.'
 write(io,'(a)')''
 write(io,'(a)')'      Y = inv(X''),  Y''*A*X'
 write(io,'(a)')''
@@ -9010,8 +9237,8 @@ write(io,'(a)')'          3.0000     .0000     .0000'
 write(io,'(a)')'           .0000    1.0000     .0000'
 write(io,'(a)')'           .0000     .0000    2.0000'
 write(io,'(a)')''
-write(io,'(a)')'   We are now in a position to compute the sensitivities of the'
-write(io,'(a)')'   individual eigenvalues.'
+write(io,'(a)')'   We are now in a position to compute the sensitivities of the individual'
+write(io,'(a)')'   eigenvalues.'
 write(io,'(a)')''
 write(io,'(a)')'      for j = 1:3, c(j) = norm(Y(:,j))*norm(X(:,j)); end,  C'
 write(io,'(a)')''
@@ -9022,15 +9249,13 @@ write(io,'(a)')'        450.7228'
 write(io,'(a)')'        383.7564'
 write(io,'(a)')''
 write(io,'(a)')'   These three numbers are the reciprocals of the cosines of the'
-write(io,'(a)')'   angles between the left and right eigenvectors. It can be shown'
-write(io,'(a)')'   that perturbation of the elements of A can result in a'
-write(io,'(a)')'   perturbation of the j-th eigenvalue which is c(j) times as large.'
-write(io,'(a)')'   In this example, the first eigenvalue has the largest'
-write(io,'(a)')'   sensitivity.'
+write(io,'(a)')'   angles between the left and right eigenvectors. It can be shown that'
+write(io,'(a)')'   perturbation of the elements of A can result in a perturbation of'
+write(io,'(a)')'   the j-th eigenvalue which is c(j) times as large.  In this example,'
+write(io,'(a)')'   the first eigenvalue has the largest sensitivity.'
 write(io,'(a)')''
-write(io,'(a)')'   We now proceed to show that A is close to a matrix with a'
-write(io,'(a)')'   double eigenvalue. The direction of the required perturbation is'
-write(io,'(a)')'   given by'
+write(io,'(a)')'   We now proceed to show that A is close to a matrix with a double'
+write(io,'(a)')'   eigenvalue. The direction of the required perturbation is given by'
 write(io,'(a)')''
 write(io,'(a)')'      E = -1.e-6*Y(:,1)*X(:,1)'''
 write(io,'(a)')''
@@ -9075,10 +9300,9 @@ write(io,'(a)')'      T     ='
 write(io,'(a)')''
 write(io,'(a)')'           .450380734134507'
 write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'   Finally, we display the perturbed matrix, which is obviously'
-write(io,'(a)')'   close to the original, and its pair of nearly equal eigenvalues.'
-write(io,'(a)')'   (We have dropped a few digits from the long output.)'
+write(io,'(a)')'   Finally, we display the perturbed matrix, which is obviously close'
+write(io,'(a)')'   to the original, and its pair of nearly equal eigenvalues.  (We have'
+write(io,'(a)')'   dropped a few digits from the long output.)'
 write(io,'(a)')''
 write(io,'(a)')'      A+t*E,  eig(A+t*E)'
 write(io,'(a)')''
@@ -9094,9 +9318,8 @@ write(io,'(a)')'         2.415741150'
 write(io,'(a)')'         2.415740621'
 write(io,'(a)')'         1.168517777'
 write(io,'(a)')''
-write(io,'(a)')'   The first two eigenvectors of A + t*E are almost'
-write(io,'(a)')'   indistinguishable indicating that the perturbed matrix is almost'
-write(io,'(a)')'   defective.'
+write(io,'(a)')'   The first two eigenvectors of A + t*E are almost indistinguishable'
+write(io,'(a)')'   indicating that the perturbed matrix is almost defective.'
 write(io,'(a)')''
 write(io,'(a)')'      <X,D> = eig(A+t*E);  X = X/diag(X(3,:))'
 write(io,'(a)')''
@@ -9115,16 +9338,16 @@ write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'9.  SYNTAX DIAGRAMS'
 write(io,'(a)')''
-write(io,'(a)')'   A formal description of the language acceptable to MAT88,'
-write(io,'(a)')'   as well as a flow chart of the mat88 program, is provided by the'
-write(io,'(a)')'   syntax diagrams or syntax graphs of wirth [6]. There are eleven'
-write(io,'(a)')'   non-terminal symbols in the language:'
+write(io,'(a)')'   A formal description of the language acceptable to MAT88, as well as'
+write(io,'(a)')'   a flow chart of the mat88 program, is provided by the syntax diagrams'
+write(io,'(a)')'   or syntax graphs of wirth [6]. There are eleven non-terminal symbols'
+write(io,'(a)')'   in the language:'
 write(io,'(a)')''
 write(io,'(a)')'      LINE, STATEMENT, CLAUSE, EXPRESSION, TERM,'
 write(io,'(a)')'      FACTOR, NUMBER, INTEGER, NAME, COMMAND, TEXT .'
 write(io,'(a)')''
-write(io,'(a)')'   The diagrams define each of the non-terminal symbols using the'
-write(io,'(a)')'   others and the terminal symbols:'
+write(io,'(a)')'   The diagrams define each of the non-terminal symbols using the others'
+write(io,'(a)')'   and the terminal symbols:'
 write(io,'(a)')''
 write(io,'(a)')'      LETTER -- A THROUGH Z,'
 write(io,'(a)')'      DIGIT  -- 0 THROUGH 9,'
@@ -9278,11 +9501,11 @@ write(io,'(a)')'               |---------------------|'
 write(io,'(a)')''
 write(io,'(a)')'10.  THE PARSER-INTERPRETER'
 write(io,'(a)')''
-write(io,'(a)')'   The structure of the parser-interpreter is similar to that'
-write(io,'(a)')'   of Wirth''s compiler [6] for his simple language, PL/0 , except'
-write(io,'(a)')'   that MAT88 is programmed in Fortran, which does not have'
-write(io,'(a)')'   explicit recursion. The interrelation of the primary subroutines'
-write(io,'(a)')'   is shown in the following diagram.'
+write(io,'(a)')'   The structure of the parser-interpreter is similar to that of Wirth''s'
+write(io,'(a)')'   compiler [6] for his simple language, PL/0 , except that MAT88 is'
+write(io,'(a)')'   programmed in Fortran, which does not have explicit recursion. The'
+write(io,'(a)')'   interrelation of the primary subroutines is shown in the following'
+write(io,'(a)')'   diagram.'
 write(io,'(a)')''
 write(io,'(a)')'         MAIN'
 write(io,'(a)')'           |'
@@ -9333,26 +9556,24 @@ write(io,'(a)')'                   |          |--FILES'
 write(io,'(a)')'                   |--MATFN5--|'
 write(io,'(a)')'                              |--SAVLOD'
 write(io,'(a)')''
-write(io,'(a)')'   Subroutine PARSE controls the interpretation of each'
-write(io,'(a)')'   statement. It calls subroutines that process the various'
-write(io,'(a)')'   syntactic quantities such as command, expression, term and'
-write(io,'(a)')'   factor. A fairly simple program stack mechanism allows these'
-write(io,'(a)')'   subroutines to recursively "call" each other along the lines'
-write(io,'(a)')'   allowed by the syntax diagrams. The four STACK subroutines'
-write(io,'(a)')'   manage the variable memory and perform elementary operations,'
-write(io,'(a)')'   such as matrix addition and transposition.'
+write(io,'(a)')'   Subroutine PARSE controls the interpretation of each statement. It'
+write(io,'(a)')'   calls subroutines that process the various syntactic quantities such'
+write(io,'(a)')'   as command, expression, term and factor. A fairly simple program'
+write(io,'(a)')'   stack mechanism allows these subroutines to recursively "call"'
+write(io,'(a)')'   each other along the lines allowed by the syntax diagrams. The four'
+write(io,'(a)')'   STACK subroutines manage the variable memory and perform elementary'
+write(io,'(a)')'   operations, such as matrix addition and transposition.'
 write(io,'(a)')''
-write(io,'(a)')'   The four subroutines MATFN1 though MATFN4 are called'
-write(io,'(a)')'   whenever "serious" matrix computations are required. They are'
-write(io,'(a)')'   interface routines which call the various LINPACK and EISPACK'
-write(io,'(a)')'   subroutines. MATFN5 primarily handles the file access tasks.'
-write(io,'(a)')''
+write(io,'(a)')'   The four subroutines MATFN1 though MATFN4 are called whenever "serious"'
+write(io,'(a)')'   matrix computations are required. They are interface routines which'
+write(io,'(a)')'   call the various LINPACK and EISPACK subroutines. MATFN5 primarily'
+write(io,'(a)')'   handles the file access tasks.'
 write(io,'(a)')''
 write(io,'(a)')'11. THE NUMERICAL ALGORITHMS'
 write(io,'(a)')''
-write(io,'(a)')'   The algorithms underlying the basic MAT88 functions are'
-write(io,'(a)')'   described in the LINPACK and EISPACK guides [1-3]. The following'
-write(io,'(a)')'   list gives the subroutines used by these functions.'
+write(io,'(a)')'   The algorithms underlying the basic MAT88 functions are described in'
+write(io,'(a)')'   the LINPACK and EISPACK guides [1-3]. The following list gives the'
+write(io,'(a)')'   subroutines used by these functions.'
 write(io,'(a)')''
 write(io,'(a)')'      inv(A)          - CGECO,CGEDI'
 write(io,'(a)')'      det(A)          - CGECO,CGEDI'
@@ -9373,35 +9594,34 @@ write(io,'(a)')'                      - CORTH,COMQR2         if A is not Hermiti
 write(io,'(a)')'      schur(A)        - same as EIG.'
 write(io,'(a)')'      hess(A)         - same as EIG.'
 write(io,'(a)')''
-write(io,'(a)')'   Minor modifications were made to all these subroutines. The'
-write(io,'(a)')'   LINPACK routines were changed to replace the Fortran complex'
-write(io,'(a)')'   arithmetic with explicit references to real and imaginary parts.'
-write(io,'(a)')'   Since most of the floating point arithmetic is concentrated in a'
-write(io,'(a)')'   few low-level subroutines which perform vector operations (the'
-write(io,'(a)')'   Basic Linear Algebra Subprograms), this was not an extensive'
-write(io,'(a)')'   change. It also facilitated implementation of the "flop" and "chop"'
-write(io,'(a)')'   features which count and optionally truncate each floating point'
-write(io,'(a)')'   operation.'
+write(io,'(a)')'   Minor modifications were made to all these subroutines. The LINPACK'
+write(io,'(a)')'   routines were changed to replace the Fortran complex arithmetic'
+write(io,'(a)')'   with explicit references to real and imaginary parts.  Since most'
+write(io,'(a)')'   of the floating point arithmetic is concentrated in a few low-level'
+write(io,'(a)')'   subroutines which perform vector operations (the Basic Linear Algebra'
+write(io,'(a)')'   Subprograms), this was not an extensive change. It also facilitated'
+write(io,'(a)')'   implementation of the "flop" and "chop" features which count and'
+write(io,'(a)')'   optionally truncate each floating point operation.'
 write(io,'(a)')''
-write(io,'(a)')'   The EISPACK subroutine COMQR2 was modified to allow access'
-write(io,'(a)')'   to the Schur triangular form, ordinarily just an intermediate'
-write(io,'(a)')'   result. IMTQL2 was modified to make computation of the'
-write(io,'(a)')'   eigenvectors optional. Both subroutines were modified to'
-write(io,'(a)')'   eliminate the machine-dependent accuracy parameter and all the'
-write(io,'(a)')'   EISPACK subroutines were changed to include "flop" and "chop".'
+write(io,'(a)')'   The EISPACK subroutine COMQR2 was modified to allow access to the'
+write(io,'(a)')'   Schur triangular form, ordinarily just an intermediate result. IMTQL2'
+write(io,'(a)')'   was modified to make computation of the eigenvectors optional. Both'
+write(io,'(a)')'   subroutines were modified to eliminate the machine-dependent accuracy'
+write(io,'(a)')'   parameter and all the EISPACK subroutines were changed to include'
+write(io,'(a)')'   "flop" and "chop".'
 write(io,'(a)')''
 write(io,'(a)')'   The algorithms employed for the "poly" and "roots" functions'
-write(io,'(a)')'   illustrate an interesting aspect of the modern approach to'
-write(io,'(a)')'   eigenvalue computation. "poly(A)" generates the characteristic'
-write(io,'(a)')'   polynomial of A and "roots(poly(A))" finds the roots of that'
-write(io,'(a)')'   polynomial, which are, of course, the eigenvalues of A . But both'
-write(io,'(a)')'   "poly" and "roots" use EISPACK eigenvalues subroutines, which are'
-write(io,'(a)')'   based on similarity transformations. So the classical approach'
-write(io,'(a)')'   which characterizes eigenvalues as roots of the characteristic'
-write(io,'(a)')'   polynomial is actually reversed.'
+write(io,'(a)')'   illustrate an interesting aspect of the modern approach to eigenvalue'
+write(io,'(a)')'   computation. "poly(A)" generates the characteristic polynomial of'
+write(io,'(a)')'   A and "roots(poly(A))" finds the roots of that polynomial, which'
+write(io,'(a)')'   are, of course, the eigenvalues of A . But both "poly" and "roots"'
+write(io,'(a)')'   use EISPACK eigenvalues subroutines, which are based on similarity'
+write(io,'(a)')'   transformations. So the classical approach which characterizes'
+write(io,'(a)')'   eigenvalues as roots of the characteristic polynomial is actually'
+write(io,'(a)')'   reversed.'
 write(io,'(a)')''
-write(io,'(a)')'   If A is an n by n matrix, "poly(A)" produces the coefficients'
-write(io,'(a)')'   C(1) through C(n+1), with C(1) = 1, in'
+write(io,'(a)')'   If A is an n by n matrix, "poly(A)" produces the coefficients C(1)'
+write(io,'(a)')'   through C(n+1), with C(1) = 1, in'
 write(io,'(a)')''
 write(io,'(a)')'         det(z*eye-A) = C(1)*z**n + ... + C(n)*z + C(n+1) .'
 write(io,'(a)')''
@@ -9625,7 +9845,6 @@ write(io,'(a)')'         chop(8)'
 write(io,'(a)')'         long,   t = 1/10'
 write(io,'(a)')'         long z, t = 1/10'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'   The following Fortran subprograms illustrate more details of'
 write(io,'(a)')'   "flop" and "chop". The first subprogram is a simplified example of a'
 write(io,'(a)')'   system-dependent function used within MAT88 itself. The common'
@@ -9648,7 +9867,6 @@ write(io,'(a)')'         IF (CHP .GE. 1 .AND. CHP .LE. 5) FLOP = X .AND. MASK(CH
 write(io,'(a)')'         IF (CHP .GE. 6) FLOP = 0.0'
 write(io,'(a)')'         END REAL FUNCTION FLOP'
 write(io,'(a)')''
-write(io,'(a)')''
 write(io,'(a)')'   The following subroutine illustrates a typical use of the'
 write(io,'(a)')'   previous function within MAT88. It is a simplified version of'
 write(io,'(a)')'   the Basic Linear Algebra Subprogram that adds a scalar multiple'
@@ -9665,7 +9883,6 @@ write(io,'(a)')'            YI(I) = YI(I) + TR*XI(I) + TI*XR(I)'
 write(io,'(a)')'            IF (YI(I) .NE. 0.0D0) YI(I) = FLOP(YI(I))'
 write(io,'(a)')'         enddo'
 write(io,'(a)')'         END SUBROUTINE SAXPY'
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'   The saxpy operation is perhaps the most fundamental'
 write(io,'(a)')'   operation within LINPACK. It is used in the computation of the'
@@ -9701,7 +9918,6 @@ write(io,'(a)')'         n = 6'
 write(io,'(a)')'         for i = 1:n, for j = 1:n, a(i,j) = abs(i-j);'
 write(io,'(a)')'         A'
 write(io,'(a)')'         X = inv(A)'
-write(io,'(a)')''
 write(io,'(a)')''
 write(io,'(a)')'   The example A could be introduced into MAT88 by writing'
 write(io,'(a)')'   the following Fortran subroutine.'
@@ -9918,71 +10134,93 @@ end subroutine mat_make_manual
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-SUBROUTINE mat88_get(A,LDA,M,N,CID,JOB,IERR) !JSU
-! ACCESS MAT88 VARIABLE STACK AND PUT OR GET A VARIABLE NAME AND ITS DATA FROM THE STACK
-! USES MAT88 ROUTINES MAT_STACK_GET, MAT_STACK_PUT AND MAT_ERROR
-integer                     :: lda,m,n
-character(len=*),intent(in) :: cid        ! THE NAME OF A.  ID IS FOUR CHARACTERS
-doubleprecision             :: a(lda,n)   ! A IS AN M BY N MATRIX, STORED IN AN ARRAY WITH LEADING DIMENSION LDA.
-integer,intent(in)          :: job        ! JOB =  0  GET REAL A FROM MAT88, JOB  = 10  GET IMAGINARY A INTO MAT88,
-integer,INTENT(OUT)         :: ierr       ! RETURN WITH NONZERO IERR AFTER MAT88 ERROR MESSAGE.
-integer                     :: id(G_MAX_NAME_LENGTH)
-integer                     :: i,j,k
-   G_RHS=0
-   G_ERR=0
+subroutine mat88_get(A,varname,JOB,IERR)
+
+! ident_42="@(#)M_matrix::mat88_get(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
+
+character(len=*),intent(in)              :: varname    ! the name of A.
+integer,intent(in)                       :: job        ! JOB =  0  get REAL A from MAT88, JOB  = 1  get IMAGINARY A into MAT88,
+integer,INTENT(OUT)                      :: ierr       ! return with nonzero IERR after MAT88 error message.
+doubleprecision,allocatable,intent(out)  :: a(:,:)     ! A is an M by N matrix
+
+integer                      :: id(GG_MAX_NAME_LENGTH)
+integer                      :: i,j,k,l,m,n
    IERR=0
+   G_ERR=0
    ! convert character name to mat88 character set
-   call mat_str2buf(cid,id,len(cid))
-   do j=1,G_MAX_NAME_LENGTH
-      do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
+   call mat_str2buf(varname,id,len(varname))
+   do j=1,GG_MAX_NAME_LENGTH
+      do k = 1, G_CHARSET_SIZE                       ! make sure this letter is in set of MAT88 characters and get its MAT88 number
          if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
             id(j)=k-1
          endif
       enddo
    enddo
+   call mat_putid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)    ! copy ID to next blank entry in G_STACK_IDS for messages(?)
 
-   call mat_stack_get(id)
-   if(G_ERR.eq.0)G_ERR=4
-   if(G_ERR.gt.0)then
-      call mat_err(G_ERR)
-      IERR=G_ERR
+   do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
+      if (mat_eqid(G_STACK_IDS(1,k), id))exit             ! if found name exit loop
+   enddo
+
+   ! if matched the name inserted above did not find it.
+   if ( (k .ge. GG_MAX_NUMBER_OF_NAMES-1 .and. G_RHS .gt. 0) .or. (k .eq. G_TOP_OF_SAVED-1) ) then
+      call journal('sc','<ERROR>MAT88_GET: unknown variable name',varname)
+      IERR=4
+      if(allocated(a))deallocate(a)
+      allocate(a(0,0))
    else
-      M=G_MSTK(G_TOP)
-      N=G_NSTK(G_TOP)
-      k=0
-      do i=1,m
-         do j=1,n
-            k=k+1
-            if(job.eq.0)then
-               a(i,j)=g_stkr(k)       ! JOB =  0  GET REAL A FROM MAT88,
-            else
-               a(i,j)=g_stki(k)       ! JOB =  10  GET IMAGINARY A FROM MAT88,
-            endif
+      call mat_stack_get(id)
+
+      if(G_ERR.ge.0)then
+         if(G_ERR.eq.0)G_ERR=4
+         call mat_err(G_ERR)
+         IERR=G_ERR
+         if(allocated(a))deallocate(a)
+         allocate(a(0,0))
+      else
+         M=G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+         N=G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+         if(allocated(a))deallocate(a)
+         allocate(a(m,n))
+         l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         do i=1,m
+            do j=1,n
+               if(job.eq.0)then
+                  a(i,j)=G_STACK_REALS(l)       ! JOB =  0  GET REAL A FROM MAT88,
+               else
+                  a(i,j)=G_STACK_IMAGS(l)       ! JOB =  1  GET IMAGINARY A FROM MAT88,
+               endif
+               l=l+1
+            enddo
          enddo
-      enddo
-   endif
-   if(G_DEBUG_LEVEL.ne.0)then
-      call printit()
+      endif
+
+      if(G_DEBUG_LEVEL.ne.0)then
+         call printit()
+      endif
+
    endif
 
-   contains
+contains
 
 subroutine printit()
-character(len=G_MAX_NAME_LENGTH) :: name
+character(len=GG_MAX_NAME_LENGTH) :: name
 integer          :: l
    write(*,*)repeat('=',80)
-   write(*,*)'CID=',CID
-   write(*,*)'ID=',ID(:)
-   write(*,*)'G_TOP=',G_TOP
-   write(*,*)'G_ERR=',G_ERR
-   if(G_ERR.lt.1.and.G_TOP.gt.0)then
-      write(*,*)'G_LSTK(G_TOP)=',G_LSTK(G_TOP)
-      write(*,*)'G_MSTK(G_TOP)=',G_MSTK(G_TOP),M
-      write(*,*)'G_NSTK(G_TOP)=',G_NSTK(G_TOP),N
-      l=G_LSTK(G_TOP)
-      write(*,'(*(g0.4,1x))')'REAL VALUES=     ',G_STKR(L:L+(M*N-1))
-      write(*,'(*(g0.4,1x))')'IMAGINARY VALUES=',G_STKI(L:L+(M*N-1))
+   write(*,*)'*MAT88_GET'
+   write(*,*)'   varname=',varname
+   write(*,*)'   ID=',ID(:)
+   write(*,*)'   G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
+   write(*,*)'   G_ERR=',G_ERR
+   if(G_ERR.lt.0.and.G_BOTTOM_OF_SCRATCH_IN_USE.gt.0)then
+      write(*,*)'   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,*)'   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE),M
+      write(*,*)'   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE),N
+      l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,'(3x,*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(L:L+(M*N-1))
+      write(*,'(3x,*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(L:L+(M*N-1))
    endif
+   write(*,*)repeat('=',80)
 end subroutine printit
 
 end subroutine mat88_get
@@ -9990,7 +10228,9 @@ end subroutine mat88_get
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
 SUBROUTINE mat88_put(A,LDA,M,N,CID,JOB,IERR) !JSU
-! ACCESS MAT88 VARIABLE STACK AND PUT OR GET A VARIABLE NAME AND ITS DATA FROM THE STACK
+
+! ident_43="@(#)M_matrix:: mat88_put(3f0: put a variable name and its data from the stack into an array returned to the program"
+
 INTEGER                     :: LDA,M,N
 character(len=*),intent(in) :: cid        ! THE NAME OF A.  ID IS FOUR CHARACTERS
 DOUBLE PRECISION            :: A(LDA,N)   ! A IS AN M BY N MATRIX, STORED IN AN ARRAY WITH LEADING DIMENSION LDA.
@@ -10000,17 +10240,15 @@ INTEGER,intent(in)          :: JOB
                                           !         = 10  GET IMAG PART OF A FROM MAT88,
                                           !         = 11  PUT IMAG PART OF A INTO MAT88.
 INTEGER,intent(out)         :: IERR       ! RETURN WITH NONZERO IERR AFTER MAT88 ERROR MESSAGE.
-INTEGER                     :: ID(G_MAX_NAME_LENGTH)
+INTEGER                     :: ID(GG_MAX_NAME_LENGTH)
 integer                     :: i,j,k
 !
 !     USES MAT88 ROUTINES MAT_STACK_GET, MAT_STACK_PUT AND MAT_ERROR
 !
-   G_RHS=0
-   G_ERR=0
    IERR=0
    ! convert character name to mat88 character set
    call mat_str2buf(cid,id,len(cid))
-   do j=1,G_MAX_NAME_LENGTH
+   do j=1,GG_MAX_NAME_LENGTH
       do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
          if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
             id(j)=k-1
@@ -10019,22 +10257,21 @@ integer                     :: i,j,k
    enddo
 
    call mat_stack_get(id)
-   if(G_ERR.eq.0)G_ERR=4
    if(G_ERR.gt.0)then
       call mat_err(G_ERR)
       iERR=G_ERR
    else
       call printit()
-      M=G_MSTK(G_TOP)
-      N=G_NSTK(G_TOP)
+      M=G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      N=G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       k=0
       do i=1,m
          do j=1,n
                k=k+1
                if(job.eq.0)then
-                  a(i,j)=g_stkr(k) ! JOB =  0  GET REAL A FROM MAT88,
+                  a(i,j)=G_STACK_REALS(k) ! JOB =  0  GET REAL A FROM MAT88,
                else
-                  a(i,j)=g_stki(k) ! JOB =  10  GET IMAGINARY A FROM MAT88,
+                  a(i,j)=G_STACK_IMAGS(k) ! JOB =  10  GET IMAGINARY A FROM MAT88,
                endif
          enddo
       enddo
@@ -10043,20 +10280,20 @@ integer                     :: i,j,k
    contains
 
 subroutine printit()
-character(len=G_MAX_NAME_LENGTH) :: name
+character(len=GG_MAX_NAME_LENGTH) :: name
 integer          :: l
    write(*,*)repeat('=',80)
    write(*,*)'CID=',CID
    write(*,*)'ID=',ID(:)
-   write(*,*)'G_TOP=',G_TOP
+   write(*,*)'G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
    write(*,*)'G_ERR=',G_ERR
-   if(G_ERR.lt.1.and.G_TOP.gt.0)then
-      write(*,*)'G_LSTK(G_TOP)=',G_LSTK(G_TOP)
-      write(*,*)'G_MSTK(G_TOP)=',G_MSTK(G_TOP)
-      write(*,*)'G_NSTK(G_TOP)=',G_NSTK(G_TOP)
-      l=G_LSTK(G_TOP)
-      write(*,'(*(g0.4,1x))')'REAL VALUES=     ',G_STKR(L:L+(M*N-1))
-      write(*,'(*(g0.4,1x))')'IMAGINARY VALUES=',G_STKI(L:L+(M*N-1))
+   if(G_ERR.lt.1.and.G_BOTTOM_OF_SCRATCH_IN_USE.gt.0)then
+      write(*,*)'G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,*)'G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,*)'G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,'(*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(L:L+(M*N-1))
+      write(*,'(*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(L:L+(M*N-1))
    endif
 end subroutine printit
 
@@ -10380,9 +10617,9 @@ end subroutine test_mat_print
 !TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 subroutine test_mat_prntid()
 
-   call unit_check_start('mat_prntid',msg='')
-   !!call unit_check('mat_prntid', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_prntid',msg='')
+   call unit_check_start('mat_print_id',msg='')
+   !!call unit_check('mat_print_id', 0.eq.0, 'checking', 100)
+   call unit_check_done('mat_print_id',msg='')
 end subroutine test_mat_prntid
 !TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
 subroutine test_mat_prompt()
@@ -10747,11 +10984,11 @@ doubleprecision,intent(in) :: xi(*)
 integer,intent(in)         :: incx
 integer,intent(in)         :: incy
 
-doubleprecision :: yr(*)
-doubleprecision :: yi(*)
-integer         :: ix, iy
+doubleprecision            :: yr(*)
+doubleprecision            :: yi(*)
+integer                    :: ix, iy
 
-integer         :: i
+integer                    :: i
 
    if (n .le. 0) return
    if (sr .eq. 0.0d0 .and. si .eq. 0.0d0) return
@@ -13480,4 +13717,3 @@ END SUBROUTINE ML_WQRSL
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-

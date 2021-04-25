@@ -201,1016 +201,749 @@ Example 2:
    program bigmat
    use M_matrix, only : mat88
    ! pass strings to MAT88 but do not enter interactive mode
-   call mat88(-1,&#146; &#146;)                    ! initialize
-   call mat88( 2,&#146;a=&lt;1 2 3 4; 5 6 7 8&gt;&#146;)
+   call mat88(-1,&#146; &#146;)                  ! initialize silently
+   call mat88( 2,&#146;a=[1 2 3 4; 5 6 7 8]&#146;)
    call mat88( 2,&#146;save("file1")&#146;)
    call mat88( 2,&#146;help INTRO&#146;)
-   end
+   end program bigmat
 <P>
 </PRE>
 </BLOCKQUOTE>
 Example inputs
-avg:for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; &#46;&#46;&#46;
+<P>
+<PRE>
+    :avg:
+<P>
+    for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; &#46;&#46;&#46;
+    a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
+<P>
+    :cdiv:
+<P>
+    // ======================================================
+    // cdiv
+    a=sqrt(random(8)
+    ar = real(a); ai = imag(a); br = real(b); bi = imag(b);
+    p = bi/br;
+    t = (ai - p*ar)/(br + p*bi);
+    cr = p*t + ar/br;
+    ci = t;
+    p2 = br/bi;
+    t2 = (ai + p2*ar)/(bi + p2*br);
+    ci2 = p2*t2 - ar/bi;
+    cr2 = t2;
+    s = abs(br) + abs(bi);
+    ars = ar/s;
+    ais = ai/s;
+    brs = br/s;
+    bis = bi/s;
+    s = brs**2 + bis**2;
+    cr3 = (ars*brs + ais*bis)/s;
+    ci3 = (ais*brs - ars*bis)/s;
+    [cr ci; cr2 ci2; cr3 ci3]
+    // ======================================================
+<P>
+    :exp:
+<P>
+    t = 0*x + eye; s = 0*eye(x); n = 1;
+    while abs(s+t-s) &gt; 0, s = s+t, t = x*t/n, n = n + 1
+<P>
+    :four:
+     n
+     pi = 4*atan(1);
+     i = sqrt(-1);
+     w = exp(2*pi*i/n);
+     F = [];
+     for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
+     F = F/sqrt(n);
+     alpha = r*pi;
+     rho = exp(i*alpha);
+     S = log(rho*F)/i - alpha*eye;
+     serr = norm(imag(S),1);
+     S = real(S);
+     serr = serr + norm(S-S&#146;,1)
+     S = (S + S&#146;)/2;
+     ferr = norm(F-exp(i*S),1)
+<P>
+     :gs:
+     for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)&#146;; x(k,:) = x(k,:) - d*x(j,:); &#46;&#46;&#46;
+     end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;
+<P>
+     :jacobi:
+     [n, n] = size(A);
+     X = eye(n);
+     anorm = norm(A,&#146;fro&#146;);
+     cnt = 1;
+     while cnt &gt; 0, &#46;&#46;&#46;
+       cnt = 0; &#46;&#46;&#46;
+       for p = 1:n-1, &#46;&#46;&#46;
+         for q = p+1:n, &#46;&#46;&#46;
+           if anorm + abs(a(p,q)) &gt; anorm, &#46;&#46;&#46;
+             cnt = cnt + 1; &#46;&#46;&#46;
+             exec(&#146;jacstep&#146;); &#46;&#46;&#46;
+           end, &#46;&#46;&#46;
+         end, &#46;&#46;&#46;
+       end, &#46;&#46;&#46;
+       display(rat(A)), &#46;&#46;&#46;
+     end
+<P>
+     :jacstep:
+<P>
+     d = (a(q,q)-a(p,p))*0.5/a(p,q);
+     t = 1/(abs(d)+sqrt(d*d+1));
+     if d &lt; 0, t = -t; end;
+     c = 1/sqrt(1+t*t);  s = t*c;
+     R = eye(n); r(p,p)=c; r(q,q)=c; r(p,q)=s; r(q,p)=-s;
+     X = X*R;
+     A = R&#146;*A*R;
+<P>
+     :kron:
+<P>
+     //  C = Kronecker product of A and B
+     [m, n] = size(A);
+     for i = 1:m, &#46;&#46;&#46;
+        ci = a(i,1)*B; &#46;&#46;&#46;
+        for j = 2:n, ci = [ci a(i,j)*B]; end &#46;&#46;&#46;
+        if i = 1, C = ci; else, C = [C; ci];
+<P>
+     :lanczos:
+<P>
+     [n,n] = size(A);
+     q1 = rand(n,1);
+     ort
+     alpha = []; beta = [];
+     q = q1/norm(q1); r = A*q(:,1);
+     for j = 1:n, exec(&#146;lanstep&#146;,0);
+<P>
+     :lanstep:
+<P>
+     alpha(j) = q(:,j)&#146;*r;
+     r = r - alpha(j)*q(:,j);
+     if ort &lt;&gt; 0, for k = 1:j-1, r = r - r&#146;*q(:,k)*q(:,k);
+     beta(j) = norm(r);
+     q(:,j+1) = r/beta(j);
+     r = A*q(:,j+1) - beta(j)*q(:,j);
+     if j &gt; 1, T = diag(beta(1:j-1),1); T = diag(alpha) + T + T&#146;; eig(T)
+<P>
+     :mgs:
+<P>
+     for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; &#46;&#46;&#46;
+        for j = k+1:n, d = x(j,:)*x(k,:)&#146;; x(j,:) = x(j,:) - d*x(k,:);
+<P>
+     :net:
+<P>
+     C = [
+     1   2   15  .   .   .
+     2   1   3   .   .   .
+     3   2   4   11  .   .
+     4   3   5   .   .   .
+     5   4   6   7   .   .
+     6   5   8   .   .   .
+     7   5   9   30  .   .
+     8   6   9   10  11  .
+     9   7   8   30  .   .
+     10  8   12  30  31  34
+     11  3   8   12  13  .
+     12  10  11  34  36  .
+     13  11  14  .   .   .
+     14  13  15  16  38  .
+     15  1   14  .   .   .
+     16  14  17  20  35  37
+     17  16  18  .   .   .
+     18  17  19  .   .   .
+     19  18  20  .   .   .
+     20  16  19  21  .   .
+     21  20  22  .   .   .
+     22  21  23  .   .   .
+     23  22  24  35  .   .
+     24  23  25  39  .   .
+     25  24  .   .   .   .
+     26  27  33  39  .   .
+     27  26  32  .   .   .
+     28  29  32  .   .   .
+     29  28  30  .   .   .
+     30  7   9   10  29  .
+     31  10  32  .   .   .
+     32  27  28  31  34  .
+     33  26  34  .   .   .
+     34  10  12  32  33  35
+     35  16  23  34  36  .
+     36  12  35  38  .   .
+     37  16  38  .   .   .
+     38  14  36  37  .   .
+     39  24  26  .   .   .
+     ];
+     [n, m] = size(C);
+     A = 0*ones(n,n);
+     for i=1:n, for j=2:m, k=c(i,j); if k&gt;0, a(i,k)=1;
+     check = norm(A-A&#146;,1), if check &gt; 0, quit
+     [X,D] = eig(A+eye);
+     D = diag(D);  D = D(n:-1:1)
+     X = X(:,n:-1:1);
+     [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
+<P>
+     :pascal:
+<P>
+     //Generate next Pascal matrix
+     [k,k] = size(L);
+     k = k + 1;
+     L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];
+<P>
+     :pdq:
+<P>
+     alpha = []; beta = 0; q = []; p = p(:,1)/norm(p(:,1));
+     t = A&#146;*p(:,1);
+     alpha(1) = norm(t);
+     q(:,1) = t/alpha(1);
+     X = p(:,1)*(alpha(1)*q(:,1))&#146;
+     e(1) = norm(A-X,1)
+     for j = 2:r, exec(&#146;pdqstep&#146;,ip); &#46;&#46;&#46;
+        X = X + p(:,j)*(alpha(j)*q(:,j)+beta(j)*q(:,j-1))&#146;, &#46;&#46;&#46;
+        e(j) = norm(A-X,1)
+<P>
+     :pdqstep:
+<P>
+     t = A*q(:,j-1) - alpha(j-1)*p(:,j-1);
+        if ort&gt;0, for i = 1:j-1, t = t - t&#146;*p(:,i)*p(:,i);
+     beta(j) = norm(t);
+     p(:,j) = t/beta(j);
+     t = A&#146;*p(:,j) - beta(j)*q(:,j-1);
+        if ort&gt;0, for i = 1:j-1, t = t - t&#146;*q(:,i)*q(:,i);
+     alpha(j) = norm(t);
+     q(:,j) = t/alpha(j);
+<P>
+     :pop:
+<P>
+     y = [ 75.995   91.972  105.711  123.203   &#46;&#46;&#46;
+          131.669  150.697  179.323  203.212]&#146;
+     t = [ 1900:10:1970 ]&#146;
+     t = (t - 1940*ones(t))/40;   [t y]
+     n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
+</PRE>
+<A name=>
+
+    <H4>&nbsp; &nbsp; A</H4>
+</A>
 <BLOCKQUOTE>
-<TABLE cellpadding=3><!-- tsb: Example inputs
+c = A\y
+<P>
+:qr:
+<P>
+scale = <B>s</B>(m);
+sm = <B>s</B>(m)/scale; smm1 = <B>s</B>(m-1)/scale; emm1 = <B>e</B>(m-1)/scale;
+sl = <B>s</B>(l)/scale; el = <B>e</B>(l)/scale;
+b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
+c = (sm*emm1)**2;
+shift = <B>sqrt</B>(b**2+c); if b &lt; 0, shift = <B>-shift</B>;
+shift = <B>c/</B>(b + shift)
+f = (sl + sm)*(sl-sm) - shift
+g = sl*el
+for k = l: m-1, <B>exec</B>(&#146;qrstep&#146;,ip)
+<B>e</B>(m-1) = f
+<P>
+:qrstep:
+<P>
+<B>exec</B>(&#146;rot&#146;);
+if k &lt;&gt; l, <B>e</B>(k-1) = f
+f = cs*<B>s</B>(k) + sn*<B>e</B>(k)
+<B>e</B>(k) = cs*<B>e</B>(k) - sn*<B>s</B>(k)
+g = sn*<B>s</B>(k+1)
+<B>s</B>(k+1) = cs*<B>s</B>(k+1)
+<B>exec</B>(&#146;rot&#146;);
+<B>s</B>(k) = f
+f = cs*<B>e</B>(k) + sn*<B>s</B>(k+1)
+<B>s</B>(k+1) = <B>-sn</B>*<B>e</B>(k) + cs*<B>s</B>(k+1)
+g = sn*<B>e</B>(k+1)
+<B>e</B>(k+1) = cs*<B>e</B>(k+1)
+<P>
+:rho:
+<P>
+//Conductivity example.
+//Parameters ---
+<BLOCKQUOTE>
+<TABLE cellpadding=3><!-- tsb: //Conductivity example.
  -->
 <TR></TR><TR></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>avg:</B> </TD><TD valign=bottom>
-<B>a</B>(i-1,j-1) = t; <B>a</B>(i,j-1) = t; <B>a</B>(i-1,j) = t; <B>a</B>(i,j) = t;
-</TD></TR>
-<TR><TD colspan=2>
-cdiv:// ======================================================
-cdiv:// cdiv
-<B>cdiv:a=sqrt</B>(random(8)
+<B>rho</B> </TD><TD valign=bottom>
+//radius of cylindrical inclusion
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-ar = <B>real</B>(a); ai = <B>imag</B>(a); br = <B>real</B>(b); bi = <B>imag</B>(b);
+<B>n</B> </TD><TD valign=bottom>
+//number of terms in solution
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-p = bi/br;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-t = (ai - p*<B>p*ar)/</B>(br + p*bi);
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-cr = p*t + ar/br;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-ci = t;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-p2 = br/bi;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-t2 = (ai + p2*<B>p*ar)/</B>(bi + p2*br);
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-ci2 = p2*t2 - ar/bi;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-cr2 = t2;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-s = <B>abs</B>(br) + <B>abs</B>(bi);
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-ars = ar/s;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-ais = ai/s;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-brs = br/s;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-bis = bi/s;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-s = brs**2 + bis**2;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-cr3 = (ars*brs + ais*bis)/s;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-ci3 = (ais*brs - ars*bis)/s;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>cdiv:</B> </TD><TD valign=bottom>
-&lt;cr ci; cr2 ci2; cr3 ci3&gt;
-cdiv:// ======================================================
-</TD></TR>
-<TR><TD colspan=2>
-exp:t = 0*x + eye; s = 0*<B>0*eye</B>(x); n = 1;
-exp:while <B>abs</B>(s+t-s) &gt; 0, s = s+t, t = x*t/n, n = n + 1
-</TD></TR>
-<TR><TD colspan=2>
-four:n
-four:pi = 4*<B>4*atan</B>(1);
-four:i = <B>sqrt</B>(<B>-1</B>);
-four:w = <B>exp</B>(2*pi*i/n);
-four:F = &lt;&gt;;
-four:for k = 1:n, for j = 1:n, <B>F</B>(k,j) = w**((j-1)*(k-1));
-four:F = F/<B>sqrt</B>(n);
-four:G_CHARSET = r*pi;
-four:rho = <B>exp</B>(i*G_CHARSET);
-four:S = <B>log</B>(rho*F)/i - G_CHARSET*eye;
-four:serr = <B>norm</B>(<B>imag</B>(S),1);
-four:S = <B>real</B>(S);
-four:serr = serr + <B>norm</B>(S-S&#146;,1)
-four:S = (S + S&#146;)/2;
-four:ferr = <B>norm</B>(F-<B>exp</B>(i*S),1)
-</TD></TR>
-<TR><TD colspan=2>
-gs:for k = 1:n, for j = 1:k-1, d = <B>d*x</B>(k,:)*<B>d*x</B>(j,:)&#146;; <B>d*x</B>(k,:) = <B>d*x</B>(k,:) - d*<B>d*x</B>(j,:); &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>gs:</B> </TD><TD valign=bottom>
-end, s = <B>norm</B>(<B>d*x</B>(k,:)), <B>d*x</B>(k,:) = <B>d*x</B>(k,:)/s;
-</TD></TR>
-<TR><TD colspan=2>
-jacobi:&lt;n, n&gt; = <B>size</B>(A);
-jacobi:X = <B>eye</B>(n);
-jacobi:anorm = <B>norm</B>(A,&#146;fro&#146;);
-jacobi:cnt = 1;
-jacobi:while cnt &gt; 0,&#46;&#46;&#46;
+<B>m</B> </TD><TD valign=bottom>
+//number of boundary points
+//initialize operation counter
+flop = [0 0];
+//initialize variables
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-cnt = 0;&#46;&#46;&#46;
+<B>m1 = </B><B>round</B>(m/3); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+//number of points on each straight edge
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-for p = 1:n-1,&#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-for q = p+1:n,&#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-if anorm + <B>abs</B>(<B>a</B>(p,q)) &gt; anorm,&#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-cnt = cnt + 1;&#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-<B>exec</B>(&#146;jacstep&#146;);&#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-end,&#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-end,&#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-end,&#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacobi:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-<B>display</B>(rat(A)),&#46;&#46;&#46;
-jacobi:end
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacstep:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-d = (<B>a</B>(q,q)-<B>a</B>(p,p))*0.5/<B>a</B>(p,q);
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacstep:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-t = <B>1/</B>(<B>abs</B>(d)+<B>sqrt</B>(d*d+1));
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacstep:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-if d &lt; 0, t = <B>-t</B>; end;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacstep:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-c = <B>1/sqrt</B>(1+t*t);  s = t*c;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacstep:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-R = <B>eye</B>(n); <B>r</B>(p,p)=c; <B>r</B>(q,q)=c; <B>r</B>(p,q)=s; <B>r</B>(q,p)=<B>-s</B>;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacstep:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-X = X*R;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>jacstep:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-A = R&#146;*A*R;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>kron://</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-C = Kronecker product of A and B
-kron:&lt;m, n&gt; = <B>size</B>(A);
-kron:for i = 1:m, &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>kron:</B> </TD><TD valign=bottom>
-ci = <B>a</B>(i,1)*B; &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>kron:</B> </TD><TD valign=bottom>
-for j = 2:n, ci = &lt;ci <B>a</B>(i,j)*B&gt;; end &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>kron:</B> </TD><TD valign=bottom>
-if i = 1, C = ci; else, C = &lt;C; ci&gt;;
-</TD></TR>
-<TR><TD colspan=2>
-lanczos:&lt;n,n&gt; = <B>size</B>(A);
-lanczos:q1 = <B>rand</B>(n,1);
-lanczos:ort
-lanczos:G_CHARSET = &lt;&gt;; beta = &lt;&gt;;
-lanczos:q = q1/<B>norm</B>(q1); r = A*<B>A*q</B>(:,1);
-lanczos:for j = 1:n, <B>exec</B>(&#146;lanstep&#146;,0);
-</TD></TR>
-<TR><TD colspan=2>
-<B>lanstep:G_CHARSET</B>(j) = <B>q</B>(:,j)&#146;*r;
-lanstep:r = r - <B>G_CHARSET</B>(j)*<B>q</B>(:,j);
-lanstep:if ort &lt;&gt; 0, for k = 1:j-1, r = r - r&#146;*<B>q</B>(:,k)*<B>q</B>(:,k);
-<B>lanstep:beta</B>(j) = <B>norm</B>(r);
-lanstep:<B>A*q</B>(:,j+1) = <B>r/beta</B>(j);
-lanstep:r = A*<B>A*q</B>(:,j+1) - <B>beta</B>(j)*<B>A*q</B>(:,j);
-lanstep:if j &gt; 1, T = <B>diag</B>(<B>beta</B>(1:j-1),1); T = <B>diag</B>(G_CHARSET) + T + T&#146;; <B>eig</B>(T)
-</TD></TR>
-<TR><TD colspan=2>
-mgs:for k = 1:n, s = <B>norm</B>(<B>d*x</B>(k,:)), <B>d*x</B>(k,:) = <B>d*x</B>(k,:)/s; &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>mgs:</B> </TD><TD valign=bottom>
-for j = k+1:n, d = <B>d*x</B>(j,:)*<B>d*x</B>(k,:)&#146;; <B>d*x</B>(j,:) = <B>d*x</B>(j,:) - d*<B>d*x</B>(k,:);
-</TD></TR>
-<TR><TD colspan=2>
-net:C = &lt;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:1</B> </TD><TD valign=bottom>
-2   15  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:2</B> </TD><TD valign=bottom>
-1   3   .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:3</B> </TD><TD valign=bottom>
-2   4   11  .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:4</B> </TD><TD valign=bottom>
-3   5   .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:5</B> </TD><TD valign=bottom>
-4   6   7   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:6</B> </TD><TD valign=bottom>
-5   8   .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:7</B> </TD><TD valign=bottom>
-5   9   30  .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:8</B> </TD><TD valign=bottom>
-6   9   10  11  .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:9</B> </TD><TD valign=bottom>
-7   8   30  .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:10</B> </TD><TD valign=bottom>
-8   12  30  31  34
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:11</B> </TD><TD valign=bottom>
-3   8   12  13  .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:12</B> </TD><TD valign=bottom>
-10  11  34  36  .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:13</B> </TD><TD valign=bottom>
-11  14  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:14</B> </TD><TD valign=bottom>
-13  15  16  38  .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:15</B> </TD><TD valign=bottom>
-1   14  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:16</B> </TD><TD valign=bottom>
-14  17  20  35  37
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:17</B> </TD><TD valign=bottom>
-16  18  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:18</B> </TD><TD valign=bottom>
-17  19  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:19</B> </TD><TD valign=bottom>
-18  20  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:20</B> </TD><TD valign=bottom>
-16  19  21  .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:21</B> </TD><TD valign=bottom>
-20  22  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:22</B> </TD><TD valign=bottom>
-21  23  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:23</B> </TD><TD valign=bottom>
-22  24  35  .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:24</B> </TD><TD valign=bottom>
-23  25  39  .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:25</B> </TD><TD valign=bottom>
-24  .   .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:26</B> </TD><TD valign=bottom>
-27  33  39  .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:27</B> </TD><TD valign=bottom>
-26  32  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:28</B> </TD><TD valign=bottom>
-29  32  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:29</B> </TD><TD valign=bottom>
-28  30  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:30</B> </TD><TD valign=bottom>
-7   9   10  29  .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:31</B> </TD><TD valign=bottom>
-10  32  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:32</B> </TD><TD valign=bottom>
-27  28  31  34  .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:33</B> </TD><TD valign=bottom>
-26  34  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:34</B> </TD><TD valign=bottom>
-10  12  32  33  35
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:35</B> </TD><TD valign=bottom>
-16  23  34  36  .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:36</B> </TD><TD valign=bottom>
-12  35  38  .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:37</B> </TD><TD valign=bottom>
-16  38  .   .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:38</B> </TD><TD valign=bottom>
-14  36  37  .   .
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>net:39</B> </TD><TD valign=bottom>
-24  26  .   .   .
-net:&gt;;
-net:&lt;n, m&gt; = <B>size</B>(C);
-net:A = 0*<B>0*ones</B>(n,n);
-net:for i=1:n, for j=2:m, <B>k=c</B>(i,j); if k&gt;0, <B>a</B>(i,k)=1;
-net:check = <B>norm</B>(A-A&#146;,1), if check &gt; 0, quit
-net:&lt;X,D&gt; = <B>eig</B>(A+eye);
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>net:D = </B><B>diag</B>(D); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-D = <B>D</B>(n:<B>-1</B>:1)
-net:X = <B>X</B>(:,n:<B>-1</B>:1);
-net:&lt;<B>d*x</B>(:,1)/sum(<B>d*x</B>(:,1)) <B>d*x</B>(:,2) <B>d*x</B>(:,3) <B>d*x</B>(:,19)&gt;
-</TD></TR>
-<TR><TD colspan=2>
-pascal://Generate next Pascal matrix
-pascal:&lt;k,k&gt; = <B>size</B>(L);
-pascal:k = k + 1;
-<B>pascal:L</B>(k,1:k) = &lt;<B>L</B>(k-1,:) 0&gt; + &lt;0 <B>L</B>(k-1,:)&gt;;
-</TD></TR>
-<TR><TD colspan=2>
-pdq:G_CHARSET = &lt;&gt;; beta = 0; q = &lt;&gt;; p = <B>p</B>(:,1)/<B>norm</B>(<B>p</B>(:,1));
-pdq:t = A&#146;*<B>p</B>(:,1);
-<B>pdq:G_CHARSET</B>(1) = <B>norm</B>(t);
-pdq:<B>A*q</B>(:,1) = <B>t/G_CHARSET</B>(1);
-pdq:X = <B>p</B>(:,1)*(<B>G_CHARSET</B>(1)*<B>A*q</B>(:,1))&#146;
-<B>pdq:e</B>(1) = <B>norm</B>(A-X,1)
-pdq:for j = 2:r, <B>exec</B>(&#146;pdqstep&#146;,ip); &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>pdq:</B> </TD><TD valign=bottom>
-X = X + <B>p</B>(:,j)*(<B>G_CHARSET</B>(j)*<B>A*q</B>(:,j)+<B>beta</B>(j)*<B>A*q</B>(:,j-1))&#146;, &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>pdq:</B> </TD><TD valign=bottom>
-<B>e</B>(j) = <B>norm</B>(A-X,1)
-</TD></TR>
-<TR><TD colspan=2>
-pdqstep:t = A*<B>A*q</B>(:,j-1) - <B>G_CHARSET</B>(j-1)*<B>p</B>(:,j-1);
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>pdqstep:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-if ort&gt;0, for i = 1:j-1, t = t - t&#146;*<B>p</B>(:,i)*<B>p</B>(:,i);
-pdqstep:<B>beta</B>(j) = <B>norm</B>(t);
-<B>pdqstep:p</B>(:,j) = t/<B>beta</B>(j);
-pdqstep:t = A&#146;*<B>p</B>(:,j) - <B>beta</B>(j)*<B>A*q</B>(:,j-1);
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>pdqstep:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-if ort&gt;0, for i = 1:j-1, t = t - t&#146;*<B>A*q</B>(:,i)*<B>A*q</B>(:,i);
-<B>pdqstep:G_CHARSET</B>(j) = <B>norm</B>(t);
-pdqstep:<B>A*q</B>(:,j) = <B>t/G_CHARSET</B>(j);
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>pop:y = &lt; 75.995</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-91.972  105.711  123.203   &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>pop:</B> </TD><TD valign=bottom>
-131.669  150.697  179.323  203.212&gt;&#146;
-pop:t = &lt; 1900:10:1970 &gt;&#146;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>pop:t = (t - 1940*</B><B>0*ones</B>(t))/40; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-&lt;t y&gt;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>pop:n = 8;</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-<B>A</B>(:,1) = <B>ones</B>(t);  for j = 2:n, <B>A</B>(:,j) = t .* <B>A</B>(:,j-1);
-pop:A
-pop:c = A\y
-</TD></TR>
-<TR><TD colspan=2>
-qr:scale = <B>s</B>(m);
-qr:sm = <B>s</B>(m)/scale; smm1 = <B>s</B>(m-1)/scale; emm1 = <B>e</B>(m-1)/scale;
-qr:sl = <B>s</B>(l)/scale; el = <B>e</B>(l)/scale;
-qr:b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
-qr:c = (sm*emm1)**2;
-qr:shift = <B>sqrt</B>(b**2+c); if b &lt; 0, shift = <B>-shift</B>;
-qr:shift = <B>c/</B>(b + shift)
-qr:f = (sl + sm)*(sl-sm) - shift
-qr:g = sl*el
-qr:for k = l: m-1, <B>exec</B>(&#146;qrstep&#146;,ip)
-qr:<B>e</B>(m-1) = f
-</TD></TR>
-<TR><TD colspan=2>
-qrstep:<B>exec</B>(&#146;rot&#146;);
-qrstep:if k &lt;&gt; l, <B>e</B>(k-1) = f
-qrstep:f = cs*<B>s</B>(k) + sn*<B>e</B>(k)
-qrstep:<B>e</B>(k) = cs*<B>e</B>(k) - sn*<B>s</B>(k)
-qrstep:g = sn*<B>s</B>(k+1)
-<B>qrstep:s</B>(k+1) = cs*<B>s</B>(k+1)
-qrstep:<B>exec</B>(&#146;rot&#146;);
-<B>qrstep:s</B>(k) = f
-qrstep:f = cs*<B>e</B>(k) + sn*<B>s</B>(k+1)
-<B>qrstep:s</B>(k+1) = <B>-sn</B>*<B>e</B>(k) + cs*<B>s</B>(k+1)
-qrstep:g = sn*<B>e</B>(k+1)
-qrstep:<B>e</B>(k+1) = cs*<B>e</B>(k+1)
-</TD></TR>
-<TR><TD colspan=2>
-rho://Conductivity example.
-rho://Parameters ---
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-rho       //radius of cylindrical inclusion
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-n         //number of terms in solution
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-m         //number of boundary points
-rho://initialize operation counter
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-flop = &lt;0 0&gt;;
-rho://initialize variables
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-m1 = <B>round</B>(m/3);   //number of points on each straight edge
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-m2 = m - m1;       //number of points with Dirichlet conditions
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
+<B>m2 = m - m1;</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+//number of points with Dirichlet conditions
 pi = 4*<B>4*atan</B>(1);
-rho://generate points in Cartesian coordinates
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
+//generate points in Cartesian coordinates
 //right hand edge
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-for i = 1:m1, <B>d*x</B>(i) = 1; <B>y</B>(i) = (1-rho)*(i-1)/(m1-1);
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
+for i = 1:m1, <B>x</B>(i) = 1; <B>y</B>(i) = (1-rho)*(i-1)/(m1-1);
 //top edge
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-for i = m2+1:m, <B>d*x</B>(i) = (1-rho)*(m-i)/(m-m2-1); <B>y</B>(i) = 1;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
+for i = m2+1:m, <B>x</B>(i) = (1-rho)*(m-i)/(m-m2-1); <B>y</B>(i) = 1;
 //circular edge
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
 for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); &#46;&#46;&#46;
+<TABLE width=100% cellpadding=3><!-- tsb: //number of points with Dirichlet conditions
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD colspan=2>
+<B></B><B>x</B>(i) = 1-rho*sin(t); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>y</B>(i) = 1-rho*cos(t);
+//convert to polar coordinates
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-<B>d*x</B>(i) = 1-rho*sin(t);  <B>y</B>(i) = 1-rho*cos(t);
-rho://convert to polar coordinates
+<TR></TR></TABLE><!-- .TP -->
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-for i = 1:m-1, <B>th</B>(i) = <B>atan</B>(<B>y</B>(i)/<B>d*x</B>(i));  &#46;&#46;&#46;
+<TR valign=top><TD colspan=2>
+<B>for i = 1:m-1, </B><B>th</B>(i) = <B>atan</B>(<B>y</B>(i)/<B>x</B>(i)); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+&#46;&#46;&#46;
+<B>r</B>(i) = <B>sqrt</B>(<B>x</B>(i)**2+<B>y</B>(i)**2);
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-<B>r</B>(i) = <B>sqrt</B>(<B>d*x</B>(i)**2+<B>y</B>(i)**2);
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-<B>th</B>(m) = pi/2;  <B>r</B>(m) = 1;
-rho://generate matrix
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
+<TR valign=top><TD colspan=2>
+<B></B><B>th</B>(m) = pi/2; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>r</B>(m) = 1;
+//generate matrix
 //Dirichlet conditions
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
 for i = 1:m2, for j = 1:n, k = 2*j-1; &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
 <B>a</B>(i,j) = <B>r</B>(i)**k*cos(k*<B>th</B>(i));
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
 //Neumann conditions
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
 for i = m2+1:m, for j = 1:n, k = 2*j-1; &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
-<B>a</B>(i,j) = k*<B>k*r</B>(i)**(k-1)*sin((k-1)*<B>th</B>(i));
-rho://generate right hand side
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
+<B>a</B>(i,j) = k*<B>r</B>(i)**(k-1)*sin((k-1)*<B>th</B>(i));
+//generate right hand side
 for i = 1:m2, <B>b</B>(i) = 1;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
 for i = m2+1:m, <B>b</B>(i) = 0;
-rho://solve for coefficients
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
+//solve for coefficients
 c = A$b
-rho://compute effective conductivity
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
+//compute effective conductivity
 <B>c</B>(2:2:n) = -<B>c</B>(2:2:n)
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
 sigma = <B>sum</B>(c)
-rho://output total operation count
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho:</B> </TD><TD valign=bottom>
+//output total operation count
 ops = <B>flop</B>(2)
 </TD></TR>
+<TR></TR></TABLE></BLOCKQUOTE>
+<P>
+:rogers.exec:
+<TABLE cellpadding=3><!-- tsb: :rogers.exec:
+ -->
+<TR></TR><TR></TR>
 <TR valign=top><TD colspan=2>
-<B></B><B>rogers.exec:exec</B>(&#146;d.boug&#146;); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B></B><B>exec</B>(&#146;d.boug&#146;); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 // reads data
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>rogers.exec:&lt;g,k&gt; = </B><B>size</B>(p); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>[g,k] = </B><B>size</B>(p); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 // p is matrix of gene frequencies
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>rogers.exec:wv = ncen/</B><B>sum</B>(ncen); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>wv = ncen/</B><B>sum</B>(ncen); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 // ncen contains population sizes
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>rogers.exec:pbar = wv*p;</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>pbar = wv*p;</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 // weighted average of p
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>rogers.exec:p = p - </B><B>ones</B>(g,1)*pbar; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>p = p - </B><B>ones</B>(g,1)*pbar; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 // deviations from mean
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>rogers.exec:p = </B><B>sqrt</B>(<B>diag</B>(wv)) * p; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>p = </B><B>sqrt</B>(diag(wv)) * p; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 // weight rows of p by sqrt of pop size
-rogers.exec:h = <B>diag</B>(pbar); h = h*(eye-h); // diagonal contains binomial variance: p*(1-p)
+h = <B>diag</B>(pbar); h = h*(eye-h); // diagonal contains binomial variance: p*(1-p)
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>rogers.exec:r = p*</B><B>p*inv</B>(h)*p&#146;/k; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>r = p*</B><B>p*inv</B>(h)*p&#146;/k; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 // normalized covariance matrix
-rogers.exec:<B>eig</B>(r)&#146;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>rosser:A</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-= &lt;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>rosser:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-611.  196. <B>-192</B>.  407.   <B>-8</B>.  <B>-52</B>.  <B>-49</B>.   29.
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>rosser:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-196.  899.  113. <B>-192</B>.  <B>-71</B>.  <B>-43</B>.   <B>-8</B>.  <B>-44</B>.
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>rosser: </B><B>-192</B>. </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-113.  899.  196.   61.   49.    8.   52.
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>rosser:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-407. <B>-192</B>.  196.  611.    8.   44.   59.  <B>-23</B>.
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>rosser:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-<B>-8</B>.  <B>-71</B>.   61.    8.  411. <B>-599</B>.  208.  208.
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>rosser:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-<B>-52</B>.  <B>-43</B>.   49.   44. <B>-599</B>.  411.  208.  208.
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>rosser:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-<B>-49</B>.   <B>-8</B>.    8.   59.  208.  208.   99. <B>-911</B>.
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>rosser:</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-29.  <B>-44</B>.   52.  <B>-23</B>.  208.  208. <B>-911</B>.   99.  &gt;;
+<B>eig</B>(r)&#146;
 </TD></TR>
 <TR><TD colspan=2>
-rot:// subexec <B>rot</B>(f,g,cs,sn)
+:rosser:
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>rot:</B> </TD><TD valign=bottom>
+<B>A</B> </TD><TD valign=bottom>
+= [
+<TABLE width=100% cellpadding=3><!-- tsb: = [
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD width=4%>
+611.
+</TD><TD>
+196. <B>-192</B>. 407. <B>-8</B>. <B>-52</B>. <B>-49</B>. 29.
+</TD></TR>
+<TR valign=top><TD width=4%>
+196.
+</TD><TD>
+899. 113. <B>-192</B>. <B>-71</B>. <B>-43</B>. <B>-8</B>. <B>-44</B>.
+</TD></TR>
+<TR></TR></TABLE><!-- .TP -->
+</TD></TR>
+<TR valign=top><TD width=4% nowrap>
+<B></B><B>-192</B>. </TD><TD valign=bottom>
+113.  899.  196.   61.   49.    8.   52.
+<TABLE width=100% cellpadding=3><!-- tsb: 113.  899.  196.   61.   49.    8.   52.
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD width=4%>
+407.
+</TD><TD>
+<B>-192</B>. 196. 611. 8. 44. 59. <B>-23</B>.
+<TABLE width=100% cellpadding=3><!-- tsb: <B>-192</B>. 196. 611. 8. 44. 59. <B>-23</B>.
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD width=6% nowrap>
+<B></B><B>-8</B>. </TD><TD valign=bottom>
+<B>-71</B>.   61.    8.  411. <B>-599</B>.  208.  208.
+</TD></TR>
+<TR></TR></TABLE><!-- .TP -->
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B></B><B>-52</B>. </TD><TD valign=bottom>
+<B>-43</B>.   49.   44. <B>-599</B>.  411.  208.  208.
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B></B><B>-49</B>. </TD><TD valign=bottom>
+<B>-8</B>.    8.   59.  208.  208.   99. <B>-911</B>.
+<TABLE width=100% cellpadding=3><!-- tsb: <B>-8</B>.    8.   59.  208.  208.   99. <B>-911</B>.
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD width=4%>
+29.
+</TD><TD>
+<B>-44</B>. 52. <B>-23</B>. 208. 208. <B>-911</B>. 99. ];
+</TD></TR>
+<TR></TR></TABLE><!-- .RE -->
+</TD></TR>
+<TR></TR></TABLE><!-- .PP -->
+</TD></TR>
+<TR><TD colspan=2>
+:rot:
+</TD></TR>
+<TR><TD colspan=2>
+// subexec <B>rot</B>(f,g,cs,sn)
 rho = g; if <B>abs</B>(f) &gt; <B>abs</B>(g), rho = f;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rot:</B> </TD><TD valign=bottom>
 cs = 1.0; sn = 0.0; z = 1.0;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rot:</B> </TD><TD valign=bottom>
-r = <B>norm</B>(&lt;f g&gt;); if rho &lt; 0, r = <B>-r</B>; r
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rot:</B> </TD><TD valign=bottom>
+r = <B>norm</B>([f g]); if rho &lt; 0, r = <B>-r</B>; r
 if r &lt;&gt; 0.0, cs = f/r
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rot:</B> </TD><TD valign=bottom>
 if r &lt;&gt; 0.0, sn = g/r
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rot:</B> </TD><TD valign=bottom>
 if <B>abs</B>(f) &gt; <B>abs</B>(g), z = sn;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rot:</B> </TD><TD valign=bottom>
 if <B>abs</B>(g) &gt;= <B>abs</B>(f), if cs &lt;&gt; 0, z = 1/cs;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rot:</B> </TD><TD valign=bottom>
 f = r;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rot:</B> </TD><TD valign=bottom>
 g = z;
 </TD></TR>
 <TR><TD colspan=2>
-rqi:rho = (x&#146;*A*x)
-rqi:x = (A-rho*eye)\x;
-rqi:x = <B>x/norm</B>(x)
+:rqi:
 </TD></TR>
 <TR><TD colspan=2>
-<B>setup:diary</B>(&#146;xxx&#146;)
-setup:!tail <B>-f</B> xxx &gt; /dev/tty1 &
-setup:!tail <B>-f</B> xxx &gt; /dev/tty2 &
+rho = (x&#146;*A*x)
+x = (A-rho*eye)\x;
+x = <B>x/norm</B>(x)
+</TD></TR>
+<TR><TD colspan=2>
+:setup:
+</TD></TR>
+<TR><TD colspan=2>
+<B>diary</B>(&#146;xxx&#146;)
+!tail <B>-f</B> xxx &gt; /dev/tty1 &
+!tail <B>-f</B> xxx &gt; /dev/tty2 &
+</TD></TR>
+<TR><TD colspan=2>
+:sigma:
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>sigma:RHO = .5</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>RHO = .5</B> </TD></TR><TR valign=top><TD width=4%>&nbsp;</TD><TD>
 M = 20  N = 10   SIGMA =  1.488934271883534
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>sigma:RHO = .5</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>RHO = .5</B> </TD></TR><TR valign=top><TD width=4%>&nbsp;</TD><TD>
 M = 40  N = 20   SIGMA =  1.488920312974229
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>sigma:RHO = .5</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>RHO = .5</B> </TD></TR><TR valign=top><TD width=4%>&nbsp;</TD><TD>
 M = 60  N = 30   SIGMA =  1.488920697912116
 </TD></TR>
 <TR><TD colspan=2>
-strut.mat:// Structure problem, Forsythe, Malcolm and Moler, p. 62
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat:s =</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-<B>sqrt</B>(2)/2;
-strut.mat:A = &lt;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat:</B><B>-s</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat:</B><B>-s</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: . </B><B>-1</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-strut.mat:b = &lt;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>strut.mat: .</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+:strut.mat:
 </TD></TR>
 <TR><TD colspan=2>
-test1:// -----------------------------------------------------------------
-test1:// start a new log file
-test1:sh rm <B>-fv</B> log.txt
-<B>test1:diary</B>(&#146;log.txt&#146;)
-test1:// -----------------------------------------------------------------
-test1:titles=&lt;&#146;GNP deflator&#146;
+// Structure problem, Forsythe, Malcolm and Moler, p. 62
+</TD></TR>
+<TR valign=top><TD width=4% nowrap>
+<B>s =</B> </TD><TD valign=bottom>
+<B>sqrt</B>(2)/2;
+A = [
+</TD></TR>
+<TR valign=top><TD width=4% nowrap>
+<B></B><B>-s</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=4% nowrap>
+<B></B><B>-s</B> </TD><TD valign=bottom>
+<TABLE width=100% cellpadding=3>
+<TR valign=top><TD width=6% nowrap>
+<B>. </B><B>-1</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+b = [
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>.</B> </TD><TD valign=bottom>
+</TD></TR>
+<TR></TR></TABLE><!-- .PP -->
+</TD></TR>
+<TR><TD colspan=2>
+:test1:
+</TD></TR>
+<TR><TD colspan=2>
+// -----------------------------------------------------------------
+// start a new log file
+sh rm <B>-fv</B> log.txt
+<B>diary</B>(&#146;log.txt&#146;)
+// -----------------------------------------------------------------
+titles=[&#146;GNP deflator&#146;
+</TD></TR>
+<TR><TD width=6%>&nbsp;</TD><TD>
+<TABLE width=100% cellpadding=3>
+<TR valign=top><TD width=6% nowrap>
+<B>&#146;GNP</B> </TD><TD valign=bottom>
+<BR>.Unemployment&#146; 
+<BR>.Armed Force &#146;
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>test1: &#146;GNP</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-test1: &#146;Unemployment&#146;
-test1: &#146;Armed Force &#146;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: &#146;Population</B> <!-- Consumed .TP -->
+<B>&#146;Population</B> <!-- Consumed .TP -->
 <BR>
-<B>test1: &#146;Year</B> <!-- Consumed .TP -->
+<B>&#146;Year</B> <!-- Consumed .TP -->
 <BR>
-<B>test1: &#146;Employment</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-test1:data = &#46;&#46;&#46;
+<B>&#146;Employment</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+data = &#46;&#46;&#46;
 </TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1:&lt; 83.0</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<TR></TR></TABLE><!-- .TP -->
+</TD></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>[ 83.0</B> </TD><TD valign=bottom>
 234.289  235.6  159.0  107.608  1947  60.323
+<TABLE width=100% cellpadding=3><!-- tsb: 234.289  235.6  159.0  107.608  1947  60.323
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>88.5</B> </TD><TD valign=bottom>
+259.426  232.5  145.6  108.632  1948  61.122
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
-88.5  259.426  232.5  145.6  108.632  1948  61.122
+<B>88.2</B> </TD><TD valign=bottom>
+258.054  368.2  161.6  109.773  1949  60.171
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
-88.2  258.054  368.2  161.6  109.773  1949  60.171
+<B>89.5</B> </TD><TD valign=bottom>
+284.599  335.1  165.0  110.929  1950  61.187
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
-89.5  284.599  335.1  165.0  110.929  1950  61.187
+<B>96.2</B> </TD><TD valign=bottom>
+328.975  209.9  309.9  112.075  1951  63.221
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
-96.2  328.975  209.9  309.9  112.075  1951  63.221
+<B>98.1</B> </TD><TD valign=bottom>
+346.999  193.2  359.4  113.270  1952  63.639
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
-98.1  346.999  193.2  359.4  113.270  1952  63.639
+<B>99.0</B> </TD><TD valign=bottom>
+365.385  187.0  354.7  115.094  1953  64.989
+</TD></TR>
+<TR></TR></TABLE><!-- .TP -->
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
-99.0  365.385  187.0  354.7  115.094  1953  64.989
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: 100.0</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>100.0</B> </TD><TD valign=bottom>
 363.112  357.8  335.0  116.219  1954  63.761
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: 101.2</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<TABLE width=100% cellpadding=3><!-- tsb: 363.112  357.8  335.0  116.219  1954  63.761
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD width=6% nowrap>
+<B>101.2</B> </TD><TD valign=bottom>
 397.469  290.4  304.8  117.388  1955  66.019
 </TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: 104.6</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<TR valign=top><TD width=6% nowrap>
+<B>104.6</B> </TD><TD valign=bottom>
 419.180  282.2  285.7  118.734  1956  67.857
 </TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: 108.4</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<TR valign=top><TD width=6% nowrap>
+<B>108.4</B> </TD><TD valign=bottom>
 442.769  293.6  279.8  120.445  1957  68.169
 </TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: 110.8</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<TR valign=top><TD width=6% nowrap>
+<B>110.8</B> </TD><TD valign=bottom>
 444.546  468.1  263.7  121.950  1958  66.513
 </TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: 112.6</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<TR valign=top><TD width=6% nowrap>
+<B>112.6</B> </TD><TD valign=bottom>
 482.704  381.3  255.2  123.366  1959  68.655
 </TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: 114.2</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<TR valign=top><TD width=6% nowrap>
+<B>114.2</B> </TD><TD valign=bottom>
 502.601  393.1  251.4  125.368  1960  69.564
 </TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: 115.7</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<TR valign=top><TD width=6% nowrap>
+<B>115.7</B> </TD><TD valign=bottom>
 518.173  480.6  257.2  127.852  1961  69.331
 </TD></TR>
-<TR valign=top><TD colspan=2>
-<B>test1: 116.9</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-554.894  400.7  282.7  130.081  1962  70.551&gt;;
-test1:short
-test1:X = data;
-test1:&lt;n,p&gt; = <B>size</B>(X)
-test1:mu = <B>ones</B>(1,n)*X/n
+<TR valign=top><TD width=6% nowrap>
+<B>116.9</B> </TD><TD valign=bottom>
+554.894  400.7  282.7  130.081  1962  70.551];
+short
+X = data;
+[n,p] = <B>size</B>(X)
+mu = <B>ones</B>(1,n)*X/n
+</TD></TR>
+<TR></TR></TABLE><!-- .TP -->
 </TD></TR>
 <TR valign=top><TD colspan=2>
-<B>test1:X = X - </B><B>ones</B>(n,1)*mu; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+<B>X = X - </B><B>ones</B>(n,1)*mu; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 X = <B>X/diag</B>(<B>sqrt</B>(<B>diag</B>(X&#146;*X)))
-test1:corr = X&#146;*X
-test1:y = <B>data</B>(:,p); X = &lt;<B>ones</B>(y) <B>data</B>(:,1:p-1)&gt;;
-test1:long e
-test1:beta = X\y
-test1:expected = &lt; &#46;&#46;&#46;
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
+corr = X&#146;*X
+y = <B>data</B>(:,p); X = <B>[ones</B>(y) <B>data</B>(:,1:p-1)];
+long e
+beta = X\y
+expected = [ &#46;&#46;&#46;
 <B>-3.482258634594421D</B>+03
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
 1.506187227124484D-02
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
 <B>-3.581917929257409D-02</B>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
 <B>-2.020229803816908D-02</B>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
 <B>-1.033226867173703D-02</B>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
 <B>-5.110410565317738D-02</B>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>test1:</B> </TD><TD valign=bottom>
 1.829151464612817D+00
-test1:&gt;
-test1:<B>display</B>(&#146;EXPE and BETA should be the same&#146;)
+]
+<B>display</B>(&#146;EXPE and BETA should be the same&#146;)
 </TD></TR>
 <TR><TD colspan=2>
-<B>tryall:diary</B>(&#146;log.txt&#146;)
-<B>tryall:a=magic</B>(8)
-tryall:n=3
-tryall:<B>exec</B>(&#146;avg&#146;)
-<B>tryall:b=random</B>(8,8)
-tryall:<B>exec</B>(&#146;cdiv&#146;)
-tryall:<B>exec</B>(&#146;exp&#146;)
-tryall:<B>exec</B>(&#146;four&#146;)
-tryall:<B>exec</B>(&#146;gs&#146;)
-tryall:<B>exec</B>(&#146;jacobi&#146;)
-tryall:// jacstep
-tryall:<B>exec</B>(&#146;kron&#146;)
-tryall:<B>exec</B>(&#146;lanczos&#146;)
-tryall:// lanstep
-tryall:<B>exec</B>(&#146;longley&#146;)
-tryall:<B>exec</B>(&#146;mgs&#146;)
-tryall:<B>exec</B>(&#146;net&#146;)
-tryall:<B>exec</B>(&#146;pascal&#146;)
-tryall:<B>exec</B>(&#146;pdq&#146;)
-tryall:// pdqstep
-tryall:<B>exec</B>(&#146;pop&#146;)
-tryall:<B>exec</B>(&#146;qr&#146;)
-tryall:// qrstep
-tryall:<B>exec</B>(&#146;rho&#146;)
-tryall:<B>exec</B>(&#146;rosser&#146;)
-tryall:// rot
-tryall:<B>exec</B>(&#146;rqi&#146;)
-tryall:<B>exec</B>(&#146;setup&#146;)
-tryall:<B>exec</B>(&#146;sigma&#146;)
-tryall:<B>exec</B>(&#146;strut.mat&#146;)
-tryall:<B>exec</B>(&#146;w5&#146;)
-tryall:<B>exec</B>(&#146;rogers.exec
-tryall:<B>exec</B>(&#146;rogers.load
+:tryall:
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>w5:w5</B> </TD><TD valign=bottom>
-= &lt;
+<TR><TD colspan=2>
+<B>diary</B>(&#146;log.txt&#146;)
+<B>a=magic</B>(8)
+n=3
+<B>exec</B>(&#146;avg&#146;)
+<B>b=random</B>(8,8)
+<B>exec</B>(&#146;cdiv&#146;)
+<B>exec</B>(&#146;exp&#146;)
+<B>exec</B>(&#146;four&#146;)
+<B>exec</B>(&#146;gs&#146;)
+<B>exec</B>(&#146;jacobi&#146;)
+// jacstep
+<B>exec</B>(&#146;kron&#146;)
+<B>exec</B>(&#146;lanczos&#146;)
+// lanstep
+<B>exec</B>(&#146;longley&#146;)
+<B>exec</B>(&#146;mgs&#146;)
+<B>exec</B>(&#146;net&#146;)
+<B>exec</B>(&#146;pascal&#146;)
+<B>exec</B>(&#146;pdq&#146;)
+// pdqstep
+<B>exec</B>(&#146;pop&#146;)
+<B>exec</B>(&#146;qr&#146;)
+// qrstep
+<B>exec</B>(&#146;rho&#146;)
+<B>exec</B>(&#146;rosser&#146;)
+// rot
+<B>exec</B>(&#146;rqi&#146;)
+<B>exec</B>(&#146;setup&#146;)
+<B>exec</B>(&#146;sigma&#146;)
+<B>exec</B>(&#146;strut.mat&#146;)
+<B>exec</B>(&#146;w5&#146;)
+<B>exec</B>(&#146;rogers.exec
+<B>exec</B>(&#146;rogers.load
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>w5:</B> </TD><TD valign=bottom>
-1.          1.          0.          0.          0.
+<TR><TD colspan=2>
+:w5:
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>w5:</B> </TD><TD valign=bottom>
-<B>-10</B>.          1.          1.          0.          0.
+<TR><TD colspan=2>
+w5 = [
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>w5:</B> </TD><TD valign=bottom>
-40.          0.          1.          1.          0.
+<TR><TD width=6%>&nbsp;</TD><TD>
+<TABLE width=100% cellpadding=3>
+<TR valign=top><TD width=4%>
+1.
+</TD><TD>
+1. 0. 0. 0.
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>w5:</B> </TD><TD valign=bottom>
-<B>-205</B>.          0.          0.          1.          1.
+<TR></TR></TABLE><!-- .TP -->
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>w5:</B> </TD><TD valign=bottom>
-1024.          0.          0.          0.         <B>-4</B>.
+<TR valign=top><TD width=4% nowrap>
+<B></B><B>-10</B>. </TD><TD valign=bottom>
+1.      1.      0.      0.
+<TABLE width=100% cellpadding=3><!-- tsb: 1.      1.      0.      0.
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD width=4%>
+40.
+</TD><TD>
+0. 1. 1. 0.
 </TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>w5:</B> </TD><TD valign=bottom>
+<TR></TR></TABLE><!-- .IP 205. 4 -->
 </TD></TR>
+<TR></TR></TABLE><TABLE cellpadding=3>
+<TR valign=top><TD width=4%>
+205.
+</TD><TD>
+0. 0. 1. 1.
+<TABLE width=100% cellpadding=3><!-- tsb: 0. 0. 1. 1.
+ -->
+<TR></TR><TR></TR>
+<TR valign=top><TD width=4%>
+024.
+</TD><TD>
+0. 0. 0. <B>-4</B>.
+]
+</TD></TR>
+<TR></TR></TABLE></TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>mat88 (3m_matrix)</TD> <TD align=right width=33%><I>April 24, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from d702ab8b-78c8-45e7-b89b-2db5eabb7e29 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>mat88 (3m_matrix)</TD> <TD align=right width=33%><I>April 25, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from 70145b08-21d4-4c6d-8b03-7843337a6dff using man macros.</FONT>
 <br><br><center><img src="images/mat88.gif"></center>
 </div>
 </div>

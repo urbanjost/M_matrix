@@ -1,6 +1,22 @@
 # M_matrix
 
-This module allows you to interact with a Fortran program using matlab-like commands.
+This module allows you to interact with a Fortran program using
+matlab-like commands. This allows you to add code to your Fortran
+program that you can use to optionally inspect data during development
+and debugging and to create configuration and data files that resemble
+Fortran syntax. It is a WIP (Work In Progress) but is already useful.
+
+A stand-alone program is included that lets you use it as a calculator
+and to test and create input files as well.
+
+It was originally based on some **very** old code that still requires
+some major refactoring, but if anyone else is interested or finds it
+useful let me know.
+
+Perhaps it could be useful for creating a testing framework for Linear
+Algebra libraries and other routines in the growing Fortran stdlib effort
+or `fpm` packages as well.
+
 Installation requires fpm(1):
 
 download the github repository and build it with 
