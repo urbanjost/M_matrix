@@ -1,5 +1,168 @@
 module M_matrix
 !>
+!!##SYNTAX DIAGRAMS (9)
+!!
+!!    A formal description of the language acceptable to MAT88, as well as
+!!    a flow chart of the mat88 program, is provided by the syntax diagrams
+!!    or syntax graphs of wirth [6]. There are eleven non-terminal symbols
+!!    in the language:
+!!
+!!       LINE, STATEMENT, CLAUSE, EXPRESSION, TERM,
+!!       FACTOR, NUMBER, INTEGER, NAME, COMMAND, TEXT .
+!!
+!!    The diagrams define each of the non-terminal symbols using the others
+!!    and the terminal symbols:
+!!
+!!       LETTER -- A THROUGH Z,
+!!       DIGIT  -- 0 THROUGH 9,
+!!       CHAR   -- ( ) ; : + - * / \ = . , < >
+!!       QUOTE  -- '
+!!
+!!    LINE
+!!
+!!           |-----> STATEMENT >----|
+!!           |                      |
+!!           |-----> CLAUSE >-------|
+!!           |                      |
+!!    -------|-----> EXPR >---------|------>
+!!         | |                      | |
+!!         | |-----> COMMAND >------| |
+!!         | |                      | |
+!!         | |-> > >-> EXPR >-> < >-| |
+!!         | |                      | |
+!!         | |----------------------| |
+!!         |                          |
+!!         |        |-< ; <-|         |
+!!         |--------|       |---------|
+!!                  |-< , <-|
+!!
+!!    STATEMENT
+!!
+!!         |-> NAME >--------------------------------|
+!!         |          |                              |
+!!         |          |         |--> : >---|         |
+!!         |          |         |          |         |
+!!         |          |-> ( >---|-> EXPR >-|---> ) >-|
+!!         |                  |              |       |
+!!    -----|                  |-----< , <----|       |--> = >--> EXPR >--->
+!!         |                                         |
+!!         |       |--< , <---|                      |
+!!         |       |          |                      |
+!!         |-> < >---> NAME >---> > >----------------|
+!!
+!!    CLAUSE
+!!
+!!         |---> FOR   >---> NAME >---> = >---> EXPR >--------------|
+!!         |                                                        |
+!!         | |-> WHILE >-|                                          |
+!!         |-|           |-> EXPR >----------------------           |
+!!         | |-> IF    >-|          |   |   |   |   |   |           |
+!!    -----|                        <   <=  =   <>  >=  >           |---->
+!!         |                        |   |   |   |   |   |           |
+!!         |                        ----------------------> EXPR >--|
+!!         |                                                        |
+!!         |---> ELSE  >--------------------------------------------|
+!!         |                                                        |
+!!         |---> END   >--------------------------------------------|
+!!
+!!    EXPR
+!!
+!!           |-> + >-|
+!!           |       |
+!!    -------|-------|-------> TERM >---------->
+!!           |       |    |             |
+!!           |-> - >-|    |  |-< + <-|  |
+!!                        |  |       |  |
+!!                        |--|-< - <-|--|
+!!                           |       |
+!!                           |-< : <-|
+!!
+!!    TERM
+!!
+!!    ---------------------> FACTOR >---------------------->
+!!            |                                   |
+!!            |             |-< * <-|             |
+!!            |  |-------|  |       |  |-------|  |
+!!            |--|       |--|-< / <-|--|       |--|
+!!               |-< . <-|  |       |  |-< . <-|
+!!                          |-< \ <-|
+!!
+!!    FACTOR
+!!
+!!         |----------------> NUMBER >---------------|
+!!         |                                         |
+!!         |-> NAME >--------------------------------|
+!!         |          |                              |
+!!         |          |         |--> : >---|         |
+!!         |          |         |          |         |
+!!         |          |-> ( >---|-> EXPR >-|---> ) >-|
+!!         |                  |              |       |
+!!         |                  |-----< , <----|       |
+!!         |                                         |
+!!    -----|------------> ( >-----> EXPR >-----> ) >-|-|-------|----->
+!!         |                                         | |       | |
+!!         |                  |--------------|       | |-> ' >-| |
+!!         |                  |              |       |           |
+!!         |------------> < >-|---> EXPR >---|-> > >-|           |
+!!         |                    |          |         |           |
+!!         |                    |--<   <---|         |           |
+!!         |                    |          |         |           |
+!!         |                    |--< ; <---|         |           |
+!!         |                    |          |         |           |
+!!         |                    |--< , <---|         |           |
+!!         |                                         |           |
+!!         |------------> > >-----> EXPR >-----> < >-|           |
+!!         |                                         |           |
+!!         |-----> FACTOR >---> ** >---> FACTOR >----|           |
+!!         |                                                     |
+!!         |------------> ' >-----> TEXT >-----> ' >-------------|
+!!
+!!    NUMBER
+!!
+!!        |----------|                          |-> + >-|
+!!        |          |                          |       |
+!!    -----> INT >-----> . >---> INT >-----> E >---------> INT >---->
+!!                 |                   | |      |       |        |
+!!                 |                   | |      |-> - >-|        |
+!!                 |                   | |                       |
+!!                 |---------------------------------------------|
+!!
+!!    INT
+!!
+!!    ------------> DIGIT >----------->
+!!              |           |
+!!              |-----------|
+!!
+!!    NAME
+!!
+!!                      |--< LETTER <--|
+!!                      |              |
+!!    ------> LETTER >--|--------------|----->
+!!                      |              |
+!!                      |--< DIGIT  <--|
+!!
+!!    COMMAND
+!!
+!!                            |--> NAME >--|
+!!                            |            |
+!!    --------> NAME >--------|------------|---->
+!!                            |            |
+!!                            |--> CHAR >--|
+!!                            |            |
+!!                            |---> ' >----|
+!!
+!!    TEXT
+!!
+!!                    |-> LETTER >--|
+!!                    |             |
+!!                    |-> DIGIT >---|
+!!    ----------------|             |-------------->
+!!                |   |-> CHAR >----|   |
+!!                |   |             |   |
+!!                |   |-> ' >-> ' >-|   |
+!!                |                     |
+!!                |---------------------|
+!>
 !! Originally based on a routine called MATLAB, although heavily modified
 !! since. The original stated ...
 !!
@@ -10,7 +173,7 @@ module M_matrix
 !!    execution of script files.
 !!
 !!    Matlab is reentrant and recursive. Functions supported include (but
-!!    are not by any means limited to) sin, cos, tan, arcfunctions, upper
+!!    are not by any means limited to) sin, cos, tan, arc functions, upper
 !!    triangular, lower triangular, determinants, matrix multiplication,
 !!    identity, Hilbert matrices, eigenvalues and eigenvectors, matrix
 !!    roots and products, inversion and so on and so forth.
@@ -35,14 +198,16 @@ module M_matrix
 !!    (except the file handler and some minor error handling) on an Amiga
 !!    1000 using ABSoft Fortran v2.2.  It will run in 512K environment.
 !!    I have seen it on IBM mainframes and IBM PCs.
-!! ================================================================================
-!!    Changes per John S. Urban: see change log and git(1) history
+!!
+!!    Subsequent changes per John S. Urban: see change log and git(1) history
 use M_journal, only : journal
 use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
 implicit none
 !private
 public mat88
 public mat88_get
+!!public :: name_exists, get, geti, getr, getc, geti ! maybe a kind type or second parameter and returned value is of same type(?)
+!!! scalar and array?
 public mat88_put
 
 ! for other routines
@@ -50,10 +215,9 @@ public mat_flop
 public mat_wasum
 public mat_wdotcr
 public mat_wdotci
-
-public test_suite_M_matrix
-
 ! till get rid of type mismatches, the following are public
+
+integer,parameter,private:: sp=kind(1.0),dp=kind(1.0d0)
 !==================================================================================================================================!
 ! program limits
 integer,parameter        :: GG_LINELEN=1024
@@ -778,21 +942,21 @@ contains
 !!            205.     0.      0.      1.      1.
 !!            024.     0.      0.      0.     -4.
 !!           ]
-subroutine MAT88(init,string0)
+subroutine MAT88(init,input_string)
 
 ! ident_1="@(#)M_matrix::mat88(3f): initialize and/or pass commands to matrix laboratory interpreter"
 
-character(len=*),intent(in) :: string0
+character(len=*),intent(in) :: input_string
 integer                     :: init
-integer                     :: istring0
+integer                     :: input_string_length
 doubleprecision             :: s,t
 integer,parameter           :: EPS(GG_MAX_NAME_LENGTH)=   [14,25,28,36,36,GG_PAD(2:)]
 integer,parameter           :: FLOPS(GG_MAX_NAME_LENGTH)= [15,21,24,25,28,GG_PAD(2:)]
 integer,parameter           :: EYE(GG_MAX_NAME_LENGTH)=   [14,34,14,36,36,GG_PAD(2:)]
 integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [27,10,23,13,36,GG_PAD(2:)]
-   G_INPUT_STRING=STRING0
-   ISTRING0=LEN(STRING0)
-   G_STRING_LENGTH=len_trim(STRING0(1:ISTRING0))
+   G_INPUT_STRING=input_string
+   input_string_length=LEN(input_string)
+   G_STRING_LENGTH=len_trim(input_string(1:input_string_length))
    IF(G_STRING_LENGTH.LE.0.AND.INIT.EQ.2)THEN
       G_INPUT_STRING='quit'
       G_STRING_LENGTH=4
@@ -820,7 +984,7 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [27,10,23,13,36,GG_PAD
 
       G_TOP_OF_SAVED = GG_MAX_NUMBER_OF_NAMES-3  ! move up to allow room for the built-in values eps, flops, eye, rand
 
-      CALL mat_wset(5,0.0D0,0.0D0,G_STACK_REALS(GG_BIGMEM-4),G_STACK_IMAGS(GG_BIGMEM-4),1)
+      call mat_wset(5,0.0D0,0.0d0,G_STACK_REALS(GG_BIGMEM-4),G_STACK_IMAGS(GG_BIGMEM-4),1)
 
       CALL mat_putid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-3),EPS)
       G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-3) = GG_BIGMEM-4
@@ -940,7 +1104,7 @@ character(len=255)   :: msg
     case(34); msg='Improper FOR clause'
     case(35); msg='Improper WHILE or IF clause'
     case(36); msg='Argument out of range'
-    case(37); msg='Improper MACRO'
+    case(37); msg='Improper MACROS'
     case(38); msg='Improper file name'
     case(39); msg='Incorrect number of arguments'
     case(40); msg='Expecting statement terminator'
@@ -1170,45 +1334,9 @@ end subroutine mat_buf2str
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_inverse_hilbert(a,lda,n)
-
-! ident_6="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
-!
-! References:
-! Forsythe, G. E. and C. B. Moler. Computer Solution of Linear Algebraic Systems. Englewood Cliffs, NJ: Prentice-Hall, 1967.
-
-integer,intent(in)          :: lda
-integer,intent(in)          :: n
-doubleprecision,intent(out) :: a(lda,n)
-
-doubleprecision :: p
-doubleprecision :: r
-integer         :: i
-integer         :: j
-integer         :: ip1
-
-   p = dble(n)
-
-   do i = 1, n
-      if (i.ne.1) p = (dble(n-i+1) * p * dble(n+i-1)) / dble(i-1)**2
-      r = p * p
-      a(i,i) = r / dble(2*i-1)
-      if (i.eq.n) cycle
-      ip1 = i + 1
-      do j = ip1, n
-         r = (-1) * (dble(n-j+1) * r * (n+j-1)) / dble(j-1)**2
-         a(i,j) = r/ dble(i+j-1)
-         a(j,i) = a(i,j)
-      enddo
-   enddo
-
-end subroutine mat_inverse_hilbert
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
 subroutine mat_matfn6()
 !
-! ident_7="@(#)M_matrix::mat_matfn6(3f):evaluate utility functions"
+! ident_6="@(#)M_matrix::mat_matfn6(3f):evaluate utility functions"
 !
 integer :: i
 integer :: ia
@@ -1564,7 +1692,7 @@ end subroutine mat_matfn6
 !==================================================================================================================================!
 subroutine mat_funs(id)
 
-! ident_8="@(#)M_matrix::ml_funcs(3fp):scan function list"
+! ident_7="@(#)M_matrix::ml_funcs(3fp):scan function list"
 
 integer,intent(in)               :: id(GG_MAX_NAME_LENGTH)
 integer                          :: selector
@@ -1573,20 +1701,7 @@ integer                          :: i
 
    !  print function names and return
    if (id(1).eq.0) then
-      call journal('sc', ' FUNCTIONS:                                                     ')
-      call journal('sc', '#-------#------#-------#---------#------#-------#-------#-------#------#-------#')
-      call journal('sc', '| abs   | atan | base  | char    | chol | chop  | cond  | conjg | cos  | debug |')
-      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
-      call journal('sc', '| det   | diag | diary | display | doc  | eig   | eps   | exec  | exp  | eye   |')
-      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
-      call journal('sc', '| flop  | hess | invh  | imag    | inv  | kron  | line  | load  | log  | lu    |')
-      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
-      call journal('sc', '| magic | norm | ones  | orth    | pinv | plot  | poly  | print | prod | qr    |')
-      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
-      call journal('sc', '| rand  | rank | rat   | rcond   | real | roots | round | rref  | save | schur |')
-      call journal('sc', '|-------|------|-------|---------|------|-------|-------|-------|------|-------|')
-      call journal('sc', '| sin   | size | sqrt  | sum     | svd  | tril  | triu  | user  | zeros|       |')
-      call journal('sc', '#-------#------#-------#---------#------#-------#-------#-------#------#-------#')
+      call help_command('SUMMARY')
       return
    endif
 
@@ -1690,7 +1805,7 @@ end subroutine mat_funs
 !==================================================================================================================================!
 subroutine mat_putid(x,y)
 
-! ident_9="@(#)M_matrix::mat_putid(3fp): copy a name to allow an easy way to store a name"
+! ident_8="@(#)M_matrix::mat_putid(3fp): copy a name to allow an easy way to store a name"
 
 integer,intent(out) :: x(GG_MAX_NAME_LENGTH)
 integer,intent(in)  :: y(GG_MAX_NAME_LENGTH)
@@ -1704,7 +1819,7 @@ end subroutine mat_putid
 !==================================================================================================================================!
 subroutine mat_getval(s)
 
-! ident_10="@(#)M_matrix::mat_getval(3fp): form numerical value from string of integer characters"
+! ident_9="@(#)M_matrix::mat_getval(3fp): form numerical value from string of integer characters"
 
 doubleprecision,intent(out) :: s
       s = 0.0d0
@@ -1719,7 +1834,7 @@ end subroutine mat_getval
 !==================================================================================================================================!
 subroutine mat_getch()
 
-! ident_11="@(#)M_matrix::mat_getch(3f): get next character from input line"
+! ident_10="@(#)M_matrix::mat_getch(3f): get next character from input line"
 
 integer :: l
 
@@ -1767,7 +1882,7 @@ end function mat_wdotur
 subroutine mat_appnum(rval,string,ilen,ierr)
 use M_strings, only: value_to_string
 
-! ident_12="@(#)M_matrix::mat_appnum(3fp): subroutine returns a string given a prefix string and a real value"
+! ident_11="@(#)M_matrix::mat_appnum(3fp): subroutine returns a string given a prefix string and a real value"
 
 !     Input string should have at least 20 blank characters at end
 !     03/16/87 J. S. Urban
@@ -1830,7 +1945,7 @@ end subroutine mat_wcopy
 !==================================================================================================================================!
 subroutine mat_wdiv(ar,ai,br,bi,cr,ci)
 
-! ident_13="@(#)M_matrix::mat_wdiv(3fp): c = a/b"
+! ident_12="@(#)M_matrix::mat_wdiv(3fp): c = a/b"
 
 doubleprecision :: ar
 doubleprecision :: ai
@@ -1862,12 +1977,15 @@ end subroutine mat_wdiv
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_wset(n,xr,xi,yr,yi,incy)
-integer         :: n
-doubleprecision :: xr
-doubleprecision :: xi
-doubleprecision :: yr(*)
-doubleprecision :: yi(*)
-integer         :: incy
+
+! ident_13="@(#)M_matrix::mat_set(3f):"
+
+integer,intent(in)         :: n     ! number of Y values to set
+doubleprecision,intent(in) :: xr    ! constant to assign Y real values to
+doubleprecision,intent(in) :: xi    ! constant to assing Y imaginary values to
+doubleprecision            :: yr(*) ! Y real component to set to XR
+doubleprecision            :: yi(*) ! Y imaginary component to set to XI
+integer                    :: incy  ! stride to take while setting output values
 
 integer         :: iy
 integer         :: i
@@ -1978,48 +2096,6 @@ integer         :: iy
       iy = iy + incy
    enddo
 end subroutine mat_wswap
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
-doubleprecision function mat_pythag(a,b)
-doubleprecision :: a
-doubleprecision :: b
-
-doubleprecision :: p
-doubleprecision :: q
-doubleprecision :: r
-doubleprecision :: s
-doubleprecision :: t
-
-   p = dmax1(dabs(a),dabs(b))
-   q = dmin1(dabs(a),dabs(b))
-
-   !------- DEBUG
-   if (G_DEBUG_LEVEL .eq. 25) then
-      call journal('sc','*mat_pythag* a) P=',real(P)) ! debug 25
-      call journal('sc','*mat_pythag* a) Q=',real(Q)) ! debug 25
-   endif
-
-   if (q .ne. 0.0d0) then
-
-      INFINITE : do
-         r = (q/p)**2
-         t = 4.0d0 + r
-         if (t .eq. 4.0d0) exit INFINITE
-         s = r/t
-         p = p + 2.0d0*p*s
-         q = q*s
-         !------- DEBUG
-         if (G_DEBUG_LEVEL .eq. 25) then
-            call journal('sc','*mat_pythag* b) P=',real(P)) ! debug 25
-            call journal('sc','*mat_pythag* b) Q=',real(Q)) ! debug 25
-         endif
-      enddo INFINITE
-
-   endif
-
-   mat_pythag = p
-end function mat_pythag
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -2333,103 +2409,6 @@ end subroutine mat_prompt
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_magic(a,lda,n)
-!
-! ident_20="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
-
-!        Algorithms taken from
-!        Mathematical Recreations and Essays, 12th Ed.,
-!        by W. W. Rouse Ball and H. S. M. Coxeter
-!
-integer         :: lda
-integer         :: n
-doubleprecision :: a(lda,n)
-
-doubleprecision :: t
-integer         :: i
-integer         :: j
-integer         :: k
-integer         :: m
-integer         :: mm
-integer         :: i1
-integer         :: im
-integer         :: j1
-integer         :: jm
-integer         :: m1
-integer         :: m2
-!
-   if (mod(n,4) .eq. 0) goto 100
-   if (mod(n,2) .eq. 0) m = n/2
-   if (mod(n,2) .ne. 0) m = n
-!
-!     odd order or upper corner of even order
-!
-   do j = 1,m
-      do i = 1,m
-         a(i,j) = 0
-      enddo
-   enddo
-   i = 1
-   j = (m+1)/2
-   mm = m*m
-   do k = 1, mm
-      a(i,j) = k
-      i1 = i-1
-      j1 = j+1
-      if(i1.lt.1) i1 = m
-      if(j1.gt.m) j1 = 1
-      if(int(a(i1,j1)).eq.0) goto 30
-      i1 = i+1
-      j1 = j
-30    continue
-      i = i1
-      j = j1
-   enddo
-   if (mod(n,2) .ne. 0) return
-!
-!     rest of even order
-!
-   t = dble(m*m)
-   do i = 1, m
-      do j = 1, m
-         im = i+m
-         jm = j+m
-         a(i,jm) = a(i,j) + 2*t
-         a(im,j) = a(i,j) + 3*t
-         a(im,jm) = a(i,j) + t
-      enddo
-   enddo
-   m1 = (m-1)/2
-   if (m1.eq.0) return
-   do j = 1, m1
-      call mat_rswap(m,a(1,j),1,a(m+1,j),1)
-   enddo
-   m1 = (m+1)/2
-   m2 = m1 + m
-   call mat_rswap(1,a(m1,1),1,a(m2,1),1)
-   call mat_rswap(1,a(m1,m1),1,a(m2,m1),1)
-   m1 = n+1-(m-3)/2
-   if(m1.gt.n) return
-   do j = m1, n
-      call mat_rswap(m,a(1,j),1,a(m+1,j),1)
-   enddo
-   return
-!
-!     double even order
-!
-100 continue
-   k = 1
-   do i = 1, n
-      do j = 1, n
-         a(i,j) = k
-         if (mod(i,4)/2 .eq. mod(j,4)/2) a(i,j) = n*n+1 - k
-         k = k+1
-      enddo
-   enddo
-end subroutine mat_magic
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
 subroutine mat_rswap(n,x,incx,y,incy)
 integer         :: n
 doubleprecision :: x(*)
@@ -2455,53 +2434,6 @@ integer         :: i
       iy = iy + incy
    enddo
 end subroutine mat_rswap
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
-subroutine mat_rref(ar,ai,lda,m,n,eps)
-integer,intent(in) :: lda
-doubleprecision    :: ar(lda,*)
-doubleprecision    :: ai(lda,*)
-integer            :: m
-integer            :: n
-doubleprecision    :: eps
-
-doubleprecision    :: tol
-doubleprecision    :: tr
-doubleprecision    :: ti
-integer            :: i, j, k, l
-
-   tol = 0.0d0
-   do j = 1, n
-      tol = dmax1(tol,mat_wasum(m,ar(1,j),ai(1,j),1))
-   enddo
-   tol = eps*dble(2*max0(m,n))*tol
-   k = 1
-   l = 1
-   INFINITE: do
-      IF (K.GT.M .OR. L.GT.N) RETURN
-
-      i = mat_iwamax(m-k+1,ar(k,l),ai(k,l),1) + k-1
-      if (dabs(ar(i,l))+dabs(ai(i,l)) .le. tol)then
-         call mat_wset(m-k+1,0.0d0,0.0d0,ar(k,l),ai(k,l),1)
-         l = l+1
-         cycle INFINITE
-      endif
-
-      call mat_wswap(n-l+1,ar(i,l),ai(i,l),lda,ar(k,l),ai(k,l),lda)
-      call mat_wdiv(1.0d0,0.0d0,ar(k,l),ai(k,l),tr,ti)
-      call mat_wscal(n-l+1,tr,ti,ar(k,l),ai(k,l),lda)
-      ar(k,l) = 1.0d0
-      ai(k,l) = 0.0d0
-      do i = 1, m
-         tr = -ar(i,l)
-         ti = -ai(i,l)
-         if (i .ne. k) call matX_waxpy(n-l+1,tr,ti,ar(k,l),ai(k,l),lda,ar(i,l),ai(i,l),lda)
-      enddo
-      K = K+1
-      L = L+1
-   enddo INFINITE
-end subroutine mat_rref
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -2547,7 +2479,7 @@ end subroutine mat_wscal
 !==================================================================================================================================!
 subroutine mat_wmul(ar,ai,br,bi,cr,ci)
 
-! ident_21="@(#)M_matrix::mat_wmul(3fp) c = a*b"
+! ident_20="@(#)M_matrix::mat_wmul(3fp) c = a*b"
 
 doubleprecision,intent(in)  :: ar
 doubleprecision,intent(in)  :: ai
@@ -2567,7 +2499,7 @@ end subroutine mat_wmul
 !==================================================================================================================================!
 subroutine mat_stack1(op)
 
-! ident_22="@(#)M_matrix::mat_stack1(3f): Unary Operations"
+! ident_21="@(#)M_matrix::mat_stack1(3f): Unary Operations"
 
 integer           :: op
 INTEGER,parameter :: QUOTE=49
@@ -2613,7 +2545,7 @@ end subroutine mat_stack1
 !==================================================================================================================================!
 subroutine mat_rrot(n,dx,incx,dy,incy,c,s)
 
-! ident_23="@(#)M_matrix::mat_rrot(3f): Applies a plane rotation."
+! ident_22="@(#)M_matrix::mat_rrot(3f): Applies a plane rotation."
 
 integer         :: n
 doubleprecision :: dx(*)
@@ -2647,7 +2579,7 @@ end subroutine mat_rrot
 !==================================================================================================================================!
 subroutine mat_rset(n,dx,dy,incy)
 
-! ident_24="@(#)M_matrix::mat_rset(3f): copies a scalar, dx, to a scalar, dy."
+! ident_23="@(#)M_matrix::mat_rset(3f): copies a scalar, dx, to a scalar, dy."
 
 integer         :: n
 doubleprecision :: dx,dy(*)
@@ -2669,7 +2601,7 @@ end subroutine mat_rset
 !==================================================================================================================================!
 subroutine mat_print_id(id,argcnt)
 
-! ident_25="@(#)M_matrix::mat_print_id(3fp): print table of variable id names (up to) eight per line"
+! ident_24="@(#)M_matrix::mat_print_id(3fp): print table of variable id names (up to) eight per line"
 
 !     ID     IS ARRAY OF GG_MAX_NAME_LENGTH CHARACTER IDS TO PRINT
 !     ARGCNT IS NUMBER OF IDS TO PRINT
@@ -2722,7 +2654,7 @@ end subroutine mat_print_id
 !==================================================================================================================================!
 subroutine MAT_STACK_PUT(id)
 
-! ident_26="@(#)M_matrix::mat_stack_put(3fp): put variables into storage"
+! ident_25="@(#)M_matrix::mat_stack_put(3fp): put variables into storage"
 
 integer                    :: id(GG_MAX_NAME_LENGTH)
 character(len=GG_LINELEN)  :: mline
@@ -2787,8 +2719,8 @@ integer             :: nt
    lt = 0
    mt = 0
    nt = 0
-!
-!     DOES VARIABLE ALREADY EXIST
+   !
+   ! DOES VARIABLE ALREADY EXIST
    call mat_putid(G_STACK_IDS(1,G_TOP_OF_SAVED-1),id)
    k = GG_MAX_NUMBER_OF_NAMES+1
 05 continue
@@ -2830,11 +2762,11 @@ integer             :: nt
       G_STACK_ID_LOC(i+1) = G_STACK_ID_LOC(i)+mnk
    enddo
 !
-!     DESTROY OLD VARIABLE
+!  DESTROY OLD VARIABLE
 25 continue
    G_TOP_OF_SAVED = G_TOP_OF_SAVED+1
 !
-!     CREATE NEW VARIABLE
+!  CREATE NEW VARIABLE
 30 continue
    if (mn .eq. 0) goto 99
    if (G_TOP_OF_SAVED-2 .le. G_BOTTOM_OF_SCRATCH_IN_USE) call mat_err(18)
@@ -2844,7 +2776,7 @@ integer             :: nt
    if (G_rhs .eq. 1) goto 50
    if (G_rhs .eq. 2) goto 55
 !
-!     STORE
+!  STORE
 40 continue
    if (k .lt. GG_MAX_NUMBER_OF_NAMES) G_STACK_ID_LOC(k) = G_STACK_ID_LOC(k+1) - mn
    G_STACK_ROWS(k) = m
@@ -2853,7 +2785,7 @@ integer             :: nt
    call mat_wcopy(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
    goto 90
 !
-!     VECT(ARG)
+!  VECT(ARG)
 50 continue
    if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-1) .lt. 0) goto 59
    mn1 = 1
@@ -2946,8 +2878,7 @@ integer             :: nt
       enddo
    enddo
    goto 90
-!
-!     PRINT IF DESIRED AND POP STACK
+! PRINT IF DESIRED AND POP STACK
 90 continue
    if (G_sym.ne.semi .and. G_LINECOUNT(3).eq.0) call mat_print(id,k)
    if (G_sym.eq.semi .and. G_LINECOUNT(3).eq.1) call mat_print(id,k)
@@ -2999,7 +2930,7 @@ end subroutine mat_wpofa
 !==================================================================================================================================!
 subroutine mat_watan(xr,xi,yr,yi)
 
-! ident_27="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
+! ident_26="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
 
 doubleprecision :: xr
 doubleprecision :: xi
@@ -3026,7 +2957,7 @@ end subroutine mat_watan
 !==================================================================================================================================!
 subroutine mat_rrotg(da,db,c,s)
 
-! ident_28="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
+! ident_27="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
 
 doubleprecision :: da
 doubleprecision :: db
@@ -3055,7 +2986,7 @@ end subroutine mat_rrotg
 !==================================================================================================================================!
 subroutine mat_wsign(xr,xi,yr,yi,zr,zi)
 
-! ident_29="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
+! ident_28="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
 
 doubleprecision :: xr
 doubleprecision :: xi
@@ -3073,7 +3004,76 @@ end subroutine mat_wsign
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 SUBROUTINE mat_parse(INIT)
-
+!>
+!!##THE PARSER-INTERPRETER (10)
+!!
+!!    The structure of the parser-interpreter is similar to that of Wirth's
+!!    compiler [6] for his simple language, PL/0 , except that MAT88 is
+!!    programmed in Fortran, which does not have explicit recursion. The
+!!    interrelation of the primary subroutines is shown in the following
+!!    diagram.
+!!
+!!          MAIN
+!!            |
+!!          MAT88     |--CLAUSE
+!!            |       |    |
+!!          PARSE-----|--EXPR----TERM----FACTOR
+!!                    |    |       |       |
+!!                    |    |-------|-------|
+!!                    |    |       |       |
+!!                    |  STACK1  STACK2  STACKG
+!!                    |
+!!                    |--STACKP--PRINT
+!!                    |
+!!                    |--COMAND
+!!                    |
+!!                    |
+!!                    |          |--CGECO
+!!                    |          |
+!!                    |          |--CGEFA
+!!                    |          |
+!!                    |--MATFN1--|--CGESL
+!!                    |          |
+!!                    |          |--CGEDI
+!!                    |          |
+!!                    |          |--CPOFA
+!!                    |
+!!                    |
+!!                    |          |--IMTQL2
+!!                    |          |
+!!                    |          |--HTRIDI
+!!                    |          |
+!!                    |--MATFN2--|--HTRIBK
+!!                    |          |
+!!                    |          |--CORTH
+!!                    |          |
+!!                    |          |--COMQR3
+!!                    |
+!!                    |
+!!                    |--MATFN3-----CSVDC
+!!                    |
+!!                    |
+!!                    |          |--CQRDC
+!!                    |--MATFN4--|
+!!                    |          |--CQRSL
+!!                    |
+!!                    |
+!!                    |          |--FILES
+!!                    |--MATFN5--|
+!!                               |--SAVLOD
+!!
+!!    Subroutine PARSE controls the interpretation of each statement. It
+!!    calls subroutines that process the various syntactic quantities such
+!!    as command, expression, term and factor. A fairly simple program
+!!    stack mechanism allows these subroutines to recursively "call"
+!!    each other along the lines allowed by the syntax diagrams. The four
+!!    STACK subroutines manage the variable memory and perform elementary
+!!    operations, such as matrix addition and transposition.
+!!
+!!    The four subroutines MATFN1 though MATFN4 are called whenever "serious"
+!!    matrix computations are required. They are interface routines which
+!!    call the various LINPACK and EISPACK subroutines. MATFN5 primarily
+!!    handles the file access tasks.
 integer            :: init
 INTEGER,parameter  :: SEMI=39
 integer,parameter  :: EQUAL=46
@@ -3233,11 +3233,11 @@ integer            :: n
       CALL mat_putid(ID,ANS)
       GOTO 50
 !.......................................................................
-!     MACRO STRING
+!     MACROS STRING
    45 CONTINUE
       CALL mat_getsym()
       IF (G_DEBUG_LEVEL .EQ. 1) THEN
-         MLINE='MACRO'
+         MLINE='MACROS'
          CALL mat_appnum(REAL(G_PT),MLINE,ILEN,IERR)
          CALL mat_appnum(REAL(G_BOTTOM_OF_SCRATCH_IN_USE),MLINE,ILEN,IERR)
       ENDIF
@@ -3250,7 +3250,7 @@ integer            :: n
 !.......................................................................
    46 CONTINUE
       G_PT = G_PT-1
-      IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37) ! Improper MACRO
+      IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37) ! Improper MACROS
       IF (G_ERR .GT. 0) GOTO 01
       IF (G_SYM .EQ. LESS) CALL mat_getsym()
       K = G_LINE_POINTER(6)
@@ -3265,7 +3265,7 @@ integer            :: n
       DO J = 1, N
          LS = L + J-1
          G_LIN(K) = int(G_STACK_REALS(LS))
-         IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_CHARSET_SIZE) CALL mat_err(37) ! Improper MACRO
+         IF (G_LIN(K).LT.0 .OR. G_LIN(K).GE.G_CHARSET_SIZE) CALL mat_err(37) ! Improper MACROS
          IF (G_ERR .GT. 0) RETURN
          IF (K.LT.1024) K = K+1
          IF (K.EQ.1024) then
@@ -3596,7 +3596,30 @@ FINISHED: block
       call sh_command()
 !===================================================================================================================================
       case(6) ! COMMAND::HELP
-      call help_command(cmd,cmdl)
+      HELP_ : block
+      character(len=lrecl) :: topic_name
+      integer,parameter    :: name=1
+      integer,parameter    :: blank=36
+      integer,parameter    :: dot=47
+      integer              :: ch
+         if (G_CHRA .eq. G_EOL) then                                           ! if no topic
+            topic_name= ' '
+         else
+            call mat_getsym()
+            if (G_SYM .ne. NAME) then
+               if (G_SYM .eq. 0) G_SYM = dot
+               G_BUF(1) = G_CHARSET(G_SYM+1)
+               G_BUF(2:) = G_CHARSET(blank+1)
+            else
+               do i = 1, GG_MAX_NAME_LENGTH  ! assuming G_BUF can hold at least GG_MAX_NAME_LENGTH characters
+                 ch = G_SYN(i)
+                 G_BUF(i) = G_CHARSET(ch+1)
+               enddo
+            endif
+            call mat_buf2str(topic_name,G_BUF,len(topic_name))                    ! convert ADE array to string
+         endif
+         call help_command(topic_name)
+      endblock HELP_
 !===================================================================================================================================
       end select COMAND
 !===================================================================================================================================
@@ -3608,7 +3631,7 @@ end subroutine mat_comand
 !==================================================================================================================================!
 subroutine sh_command()
 
-! ident_30="@(#)M_matrix::sh_command(3f): start system shell interactively"
+! ident_29="@(#)M_matrix::sh_command(3f): start system shell interactively"
 
 character(len=GG_LINELEN) :: line
 integer                  :: istat
@@ -3622,113 +3645,9 @@ end subroutine sh_command
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine help_command(cmd,cmdl)
-
-! ident_31="@(#)M_matrix::help_command(3f): display help text"
-
-integer,intent(in)                :: cmd(GG_MAX_NAME_LENGTH,17)
-integer,intent(in)                :: cmdl
-
-integer,parameter                 :: lrecl=256
-character(len=lrecl)              :: mline
-character(len=GG_MAX_NAME_LENGTH) :: topic_name
-integer                           :: i, j, k, jj
-integer,parameter                 :: a=10
-integer,parameter                 :: a_up=52
-integer,parameter                 :: blank=36
-integer,parameter                 :: dot=47
-integer,parameter                 :: name=1
-integer                           :: ch
-integer                           :: start
-integer                           :: end_of_first_word
-integer                           :: start_of_topic
-integer                           :: ios
-character(len=1)                  :: ls_char
-
-   if (G_CHRA .eq. G_EOL) then                                           ! if no topic
-      call journal('Type "help" followed by ...')
-      call journal(' INTRO   (To get started)')
-      call journal(' SAMPLE  (simple samples)')
-      call journal(' NEWS    (recent revisions)')
-      call mat_funs([(0,i=1,GG_MAX_NAME_LENGTH)])
-      call journal(' COMMANDS:')
-      call mat_print_id(cmd,cmdl-2)
-      j = blank+2
-      call journal(' OTHER TOPICS:')
-      call journal(' ans   EDIT  FILE  FUN   MACRO')
-
-      ! write G_CHARSET(J) to G_CHARSET(a_up-1) one string at a time
-      INFINITE: do
-         jj=j+16
-         jj=min(jj,a_up-1)
-         write(mline,'(1X,17(A1,1X))')(char(G_CHARSET(I)),i=j,a_up-1)
-         call journal(mline)
-         IF(jj.ge.a_up-1)exit INFINITE
-      enddo INFINITE
-
-   else
-      call mat_getsym()
-      if (G_SYM .ne. NAME) then
-         if (G_SYM .eq. 0) G_SYM = dot
-         G_BUF(1) = G_CHARSET(G_SYM+1)
-         G_BUF(2:) = G_CHARSET(blank+1)
-      else
-         do i = 1, GG_MAX_NAME_LENGTH  ! assuming G_BUF can hold at least GG_MAX_NAME_LENGTH characters
-           ch = G_SYN(i)
-           G_BUF(i) = G_CHARSET(ch+1)
-         enddo
-      endif
-
-      call mat_buf2str(topic_name,G_BUF,len(topic_name))                    ! convert ADE array to string
-
-      start_of_topic=0
-      select case(topic_name)
-      case('manual')
-         start_of_topic=1
-      case default
-         do i=1,size(G_HELP_TEXT)                                           ! get first word of lines not starting with a blank
-            if(G_HELP_TEXT(i)(1:1).eq.' ')cycle                             ! only topic lines start in column one so skip these
-            end_of_first_word=index(G_HELP_TEXT(i),' ')
-            if(end_of_first_word.eq.0)end_of_first_word=len(G_HELP_TEXT)    ! if line is filled and does not have a blank
-            if(topic_name.eq.G_HELP_TEXT(i)(:end_of_first_word))then        ! find a line that matches topic
-               exit
-            endif
-         enddo
-         start_of_topic=i
-      end select
-
-      if(start_of_topic.gt.size(G_HELP_TEXT).or.start_of_topic.eq.0)then
-         call journal('sc','SORRY, No help on ',topic_name)
-      else
-         G_LINECOUNT(1) = 0
-         call journal(G_HELP_TEXT(start_of_topic))
-         do i=start_of_topic+1,size(G_HELP_TEXT)                            ! display topic starting at start_of_topic
-            if(G_HELP_TEXT(i)(1:1).ne.' '.and.topic_name.ne.'manual')then
-               exit   ! stop on next line not starting with a blank
-            endif
-            call journal(G_HELP_TEXT(i))
-            G_LINECOUNT(1) = G_LINECOUNT(1) + 1
-            if(G_LINECOUNT(1) .gt. G_LINECOUNT(2)) then
-               call journal('continue ..')
-               read(G_INPUT_LUN,'(a1)',iostat=ios) ls_char  ! read response to pause from standard input
-               If (ls_char .ne. ' ') then             ! if blank or a return display the values
-                  G_LINECOUNT(1) = -1
-                  exit
-               else
-                  G_LINECOUNT(1) = 0
-               endif
-            endif
-         enddo
-      endif
-   endif
-
-end subroutine help_command
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
 subroutine mat_plot(lplot,x,y,n,p,k)
 
-! ident_32="@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
+! ident_30="@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
 
 integer           :: lplot
 integer           :: n
@@ -3812,7 +3731,7 @@ end subroutine mat_plot
 !==================================================================================================================================!
 subroutine mat_matfn1()
 
-! ident_33="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
+! ident_31="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
 
 doubleprecision   :: dtr(2)
 doubleprecision   :: dti(2)
@@ -4414,7 +4333,7 @@ END SUBROUTINE mat_matfn2
 !==================================================================================================================================!
 subroutine mat_matfn3()
 
-! ident_34="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
+! ident_32="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
 
 integer         :: i
 integer         :: j
@@ -4702,7 +4621,7 @@ end subroutine mat_matfn3
 !==================================================================================================================================!
 SUBROUTINE mat_matfn4()
 
-! ident_35="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
+! ident_33="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
 
 integer           :: info
 integer           :: j
@@ -4917,7 +4836,7 @@ END SUBROUTINE mat_matfn4
 !==================================================================================================================================!
 subroutine mat_matfn5()
 
-! ident_36="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
+! ident_34="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
 
 character(len=256)  :: mline
 character(len=256)  :: errmsg
@@ -5230,10 +5149,9 @@ logical             :: isfound
       call mat_buf2str(name,G_buf,256)
          open(newunit=temp_lun,file=name,status='new',iostat=ios,iomsg=errmsg) ! open help file
          if(ios.eq.0)then
-            call mat_make_manual(temp_lun)
-            write(temp_lun,'(a)')( trim(G_HELP_TEXT(i)),i=1,size(G_HELP_TEXT) )
-            close(unit=temp_lun,iostat=ios)
+            write(temp_lun,'(a)',iostat=ios)( trim(G_HELP_TEXT(i)),i=1,size(G_HELP_TEXT) )
             call journal('sc','<INFO> user guide including all help text in the Appendix is on file',trim(name) )
+            close(unit=temp_lun,iostat=ios)
          else
             call journal(trim(errmsg))
          endif
@@ -5247,7 +5165,7 @@ end subroutine mat_matfn5
 !==================================================================================================================================!
 SUBROUTINE MAT_STACK_GET(ID)
 
-! ident_37="@(#)M_matrix::mat_stack_get(3fp): get variables from storage"
+! ident_35="@(#)M_matrix::mat_stack_get(3fp): get variables from storage"
 
 integer,intent(in)  :: id(GG_MAX_NAME_LENGTH)
 integer             :: i
@@ -5380,7 +5298,7 @@ END SUBROUTINE MAT_STACK_GET
 !==================================================================================================================================!
 SUBROUTINE mat_stack2(OP)
 
-! ident_38="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
+! ident_36="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
 
 INTEGER           :: OP
 DOUBLEPRECISION   :: SR,SI,E1,ST,E2
@@ -6050,7 +5968,7 @@ end subroutine mat_clause
 !==================================================================================================================================!
 subroutine mat_rat(x,len,maxd,a,b,d)
 
-! ident_39="@(#)M_matrix::mat_rat(3fp): A/B = continued fraction approximation to X using  len  terms each less than MAXD"
+! ident_37="@(#)M_matrix::mat_rat(3fp): A/B = continued fraction approximation to X using  len  terms each less than MAXD"
 
 integer         :: len,maxd
 doubleprecision :: x,a,b,d(len)
@@ -6325,7 +6243,7 @@ integer           :: n
    call mat_getsym()
    goto 60
 !==================================================================================================================================!
-!  MACRO STRING
+!  MACROS STRING
 30 continue
    call mat_getsym()
    if (G_SYM .eq. less .and. G_CHRA.EQ.G_EOL) call mat_err(28)
@@ -6337,7 +6255,7 @@ integer           :: n
 !==================================================================================================================================!
 32 CONTINUE
    G_PT = G_PT-1
-   IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37) ! Improper MACRO
+   IF (G_SYM.NE.LESS .AND. G_SYM.NE.G_EOL) CALL mat_err(37) ! Improper MACROS
    IF (G_ERR .GT. 0) RETURN
    IF (G_SYM .EQ. LESS) CALL mat_getsym()
    K = G_LINE_POINTER(6)
@@ -6352,7 +6270,7 @@ integer           :: n
    DO J = 1, N
       LS = L + J-1
       G_LIN(K) = int(G_STACK_REALS(LS))
-      if (G_LIN(k).lt.0 .or. G_LIN(k).ge.G_CHARSET_SIZE) call mat_err(37) ! Improper MACRO
+      if (G_LIN(k).lt.0 .or. G_LIN(k).ge.G_CHARSET_SIZE) call mat_err(37) ! Improper MACROS
       if (G_ERR .gt. 0) return
       if (k.lt.1024) k = k+1
       if (k.eq.1024)call journal('sc','Input buffer char limit exceeded=',K)
@@ -6557,7 +6475,7 @@ doubleprecision                :: ximag(*)
 character(len=GG_MAX_NAME_LENGTH) :: cid
 integer                        :: i,j,k,l
 
-! ident_40="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
+! ident_38="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
 
       ! should report I/O errors (disk full, unwritable, ....)
 !
@@ -6816,7 +6734,7 @@ end function mat_wdotci
 !==================================================================================================================================!
 integer function mat_iwamax(n,xr,xi,incx)
 
-! ident_41="@(#)M_matrix::mat_iwamax(3fp):index of norminf(x)"
+! ident_39="@(#)M_matrix::mat_iwamax(3fp):index of norminf(x)"
 
 integer         :: n
 doubleprecision :: xr(*)
@@ -6978,43 +6896,2075 @@ end function mat_round
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
+!>
+!!
+!!    A line beginning with a non-blank character in column one is a topic
+!!
+!!    A topic with the preceeding line beginning with "===" is a special topic
+!!    that will be displayed up to the next line beginning with "==="
+!!
+!!    The special topic "manual" displays the entire help text
+!!
+!!    The help text is paged based on the value set by the lines() function,
+!!    which defaults to 25 lines between pauses
+!!
+!!    Entering a non-blank line at the prompt exits the help text
+!!
+!!    A normal topic is displayed until another topic line (line beginning
+!!    with a non-blank) is encountered
+!!
+!!    The help text must begin with a line starting with "==="
+subroutine help_command(topic_name)
+
+! ident_40="@(#)M_matrix::help_command(3f): display help text"
+
+character(len=*),intent(in)       :: topic_name
+integer                           :: end_of_first_word
+integer                           :: start_of_topic
+integer                           :: ios
+character(len=:),allocatable      :: topic
+logical                           :: block_topic
+integer                           :: i,j
+
+   topic=trim(topic_name)
+
+   if (topic.eq.' ') then                                           ! if no topic
+      call journal('Type "help" followed by a case-sensitive topic name ...')
+      topic='SUMMARY'
+   endif
+
+   select case(topic)
+   case('manual')                      ! show all the help text
+      do i=1,size(G_HELP_TEXT)
+         if(G_HELP_TEXT(i)(1:3).eq.'===')then
+            call journal(' ')
+         else
+            call journal(G_HELP_TEXT(i))
+         endif
+         if(want_to_stop())exit
+      enddo
+   case('topics')                             ! go through all the text showing lines not starting with a a space or equal
+      do i=1,size(G_HELP_TEXT)                ! display topic starting at start_of_topic
+         if(G_HELP_TEXT(i)(1:1).eq.'   ')cycle
+         if(G_HELP_TEXT(i)(1:3).eq.'===')cycle
+         call journal(G_HELP_TEXT(i))
+         if(want_to_stop())exit
+      enddo
+   case default ! find the line that starts with the topic
+      start_of_topic=0
+      ! find the line to start with by finding a line that starts with the given topic ( ASSUMING FIRST LINE is ===)
+      FINDIT: do j=1,len(G_HELP_TEXT)
+         do i=2,size(G_HELP_TEXT)                                           ! get first word of lines not starting with a blank
+            if(G_HELP_TEXT(i)(1:1).ne.' ')then                              ! only topic lines start in column one so skip these
+               end_of_first_word=index(G_HELP_TEXT(i),' ')-1
+               if(end_of_first_word.eq.0)end_of_first_word=len(G_HELP_TEXT) ! if line is filled and does not have a blank
+               end_of_first_word=end_of_first_word-j+1
+               if(end_of_first_word.le.0)cycle
+            !x!write(*,*)'['//topic(:end_of_first_word)//']['//G_HELP_TEXT(i)(:end_of_first_word)//']'
+               if(topic.eq.G_HELP_TEXT(i)(:end_of_first_word))then      ! find a line that matches topic
+                  exit FINDIT
+               endif
+            endif
+         enddo
+      enddo FINDIT
+      start_of_topic=i
+
+      if(i.eq.0)then
+         call journal('<ERROR> internal error. First line of text must start with "==="')
+         G_HELP_TEXT=[character(len=len(G_HELP_TEXT)) :: repeat("=",80),G_HELP_TEXT]
+         start_of_topic=start_of_topic+1
+      endif
+
+      if(G_HELP_TEXT(i-1)(1:3).eq.'===')then  ! if the line above the start started with "===" it is a block comment
+         block_topic=.true.
+      else
+         block_topic=.false.
+      endif
+
+      if(start_of_topic.gt.size(G_HELP_TEXT).or.start_of_topic.eq.0)then
+         call journal('sc','SORRY, No help on ',topic)
+      else
+         G_LINECOUNT(1) = 0
+         call journal(G_HELP_TEXT(start_of_topic))                          ! show the start line
+
+         do i=start_of_topic+1,size(G_HELP_TEXT)                            ! display topic starting at start_of_topic
+            if(G_HELP_TEXT(i)(1:1).ne.' '.and. .not.block_topic )then       ! stop at next topic if not a block of help
+               exit
+            elseif(block_topic .and. G_HELP_TEXT(i)(1:3).eq.'===')then
+               exit
+            endif
+            call journal(G_HELP_TEXT(i))
+            if(want_to_stop())exit
+         enddo
+      endif
+   end select
+contains
+
+function want_to_stop()
+character(len=1) :: response
+logical          :: want_to_stop
+   G_LINECOUNT(1) = G_LINECOUNT(1) + 1
+   want_to_stop=.false.
+   if(G_LINECOUNT(1) .gt. G_LINECOUNT(2)) then
+      call journal('continue ..')
+      read(G_INPUT_LUN,'(a1)',iostat=ios) response         ! read response to pause from standard input
+      If (response .ne. ' ') then                          ! if blank or a return display the values
+         G_LINECOUNT(1) = -1
+         want_to_stop=.true.
+      else
+         G_LINECOUNT(1) = 0                                ! beginning of new page
+      endif
+   endif
+end function want_to_stop
+
+end subroutine help_command
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
 subroutine mat_help_text()
 G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
-'INTRO Welcome to MAT88. A categorized list of case-sensitive help topics:       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | HELP Sections     | Available Topics                           |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Documentation     |   help    NEWS  what                       |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Syntax            |      <       >      (      )      =      . |       ',&
-'       |                   |      ,       ;   semi      \      /      '' |      ',&
-'       |                   |      +       -      *      :               |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Variables         |    ans   clear   who                       |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Macros            |  MACRO                                     |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Basic Functions   |    FUN    atan    cos    exp    log    sin |       ',&
-'       |                   |   sqrt     abs  round   real   imag  conjg |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | High Level        |   chop    cond  conjg    det   diag    eig |       ',&
-'       | Functions         |    eye    hess   invh    inv   kron     lu |       ',&
-'       |                   |  magic    ones   orth   pinv   poly   prod |       ',&
-'       |                   |     qr    rand   rank  rcond    rat   rref |       ',&
-'       |                   |  roots   schur   size    sum    svd   tril |       ',&
-'       |                   |   triu    user                             |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Flow Control      |   else     end     if    for  while   exit |       ',&
-'       |                   |   quit                                     |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Accessing Files   |   FILE   diary   exec   load  print   save |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Output Options    |  lines    long  short   display   plot     |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Performance Info. |  flops    flps                             |       ',&
-'       #-------------------#--------------------------------------------#       ',&
-'       | Miscellaneous     |   char    EDIT  debug    eps     sh        |       ',&
-'       #----------------------------------------------------------------#       ',&
+'================================================================================',&
+'MAT88 USERS'' GUIDE                                                             ',&
+'                                                                                ',&
+'                            May, 1981                                           ',&
+'                            Dec, 2018                                           ',&
+'                            Apr, 2018                                           ',&
+'                                                                                ',&
+'                 Based on the MATLAB package by                                 ',&
+'                                                                                ',&
+'                           Cleve Moler                                          ',&
+'                 Department of Computer Science                                 ',&
+'                    University of New Mexico                                    ',&
+'                                                                                ',&
+'   <ABSTRACT> MAT88 is an interactive computer procedure that serves            ',&
+'   as a convenient "laboratory" for computations involving matrices. It         ',&
+'   provides easy access to matrix software developed by the LINPACK and         ',&
+'   EISPACK projects. The program is written in Fortran and is designed          ',&
+'   to be readily installed under any operating system which permits             ',&
+'   interactive execution of Fortran programs.                                   ',&
+'                                                                                ',&
+'                            CONTENTS                                            ',&
+'                                                                                ',&
+'          -  Elementary operations                                              ',&
+'          -  MAT88 functions                                                    ',&
+'          -  Rows, columns and submatrices                                      ',&
+'          -  "for", "while" and "if"                                            ',&
+'          -  Commands, text, files and macros                                   ',&
+'          -  The numerical algorithms                                           ',&
+'          -  "flop" and "chop"                                                  ',&
+'          -  Census example                                                     ',&
+'          -  Partial differential equation example                              ',&
+'          -  Eigenvalue sensitivity example                                     ',&
+'          -  Communicating with other programs                                  ',&
+'          -  Appendix  (The HELP file)                                          ',&
+'                                                                                ',&
+'   MAT88 is an interactive computer program that serves as a convenient         ',&
+'   "laboratory" for computations involving matrices. It provides easy           ',&
+'   access to matrix software developed by the LINPACK and EISPACK               ',&
+'   projects [1-3]. The capabilities range from standard tasks such              ',&
+'   as solving simultaneous linear equations and inverting matrices,             ',&
+'   through symmetric and nonsymmetric eigenvalue problems, to fairly            ',&
+'   sophisticated matrix tools such as the singular value decomposition.         ',&
+'                                                                                ',&
+'   It is expected that one of MAT88''s primary uses will be in the              ',&
+'   classroom. It should be useful in introductory courses in applied            ',&
+'   linear algebra, as well as more advanced courses in numerical                ',&
+'   analysis, matrix theory, statistics and applications of matrices             ',&
+'   to other disciplines. In nonacademic settings, MAT88 can serve as a          ',&
+'   "desk calculator" for the quick solution of small problems involving         ',&
+'   matrices.                                                                    ',&
+'                                                                                ',&
+'   The program is written in Fortran and is designed to be readily              ',&
+'   installed under any operating system which permits interactive               ',&
+'   execution of Fortran programs. The resources required are fairly             ',&
+'   modest. There are less than 7000 lines of Fortran source code,               ',&
+'   including the LINPACK and EISPACK subroutines used. With proper use          ',&
+'   of overlays, it is possible run the system on a minicomputer with            ',&
+'   only 32K bytes of memory.                                                    ',&
+'                                                                                ',&
+'   The size of the matrices that can be handled in MAT88 depends upon the       ',&
+'   amount of storage that is set aside when the system is compiled on a         ',&
+'   particular machine. We have found that an allocation of 5000 words           ',&
+'   for matrix elements is usually quite satisfactory. This provides             ',&
+'   room for several 20 by 20 matrices, for example. One implementation          ',&
+'   on a virtual memory system provides 100,000 elements. Since most of          ',&
+'   the algorithms used access memory in a sequential fashion, the large         ',&
+'   amount of allocated storage causes no difficulties.                          ',&
+'                                                                                ',&
+'   In some ways, MAT88 resembles SPEAKEASY [4] and, to a lesser extent,         ',&
+'   APL. All are interactive terminal languages that ordinarily accept           ',&
+'   single-line commands or statements, process them immediately, and print      ',&
+'   the results. All have arrays or matrices as principal data types. But        ',&
+'   for MAT88, the matrix is the only data type (although scalars, vectors       ',&
+'   and text are special cases), the underlying system is portable and           ',&
+'   requires fewer resources, and the supporting subroutines are more            ',&
+'   powerful and, in some cases, have better numerical properties.               ',&
+'                                                                                ',&
+'   Together, LINPACK and EISPACK represent the state of the art in              ',&
+'   software for matrix computation. EISPACK is a package of over 70             ',&
+'   Fortran subroutines for various matrix eigenvalue computations that are      ',&
+'   based for the most part on Algol procedures published by Wilkinson,          ',&
+'   Reinsch and their colleagues [5]. LINPACK is a package of 40 Fortran         ',&
+'   subroutines (in each of four data types) for solving and analyzing           ',&
+'   simultaneous linear equations and related matrix problems. Since MAT88       ',&
+'   is not primarily concerned with either execution time efficiency or          ',&
+'   storage savings, it ignores most of the special matrix properties that       ',&
+'   LINPACK and EISPACK subroutines use to advantage. Consequently, only         ',&
+'   8 subroutines from LINPACK and 5 from EISPACK are actually involved.         ',&
+'                                                                                ',&
+'   In more advanced applications, MAT88 can be used in conjunction with         ',&
+'   other programs in several ways. It is possible to define new MAT88           ',&
+'   functions and add them to the system. With most operating systems,           ',&
+'   it is possible to use the local file system to pass matrices between         ',&
+'   MAT88 and other programs. MAT88 command and statement input can be           ',&
+'   obtained from a local file instead of from the terminal. The most            ',&
+'   power and flexibility is obtained by using MAT88 as a subroutine             ',&
+'   which is called by other programs.                                           ',&
+'                                                                                ',&
+'   This document first gives an overview of MAT88 from the user''s point        ',&
+'   of view. Several extended examples involving data fitting, partial           ',&
+'   differential equations, eigenvalue sensitivity and other topics are          ',&
+'   included. A formal definition of the MAT88 language and an brief             ',&
+'   description of the parser and interpreter are given. The system was          ',&
+'   designed and programmed using techniques described by Wirth [6],             ',&
+'   implemented in nonrecursive, portable Fortran. There is a brief              ',&
+'   discussion of some of the matrix algorithms and of their numerical           ',&
+'   properties. The final section describes how MAT88 can be used with           ',&
+'   other programs. The appendix includes the HELP documentation available       ',&
+'   on-line.                                                                     ',&
+'                                                                                ',&
+'================================================================================',&
+'ELEMENTARY OPERATIONS                                                           ',&
+'                                                                                ',&
+'   MAT88 works with essentially only one kind of object, a rectangular          ',&
+'   matrix with complex elements. If the imaginary parts of the elements         ',&
+'   are all zero, they are not printed, but they still occupy storage. In        ',&
+'   some situations, special meaning is attached to 1 by 1 matrices,             ',&
+'   that is scalars, and to 1 by n and m by 1 matrices, that is row and          ',&
+'   column vectors.                                                              ',&
+'                                                                                ',&
+'   Matrices can be introduced into MAT88 in four different                      ',&
+'   ways:                                                                        ',&
+'                                                                                ',&
+'           --  Explicit list of elements,                                       ',&
+'           --  Use of "for" and "while" statements,                             ',&
+'           --  Read from an external file,                                      ',&
+'           --  Execute an external Fortran program.                             ',&
+'                                                                                ',&
+'   The explicit list is surrounded by angle brackets, ''<'' and ''>'', and      ',&
+'   uses the semicolon '';'' to indicate the ends of the rows. For example,      ',&
+'   the input line                                                               ',&
+'                                                                                ',&
+'      A = <1 2 3; 4 5 6; 7 8 9>                                                 ',&
+'                                                                                ',&
+'   will result in the output                                                    ',&
+'                                                                                ',&
+'      A     =                                                                   ',&
+'                                                                                ',&
+'          1.    2.   3.                                                         ',&
+'          4.    5.   6.                                                         ',&
+'          7.    8.   9.                                                         ',&
+'                                                                                ',&
+'   The matrix A will be saved for later use. The individual elements            ',&
+'   are separated by commas or blanks and can be any MAT88 expressions,          ',&
+'   for example                                                                  ',&
+'                                                                                ',&
+'      x = < -1.3, 4/5, 4*atan(1) >                                              ',&
+'                                                                                ',&
+'   results in                                                                   ',&
+'                                                                                ',&
+'      x     =                                                                   ',&
+'                                                                                ',&
+'        -1.3000   0.8000   3.1416                                               ',&
+'                                                                                ',&
+'   The elementary functions available include sqrt, log, exp, sin, cos,         ',&
+'   atan, abs, round, real, imag, and conjg.                                     ',&
+'                                                                                ',&
+'   Large matrices can be spread across several input lines, with the            ',&
+'   carriage returns replacing the semicolons. The above matrix could            ',&
+'   also have been produced by                                                   ',&
+'                                                                                ',&
+'      A = < 1 2 3                                                               ',&
+'            4 5 6                                                               ',&
+'            7 8 9 >                                                             ',&
+'                                                                                ',&
+'   Matrices can be input from the local file system. Say a file named           ',&
+'   ''xyz'' contains five lines of text,                                         ',&
+'                                                                                ',&
+'      A = <                                                                     ',&
+'      1 2 3                                                                     ',&
+'      4 5 6                                                                     ',&
+'      7 8 9                                                                     ',&
+'      >;                                                                        ',&
+'                                                                                ',&
+'   then the MAT88 statement exec(''xyz'') reads the matrix and assigns it       ',&
+'   to A .                                                                       ',&
+'                                                                                ',&
+'   The "for" statement allows the generation of matrices whose elements         ',&
+'   are given by simple formulas. Our example matrix A could also have           ',&
+'   been produced by                                                             ',&
+'                                                                                ',&
+'      for i = 1:3, for j = 1:3, A(i,j) = 3*(i-1)+j;                             ',&
+'                                                                                ',&
+'   The semicolon at the end of the line suppresses the printing, which          ',&
+'   in this case would have been nine versions of A with changing elements.      ',&
+'                                                                                ',&
+'   Several statements may be given on a line, separated by semicolons           ',&
+'   or commas.                                                                   ',&
+'                                                                                ',&
+'   Two consecutive periods anywhere on a line indicate continuation. The        ',&
+'   periods and any following characters are deleted, then another line          ',&
+'   is input and concatenated onto the previous line.                            ',&
+'                                                                                ',&
+'   Two consecutive slashes anywhere on a line cause the remainder of            ',&
+'   the line to be ignored. This is useful for inserting comments.               ',&
+'                                                                                ',&
+'   Names of variables are formed by a letter, followed by any number of         ',&
+'   letters and digits, but only the first 32 characters are remembered.         ',&
+'                                                                                ',&
+'   The special character prime ('') is used to denote the transpose of          ',&
+'   a matrix, so                                                                 ',&
+'                                                                                ',&
+'      x = x''                                                                   ',&
+'                                                                                ',&
+'   changes the row vector above into the column vector                          ',&
+'                                                                                ',&
+'      x     =                                                                   ',&
+'                                                                                ',&
+'        -1.3000                                                                 ',&
+'         0.8000                                                                 ',&
+'         3.1416                                                                 ',&
+'                                                                                ',&
+'   Individual matrix elements may be referenced by enclosing their              ',&
+'   subscripts in parentheses. When any element is changed, the entire           ',&
+'   matrix is reprinted. For example, using the above matrix,                    ',&
+'                                                                                ',&
+'      a(3,3) = a(1,3) + a(3,1)                                                  ',&
+'                                                                                ',&
+'   results in                                                                   ',&
+'                                                                                ',&
+'      a     =                                                                   ',&
+'                                                                                ',&
+'          1.    2.    3.                                                        ',&
+'          4.    5.    6.                                                        ',&
+'          7.    8.   10.                                                        ',&
+'                                                                                ',&
+'   Addition, subtraction and multiplication of matrices are denoted by          ',&
+'   +, -, and * . The operations are performed whenever the matrices             ',&
+'   have the proper dimensions. For example, with the above A and x,             ',&
+'   the expressions A + x and x*A are incorrect because A is 3 by 3 and          ',&
+'   x is now 3 by 1. However,                                                    ',&
+'                                                                                ',&
+'      b = A*x                                                                   ',&
+'                                                                                ',&
+'   is correct and results in the output                                         ',&
+'                                                                                ',&
+'      B     =                                                                   ',&
+'                                                                                ',&
+'         9.7248                                                                 ',&
+'        17.6496                                                                 ',&
+'        28.7159                                                                 ',&
+'                                                                                ',&
+'   Note that both upper and lower case letters are allowed for input            ',&
+'   (on those systems which have both).                                          ',&
+'                                                                                ',&
+'   There are two "matrix division" symbols in MAT88, \ and / .                  ',&
+'   (If your terminal does not have a backslash, use $ instead, or               ',&
+'   see "char".) If A and B are matrices, then A\B and B/A correspond            ',&
+'   formally to left and right multiplication of B by the inverse of             ',&
+'   A, that is inv(A)*B and B*inv(A), but the result is obtained                 ',&
+'   directly without the computation of the inverse. In the scalar               ',&
+'   case, 3\1 and 1/3 have the same value, namely one-third. In                  ',&
+'   general, A\B denotes the solution X to the equation A*X = B and              ',&
+'   B/A denotes the solution to X*A = B.                                         ',&
+'                                                                                ',&
+'   Left division, A\B, is defined whenever B has as many rows                   ',&
+'   as A. If A is square, it is factored using Gaussian                          ',&
+'   elimination. The factors are used to solve the equations                     ',&
+'   A*X(:,j) = B(:,j) where B(:,j) denotes the j-th column of B. The             ',&
+'   result is a matrix X with the same dimensions as B. If A is                  ',&
+'   nearly singular (according to the LINPACK condition estimator,               ',&
+'   RCOND), a warning message is printed. If A is not square, it is              ',&
+'   factored using Householder orthogonalization with column                     ',&
+'   pivoting. The factors are used to solve the under- or                        ',&
+'   overdetermined equations in a least squares sense. The result is             ',&
+'   an m by n matrix X where m is the number of columns of A and n is            ',&
+'   the number of columns of B . Each column of X has at most k                  ',&
+'   nonzero components, where k is the effective rank of A .                     ',&
+'                                                                                ',&
+'   Right division, B/A, can be defined in terms of left                         ',&
+'   division by B/A = (A''\B'')''.                                               ',&
+'                                                                                ',&
+'   For example, since our vector b was computed as A*x, the                     ',&
+'   statement                                                                    ',&
+'                                                                                ',&
+'      y = A\b                                                                   ',&
+'                                                                                ',&
+'   results in                                                                   ',&
+'                                                                                ',&
+'      Y     =                                                                   ',&
+'                                                                                ',&
+'        -1.3000                                                                 ',&
+'         0.8000                                                                 ',&
+'         3.1416                                                                 ',&
+'                                                                                ',&
+'   Of course, y is not exactly equal to x because of the roundoff errors        ',&
+'   involved in both A*x and A\b , but we are not printing enough digits         ',&
+'   to see the difference. The result of the statement                           ',&
+'                                                                                ',&
+'      E = x - y                                                                 ',&
+'                                                                                ',&
+'   depends upon the particular computer being used. In one case it              ',&
+'   produces                                                                     ',&
+'                                                                                ',&
+'      E     =                                                                   ',&
+'                                                                                ',&
+'         1.0e-15 *                                                              ',&
+'                                                                                ',&
+'           .3053                                                                ',&
+'          -.2498                                                                ',&
+'           .0000                                                                ',&
+'                                                                                ',&
+'   The quantity 1.0e-15 is a scale factor which multiplies all the              ',&
+'   components which follow. Thus our vectors x and y actually                   ',&
+'   agree to about 15 decimal places on this computer.                           ',&
+'                                                                                ',&
+'   It is also possible to obtain element-by-element                             ',&
+'   multiplicative operations. If A and B have the same dimensions,              ',&
+'   then A .* B denotes the matrix whose elements are simply the                 ',&
+'   products of the individual elements of A and B . The expressions             ',&
+'   A ./ B and A .\ B give the quotients of the individual elements.             ',&
+'                                                                                ',&
+'   There are several possible output formats. The statement                     ',&
+'                                                                                ',&
+'      long, x                                                                   ',&
+'                                                                                ',&
+'   results in                                                                   ',&
+'                                                                                ',&
+'      x     =                                                                   ',&
+'                                                                                ',&
+'         -1.300000000000000                                                     ',&
+'           .800000000000000                                                     ',&
+'          3.141592653589793                                                     ',&
+'                                                                                ',&
+'   The statement                                                                ',&
+'                                                                                ',&
+'      short                                                                     ',&
+'                                                                                ',&
+'   restores the original format.                                                ',&
+'                                                                                ',&
+'   The expression A**p means A to the p-th power. It is                         ',&
+'   defined if A is a square matrix and p is a scalar. If p is an                ',&
+'   integer greater than one, the power is computed by repeated                  ',&
+'   multiplication. For other values of p the calculation involves               ',&
+'   the eigenvalues and eigenvectors of A.                                       ',&
+'                                                                                ',&
+'   Previously defined matrices and matrix expressions can be                    ',&
+'   used inside brackets to generate larger matrices, for example                ',&
+'                                                                                ',&
+'      C = <A, b; <4 2 0>*x, x''>                                                ',&
+'                                                                                ',&
+'   results in                                                                   ',&
+'                                                                                ',&
+'      C     =                                                                   ',&
+'                                                                                ',&
+'         1.0000   2.0000   3.0000   9.7248                                      ',&
+'         4.0000   5.0000   6.0000  17.6496                                      ',&
+'         7.0000   8.0000  10.0000  28.7159                                      ',&
+'        -3.6000  -1.3000   0.8000   3.1416                                      ',&
+'                                                                                ',&
+'   There are four predefined variables, "eps", "flop", "rand" and               ',&
+'   "eye". The variable "eps" is used as a tolerance is determining such         ',&
+'   things as near singularity and rank. Its initial value is the distance       ',&
+'   from 1.0 to the next largest floating point number on the particular         ',&
+'   computer being used. The user may reset this to any other value,             ',&
+'   including zero. "eps" is changed by "chop", which is described in            ',&
+'   section 12.                                                                  ',&
+'                                                                                ',&
+'   The value of "rand" is a random variable, with a choice of a uniform         ',&
+'   or a normal distribution.                                                    ',&
+'                                                                                ',&
+'   The name "eye" is used in place of I to denote identity matrices             ',&
+'   because I is often used as a subscript or as sqrt(-1).  The dimensions       ',&
+'   of "eye" are determined by context. For example,                             ',&
+'                                                                                ',&
+'      B = A + 3*eye                                                             ',&
+'                                                                                ',&
+'   adds 3 to the diagonal elements of A and                                     ',&
+'                                                                                ',&
+'      X = eye/A                                                                 ',&
+'                                                                                ',&
+'   is one of several ways in MAT88 to invert a matrix.                          ',&
+'                                                                                ',&
+'   "flop" provides a count of the number of floating point operations,          ',&
+'   or "flops", required for each calculation.                                   ',&
+'                                                                                ',&
+'   A statement may consist of an expression alone, in which case a              ',&
+'   variable named "ans" is created and the result stored in "ans" for           ',&
+'   possible future use. Thus                                                    ',&
+'                                                                                ',&
+'      A\A - eye                                                                 ',&
+'                                                                                ',&
+'   is the same as                                                               ',&
+'                                                                                ',&
+'      ans = A\A - eye                                                           ',&
+'                                                                                ',&
+'   (Roundoff error usually causes this result to be a matrix of "small"         ',&
+'   numbers, rather than all zeros.)                                             ',&
+'                                                                                ',&
+'   All computations are done using either single or double precision real       ',&
+'   arithmetic, whichever is appropriate for the particular computer. There      ',&
+'   is no mixed-precision arithmetic.  The Fortran COMPLEX data type             ',&
+'   is not used because many systems create unnecessary underflows and           ',&
+'   overflows with complex operations and because some systems do not            ',&
+'   allow double precision complex arithmetic.                                   ',&
+'                                                                                ',&
+'================================================================================',&
+'FUNCTIONS                                                                       ',&
+'                                                                                ',&
+'   Much of MAT88''s computational power comes from the various                  ',&
+'   matrix functions available. The current list includes:                       ',&
+'                                                                                ',&
+'      inv(A)          - Inverse.                                                ',&
+'      det(A)          - Determinant.                                            ',&
+'      cond(A)         - Condition number.                                       ',&
+'      rcond(A)        - A measure of nearness to singularity.                   ',&
+'      eig(A)          - Eigenvalues and eigenvectors.                           ',&
+'      schur(A)        - Schur triangular form.                                  ',&
+'      hess(A)         - Hessenberg or tridiagonal form.                         ',&
+'      poly(A)         - Characteristic polynomial.                              ',&
+'      svd(A)          - Singular value decomposition.                           ',&
+'      pinv(A,eps)     - Pseudo-inverse with optional tolerance.                 ',&
+'      rank(A,eps)     - Matrix rank with optional tolerance.                    ',&
+'      lu(A)           - Factors from Gaussian elimination.                      ',&
+'      chol(A)         - Factor from Cholesky factorization.                     ',&
+'      qr(A)           - Factors from Householder orthogonalization.             ',&
+'      rref(A)         - Reduced row echelon form.                               ',&
+'      orth(A)         - Orthogonal vectors spanning range of A.                 ',&
+'      exp(A)          - e to the A.                                             ',&
+'      log(A)          - Natural logarithm.                                      ',&
+'      sqrt(A)         - Square root.                                            ',&
+'      sin(A)          - Trigonometric sine.                                     ',&
+'      cos(A)          - Cosine.                                                 ',&
+'      atan(A)         - Arctangent.                                             ',&
+'      round(A)        - Round the elements to nearest integers.                 ',&
+'      abs(A)          - Absolute value of the elements.                         ',&
+'      real(A)         - Real parts of the elements.                             ',&
+'      imag(A)         - Imaginary parts of the elements.                        ',&
+'      conjg(A)        - Complex conjugate.                                      ',&
+'      sum(A)          - Sum of the elements.                                    ',&
+'      prod(A)         - Product of the elements.                                ',&
+'      diag(A)         - Extract or create diagonal matrices.                    ',&
+'      tril(A)         - Lower triangular part of A.                             ',&
+'      triu(A)         - Upper triangular part of A.                             ',&
+'      norm(A,p)       - Norm with p = 1, 2 or ''Infinity''.                     ',&
+'      eye(m,n)        - Portion of identity matrix.                             ',&
+'      rand(m,n)       - Matrix with random elements.                            ',&
+'      ones(m,n)       - Matrix of all ones.                                     ',&
+'      magic(n)        - Interesting test matrices.                              ',&
+'      invh(n)         - Inverse Hilbert matrices.                               ',&
+'      roots(C)        - Roots of polynomial with coefficients C.                ',&
+'      display(A,p)    - Print base p representation of A.                       ',&
+'      kron(A,B)       - Kronecker tensor product of A and B.                    ',&
+'      plot(X,Y)       - Plot Y as a function of X .                             ',&
+'      rat(A)          - Find "simple" rational approximation to A.              ',&
+'      user(A)         - Function defined by external program.                   ',&
+'                                                                                ',&
+'   Some of these functions have different interpretations when the              ',&
+'   argument is a matrix or a vector and some of them have additional            ',&
+'   optional arguments. Details are given in the HELP document in the            ',&
+'   appendix.                                                                    ',&
+'                                                                                ',&
+'   Several of these functions can be used in a generalized assignment           ',&
+'   statement with two or three variables on the left hand side. For             ',&
+'   example                                                                      ',&
+'                                                                                ',&
+'      <X,D> = eig(A)                                                            ',&
+'                                                                                ',&
+'   stores the eigenvectors of A in the matrix X and a diagonal matrix           ',&
+'   containing the eigenvalues in the matrix D. The statement                    ',&
+'                                                                                ',&
+'      eig(A)                                                                    ',&
+'                                                                                ',&
+'   simply computes the eigenvalues and stores them in "ans".                    ',&
+'                                                                                ',&
+'   Future versions of MAT88 will probably include additional functions,         ',&
+'   since they can easily be added to the system.                                ',&
+'                                                                                ',&
+'                                                                                ',&
+'================================================================================',&
+'ROWS COLUMNS AND SUBMATRICES                                                    ',&
+'                                                                                ',&
+'   Individual elements of a matrix can be accessed by giving their              ',&
+'   subscripts in parentheses, eg. A(1,2), x(i), TAB(ind(k)+1).                  ',&
+'   An expression used as a subscript is rounded to the nearest integer.         ',&
+'                                                                                ',&
+'   Individual rows and columns can be accessed using a colon '':'' (or a        ',&
+'   ''|'') for the free subscript. For example, A(1,:) is the first row of       ',&
+'   A and A(:,j) is the j-th column. Thus                                        ',&
+'                                                                                ',&
+'      A(i,:) = A(i,:) + c*A(k,:)                                                ',&
+'                                                                                ',&
+'   adds c times the k-th row of A to the i-th row.                              ',&
+'                                                                                ',&
+'   The colon is used in several other ways in MAT88, but all of the uses        ',&
+'   are based on the following definition.                                       ',&
+'                                                                                ',&
+'      j:k    is the same as  <j, j+1, ..., k>                                   ',&
+'      j:k    is empty if  j > k .                                               ',&
+'      j:i:k  is the same as  <j, j+i, j+2i, ..., k>                             ',&
+'      j:i:k  is empty if  i > 0 and j > k or if i < 0 and j < k .               ',&
+'                                                                                ',&
+'   The colon is usually used with integers, but it is possible to               ',&
+'   use arbitrary real scalars as well. Thus                                     ',&
+'                                                                                ',&
+'      1:4  is the same as  <1, 2, 3, 4>                                         ',&
+'      0: 0.1: 0.5 is the same as <0.0, 0.1, 0.2, 0.3, 0.4, 0.5>                 ',&
+'                                                                                ',&
+'   In general, a subscript can be a vector. If X and V are vectors,             ',&
+'   then X(V) is <X(V(1)), X(V(2)), ..., X(V(n))> . This can also be             ',&
+'   used with matrices. If V has m components and W has n components,            ',&
+'   then A(V,W) is the m by n matrix formed from the elements of A whose         ',&
+'   subscripts are the elements of V and W.  Combinations of the colon           ',&
+'   notation and the indirect subscripting allow manipulation of various         ',&
+'   submatrices. For example,                                                    ',&
+'                                                                                ',&
+'      A(<1,5>,:) = A(<5,1>,:)  interchanges rows 1 and 5 of A.                  ',&
+'      A(2:k,1:n)  is the submatrix formed from rows 2 through k                 ',&
+'         and columns 1 through n of A .                                         ',&
+'      A(:,<3 1 2>)  is a permutation of the first three columns.                ',&
+'                                                                                ',&
+'   The notation A(:) has a special meaning. On the right hand side of an        ',&
+'   assignment statement, it denotes all the elements of A, regarded as          ',&
+'   a single column. When an expression is assigned to A(:), the current         ',&
+'   dimensions of A, rather than of the expression, are used.                    ',&
+'                                                                                ',&
+'================================================================================',&
+'FOR WHILE AND IF                                                                ',&
+'                                                                                ',&
+'   The "for" clause allows statements to be repeated a specific                 ',&
+'   number of times. The general form is                                         ',&
+'                                                                                ',&
+'      for variable = expr, statement, ..., statement, end                       ',&
+'                                                                                ',&
+'   The "end" and the comma before it may be omitted. In general, the            ',&
+'   expression may be a matrix, in which case the columns are stored one         ',&
+'   at a time in the variable and the following statements, up to the            ',&
+'   "end" or the end of the line, are executed. The expression is often          ',&
+'   of the form j:k, and its "columns" are simply the scalars from j to          ',&
+'   k. Some examples (assume n has already been assigned a value):               ',&
+'                                                                                ',&
+'      for i = 1:n, for j = 1:n, A(i,j) = 1/(i+j-1);                             ',&
+'                                                                                ',&
+'   generates the Hilbert matrix.                                                ',&
+'                                                                                ',&
+'      for j = 2:n-1, for i = j:n-1, ...                                         ',&
+'         A(i,j) = 0; end; A(j,j) = j; end; A                                    ',&
+'                                                                                ',&
+'   changes all but the "outer edge" of the lower triangle and then              ',&
+'   prints the final matrix.                                                     ',&
+'                                                                                ',&
+'      for h = 1.0: -0.1: -1.0, (<h, cos(pi*h)>)                                 ',&
+'                                                                                ',&
+'   prints a table of cosines.                                                   ',&
+'                                                                                ',&
+'      <X,D> = eig(A); for v = X, v, A*v                                         ',&
+'                                                                                ',&
+'   displays eigenvectors, one at a time.                                        ',&
+'                                                                                ',&
+'        The "while" clause allows statements to be repeated an                  ',&
+'   indefinite number of times. The general form is                              ',&
+'                                                                                ',&
+'      while expr relop expr,   statement,..., statement, end                    ',&
+'                                                                                ',&
+'   where relop is =, <, >, <=, >=, or <> (not equal). The statements are        ',&
+'   repeatedly executed as long as the indicated comparison between the          ',&
+'   real parts of the first components of the two expressions is true. Here      ',&
+'   are two examples. (Exercise for the reader: What do these segments do?)      ',&
+'                                                                                ',&
+'      eps = 1;                                                                  ',&
+'      while 1 + eps > 1, eps = eps/2;                                           ',&
+'      eps = 2*eps                                                               ',&
+'                                                                                ',&
+'      E = 0*A;  F = E + eye; n = 1;                                             ',&
+'      while norm(E+F-E,1) > 0, E = E + F; F = A*F/n; n = n + 1;                 ',&
+'      E                                                                         ',&
+'                                                                                ',&
+'   The IF clause allows conditional execution of statements.  The general       ',&
+'   form is                                                                      ',&
+'                                                                                ',&
+'      if expr relop expr,  statement, ..., statement,                           ',&
+'         else statement, ..., statement                                         ',&
+'                                                                                ',&
+'   The first group of statements are executed if the relation is true and       ',&
+'   the second group are executed if the relation is false.  The "else"          ',&
+'   and the statements following it may be omitted. For example,                 ',&
+'                                                                                ',&
+'      if abs(i-j) = 2, A(i,j) = 0;                                              ',&
+'                                                                                ',&
+'================================================================================',&
+'COMMANDS TEXTFILES AND MACROS                                                   ',&
+'                                                                                ',&
+'   MAT88 has several commands which control the output format and the           ',&
+'   overall execution of the system.                                             ',&
+'                                                                                ',&
+'   The "help" command allows on-line access to short portions of text           ',&
+'   describing various operations, functions and special characters. The         ',&
+'   entire "help" document is reproduced in an appendix.                         ',&
+'                                                                                ',&
+'   Results are usually printed in a scaled fixed point format that shows        ',&
+'   4 or 5 significant figures. The commands "short", "long", "short e",         ',&
+'   "long e" and "long z" alter the output format, but do not alter the          ',&
+'   precision of the computations or the internal storage.                       ',&
+'                                                                                ',&
+'   The "who" and "what" commands provide information about the functions        ',&
+'   and variables that are currently defined.                                    ',&
+'                                                                                ',&
+'   The "clear" command erases all variables, except "eps", "flop",              ',&
+'   "rand" and "eye". The statement A = <> indicates that a "0 by 0"             ',&
+'   matrix is to be stored in A. This causes A to be erased so that its          ',&
+'   storage can be used for other variables.                                     ',&
+'                                                                                ',&
+'   The "quit" and "exit" commands cause return to the underlying operating      ',&
+'   system through the Fortran RETURN statement.                                 ',&
+'                                                                                ',&
+'   MAT88 has a limited facility for handling text. Any string of                ',&
+'   characters delineated by quotes (with two quotes used to allow one           ',&
+'   quote within the string) is saved as a vector of integer values with         ',&
+'   ''1'' = 1, ''A'' = 10, '' '' = 36, etc. (The complete list is in the appendix',&
+'   under "char".) For example                                                   ',&
+'                                                                                ',&
+'      ''2*A + 3''  is the same as  <2 43 10 36 41 36 3>                         ',&
+'                                                                                ',&
+'   It is possible, though seldom very meaningful, to use such                   ',&
+'   strings in matrix operations. More frequently, the text is used              ',&
+'   as a special argument to various functions.                                  ',&
+'                                                                                ',&
+'      norm(A,''inf'')    computes the infinity norm of A .                      ',&
+'      display(T)       prints the text stored in T .                            ',&
+'      exec(''file'')     obtains MAT88 input from an external file.             ',&
+'      save(''file'')     stores all the current variables in a file.            ',&
+'      load(''file'')     retrieves all the variables from a file.               ',&
+'      print(''file'',X)  prints X on a file.                                    ',&
+'      diary(''file'')    makes a copy of the complete MAT88 session.            ',&
+'                                                                                ',&
+'   The text can also be used in a limited string substitution                   ',&
+'   macro facility. If a variable, say T, contains the source text               ',&
+'   for a MAT88 statement or expression, then the construction                   ',&
+'                                                                                ',&
+'      > T <                                                                     ',&
+'                                                                                ',&
+'   causes T to be executed or evaluated. For example                            ',&
+'                                                                                ',&
+'      T = ''2*A + 3'';                                                          ',&
+'      S = ''B = >T< + 5''                                                       ',&
+'      A = 4;                                                                    ',&
+'      > S <                                                                     ',&
+'                                                                                ',&
+'   produces                                                                     ',&
+'                                                                                ',&
+'      B     =                                                                   ',&
+'                                                                                ',&
+'         16.                                                                    ',&
+'                                                                                ',&
+'   Some other examples are given under MACROS in the appendix. This             ',&
+'   facility is useful for fairly short statements and expressions.              ',&
+'   More complicated MAT88 "programs" should use the "exec" facility.            ',&
+'                                                                                ',&
+'   The operations which access external files cannot be handled                 ',&
+'   in a completely machine-independent manner by portable Fortran               ',&
+'   code. It is necessary for each particular installation to                    ',&
+'   provide a subroutine which associates external text files with               ',&
+'   Fortran logical unit numbers.                                                ',&
+'                                                                                ',&
+'================================================================================',&
+'NUMERICAL ALGORITHMS                                                            ',&
+'                                                                                ',&
+'   The algorithms underlying the basic MAT88 functions are described in         ',&
+'   the LINPACK and EISPACK guides [1-3]. The following list gives the           ',&
+'   subroutines used by these functions.                                         ',&
+'                                                                                ',&
+'      inv(A)          - CGECO,CGEDI                                             ',&
+'      det(A)          - CGECO,CGEDI                                             ',&
+'      lu(A)           - CGEFA                                                   ',&
+'      rcond(A)        - CGECO                                                   ',&
+'      chol(A)         - CPOFA                                                   ',&
+'      svd(A)          - CSVDC                                                   ',&
+'      cond(A)         - CSVDC                                                   ',&
+'      norm(A,2)       - CSVDC                                                   ',&
+'      pinv(A,eps)     - CSVDC                                                   ',&
+'      rank(A,eps)     - CSVDC                                                   ',&
+'      qr(A)           - CQRDC,CQRSL                                             ',&
+'      orth(A)         - CQRDC,CSQSL                                             ',&
+'      A\B and B/A     - CGECO,CGESL if A is square.                             ',&
+'                      - CQRDC,CQRSL if A is not square.                         ',&
+'      eig(A)          - HTRIDI,IMTQL2,HTRIBK if A is Hermitian.                 ',&
+'                      - CORTH,COMQR2         if A is not Hermitian.             ',&
+'      schur(A)        - same as EIG.                                            ',&
+'      hess(A)         - same as EIG.                                            ',&
+'                                                                                ',&
+'   Minor modifications were made to all these subroutines. The LINPACK          ',&
+'   routines were changed to replace the Fortran complex arithmetic              ',&
+'   with explicit references to real and imaginary parts.  Since most            ',&
+'   of the floating point arithmetic is concentrated in a few low-level          ',&
+'   subroutines which perform vector operations (the Basic Linear Algebra        ',&
+'   Subprograms), this was not an extensive change. It also facilitated          ',&
+'   implementation of the "flop" and "chop" features which count and             ',&
+'   optionally truncate each floating point operation.                           ',&
+'                                                                                ',&
+'   The EISPACK subroutine COMQR2 was modified to allow access to the            ',&
+'   Schur triangular form, ordinarily just an intermediate result. IMTQL2        ',&
+'   was modified to make computation of the eigenvectors optional. Both          ',&
+'   subroutines were modified to eliminate the machine-dependent accuracy        ',&
+'   parameter and all the EISPACK subroutines were changed to include            ',&
+'   "flop" and "chop".                                                           ',&
+'                                                                                ',&
+'   The algorithms employed for the "poly" and "roots" functions                 ',&
+'   illustrate an interesting aspect of the modern approach to eigenvalue        ',&
+'   computation. "poly(A)" generates the characteristic polynomial of            ',&
+'   A and "roots(poly(A))" finds the roots of that polynomial, which             ',&
+'   are, of course, the eigenvalues of A . But both "poly" and "roots"           ',&
+'   use EISPACK eigenvalues subroutines, which are based on similarity           ',&
+'   transformations. So the classical approach which characterizes               ',&
+'   eigenvalues as roots of the characteristic polynomial is actually            ',&
+'   reversed.                                                                    ',&
+'                                                                                ',&
+'   If A is an n by n matrix, "poly(A)" produces the coefficients C(1)           ',&
+'   through C(n+1), with C(1) = 1, in                                            ',&
+'                                                                                ',&
+'         det(z*eye-A) = C(1)*z**n + ... + C(n)*z + C(n+1) .                     ',&
+'                                                                                ',&
+'   The algorithm can be expressed compactly using MAT88:                        ',&
+'                                                                                ',&
+'         Z = eig(A);                                                            ',&
+'         C = 0*ones(n+1,1);  C(1) = 1;                                          ',&
+'         for j = 1:n, C(2:j+1) = C(2:j+1) - Z(j)*C(1:j);                        ',&
+'         C                                                                      ',&
+'                                                                                ',&
+'   This recursion is easily derived by expanding the product                    ',&
+'                                                                                ',&
+'         (z - z(1))*(z - z(2))* ... * (z-z(n)) .                                ',&
+'                                                                                ',&
+'   It is possible to prove that "poly(A)" produces the coefficients in          ',&
+'   the characteristic polynomial of a matrix within roundoff error of           ',&
+'   A. This is true even if the eigenvalues of A are badly conditioned. The      ',&
+'   traditional algorithms for obtaining the characteristic polynomial           ',&
+'   which do not use the eigenvalues do not have such satisfactory               ',&
+'   numerical properties.                                                        ',&
+'                                                                                ',&
+'   If C is a vector with n+1 components, "roots(C)" finds the roots of          ',&
+'   the polynomial of degree n ,                                                 ',&
+'                                                                                ',&
+'          p(z) = C(1)*z**n + ... + C(n)*z + C(n+1) .                            ',&
+'                                                                                ',&
+'   The algorithm simply involves computing the eigenvalues of the               ',&
+'   companion matrix:                                                            ',&
+'                                                                                ',&
+'         A = 0*ones(n,n)                                                        ',&
+'         for j = 1:n, A(1,j) = -C(j+1)/C(1);                                    ',&
+'         for i = 2:n, A(i,i-1) = 1;                                             ',&
+'         eig(A)                                                                 ',&
+'                                                                                ',&
+'   It is possible to prove that the results produced are the exact              ',&
+'   eigenvalues of a matrix within roundoff error of the companion matrix        ',&
+'   A, but this does not mean that they are the exact roots of a polynomial      ',&
+'   with coefficients within roundoff error of those in C . There are            ',&
+'   more accurate, more efficient methods for finding polynomial roots,          ',&
+'   but this approach has the crucial advantage that it does not require         ',&
+'   very much additional code.                                                   ',&
+'                                                                                ',&
+'   The elementary functions "exp", "log", "sqrt", "sin", "cos" and "atan"       ',&
+'   are applied to square matrices by diagonalizing the matrix, applying         ',&
+'   the functions to the individual eigenvalues and then transforming            ',&
+'   back. For example, "exp(A)" is computed by                                   ',&
+'                                                                                ',&
+'         <X,D> = eig(A);                                                        ',&
+'         for j = 1:n, D(j,j) = exp(D(j,j));                                     ',&
+'         X*D/X                                                                  ',&
+'                                                                                ',&
+'   This is essentially method number 14 out of the 19 ''dubious''               ',&
+'   possibilities described in [8]. It is dubious because it doesn''t always     ',&
+'   work. The matrix of eigenvectors X can be arbitrarily badly conditioned      ',&
+'   and all accuracy lost in the computation of X*D/X. A warning message         ',&
+'   is printed if "rcond(X)" is very small, but this only catches the            ',&
+'   extreme cases. An example of a case not detected is when A has a double      ',&
+'   eigenvalue, but theoretically only one linearly independent eigenvector      ',&
+'   associated with it.  The computed eigenvalues will be separated by           ',&
+'   something on the order of the square root of the roundoff level. This        ',&
+'   separation will be reflected in "rcond(X)" which will probably not           ',&
+'   be small enough to trigger the error message. The computed "exp(A)"          ',&
+'   will be accurate to only half precision. Better methods are known for        ',&
+'   computing "exp(A)", but they do not easily extend to the other five          ',&
+'   functions and would require a considerable amount of additional code.        ',&
+'                                                                                ',&
+'   The expression A**p is evaluated by repeated multiplication if p is          ',&
+'   an integer greater than 1. Otherwise it is evaluated by                      ',&
+'                                                                                ',&
+'         <X,D> = eig(A);                                                        ',&
+'         for j = 1:n, D(j,j) = exp(p*log(D(j,j)))                               ',&
+'         X*D/X                                                                  ',&
+'                                                                                ',&
+'   This suffers from the same potential loss of accuracy if X is                ',&
+'   badly conditioned. It was partly for this reason that the case p =           ',&
+'   1 is included in the general case. Comparison of A**1 with A gives           ',&
+'   some idea of the loss of accuracy for other values of p and for the          ',&
+'   elementary functions.                                                        ',&
+'                                                                                ',&
+'   "rref", the reduced row echelon form, is of some interest in                 ',&
+'   theoretical linear algebra, although it has little computational             ',&
+'   value. It is included in MAT88 for pedagogical reasons. The algorithm        ',&
+'   is essentially Gauss-Jordan elimination with detection of negligible         ',&
+'   columns applied to rectangular matrices.                                     ',&
+'                                                                                ',&
+'   There are three separate places in MAT88 where the rank of a matrix          ',&
+'   is implicitly computed: in rref(A), in A\B for non-square A, and             ',&
+'   in the pseudoinverse pinv(A). Three different algorithms with three          ',&
+'   different criteria for negligibility are used and so it is possible          ',&
+'   that three different values could be produced for the same matrix. With      ',&
+'   rref(A), the rank of A is the number of nonzero rows. The elimination        ',&
+'   algorithm used for "rref" is the fastest of the three rank-determining       ',&
+'   algorithms, but it is the least sophisticated numerically and the            ',&
+'   least reliable.  With A\B, the algorithm is essentially that used            ',&
+'   by example subroutine SQRST in chapter 9 of the LINPACK guide. With          ',&
+'   pinv(A), the algorithm is based on the singular value decomposition          ',&
+'   and is described in chapter 11 of the LINPACK guide. The SVD algorithm       ',&
+'   is the most time-consuming, but the most reliable and is therefore           ',&
+'   also used for rank(A).                                                       ',&
+'                                                                                ',&
+'   The uniformly distributed random numbers in "rand" are obtained from         ',&
+'   the machine-independent random number generator URAND described in           ',&
+'   [9]. It is possible to switch to normally distributed random numbers,        ',&
+'   which are obtained using a transformation also described in [9].             ',&
+'                                                                                ',&
+'        The computation of                                                      ',&
+'                                                                                ',&
+'                   2    2                                                       ',&
+'             sqrt(a  + b )                                                      ',&
+'                                                                                ',&
+'   is required in many matrix algorithms, particularly those involving          ',&
+'   complex arithmetic. A new approach to carrying out this operation is         ',&
+'   described by Moler and Morrison [10]. It is a cubically convergent           ',&
+'   algorithm which starts with a and b , rather than with their squares,        ',&
+'   and thereby avoids destructive arithmetic underflows and overflows. In       ',&
+'   MAT88, the algorithm is used for complex modulus, Euclidean vector           ',&
+'   norm, plane rotations, and the shift calculation in the eigenvalue           ',&
+'   and singular value iterations.                                               ',&
+'                                                                                ',&
+'================================================================================',&
+'FLOP AND CHOP                                                                   ',&
+'                                                                                ',&
+'   Detailed information about the amount of work involved in matrix             ',&
+'   calculations and the resulting accuracy is provided by "flop" and            ',&
+'   "chop". The basic unit of work is the "flop", or floating point              ',&
+'   operation. Roughly, one flop is one execution of a Fortran statement         ',&
+'   like                                                                         ',&
+'                                                                                ',&
+'         S = S + X(I)*Y(I)                                                      ',&
+'                                                                                ',&
+'   or                                                                           ',&
+'                                                                                ',&
+'         Y(I) = Y(I) + T*X(I)                                                   ',&
+'                                                                                ',&
+'   In other words, it consists of one floating point multiplication,            ',&
+'   together with one floating point addition and the associated                 ',&
+'   indexing and storage reference operations.                                   ',&
+'                                                                                ',&
+'   MAT88 will print the number of flops required for a particular               ',&
+'   statement when the statement is terminated by an extra comma. For            ',&
+'   example, the line                                                            ',&
+'                                                                                ',&
+'         n = 20;  rand(n)*rand(n);,                                             ',&
+'                                                                                ',&
+'   ends with an extra comma. Two 20 by 20 random matrices are generated         ',&
+'   and multiplied together. The result is assigned to "ans", but the            ',&
+'   semicolon suppresses its printing. The only output is                        ',&
+'                                                                                ',&
+'           8800 flops                                                           ',&
+'                                                                                ',&
+'   This is n**3 + 2*n**2 flops, n**2 for each random matrix and n**3            ',&
+'   for the product.                                                             ',&
+'                                                                                ',&
+'   "flop" is a predefined vector with two components. "flop(1)" is              ',&
+'   the number of flops used by the most recently executed statement,            ',&
+'   except that statements with zero flops are ignored. For example,             ',&
+'   after executing the previous statement,                                      ',&
+'                                                                                ',&
+'         flop(1)/n**3                                                           ',&
+'                                                                                ',&
+'   results in                                                                   ',&
+'                                                                                ',&
+'         ans   =                                                                ',&
+'                                                                                ',&
+'             1.1000                                                             ',&
+'                                                                                ',&
+'                                                                                ',&
+'   "flop(2)" is the cumulative total of all the flops used since                ',&
+'   the beginning of the MAT88 session. The statement                            ',&
+'                                                                                ',&
+'         flop = <0 0>                                                           ',&
+'                                                                                ',&
+'   resets the total.                                                            ',&
+'                                                                                ',&
+'   There are several difficulties associated with keeping a                     ',&
+'   precise count of floating point operations. An addition or                   ',&
+'   subtraction that is not paired with a multiplication is usually              ',&
+'   counted as a flop. The same is true of an isolated multiplication            ',&
+'   that is not paired with an addition. Each floating point                     ',&
+'   division counts as a flop. But the number of operations required             ',&
+'   by system dependent library functions such as square root cannot             ',&
+'   be counted, so most elementary functions are arbitrarily counted             ',&
+'   as using only one flop.                                                      ',&
+'                                                                                ',&
+'   The biggest difficulty occurs with complex arithmetic.                       ',&
+'   Almost all operations on the real parts of matrices are counted.             ',&
+'   However, the operations on the complex parts of matrices are                 ',&
+'   counted only when they involve nonzero elements. This means that             ',&
+'   simple operations on nonreal matrices require only about twice as            ',&
+'   many flops as the same operations on real matrices. This factor              ',&
+'   of two is not necessarily an accurate measure of the relative                ',&
+'   costs of real and complex arithmetic.                                        ',&
+'                                                                                ',&
+'   The result of each floating point operation may also be                      ',&
+'   "chopped" to simulate a computer with a shorter word length. The             ',&
+'   details of this chopping operation depend upon the format of the             ',&
+'   floating point word. Usually, the fraction in the floating point             ',&
+'   word can be regarded as consisting of several octal or                       ',&
+'   hexadecimal digits. The least significant of these digits can be             ',&
+'   set to zero by a logical masking operation. Thus the statement               ',&
+'                                                                                ',&
+'         chop(p)                                                                ',&
+'                                                                                ',&
+'   causes the p least significant octal or hexadecimal digits in                ',&
+'   the result of each floating point operation to be set to zero.               ',&
+'   For example, if the computer being used has an IBM 360 long floating         ',&
+'   point word with 14 hexadecimal digits in the fraction, then "chop(8)"        ',&
+'   results in simulation of a computer with only 6 hexadecimal digits           ',&
+'   in the fraction, i.e. a short floating point word. On a computer such        ',&
+'   as the CDC 6600 with 16 octal digits, "chop(8)" results in about the         ',&
+'   same accuracy because the remaining 8 octal digits represent the same        ',&
+'   number of bits as 6 hexadecimal digits.                                      ',&
+'                                                                                ',&
+'   Some idea of the effect of "chop" on any particular system can               ',&
+'   be obtained by executing the following statements.                           ',&
+'                                                                                ',&
+'         long,   t = 1/10                                                       ',&
+'         long z, t = 1/10                                                       ',&
+'         chop(8)                                                                ',&
+'         long,   t = 1/10                                                       ',&
+'         long z, t = 1/10                                                       ',&
+'                                                                                ',&
+'   The following Fortran subprograms illustrate more details of                 ',&
+'   "flop" and "chop". The first subprogram is a simplified example of a         ',&
+'   system-dependent function used within MAT88 itself. The common               ',&
+'   variable G_FLOP_COUNTER is essentially the first component of the variable   ',&
+'   FLOP. The common variable CHP is initially zero, but it is set               ',&
+'   to p by the statement "chop(p)". To shorten the DATA statement,              ',&
+'   we assume there are only 6 hexadecimal digits. We also assume an             ',&
+'   extension of Fortran that allows .AND. to be used as a binary                ',&
+'   operation between two real variables.                                        ',&
+'                                                                                ',&
+'         REAL FUNCTION FLOP(X)                                                  ',&
+'         REAL X                                                                 ',&
+'         INTEGER G_FLOP_COUNTER,CHP                                             ',&
+'         COMMON G_FLOP_COUNTER,CHP                                              ',&
+'         REAL MASK(5)                                                           ',&
+'         DATA MASK/ZFFFFFFF0,ZFFFFFF00,ZFFFFF000,ZFFFF0000,ZFFF00000/           ',&
+'         G_FLOP_COUNTER = G_FLOP_COUNTER + 1                                    ',&
+'         IF (CHP .EQ. 0) FLOP = X                                               ',&
+'         IF (CHP .GE. 1 .AND. CHP .LE. 5) FLOP = X .AND. MASK(CHP)              ',&
+'         IF (CHP .GE. 6) FLOP = 0.0                                             ',&
+'         END REAL FUNCTION FLOP                                                 ',&
+'                                                                                ',&
+'   The following subroutine illustrates a typical use of the                    ',&
+'   previous function within MAT88. It is a simplified version of                ',&
+'   the Basic Linear Algebra Subprogram that adds a scalar multiple              ',&
+'   of one vector to another. We assume here that the vectors are                ',&
+'   stored with a memory increment of one.                                       ',&
+'                                                                                ',&
+'         SUBROUTINE SAXPY(N,TR,TI,XR,XI,YR,YI)                                  ',&
+'         REAL TR,TI,XR(N),XI(N),YR(N),YI(N),FLOP                                ',&
+'         IF (N .LE. 0) RETURN                                                   ',&
+'         IF (TR .EQ. 0.0 .AND. TI .EQ. 0.0) RETURN                              ',&
+'         DO I = 1, N                                                            ',&
+'            YR(I) = FLOP(YR(I) + TR*XR(I) - TI*XI(I))                           ',&
+'            YI(I) = YI(I) + TR*XI(I) + TI*XR(I)                                 ',&
+'            IF (YI(I) .NE. 0.0D0) YI(I) = FLOP(YI(I))                           ',&
+'         enddo                                                                  ',&
+'         END SUBROUTINE SAXPY                                                   ',&
+'                                                                                ',&
+'   The saxpy operation is perhaps the most fundamental                          ',&
+'   operation within LINPACK. It is used in the computation of the               ',&
+'   LU, the QR and the SVD factorizations, and in several other                  ',&
+'   places. We see that adding a multiple of one vector with n                   ',&
+'   components to another uses n flops if the vectors are real and               ',&
+'   between n and 2*n flops if the vectors have nonzero imaginary                ',&
+'   components.                                                                  ',&
+'                                                                                ',&
+'   The permanent MAT88 variable "eps" is reset by the statement                 ',&
+'   CHOP(p). Its new value is usually the smallest inverse power of              ',&
+'   two that satisfies the Fortran logical test                                  ',&
+'                                                                                ',&
+'               FLOP(1.0+eps) .GT. 1.0                                           ',&
+'                                                                                ',&
+'   However, if "eps" had been directly reset to a larger value, the             ',&
+'   old value is retained.                                                       ',&
+'                                                                                ',&
+'================================================================================',&
+'CENSUS EXAMPLE                                                                  ',&
+'                                                                                ',&
+'   Our first extended example involves predicting the                           ',&
+'   population of the United States in 1980 using extrapolation of               ',&
+'   various fits to the census data from 1900 through 1970. There                ',&
+'   are eight observations, so we begin with the MAT88 statement                 ',&
+'                                                                                ',&
+'      n = 8                                                                     ',&
+'                                                                                ',&
+'   The values of the dependent variable, the population in millions,            ',&
+'   can be entered with                                                          ',&
+'                                                                                ',&
+'      y = < 75.995   91.972  105.711  123.203   ...                             ',&
+'           131.669  150.697  179.323  203.212>''                                ',&
+'                                                                                ',&
+'   In order to produce a reasonably scaled matrix, the independent              ',&
+'   variable, time, is transformed from the interval [1900,1970] to              ',&
+'   [-1.00,0.75]. This can be accomplished directly with                         ',&
+'                                                                                ',&
+'      t = -1.0:0.25:0.75                                                        ',&
+'                                                                                ',&
+'   or in a fancier, but perhaps clearer, way with                               ',&
+'                                                                                ',&
+'      t = 1900:10:1970;   t = (t - 1940*ones(t))/40                             ',&
+'                                                                                ',&
+'   Either of these is equivalent to                                             ',&
+'                                                                                ',&
+'      t = <-1 -.75 -.50 -.25 0 .25 .50 .75>                                     ',&
+'                                                                                ',&
+'   The interpolating polynomial of degree n-1 involves an                       ',&
+'   Vandermonde matrix of order n with elements that might be                    ',&
+'   generated by                                                                 ',&
+'                                                                                ',&
+'      for i = 1:n, for j = 1:n, a(i,j) = t(i)**(j-1);                           ',&
+'                                                                                ',&
+'   However, this results in an error caused by 0**0 when i = 5 and              ',&
+'   j = 1 . The preferable approach is                                           ',&
+'                                                                                ',&
+'      A = ones(n,n);                                                            ',&
+'      for i = 1:n, for j = 2:n, a(i,j) = t(i)*a(i,j-1);                         ',&
+'                                                                                ',&
+'   Now the statement                                                            ',&
+'                                                                                ',&
+'      cond(A)                                                                   ',&
+'                                                                                ',&
+'   produces the output                                                          ',&
+'                                                                                ',&
+'      ans  =                                                                    ',&
+'                                                                                ',&
+'         1.1819E+03                                                             ',&
+'                                                                                ',&
+'   which indicates that transformation of the time variable has                 ',&
+'   resulted in a reasonably well conditioned matrix.                            ',&
+'                                                                                ',&
+'        The statement                                                           ',&
+'                                                                                ',&
+'      c = A\y                                                                   ',&
+'                                                                                ',&
+'   results in                                                                   ',&
+'                                                                                ',&
+'      C     =                                                                   ',&
+'                                                                                ',&
+'        131.6690                                                                ',&
+'         41.0406                                                                ',&
+'        103.5396                                                                ',&
+'        262.4535                                                                ',&
+'       -326.0658                                                                ',&
+'       -662.0814                                                                ',&
+'        341.9022                                                                ',&
+'        533.6373                                                                ',&
+'                                                                                ',&
+'   These are the coefficients in the interpolating polynomial                   ',&
+'                                                                                ',&
+'         n-1                                                                    ',&
+'                                                                                ',&
+'         c  + c t + ... + c t                                                   ',&
+'          1    2           n                                                    ',&
+'                                                                                ',&
+'   Our transformation of the time variable has resulted in t = 1                ',&
+'   corresponding to the year 1980. Consequently, the extrapolated               ',&
+'   population is simply the sum of the coefficients. This can be                ',&
+'   computed by                                                                  ',&
+'                                                                                ',&
+'      p = sum(c)                                                                ',&
+'                                                                                ',&
+'   The result is                                                                ',&
+'                                                                                ',&
+'      P     =                                                                   ',&
+'                                                                                ',&
+'        426.0950                                                                ',&
+'                                                                                ',&
+'   which indicates a 1980 population of over 426 million. Clearly,              ',&
+'   using the seventh degree interpolating polynomial to extrapolate             ',&
+'   even a fairly short distance beyond the end of the data interval             ',&
+'   is not a good idea.                                                          ',&
+'                                                                                ',&
+'   The coefficients in least squares fits by polynomials of                     ',&
+'   lower degree can be computed using fewer than n columns of the               ',&
+'   matrix.                                                                      ',&
+'                                                                                ',&
+'      for k = 1:n, c = A(:,1:k)\y,  p = sum(c)                                  ',&
+'                                                                                ',&
+'   would produce the coefficients of these fits, as well as the                 ',&
+'   resulting extrapolated population. If we do not want to print                ',&
+'   all the coefficients, we can simply generate a small table of                ',&
+'   populations predicted by polynomials of degrees zero through                 ',&
+'   seven. We also compute the maximum deviation between the fitted              ',&
+'   and observed values.                                                         ',&
+'                                                                                ',&
+'      for k = 1:n, X = A(:,1:k);  c = X\y;  ...                                 ',&
+'         d(k) = k-1;  p(k) = sum(c);  e(k) = norm(X*c-y,''inf'');               ',&
+'      <d, p, e>                                                                 ',&
+'                                                                                ',&
+'   The resulting output is                                                      ',&
+'                                                                                ',&
+'         0   132.7227  70.4892                                                  ',&
+'         1   211.5101   9.8079                                                  ',&
+'         2   227.7744   5.0354                                                  ',&
+'         3   241.9574   3.8941                                                  ',&
+'         4   234.2814   4.0643                                                  ',&
+'         5   189.7310   2.5066                                                  ',&
+'         6   118.3025   1.6741                                                  ',&
+'         7   426.0950   0.0000                                                  ',&
+'                                                                                ',&
+'   The zeroth degree fit, 132.7 million, is the result of fitting a             ',&
+'   constant to the data and is simply the average. The results                  ',&
+'   obtained with polynomials of degree one through four all appear              ',&
+'   reasonable. The maximum deviation of the degree four fit is                  ',&
+'   slightly greater than the degree three, even though the sum of               ',&
+'   the squares of the deviations is less. The coefficients of the               ',&
+'   highest powers in the fits of degree five and six turn out to be             ',&
+'   negative and the predicted populations of less than 200 million              ',&
+'   are probably unrealistic. The hopefully absurd prediction of the             ',&
+'   interpolating polynomial concludes the table.                                ',&
+'                                                                                ',&
+'   We wish to emphasize that roundoff errors are not significant                ',&
+'   here. Nearly identical results would be obtained on other computers,         ',&
+'   or with other algorithms. The results simply indicate the difficulties       ',&
+'   associated with extrapolation of polynomial fits of even modest degree.      ',&
+'                                                                                ',&
+'   A stabilized fit by a seventh degree polynomial can be obtained using        ',&
+'   the pseudoinverse, but it requires a fairly delicate choice of a             ',&
+'   tolerance. The statement                                                     ',&
+'                                                                                ',&
+'      s = svd(A)                                                                ',&
+'                                                                                ',&
+'   produces the singular values                                                 ',&
+'                                                                                ',&
+'      S     =                                                                   ',&
+'                                                                                ',&
+'         3.4594                                                                 ',&
+'         2.2121                                                                 ',&
+'         1.0915                                                                 ',&
+'         0.4879                                                                 ',&
+'         0.1759                                                                 ',&
+'         0.0617                                                                 ',&
+'         0.0134                                                                 ',&
+'         0.0029                                                                 ',&
+'                                                                                ',&
+'   We see that the last three singular values are less than 0.1 ,               ',&
+'   consequently, A can be approximately by a matrix of rank five with an        ',&
+'   error less than 0.1 . The Moore-Penrose pseudoinverse of this rank           ',&
+'   five matrix is obtained from the singular value decomposition with           ',&
+'   the following statements                                                     ',&
+'                                                                                ',&
+'      c = pinv(A,0.1)*y, p = sum(c), e = norm(a*c-y,''inf'')                    ',&
+'                                                                                ',&
+'   The output is                                                                ',&
+'                                                                                ',&
+'      C     =                                                                   ',&
+'                                                                                ',&
+'       134.7972                                                                 ',&
+'        67.5055                                                                 ',&
+'        23.5523                                                                 ',&
+'         9.2834                                                                 ',&
+'         3.0174                                                                 ',&
+'         2.6503                                                                 ',&
+'        -2.8808                                                                 ',&
+'         3.2467                                                                 ',&
+'                                                                                ',&
+'      P     =                                                                   ',&
+'                                                                                ',&
+'       241.1720                                                                 ',&
+'                                                                                ',&
+'      E     =                                                                   ',&
+'                                                                                ',&
+'         3.9469                                                                 ',&
+'                                                                                ',&
+'   The resulting seventh degree polynomial has coefficients which are much      ',&
+'   smaller than those of the interpolating polynomial given earlier. The        ',&
+'   predicted population and the maximum deviation are reasonable. Any           ',&
+'   choice of the tolerance between the fifth and sixth singular values          ',&
+'   would produce the same results, but choices outside this range result        ',&
+'   in pseudoinverses of different rank and do not work as well.                 ',&
+'                                                                                ',&
+'   The one term exponential approximation                                       ',&
+'                                                                                ',&
+'        y(t) = k exp(pt)                                                        ',&
+'                                                                                ',&
+'   can be transformed into a linear approximation by taking logarithms.         ',&
+'                                                                                ',&
+'        log(y(t)) = log k + pt                                                  ',&
+'                                                                                ',&
+'                  = c  + c t                                                    ',&
+'                     1    2                                                     ',&
+'                                                                                ',&
+'   The following segment makes use of the fact that a function of a             ',&
+'   vector is the function applied to the individual components.                 ',&
+'                                                                                ',&
+'      X = A(:,1:2);                                                             ',&
+'      c = X\log(y)                                                              ',&
+'      p = exp(sum(c))                                                           ',&
+'      e = norm(exp(X*c)-y,''inf'')                                              ',&
+'                                                                                ',&
+'   The resulting output is                                                      ',&
+'                                                                                ',&
+'      C     =                                                                   ',&
+'                                                                                ',&
+'         4.9083                                                                 ',&
+'         0.5407                                                                 ',&
+'                                                                                ',&
+'      P     =                                                                   ',&
+'                                                                                ',&
+'       232.5134                                                                 ',&
+'                                                                                ',&
+'      E     =                                                                   ',&
+'                                                                                ',&
+'         4.9141                                                                 ',&
+'                                                                                ',&
+'   The predicted population and maximum deviation appear satisfactory and       ',&
+'   indicate that the exponential model is a reasonable one to consider.         ',&
+'                                                                                ',&
+'   As a curiosity, we return to the degree six polynomial.  Since the           ',&
+'   coefficient of the high order term is negative and the value of the          ',&
+'   polynomial at t = 1 is positive, it must have a root at some value           ',&
+'   of t greater than one. The statements                                        ',&
+'                                                                                ',&
+'      X = A(:,1:7);                                                             ',&
+'      c = X\y;                                                                  ',&
+'      c = c(7:-1:1);  //reverse the order of the coefficients                   ',&
+'      z = roots(c)                                                              ',&
+'                                                                                ',&
+'   produce                                                                      ',&
+'                                                                                ',&
+'      Z     =                                                                   ',&
+'                                                                                ',&
+'         1.1023-  0.0000*i                                                      ',&
+'         0.3021+  0.7293*i                                                      ',&
+'        -0.8790+  0.6536*i                                                      ',&
+'        -1.2939-  0.0000*i                                                      ',&
+'        -0.8790-  0.6536*i                                                      ',&
+'         0.3021-  0.7293*i                                                      ',&
+'                                                                                ',&
+'   There is only one real, positive root. The corresponding time on the         ',&
+'   original scale is                                                            ',&
+'                                                                                ',&
+'      1940 + 40*real(z(1))                                                      ',&
+'                                                                                ',&
+'        =  1984.091                                                             ',&
+'                                                                                ',&
+'   We conclude that the United States population should become zero             ',&
+'   early in February of 1984.                                                   ',&
+'                                                                                ',&
+'================================================================================',&
+'PARTIAL DIFFERENTIAL EQUATION EXAMPLE                                           ',&
+'                                                                                ',&
+'   Our second extended example is a boundary value problem for Laplace''s       ',&
+'   equation. The underlying physical problem involves the conductivity          ',&
+'   of a medium with cylindrical inclusions and is considered by Keller          ',&
+'   and Sachs [7].                                                               ',&
+'                                                                                ',&
+'        Find a function  u(x,y)  satisfying Laplace''s equation                 ',&
+'                                                                                ',&
+'                  u   + u   = 0                                                 ',&
+'                   xx    yy                                                     ',&
+'                                                                                ',&
+'   The domain is a unit square with a quarter circle of radius rho removed      ',&
+'   from one corner. There are Neumann conditions on the top and bottom          ',&
+'   edges and Dirichlet conditions on the remainder of the boundary.             ',&
+'                                                                                ',&
+'                            u  = 0                                              ',&
+'                             n                                                  ',&
+'                                                                                ',&
+'                        -------------                                           ',&
+'                       |             .                                          ',&
+'                       |             .                                          ',&
+'                       |              .                                         ',&
+'                       |               .  u = 1                                 ',&
+'                       |                 .                                      ',&
+'                       |                    .                                   ',&
+'                       |                       .                                ',&
+'                u = 0  |                        |                               ',&
+'                       |                        |                               ',&
+'                       |                        |                               ',&
+'                       |                        |  u = 1                        ',&
+'                       |                        |                               ',&
+'                       |                        |                               ',&
+'                       |                        |                               ',&
+'                        ------------------------                                ',&
+'                                                                                ',&
+'                                 u  = 0                                         ',&
+'                                  n                                             ',&
+'                                                                                ',&
+'   The effective conductivity of an medium is then given by the integral        ',&
+'   along the left edge,                                                         ',&
+'                                                                                ',&
+'                               1                                                ',&
+'                    sigma = integral  u (0,y) dy                                ',&
+'                              0        n                                        ',&
+'                                                                                ',&
+'   It is of interest to study the relation between the radius rho and           ',&
+'   the conductivity sigma. In particular, as rho approaches one, sigma          ',&
+'   becomes infinite.                                                            ',&
+'                                                                                ',&
+'   Keller and Sachs use a finite difference approximation. The following        ',&
+'   technique makes use of the fact that the equation is actually Laplace''s     ',&
+'   equation and leads to a much smaller matrix problem to solve.                ',&
+'                                                                                ',&
+'        Consider an approximate solution of the form                            ',&
+'                                                                                ',&
+'                    n      2j-1                                                 ',&
+'              u =  sum  c r    cos(2j-1)t                                       ',&
+'                   j=1   j                                                      ',&
+'                                                                                ',&
+'   where r,t are polar coordinates (t is theta). The coefficients are           ',&
+'   to be determined. For any set of coefficients, this function already         ',&
+'   satisfies the differential equation because the basis functions are          ',&
+'   harmonic; it satisfies the normal derivative boundary condition on           ',&
+'   the bottom edge of the domain because we used cos t in preference to         ',&
+'   sin t ; and it satisfies the boundary condition on the left edge of          ',&
+'   the domain because we use only odd multiples of t .                          ',&
+'                                                                                ',&
+'   The computational task is to find coefficients so that the boundary          ',&
+'   conditions on the remaining edges are satisfied as well as possible. To      ',&
+'   accomplish this, pick m points (r,t) on the remaining edges. It is           ',&
+'   desirable to have m > n and in practice we usually choose m to be two        ',&
+'   or three times as large as n .  Typical values of n are 10 or 20 and         ',&
+'   of m are 20 to 60. An m by n matrix A is generated. The i,j element          ',&
+'   is the j-th basis function, or its normal derivative, evaluated at           ',&
+'   the i-th boundary point. A right hand side with m components is also         ',&
+'   generated. In this example, the elements of the right hand side are          ',&
+'   either zero or one. The coefficients are then found by solving the           ',&
+'   overdetermined set of equations                                              ',&
+'                                                                                ',&
+'               Ac = b                                                           ',&
+'                                                                                ',&
+'   in a least squares sense.                                                    ',&
+'                                                                                ',&
+'   Once the coefficients have been determined, the approximate solution         ',&
+'   is defined everywhere on the domain. It is then possible to compute the      ',&
+'   effective conductivity sigma . In fact, a very simple formula results,       ',&
+'                                                                                ',&
+'                        n       j-1                                             ',&
+'              sigma =  sum  (-1)   c                                            ',&
+'                       j=1          j                                           ',&
+'                                                                                ',&
+'   To use MAT88 for this problem, the following "program" is first stored       ',&
+'   in the local computer file system, say under the name "PDE".                 ',&
+'                                                                                ',&
+'      //Conductivity example.                                                   ',&
+'      //Parameters ---                                                          ',&
+'         rho       //radius of cylindrical inclusion                            ',&
+'         n         //number of terms in solution                                ',&
+'         m         //number of boundary points                                  ',&
+'      //initialize operation counter                                            ',&
+'         flop = <0 0>;                                                          ',&
+'      //initialize variables                                                    ',&
+'         m1 = round(m/3);   //number of points on each straight edge            ',&
+'         m2 = m - m1;       //number of points with Dirichlet conditions        ',&
+'         pi = 4*atan(1);                                                        ',&
+'      //generate points in Cartesian coordinates                                ',&
+'         //right hand edge                                                      ',&
+'         for i = 1:m1, x(i) = 1; y(i) = (1-rho)*(i-1)/(m1-1);                   ',&
+'         //top edge                                                             ',&
+'         for i = m2+1:m, x(i) = (1-rho)*(m-i)/(m-m2-1); y(i) = 1;               ',&
+'         //circular edge                                                        ',&
+'         for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); ...                        ',&
+'            x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);                          ',&
+'      //convert to polar coordinates                                            ',&
+'         for i = 1:m-1, th(i) = atan(y(i)/x(i));  ...                           ',&
+'            r(i) = sqrt(x(i)**2+y(i)**2);                                       ',&
+'         th(m) = pi/2;  r(m) = 1;                                               ',&
+'      //generate matrix                                                         ',&
+'         //Dirichlet conditions                                                 ',&
+'         for i = 1:m2, for j = 1:n, k = 2*j-1; ...                              ',&
+'            a(i,j) = r(i)**k*cos(k*th(i));                                      ',&
+'         //Neumann conditions                                                   ',&
+'         for i = m2+1:m, for j = 1:n, k = 2*j-1; ...                            ',&
+'            a(i,j) = k*r(i)**(k-1)*sin((k-1)*th(i));                            ',&
+'      //generate right hand side                                                ',&
+'         for i = 1:m2, b(i) = 1;                                                ',&
+'         for i = m2+1:m, b(i) = 0;                                              ',&
+'      //solve for coefficients                                                  ',&
+'         c = A\b                                                                ',&
+'      //compute effective conductivity                                          ',&
+'         c(2:2:n) = -c(2:2:n);                                                  ',&
+'         sigma = sum(c)                                                         ',&
+'      //output total operation count                                            ',&
+'         ops = flop(2)                                                          ',&
+'                                                                                ',&
+'   The program can be used within MAT88 by setting the three parameters         ',&
+'   and then accessing the file. For example,                                    ',&
+'                                                                                ',&
+'      rho = .9;                                                                 ',&
+'      n = 15;                                                                   ',&
+'      m = 30;                                                                   ',&
+'      exec(''PDE'')                                                             ',&
+'                                                                                ',&
+'   The resulting output is                                                      ',&
+'                                                                                ',&
+'      rho   =                                                                   ',&
+'                                                                                ',&
+'         .9000                                                                  ',&
+'                                                                                ',&
+'      n     =                                                                   ',&
+'                                                                                ',&
+'       15.                                                                      ',&
+'                                                                                ',&
+'      m     =                                                                   ',&
+'                                                                                ',&
+'       30.                                                                      ',&
+'                                                                                ',&
+'      c     =                                                                   ',&
+'                                                                                ',&
+'         2.2275                                                                 ',&
+'        -2.2724                                                                 ',&
+'         1.1448                                                                 ',&
+'         0.1455                                                                 ',&
+'        -0.1678                                                                 ',&
+'        -0.0005                                                                 ',&
+'        -0.3785                                                                 ',&
+'         0.2299                                                                 ',&
+'         0.3228                                                                 ',&
+'        -0.2242                                                                 ',&
+'        -0.1311                                                                 ',&
+'         0.0924                                                                 ',&
+'         0.0310                                                                 ',&
+'        -0.0154                                                                 ',&
+'        -0.0038                                                                 ',&
+'                                                                                ',&
+'      sigm  =                                                                   ',&
+'                                                                                ',&
+'         5.0895                                                                 ',&
+'                                                                                ',&
+'      ops   =                                                                   ',&
+'                                                                                ',&
+'         16204.                                                                 ',&
+'                                                                                ',&
+'   A total of 16204 floating point operations were necessary to set up the      ',&
+'   matrix, solve for the coefficients and compute the conductivity. The         ',&
+'   operation count is roughly proportional to m*n**2. The results obtained      ',&
+'   for sigma as a function of rho by this approach are essentially the          ',&
+'   same as those obtained by the finite difference technique of Keller          ',&
+'   and Sachs, but the computational effort involved is much less.               ',&
+'                                                                                ',&
+'================================================================================',&
+'EIGENVALUE SENSITIVITY EXAMPLE                                                  ',&
+'                                                                                ',&
+'   In this example, we construct a matrix whose eigenvalues are moderately      ',&
+'   sensitive to perturbations and then analyze that sensitivity. We             ',&
+'   begin with the statement                                                     ',&
+'                                                                                ',&
+'      B = <3 0 7; 0 2 0; 0 0 1>                                                 ',&
+'                                                                                ',&
+'   which produces                                                               ',&
+'                                                                                ',&
+'      B     =                                                                   ',&
+'                                                                                ',&
+'          3.    0.    7.                                                        ',&
+'          0.    2.    0.                                                        ',&
+'          0.    0.    1.                                                        ',&
+'                                                                                ',&
+'   Obviously, the eigenvalues of B are 1, 2 and 3 . Moreover, since             ',&
+'   B is not symmetric, these eigenvalues are slightly sensitive to              ',&
+'   perturbation. (The value b(1,3) = 7 was chosen so that the elements          ',&
+'   of the matrix A below are less than 1000.)                                   ',&
+'                                                                                ',&
+'   We now generate a similarity transformation to disguise the eigenvalues      ',&
+'   and make them more sensitive.                                                ',&
+'                                                                                ',&
+'      L = <1 0 0; 2 1 0; -3 4 1>, M = L\L''                                     ',&
+'                                                                                ',&
+'      L     =                                                                   ',&
+'                                                                                ',&
+'          1.    0.    0.                                                        ',&
+'          2.    1.    0.                                                        ',&
+'         -3.    4.    1.                                                        ',&
+'                                                                                ',&
+'      M     =                                                                   ',&
+'                                                                                ',&
+'          1.0000    2.0000   -3.0000                                            ',&
+'         -2.0000   -3.0000   10.0000                                            ',&
+'         11.0000   18.0000  -48.0000                                            ',&
+'                                                                                ',&
+'   The matrix M has determinant equal to 1 and is moderately badly              ',&
+'   conditioned. The similarity transformation is                                ',&
+'                                                                                ',&
+'      A = M*B/M                                                                 ',&
+'                                                                                ',&
+'      A     =                                                                   ',&
+'                                                                                ',&
+'        -64.0000   82.0000   21.0000                                            ',&
+'        144.0000 -178.0000  -46.0000                                            ',&
+'       -771.0000  962.0000  248.0000                                            ',&
+'                                                                                ',&
+'   Because det(M) = 1 , the elements of A would be exact integers               ',&
+'   if there were no roundoff. So,                                               ',&
+'                                                                                ',&
+'      A = round(A)                                                              ',&
+'                                                                                ',&
+'      A     =                                                                   ',&
+'                                                                                ',&
+'        -64.   82.   21.                                                        ',&
+'        144. -178.  -46.                                                        ',&
+'       -771.  962.  248.                                                        ',&
+'                                                                                ',&
+'                                                                                ',&
+'   This, then, is our test matrix. We can now forget how it                     ',&
+'   was generated and analyze its eigenvalues.                                   ',&
+'                                                                                ',&
+'      <X,D> = eig(A)                                                            ',&
+'                                                                                ',&
+'      D     =                                                                   ',&
+'                                                                                ',&
+'          3.0000    0.0000    0.0000                                            ',&
+'          0.0000    1.0000    0.0000                                            ',&
+'          0.0000    0.0000    2.0000                                            ',&
+'                                                                                ',&
+'      X     =                                                                   ',&
+'                                                                                ',&
+'          -.0891    3.4903   41.8091                                            ',&
+'           .1782   -9.1284  -62.7136                                            ',&
+'          -.9800   46.4473  376.2818                                            ',&
+'                                                                                ',&
+'   Since A is similar to B, its eigenvalues are also 1, 2 and 3.  They          ',&
+'   happen to be computed in another order by the EISPACK subroutines. The       ',&
+'   fact that the columns of X, which are the eigenvectors, are so far           ',&
+'   from being orthonormal is our first indication that the eigenvalues          ',&
+'   are sensitive. To see this sensitivity, we display more figures of           ',&
+'   the computed eigenvalues.                                                    ',&
+'                                                                                ',&
+'      long, diag(D)                                                             ',&
+'                                                                                ',&
+'      ans   =                                                                   ',&
+'                                                                                ',&
+'         2.999999999973599                                                      ',&
+'         1.000000000015625                                                      ',&
+'         2.000000000011505                                                      ',&
+'                                                                                ',&
+'   We see that, on this computer, the last five significant figures are         ',&
+'   contaminated by roundoff error. A somewhat superficial explanation           ',&
+'   of this is provided by                                                       ',&
+'                                                                                ',&
+'      short,  cond(X)                                                           ',&
+'                                                                                ',&
+'      ans   =                                                                   ',&
+'                                                                                ',&
+'         3.2216e+05                                                             ',&
+'                                                                                ',&
+'   The condition number of X gives an upper bound for the relative              ',&
+'   error in the computed eigenvalues. However, this condition                   ',&
+'   number is affected by scaling.                                               ',&
+'                                                                                ',&
+'      X = X/diag(X(3,:)),  cond(X)                                              ',&
+'                                                                                ',&
+'      X     =                                                                   ',&
+'                                                                                ',&
+'           .0909     .0751     .1111                                            ',&
+'          -.1818    -.1965    -.1667                                            ',&
+'          1.0000    1.0000    1.0000                                            ',&
+'                                                                                ',&
+'      ans   =                                                                   ',&
+'                                                                                ',&
+'         1.7692e+03                                                             ',&
+'                                                                                ',&
+'   Rescaling the eigenvectors so that their last components are all             ',&
+'   equal to one has two consequences. The condition of X is decreased           ',&
+'   by over two orders of magnitude. (This is about the minimum condition        ',&
+'   that can be obtained by such diagonal scaling.)  Moreover, it is now         ',&
+'   apparent that the three eigenvectors are nearly parallel.                    ',&
+'                                                                                ',&
+'   More detailed information on the sensitivity of the individual               ',&
+'   eigenvalues involves the left eigenvectors.                                  ',&
+'                                                                                ',&
+'      Y = inv(X''),  Y''*A*X                                                    ',&
+'                                                                                ',&
+'      Y     =                                                                   ',&
+'                                                                                ',&
+'       -511.5000  259.5000  252.0000                                            ',&
+'        616.0000 -346.0000 -270.0000                                            ',&
+'        159.5000  -86.5000  -72.0000                                            ',&
+'                                                                                ',&
+'      ans   =                                                                   ',&
+'                                                                                ',&
+'          3.0000     .0000     .0000                                            ',&
+'           .0000    1.0000     .0000                                            ',&
+'           .0000     .0000    2.0000                                            ',&
+'                                                                                ',&
+'   We are now in a position to compute the sensitivities of the individual      ',&
+'   eigenvalues.                                                                 ',&
+'                                                                                ',&
+'      for j = 1:3, c(j) = norm(Y(:,j))*norm(X(:,j)); end,  C                    ',&
+'                                                                                ',&
+'      C     =                                                                   ',&
+'                                                                                ',&
+'        833.1092                                                                ',&
+'        450.7228                                                                ',&
+'        383.7564                                                                ',&
+'                                                                                ',&
+'   These three numbers are the reciprocals of the cosines of the                ',&
+'   angles between the left and right eigenvectors. It can be shown that         ',&
+'   perturbation of the elements of A can result in a perturbation of            ',&
+'   the j-th eigenvalue which is c(j) times as large.  In this example,          ',&
+'   the first eigenvalue has the largest sensitivity.                            ',&
+'                                                                                ',&
+'   We now proceed to show that A is close to a matrix with a double             ',&
+'   eigenvalue. The direction of the required perturbation is given by           ',&
+'                                                                                ',&
+'      E = -1.e-6*Y(:,1)*X(:,1)''                                                ',&
+'                                                                                ',&
+'      E     =                                                                   ',&
+'                                                                                ',&
+'         1.0e-03 *                                                              ',&
+'                                                                                ',&
+'           .0465    -.0930     .5115                                            ',&
+'          -.0560     .1120    -.6160                                            ',&
+'          -.0145     .0290    -.1595                                            ',&
+'                                                                                ',&
+'   With some trial and error which we do not show, we bracket the               ',&
+'   point where two eigenvalues of a perturbed A coalesce and then               ',&
+'   become complex.                                                              ',&
+'                                                                                ',&
+'      eig(A + .4*E),  eig(A + .5*E)                                             ',&
+'                                                                                ',&
+'      ans   =                                                                   ',&
+'                                                                                ',&
+'          1.1500                                                                ',&
+'          2.5996                                                                ',&
+'          2.2504                                                                ',&
+'                                                                                ',&
+'      ans   =                                                                   ',&
+'                                                                                ',&
+'         2.4067 +  .1753*i                                                      ',&
+'         2.4067 -  .1753*i                                                      ',&
+'         1.1866 + 0.0000*i                                                      ',&
+'                                                                                ',&
+'   Now, a bisecting search, driven by the imaginary part of one of              ',&
+'   the eigenvalues, finds the point where two eigenvalues are nearly            ',&
+'   equal.                                                                       ',&
+'                                                                                ',&
+'      r = .4;  s = .5;                                                          ',&
+'                                                                                ',&
+'      while s-r > 1.e-14, t = (r+s)/2; d = eig(A+t*E); ...                      ',&
+'        if imag(d(1))=0, r = t; else, s = t;                                    ',&
+'                                                                                ',&
+'      long,  T                                                                  ',&
+'                                                                                ',&
+'      T     =                                                                   ',&
+'                                                                                ',&
+'           .450380734134507                                                     ',&
+'                                                                                ',&
+'   Finally, we display the perturbed matrix, which is obviously close           ',&
+'   to the original, and its pair of nearly equal eigenvalues.  (We have         ',&
+'   dropped a few digits from the long output.)                                  ',&
+'                                                                                ',&
+'      A+t*E,  eig(A+t*E)                                                        ',&
+'                                                                                ',&
+'      A                                                                         ',&
+'                                                                                ',&
+'       -63.999979057   81.999958114   21.000230369                              ',&
+'       143.999974778 -177.999949557  -46.000277434                              ',&
+'      -771.000006530  962.000013061  247.999928164                              ',&
+'                                                                                ',&
+'      ans   =                                                                   ',&
+'                                                                                ',&
+'         2.415741150                                                            ',&
+'         2.415740621                                                            ',&
+'         1.168517777                                                            ',&
+'                                                                                ',&
+'   The first two eigenvectors of A + t*E are almost indistinguishable           ',&
+'   indicating that the perturbed matrix is almost defective.                    ',&
+'                                                                                ',&
+'      <X,D> = eig(A+t*E);  X = X/diag(X(3,:))                                   ',&
+'                                                                                ',&
+'      X     =                                                                   ',&
+'                                                                                ',&
+'          .096019578     .096019586    .071608466                               ',&
+'         -.178329614    -.178329608   -.199190520                               ',&
+'         1.000000000    1.000000000   1.000000000                               ',&
+'                                                                                ',&
+'      short,  cond(X)                                                           ',&
+'                                                                                ',&
+'      ans   =                                                                   ',&
+'                                                                                ',&
+'         3.3997e+09                                                             ',&
+'                                                                                ',&
+'================================================================================',&
+'COMMUNICATING WITH OTHER PROGRAMS                                               ',&
+'                                                                                ',&
+'   There are four different ways MAT88 can be used in                           ',&
+'   conjunction with other programs:                                             ',&
+'                                                                                ',&
+'         -- user,                                                               ',&
+'         -- exec,                                                               ',&
+'         -- save and load,                                                      ',&
+'         -- MATZ, CALL and quit .                                               ',&
+'                                                                                ',&
+'   Let us illustrate each of these by the following simple                      ',&
+'   example.                                                                     ',&
+'                                                                                ',&
+'         n = 6                                                                  ',&
+'         for i = 1:n, for j = 1:n, a(i,j) = abs(i-j);                           ',&
+'         A                                                                      ',&
+'         X = inv(A)                                                             ',&
+'                                                                                ',&
+'   The example A could be introduced into MAT88 by writing                      ',&
+'   the following Fortran subroutine.                                            ',&
+'                                                                                ',&
+'            SUBROUTINE mat88_user(A,M,N,S,T)                                    ',&
+'            DOUBLEPRECISION A(*),S,T                                            ',&
+'            N = int(A(1))                                                       ',&
+'            M = N                                                               ',&
+'            DO J = 1, N                                                         ',&
+'               DO I = 1, N                                                      ',&
+'                  K = I + (J-1)*M                                               ',&
+'                  A(K) = IABS(I-J)                                              ',&
+'               enddo                                                            ',&
+'            enddo                                                               ',&
+'            END SUBROUTINE USER                                                 ',&
+'                                                                                ',&
+'   This subroutine should be compiled and linked into MAT88 in                  ',&
+'   place of the original version of USER. Then the MAT88                        ',&
+'   statements                                                                   ',&
+'                                                                                ',&
+'         n = 6                                                                  ',&
+'         A = user(n)                                                            ',&
+'         X = inv(A)                                                             ',&
+'                                                                                ',&
+'   do the job.                                                                  ',&
+'                                                                                ',&
+'   The example A could be generated by storing the following                    ',&
+'   text in a file named, say, EXAMPLE .                                         ',&
+'                                                                                ',&
+'         for i = 1:n, for j = 1:n, a(i,j) = abs(i-j);                           ',&
+'                                                                                ',&
+'   Then the MAT88 statements                                                    ',&
+'                                                                                ',&
+'         n = 6                                                                  ',&
+'         exec(''EXAMPLE'',0)                                                    ',&
+'         X = inv(A)                                                             ',&
+'                                                                                ',&
+'   have the desired effect. The 0 as the optional second parameter              ',&
+'   of exec indicates that the text in the file should not be printed            ',&
+'   on the terminal.                                                             ',&
+'                                                                                ',&
+'   The matrices A and X could also be stored in files. Two                      ',&
+'   separate main programs would be involved. The first is:                      ',&
+'                                                                                ',&
+'            PROGRAM MAINA                                                       ',&
+'            DOUBLEPRECISION A(10,10)                                            ',&
+'            N = 6                                                               ',&
+'            DO J = 1, N                                                         ',&
+'               DO I = 1, N                                                      ',&
+'                  A(I,J) = IABS(I-J)                                            ',&
+'               enddo                                                            ',&
+'            enddo                                                               ',&
+'            OPEN(UNIT=1,FILE=''A'')                                             ',&
+'            WRITE(1,101) N,N                                                    ',&
+'        101 FORMAT(''A   '',2I4)                                                ',&
+'            DO J = 1, N                                                         ',&
+'               WRITE(1,102) (A(I,J),I=1,N)                                      ',&
+'            enddo                                                               ',&
+'        102 FORMAT(4Z18)                                                        ',&
+'            END PROGRAM MAINA                                                   ',&
+'                                                                                ',&
+'   The OPEN statement may take different forms on different systems.            ',&
+'   It attaches Fortran logical unit number 1 to the file named A.               ',&
+'   The FORMAT number 102 may also be system dependent. This                     ',&
+'   particular one is appropriate for hexadecimal computers with an 8            ',&
+'   byte double precision floating point word. Check, or modify,                 ',&
+'   MAT88 subroutine SAVLOD.                                                     ',&
+'                                                                                ',&
+'   After this program is executed, enter MAT88 and give the                     ',&
+'   following statements:                                                        ',&
+'                                                                                ',&
+'         load(''A'')                                                            ',&
+'         X = inv(A)                                                             ',&
+'         save(''X'',X)                                                          ',&
+'                                                                                ',&
+'   If all goes according to plan, this will read the matrix A from              ',&
+'   the file A, invert it, store the inverse in X and then write the             ',&
+'   matrix X on the file X. The following program can then access X.             ',&
+'                                                                                ',&
+'            PROGRAM MAINX                                                       ',&
+'            DOUBLEPRECISION X(10,10)                                            ',&
+'            OPEN(UNIT=1,FILE=''X'')                                             ',&
+'            REWIND 1                                                            ',&
+'            READ (1,101) ID,M,N                                                 ',&
+'        101 FORMAT(A32,2I4)                                                     ',&
+'            DO J = 1, N                                                         ',&
+'               READ(1,102) (X(I,J),I=1,M)                                       ',&
+'            ENDDO                                                               ',&
+'        102 FORMAT(4Z18)                                                        ',&
+'            ...                                                                 ',&
+'            ...                                                                 ',&
+'                                                                                ',&
+'   The most elaborate mechanism involves using MAT88 as a subroutine            ',&
+'   within another program. Communication with the MAT88 stack is                ',&
+'   accomplished using subroutine MATZ which is distributed with MAT88,          ',&
+'   but which is not used by MAT88 itself. The preamble of MATZ is:              ',&
+'                                                                                ',&
+'         SUBROUTINE MATZ(A,LDA,M,N,ID,JOB,IERR)                                 ',&
+'         INTEGER LDA,M,N,JOB,IERR                                               ',&
+'         character(len=*) :: id                                                 ',&
+'         DOUBLEPRECISION A(LDA,N)                                               ',&
+'                                                                                ',&
+'         ! ACCESS MAT88 VARIABLE STACK                                          ',&
+'         ! A IS AN M BY N MATRIX, STORED IN AN ARRAY WITH                       ',&
+'         !     LEADING DIMENSION LDA.                                           ',&
+'         ! ID IS THE NAME OF A. ID IS UP TO FOUR CHARACTERS.                    ',&
+'         ! JOB =  0  GET REAL A FROM MAT88,                                     ',&
+'         !     =  1  PUT REAL A INTO MAT88,                                     ',&
+'         !     = 10  GET IMAG PART OF A FROM MAT88,                             ',&
+'         !     = 11  PUT IMAG PART OF A INTO MAT88.                             ',&
+'         ! RETURN WITH NONZERO IERR AFTER MAT88 ERROR MESSAGE.                  ',&
+'         !                                                                      ',&
+'         ! USES MAT88 ROUTINES STACKG, STACKP AND ERROR                         ',&
+'                                                                                ',&
+'                                                                                ',&
+'        The preamble of subroutine MAT88 is:                                    ',&
+'                                                                                ',&
+'                                                                                ',&
+'         SUBROUTINE MAT88(INIT)                                                 ',&
+'         ! INIT = 0 FOR FIRST ENTRY, NONZERO FOR SUBSEQUENT ENTRIES             ',&
+'                                                                                ',&
+'                                                                                ',&
+'        To do our example, write the following program:                         ',&
+'                                                                                ',&
+'            DOUBLEPRECISION A(10,10),X(10,10)                                   ',&
+'            DATA LDA/10/                                                        ',&
+'            CALL M_88(0,'''')                                                   ',&
+'            N = 6                                                               ',&
+'            DO J = 1, N                                                         ',&
+'               DO I = 1, N                                                      ',&
+'                  A(I,J) = IABS(I-J)                                            ',&
+'               enddo                                                            ',&
+'            enddo                                                               ',&
+'            CALL MATZ(A,LDA,N,N,''A'',1,IERR)                                   ',&
+'            IF (IERR .NE. 0) GO TO ...                                          ',&
+'            CALL MAT88(1,'''')                                                  ',&
+'            CALL MATZ(X,LDA,N,N,''X'',0,IERR)                                   ',&
+'            IF (IERR .NE. 0) GO TO ...                                          ',&
+'            ...                                                                 ',&
+'            ...                                                                 ',&
+'                                                                                ',&
+'   When this program is executed, the call to MAT88(0) produces the             ',&
+'   MAT88 greeting, then waits for input. The command                            ',&
+'                                                                                ',&
+'            quit                                                                ',&
+'                                                                                ',&
+'   sends control back to our example program. The matrix A is                   ',&
+'   generated by the program and sent to the stack by the first call             ',&
+'   to MATZ. The call to MAT88(1) produces the MAT88(1) prompt. Then             ',&
+'   the statements                                                               ',&
+'                                                                                ',&
+'            X = inv(A)                                                          ',&
+'            quit                                                                ',&
+'                                                                                ',&
+'   will invert our matrix, put the result on the stack and go back              ',&
+'   to our program. The second call to MATZ will retrieve X .                    ',&
+'                                                                                ',&
+'   By the way, this matrix X is interesting. Take a look at                     ',&
+'   round(2*(n-1)*X).                                                            ',&
+'                                                                                ',&
+'================================================================================',&
+'ACKNOWLEDGEMENT                                                                 ',&
+'                                                                                ',&
+'   Most of the work on MAT88 has been carried out at the University             ',&
+'   of New Mexico, where it is being supported by the National Science           ',&
+'   Foundation. Additional work has been done during visits to Stanford          ',&
+'   Linear Accelerator Center, Argonne National Laboratory and Los Alamos        ',&
+'   Scientific Laboratory, where support has been provided by NSF and the        ',&
+'   Department of Energy.                                                        ',&
+'                                                                                ',&
+'================================================================================',&
+'REFERENCES                                                                      ',&
+'                                                                                ',&
+' [1]  J. J. Dongarra, J. R. Bunch, C. B. Moler and G. W. Stewart,               ',&
+'      LINPACK Users'' Guide, Society for Industrial and Applied                 ',&
+'      Mathematics, Philadelphia, 1979.                                          ',&
+'                                                                                ',&
+' [2]  B. T. Smith, J. M. Boyle, J. J. Dongarra, B. S. Garbow, Y.                ',&
+'      Ikebe, V. C. Klema, C. B. Moler, Matrix Eigensystem Routines              ',&
+'      -- EISPACK Guide, Lecture Notes in Computer Science, volume               ',&
+'      6, second edition, Springer-Verlag, 1976.                                 ',&
+'                                                                                ',&
+' [3]  B. S. Garbow, J. M. Boyle, J. J. Dongarra, C. B. Moler,                   ',&
+'      Matrix Eigensystem Routines -- EISPACK Guide Extension,                   ',&
+'      Lecture Notes in Computer Science, volume 51, Springer-                   ',&
+'      Verlag, 1977.                                                             ',&
+'                                                                                ',&
+' [4]  S. Cohen and S. Piper, SPEAKEASY III Reference Manual,                    ',&
+'      Speakeasy Computing Corp., Chicago, Ill., 1979.                           ',&
+'                                                                                ',&
+' [5]  J. H. Wilkinson and C. Reinsch, Handbook for Automatic                    ',&
+'      Computation, volume II, Linear Algebra, Springer-Verlag,                  ',&
+'     1971.                                                                      ',&
+'                                                                                ',&
+' [6]  Niklaus Wirth, Algorithms + Data Structures = Programs,                   ',&
+'      Prentice-Hall, 1976.                                                      ',&
+'                                                                                ',&
+' [7]  H. B. Keller and D. Sachs, "Calculations of the Conductivity              ',&
+'      of a Medium Containing Cylindrical Inclusions", J. Applied                ',&
+'      Physics 35, 537-538, 1964.                                                ',&
+'                                                                                ',&
+' [8]  C. B. Moler and C. F. Van Loan, Nineteen Dubious Ways to                  ',&
+'      Compute the Exponential of a Matrix, SIAM Review 20, 801-                 ',&
+'      836, 1979.                                                                ',&
+'                                                                                ',&
+' [9]  G. E. Forsythe, M. A. Malcolm and C. B. Moler, Computer                   ',&
+'      Methods for Mathematical Computations, Prentice-Hall, 1977.               ',&
+'                                                                                ',&
+' [10] C. B. Moler and D. R. Morrison, "Replacing square roots by                ',&
+'      Pythagorean sums", University of New Mexico, Computer                     ',&
+'      Science Department, technical report, submitted for                       ',&
+'     publication, 1980.                                                         ',&
+'                                                                                ',&
+'================================================================================',&
+'SUMMARY ------(A list of basic (case-sensitive) help topics)------- SUMMARY     ',&
+' ._______________________________________________________________________.      ',&
+' |SYNTAX         [ ] < > ( ) = .  , !  ; \ / '''' + - * : semi             |    ',&
+' |_______________________________________________________________________|      ',&
+' |VARIABLES      ans    clear who                                        |      ',&
+' |_______________________________________________________________________|      ',&
+' |BASIC          atan   cos   exp    log    sin      sqrt                |      ',&
+' |_______________________________________________________________________|      ',&
+' |HIGH           abs    base  chol   chop   cond     conjg  det    diag  |      ',&
+' |               eig    eye   hess   invh   imag     inv    kron   lu    |      ',&
+' |               magic  norm  ones   orth   pinv     poly   prod   qr    |      ',&
+' |               rand   rank  rcond  rat    real     rref   roots  round |      ',&
+' |               schur  size  sum    svd    tril     triu   user   zeros |      ',&
+' |_______________________________________________________________________|      ',&
+' |FLOW control   else   end   if     for    while    exit   quit         |      ',&
+' |_______________________________________________________________________|      ',&
+' |FILE access    exec   load  print  save                                |      ',&
+' |_______________________________________________________________________|      ',&
+' |OUTPUT options lines  long  short  diary  display  plot                |      ',&
+' |_______________________________________________________________________|      ',&
+' |PERFORMANCE    flops  flps                                             |      ',&
+' |_______________________________________________________________________|      ',&
+' |DOCUMENTATION  help   doc   manual topics                              |      ',&
+' |_______________________________________________________________________|      ',&
+' |MISCELLANEOUS  char   eps   debug  NEWS SUMMARY what MACROS sh         |      ',&
+' |_______________________________________________________________________|      ',&
+'================================================================================',&
 'SAMPLE                                                                          ',&
 '      Here are a few sample statements:                                         ',&
 '                                                                                ',&
@@ -7032,11 +8982,27 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'DOCUMENTATION                                                                   ',&
 '                                                                                ',&
-'help  "help" gives assistance.                                                  ',&
-'      "help help" obviously prints this message.                                ',&
-'      To see all the "help" messages, generate the manual                       ',&
-'      using "doc(''help.txt'')".                                                ',&
+'help  topic|SECTION_NAME                                                        ',&
 '                                                                                ',&
+'      "help" gives assistance. It is equivalent to "help SUMMARY"               ',&
+'      by default.                                                               ',&
+'                                                                                ',&
+'      o  "help" with no options lists common topic and section names.           ',&
+'      o  The special topic "topics" shows all topic lines.                      ',&
+'      o  The special topic "manual" displays all the help text.                 ',&
+'                                                                                ',&
+'      For example:                                                              ',&
+'                                                                                ',&
+'         help        // a list of common topics and section names               ',&
+'         help topics // a list of topics including the first line of            ',&
+'                     // the topic.                                              ',&
+'         help abs    // produces help on the function "abs".                    ',&
+'         help FLOW   // the entire section on flow control is displayed.        ',&
+'         help manual // show all the help text                                  ',&
+'         help help   // obviously prints this message.                          ',&
+'                                                                                ',&
+'      Alternatively, To place all the documenation in a file, use               ',&
+'      "doc(''help.txt'')".                                                      ',&
 'NEWS                                                                            ',&
 '      May, 1981.                                                                ',&
 '                                                                                ',&
@@ -7061,7 +9027,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'SYNTAX                                                                          ',&
 '[     See "<"                                                                   ',&
 ']     See "<"                                                                   ',&
-'>     See "<" . Also see MACRO.                                                 ',&
+'>     See "<" . Also see MACROS.                                                ',&
 '<     < > or [ ] are brackets used in forming vectors and matrices.             ',&
 '      "<6.9 9.64 sqrt(-1)>" is a vector with three elements separated by        ',&
 '      blanks. "[1+I 2-I 3]" and "[1 +I 2 -I 3]" are not the same. The           ',&
@@ -7084,7 +9050,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      i.e. not equal, "<" means less than, ">" means greater than,              ',&
 '      "<=" means less than or equal, ">=" means greater than or equal.          ',&
 '                                                                                ',&
-'      For the use of ">" and "<" to delineate macros, see MACRO.                ',&
+'      For the use of ">" and "<" to delineate macros, see MACROS.               ',&
 '                                                                                ',&
 '                                                                                ',&
 '{     see "(".                                                                  ',&
@@ -7195,7 +9161,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      The Kronecker tensor product is denoted by X .*. Y .                      ',&
 '                                                                                ',&
 '      Powers. X**p is X to the p power. p must be a                             ',&
-'      scalar. If X is a matrix, see "FUN" .                                     ',&
+'      scalar. If X is a matrix, see "HIGH" .                                    ',&
 '                                                                                ',&
 ':     Colon. Used in subscripts, "for" iterations and possibly                  ',&
 '      elsewhere.                                                                ',&
@@ -7261,27 +9227,27 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'BASIC FUNCTIONS                                                                 ',&
 '                                                                                ',&
-'FUN   For matrix arguments X , the functions "sin", "cos", "atan",              ',&
+'      For matrix arguments X , the functions "sin", "cos", "atan",              ',&
 '      "sqrt", "log", "exp" and X**p are computed using eigenvalues D            ',&
 '      and eigenvectors V . If <V,D> = eig(X) then f(X) = V*f(D)/V . This        ',&
 '      method may give inaccurate results if V is badly conditioned. Some        ',&
 '      idea of the accuracy can be obtained by comparing X**1 with X .           ',&
 '      For vector arguments, the function is applied to each component.          ',&
 '                                                                                ',&
-'atan  atan(X) is the arctangent of X . See FUN .                                ',&
+'atan  atan(X) is the arctangent of X . See HIGH .                               ',&
 '                                                                                ',&
-'cos   cos(X) is the cosine of X . See FUN .                                     ',&
+'cos   cos(X) is the cosine of X . See HIGH .                                    ',&
 '                                                                                ',&
-'exp   exp(X) is the exponential of X , e to the X . See FUN.                    ',&
+'exp   exp(X) is the exponential of X , e to the X . See HIGH.                   ',&
 '                                                                                ',&
-'log   log(X) is the natural logarithm of X. See FUN.                            ',&
+'log   log(X) is the natural logarithm of X. See HIGH.                           ',&
 '      Complex results are produced if X is not positive, or has                 ',&
 '      nonpositive eigenvalues.                                                  ',&
 '                                                                                ',&
-'sin   sin(X) is the sine of X. See FUN.                                         ',&
+'sin   sin(X) is the sine of X. See HIGH.                                        ',&
 '                                                                                ',&
 '                                                                                ',&
-'sqrt  sqrt(X) is the square root of X. See FUN. Complex                         ',&
+'sqrt  sqrt(X) is the square root of X. See HIGH. Complex                        ',&
 '      results are produced if X is not positive, or has                         ',&
 '      nonpositive eigenvalues.                                                  ',&
 '================================================================================',&
@@ -7316,16 +9282,17 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 'diag  If V is a row or column vector with N components,                         ',&
 '      "diag(V,K)" is a square matrix of order "N+abs(K)" with the               ',&
-'      elements of V on the K-th diagonal. K = 0 is the main                     ',&
-'      diagonal, K > 0 is above the main diagonal and K < 0 is                   ',&
-'      below the main diagonal. "diag(V)" simply puts V on the                   ',&
-'      main diagonal.                                                            ',&
-'      eg. "diag(-M:M) + diag(ones(2*M,1),1) + diag(ones(2*M,1),-1)"             ',&
+'      elements of V on the K-th diagonal. K = 0 is the main diagonal,           ',&
+'      K > 0 is above the main diagonal and K < 0 is below the main              ',&
+'      diagonal. "diag(V)" simply puts V on the main diagonal. eg.               ',&
+'                                                                                ',&
+'         diag(-M:M) + diag(ones(2*M,1),1) + diag(ones(2*M,1),-1)                ',&
+'                                                                                ',&
 '      produces a tridiagonal matrix of order 2*M+1 .                            ',&
-'      If X is a matrix, "diag(X,K)" is a column vector formed                   ',&
-'      from the elements of the K-th diagonal of X.                              ',&
-'      "diag(X)" is the main diagonal of X.                                      ',&
-'      "diag(diag(X))" is a diagonal matrix .                                    ',&
+'                                                                                ',&
+'      If X is a matrix, "diag(X,K)" is a column vector formed from the          ',&
+'      elements of the K-th diagonal of X.  "diag(X)" is the main diagonal       ',&
+'      of X.  "diag(diag(X))" is a diagonal matrix .                             ',&
 '                                                                                ',&
 'eig   Eigenvalues and eigenvectors.                                             ',&
 '      "eig(X)" is a vector containing the eigenvalues of a square               ',&
@@ -7682,22 +9649,20 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      terminal.                                                                 ',&
 '                                                                                ',&
 '================================================================================',&
-'ACCESSING FILES                                                                 ',&
+'FILE ACCESS                                                                     ',&
 '                                                                                ',&
-'FILE  The "exec", "save", "load", "diary", and "print" functions access         ',&
-'      files. The ''file'' parameter takes different forms for different         ',&
-'      operating systems. On most systems, ''file'' may be a string of           ',&
-'      up to 1024 characters in quotes. For example, "save(''A'')" or            ',&
-'      "exec(''MAT88/demo.exec'')" . The string will be used as the name         ',&
-'      of a file in the local operating system.  On all systems, ''file''        ',&
-'      may be a positive integer k less than 10 which will be used as            ',&
-'      a Fortran logical unit number. Some systems then automatically            ',&
-'      access a file with a name like FORT.k or FORk.DAT. Other systems          ',&
-'      require a file with a name like FT0kF001 to be assigned to unit k         ',&
-'      before MAT88 is executed. Check your local installation for details.      ',&
+'      The "exec", "save", "load", "diary", and "print" functions access files.  ',&
+'      The ''file'' parameter takes different forms for different operating      ',&
+'      systems. On most systems, ''file'' may be a string of up to 1024 characters',&
+'      in quotes. For example, "save(''A'')" or "exec(''MAT88/demo.exec'')" . The',&
+'      string will be used as the name of a file in the local operating system.  ',&
+'      On all systems, ''file'' may be a positive integer k less than 10 which will',&
+'      be used as a Fortran logical unit number. Some systems then automatically ',&
+'      access a file with a name like FORT.k or FORk.DAT. Other systems require  ',&
+'      a file with a name like FT0kF001 to be assigned to unit k before MAT88    ',&
+'      is executed. Check your local installation for details.                   ',&
 '                                                                                ',&
-'      The filename must be composed of recognized characters. See               ',&
-'      "char".                                                                   ',&
+'      The filename must be composed of recognized characters. See "char".       ',&
 '                                                                                ',&
 '      Also see "quit" and "exit".                                               ',&
 '                                                                                ',&
@@ -7766,7 +9731,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '================================================================================',&
 'OUTPUT OPTIONS                                                                  ',&
-'      ( Also see FILE ("exec", "load", "print", "save" ))                       ',&
+'      ( Also see "FILE" ("exec", "load", "print", "save" ))                     ',&
 '                                                                                ',&
 'lines  An internal count is kept of the number of lines of output               ',&
 '       since the last input. Whenever this count approaches a                   ',&
@@ -7974,2172 +9939,55 @@ end subroutine mat_help_text
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_make_manual(io)
-integer,intent(in) :: io
-write(io,'(a)')'6/24/81'
-write(io,'(a)')'                       MAT88 Users'' Guide'
-write(io,'(a)')'                            May, 1981'
-write(io,'(a)')'                            Dec, 2018'
-write(io,'(a)')''
-write(io,'(a)')'                 Based on the MATLAB package by'
-write(io,'(a)')''
-write(io,'(a)')'                           Cleve Moler'
-write(io,'(a)')'                 Department of Computer Science'
-write(io,'(a)')'                    University of New Mexico'
-write(io,'(a)')''
-write(io,'(a)')'   <ABSTRACT> MAT88 is an interactive computer procedure that serves'
-write(io,'(a)')'   as a convenient "laboratory" for computations involving matrices. It'
-write(io,'(a)')'   provides easy access to matrix software developed by the LINPACK and'
-write(io,'(a)')'   EISPACK projects. The program is written in Fortran and is designed'
-write(io,'(a)')'   to be readily installed under any operating system which permits'
-write(io,'(a)')'   interactive execution of Fortran programs.'
-write(io,'(a)')''
-write(io,'(a)')'                            CONTENTS'
-write(io,'(a)')''
-write(io,'(a)')'          1.  Elementary operations'
-write(io,'(a)')'          2.  MAT88 functions'
-write(io,'(a)')'          3.  Rows, columns and submatrices'
-write(io,'(a)')'          4.  "for", "while" and "if"'
-write(io,'(a)')'          5.  Commands, text, files and macros'
-write(io,'(a)')'          6.  Census example'
-write(io,'(a)')'          7.  Partial differential equation'
-write(io,'(a)')'          8.  Eigenvalue sensitivity example'
-write(io,'(a)')'          9.  Syntax diagrams'
-write(io,'(a)')'         10.  The parser-interpreter'
-write(io,'(a)')'         11.  The numerical algorithms'
-write(io,'(a)')'         12.  "flop" and "chop"'
-write(io,'(a)')'         13.  Communicating with other programs'
-write(io,'(a)')'         Appendix.  The HELP file'
-write(io,'(a)')''
-write(io,'(a)')'6/24/81'
-write(io,'(a)')''
-write(io,'(a)')'   MAT88 is an interactive computer program that serves as a convenient'
-write(io,'(a)')'   "laboratory" for computations involving matrices. It provides easy'
-write(io,'(a)')'   access to matrix software developed by the LINPACK and EISPACK'
-write(io,'(a)')'   projects [1-3]. The capabilities range from standard tasks such'
-write(io,'(a)')'   as solving simultaneous linear equations and inverting matrices,'
-write(io,'(a)')'   through symmetric and nonsymmetric eigenvalue problems, to fairly'
-write(io,'(a)')'   sophisticated matrix tools such as the singular value decomposition.'
-write(io,'(a)')''
-write(io,'(a)')'   It is expected that one of MAT88''s primary uses will be in the'
-write(io,'(a)')'   classroom. It should be useful in introductory courses in applied'
-write(io,'(a)')'   linear algebra, as well as more advanced courses in numerical'
-write(io,'(a)')'   analysis, matrix theory, statistics and applications of matrices'
-write(io,'(a)')'   to other disciplines. In nonacademic settings, MAT88 can serve as a'
-write(io,'(a)')'   "desk calculator" for the quick solution of small problems involving'
-write(io,'(a)')'   matrices.'
-write(io,'(a)')''
-write(io,'(a)')'   The program is written in Fortran and is designed to be readily'
-write(io,'(a)')'   installed under any operating system which permits interactive'
-write(io,'(a)')'   execution of Fortran programs. The resources required are fairly'
-write(io,'(a)')'   modest. There are less than 7000 lines of Fortran source code,'
-write(io,'(a)')'   including the LINPACK and EISPACK subroutines used. With proper use'
-write(io,'(a)')'   of overlays, it is possible run the system on a minicomputer with'
-write(io,'(a)')'   only 32K bytes of memory.'
-write(io,'(a)')''
-write(io,'(a)')'   The size of the matrices that can be handled in MAT88 depends upon the'
-write(io,'(a)')'   amount of storage that is set aside when the system is compiled on a'
-write(io,'(a)')'   particular machine. We have found that an allocation of 5000 words'
-write(io,'(a)')'   for matrix elements is usually quite satisfactory. This provides'
-write(io,'(a)')'   room for several 20 by 20 matrices, for example. One implementation'
-write(io,'(a)')'   on a virtual memory system provides 100,000 elements. Since most of'
-write(io,'(a)')'   the algorithms used access memory in a sequential fashion, the large'
-write(io,'(a)')'   amount of allocated storage causes no difficulties.'
-write(io,'(a)')''
-write(io,'(a)')'   In some ways, MAT88 resembles SPEAKEASY [4] and, to a lesser extent,'
-write(io,'(a)')'   APL. All are interactive terminal languages that ordinarily accept'
-write(io,'(a)')'   single-line commands or statements, process them immediately, and print'
-write(io,'(a)')'   the results. All have arrays or matrices as principal data types. But'
-write(io,'(a)')'   for MAT88, the matrix is the only data type (although scalars, vectors'
-write(io,'(a)')'   and text are special cases), the underlying system is portable and'
-write(io,'(a)')'   requires fewer resources, and the supporting subroutines are more'
-write(io,'(a)')'   powerful and, in some cases, have better numerical properties.'
-write(io,'(a)')''
-write(io,'(a)')'   Together, LINPACK and EISPACK represent the state of the art in'
-write(io,'(a)')'   software for matrix computation. EISPACK is a package of over 70'
-write(io,'(a)')'   Fortran subroutines for various matrix eigenvalue computations that are'
-write(io,'(a)')'   based for the most part on Algol procedures published by Wilkinson,'
-write(io,'(a)')'   Reinsch and their colleagues [5]. LINPACK is a package of 40 Fortran'
-write(io,'(a)')'   subroutines (in each of four data types) for solving and analyzing'
-write(io,'(a)')'   simultaneous linear equations and related matrix problems. Since MAT88'
-write(io,'(a)')'   is not primarily concerned with either execution time efficiency or'
-write(io,'(a)')'   storage savings, it ignores most of the special matrix properties that'
-write(io,'(a)')'   LINPACK and EISPACK subroutines use to advantage. Consequently, only'
-write(io,'(a)')'   8 subroutines from LINPACK and 5 from EISPACK are actually involved.'
-write(io,'(a)')''
-write(io,'(a)')'   In more advanced applications, MAT88 can be used in conjunction with'
-write(io,'(a)')'   other programs in several ways. It is possible to define new MAT88'
-write(io,'(a)')'   functions and add them to the system. With most operating systems,'
-write(io,'(a)')'   it is possible to use the local file system to pass matrices between'
-write(io,'(a)')'   MAT88 and other programs. MAT88 command and statement input can be'
-write(io,'(a)')'   obtained from a local file instead of from the terminal. The most'
-write(io,'(a)')'   power and flexibility is obtained by using MAT88 as a subroutine'
-write(io,'(a)')'   which is called by other programs.'
-write(io,'(a)')''
-write(io,'(a)')'   This document first gives an overview of MAT88 from the user''s'
-write(io,'(a)')'   point of view. Several extended examples involving data fitting,'
-write(io,'(a)')'   partial differential equations, eigenvalue sensitivity and other'
-write(io,'(a)')'   topics are included. A formal definition of the MAT88 language and'
-write(io,'(a)')'   an brief description of the parser and interpreter are given. The'
-write(io,'(a)')'   system was designed and programmed using techniques described by'
-write(io,'(a)')'   Wirth [6], implemented in nonrecursive, portable Fortran. There is'
-write(io,'(a)')'   a brief discussion of some of the matrix algorithms and of their'
-write(io,'(a)')'   numerical properties. The final section describes how MAT88 can be'
-write(io,'(a)')'   used with other programs. The appendix includes the HELP documentation'
-write(io,'(a)')'   available on-line.'
-write(io,'(a)')''
-write(io,'(a)')'1.  ELEMENTARY OPERATIONS'
-write(io,'(a)')''
-write(io,'(a)')'   MAT88 works with essentially only one kind of object, a'
-write(io,'(a)')'   rectangular matrix with complex elements. If the imaginary parts'
-write(io,'(a)')'   of the elements are all zero, they are not printed, but they'
-write(io,'(a)')'   still occupy storage. In some situations, special meaning is'
-write(io,'(a)')'   attached to 1 by 1 matrices, that is scalars, and to 1 by n and m'
-write(io,'(a)')'   by 1 matrices, that is row and column vectors.'
-write(io,'(a)')''
-write(io,'(a)')'   Matrices can be introduced into MAT88 in four different'
-write(io,'(a)')'   ways:'
-write(io,'(a)')''
-write(io,'(a)')'           --  Explicit list of elements,'
-write(io,'(a)')'           --  Use of "for" and "while" statements,'
-write(io,'(a)')'           --  Read from an external file,'
-write(io,'(a)')'           --  Execute an external Fortran program.'
-write(io,'(a)')''
-write(io,'(a)')'   The explicit list is surrounded by angle brackets, ''<'' and ''>'', and'
-write(io,'(a)')'   uses the semicolon '';'' to indicate the ends of the rows. For example,'
-write(io,'(a)')'   the input line'
-write(io,'(a)')''
-write(io,'(a)')'      A = <1 2 3; 4 5 6; 7 8 9>'
-write(io,'(a)')''
-write(io,'(a)')'   will result in the output'
-write(io,'(a)')''
-write(io,'(a)')'      A     ='
-write(io,'(a)')''
-write(io,'(a)')'          1.    2.   3.'
-write(io,'(a)')'          4.    5.   6.'
-write(io,'(a)')'          7.    8.   9.'
-write(io,'(a)')''
-write(io,'(a)')'   The matrix A will be saved for later use. The individual'
-write(io,'(a)')'   elements are separated by commas or blanks and can be any MAT88'
-write(io,'(a)')'   expressions, for example'
-write(io,'(a)')''
-write(io,'(a)')'      x = < -1.3, 4/5, 4*atan(1) >'
-write(io,'(a)')''
-write(io,'(a)')'   results in'
-write(io,'(a)')''
-write(io,'(a)')'      X     ='
-write(io,'(a)')''
-write(io,'(a)')'        -1.3000   0.8000   3.1416'
-write(io,'(a)')''
-write(io,'(a)')'   The elementary functions available include sqrt, log, exp, sin,'
-write(io,'(a)')'   cos, atan, abs, round, real, imag, and conjg.'
-write(io,'(a)')''
-write(io,'(a)')'   Large matrices can be spread across several input lines,'
-write(io,'(a)')'   with the carriage returns replacing the semicolons. The above'
-write(io,'(a)')'   matrix could also have been produced by'
-write(io,'(a)')''
-write(io,'(a)')'      A = < 1 2 3'
-write(io,'(a)')'            4 5 6'
-write(io,'(a)')'            7 8 9 >'
-write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'   Matrices can be input from the local file system. Say a'
-write(io,'(a)')'   file named ''xyz'' contains five lines of text,'
-write(io,'(a)')''
-write(io,'(a)')'      A = <'
-write(io,'(a)')'      1 2 3'
-write(io,'(a)')'      4 5 6'
-write(io,'(a)')'      7 8 9'
-write(io,'(a)')'      >;'
-write(io,'(a)')''
-write(io,'(a)')'   then the MAT88 statement exec(''xyz'') reads the matrix and'
-write(io,'(a)')'   assigns it to A .'
-write(io,'(a)')''
-write(io,'(a)')'   The "for" statement allows the generation of matrices whose'
-write(io,'(a)')'   elements are given by simple formulas. Our example matrix A'
-write(io,'(a)')'   could also have been produced by'
-write(io,'(a)')''
-write(io,'(a)')'      for i = 1:3, for j = 1:3, a(i,j) = 3*(i-1)+j;'
-write(io,'(a)')''
-write(io,'(a)')'   The semicolon at the end of the line suppresses the printing,'
-write(io,'(a)')'   which in this case would have been nine versions of A with'
-write(io,'(a)')'   changing elements.'
-write(io,'(a)')''
-write(io,'(a)')'   Several statements may be given on a line, separated by'
-write(io,'(a)')'   semicolons or commas.'
-write(io,'(a)')''
-write(io,'(a)')'   Two consecutive periods anywhere on a line indicate'
-write(io,'(a)')'   continuation. The periods and any following characters are'
-write(io,'(a)')'   deleted, then another line is input and concatenated onto the'
-write(io,'(a)')'   previous line.'
-write(io,'(a)')''
-write(io,'(a)')'   Two consecutive slashes anywhere on a line cause the'
-write(io,'(a)')'   remainder of the line to be ignored. This is useful for'
-write(io,'(a)')'   inserting comments.'
-write(io,'(a)')''
-write(io,'(a)')'   Names of variables are formed by a letter, followed by any'
-write(io,'(a)')'   number of letters and digits, but only the first 32 characters are'
-write(io,'(a)')'   remembered.'
-write(io,'(a)')''
-write(io,'(a)')'   The special character prime ('') is used to denote the'
-write(io,'(a)')'   transpose of a matrix, so'
-write(io,'(a)')''
-write(io,'(a)')'      x = x'''
-write(io,'(a)')''
-write(io,'(a)')'   changes the row vector above into the column vector'
-write(io,'(a)')''
-write(io,'(a)')'      X     ='
-write(io,'(a)')''
-write(io,'(a)')'        -1.3000'
-write(io,'(a)')'         0.8000'
-write(io,'(a)')'         3.1416'
-write(io,'(a)')''
-write(io,'(a)')'   Individual matrix elements may be referenced by enclosing'
-write(io,'(a)')'   their subscripts in parentheses. When any element is changed,'
-write(io,'(a)')'   the entire matrix is reprinted. For example, using the above'
-write(io,'(a)')'   matrix,'
-write(io,'(a)')''
-write(io,'(a)')'      a(3,3) = a(1,3) + a(3,1)'
-write(io,'(a)')''
-write(io,'(a)')'   results in'
-write(io,'(a)')''
-write(io,'(a)')'      A     ='
-write(io,'(a)')''
-write(io,'(a)')'          1.    2.    3.'
-write(io,'(a)')'          4.    5.    6.'
-write(io,'(a)')'          7.    8.   10.'
-write(io,'(a)')''
-write(io,'(a)')'   Addition, subtraction and multiplication of matrices are'
-write(io,'(a)')'   denoted by +, -, and * . The operations are performed whenever'
-write(io,'(a)')'   the matrices have the proper dimensions. For example, with the'
-write(io,'(a)')'   above A and x, the expressions A + x and x*A are incorrect'
-write(io,'(a)')'   because A is 3 by 3 and x is now 3 by 1. However,'
-write(io,'(a)')''
-write(io,'(a)')'      b = A*x'
-write(io,'(a)')''
-write(io,'(a)')'   is correct and results in the output'
-write(io,'(a)')''
-write(io,'(a)')'      B     ='
-write(io,'(a)')''
-write(io,'(a)')'         9.7248'
-write(io,'(a)')'        17.6496'
-write(io,'(a)')'        28.7159'
-write(io,'(a)')''
-write(io,'(a)')'   Note that both upper and lower case letters are allowed for input'
-write(io,'(a)')'   (on those systems which have both).'
-write(io,'(a)')''
-write(io,'(a)')'   There are two "matrix division" symbols in MAT88, \ and / .'
-write(io,'(a)')'   (If your terminal does not have a backslash, use $ instead, or'
-write(io,'(a)')'   see "char".) If A and B are matrices, then A\B and B/A correspond'
-write(io,'(a)')'   formally to left and right multiplication of B by the inverse of'
-write(io,'(a)')'   A, that is inv(A)*B and B*inv(A), but the result is obtained'
-write(io,'(a)')'   directly without the computation of the inverse. In the scalar'
-write(io,'(a)')'   case, 3\1 and 1/3 have the same value, namely one-third. In'
-write(io,'(a)')'   general, A\B denotes the solution X to the equation A*X = B and'
-write(io,'(a)')'   B/A denotes the solution to X*A = B.'
-write(io,'(a)')''
-write(io,'(a)')'   Left division, A\B, is defined whenever B has as many rows'
-write(io,'(a)')'   as A. If A is square, it is factored using Gaussian'
-write(io,'(a)')'   elimination. The factors are used to solve the equations'
-write(io,'(a)')'   A*X(:,j) = B(:,j) where B(:,j) denotes the j-th column of B. The'
-write(io,'(a)')'   result is a matrix X with the same dimensions as B. If A is'
-write(io,'(a)')'   nearly singular (according to the LINPACK condition estimator,'
-write(io,'(a)')'   RCOND), a warning message is printed. If A is not square, it is'
-write(io,'(a)')'   factored using Householder orthogonalization with column'
-write(io,'(a)')'   pivoting. The factors are used to solve the under- or'
-write(io,'(a)')'   overdetermined equations in a least squares sense. The result is'
-write(io,'(a)')'   an m by n matrix X where m is the number of columns of A and n is'
-write(io,'(a)')'   the number of columns of B . Each column of X has at most k'
-write(io,'(a)')'   nonzero components, where k is the effective rank of A .'
-write(io,'(a)')''
-write(io,'(a)')'   Right division, B/A, can be defined in terms of left'
-write(io,'(a)')'   division by B/A = (A''\B'')''.'
-write(io,'(a)')''
-write(io,'(a)')'   For example, since our vector b was computed as A*x, the'
-write(io,'(a)')'   statement'
-write(io,'(a)')''
-write(io,'(a)')'      y = A\b'
-write(io,'(a)')''
-write(io,'(a)')'   results in'
-write(io,'(a)')''
-write(io,'(a)')'      Y     ='
-write(io,'(a)')''
-write(io,'(a)')'        -1.3000'
-write(io,'(a)')'         0.8000'
-write(io,'(a)')'         3.1416'
-write(io,'(a)')''
-write(io,'(a)')'   Of course, y is not exactly equal to x because of the'
-write(io,'(a)')'   roundoff errors involved in both A*x and A\b , but we are not'
-write(io,'(a)')'   printing enough digits to see the difference. The result of the'
-write(io,'(a)')'   statement'
-write(io,'(a)')''
-write(io,'(a)')'      e = x - y'
-write(io,'(a)')''
-write(io,'(a)')'   depends upon the particular computer being used. In one case it'
-write(io,'(a)')'   produces'
-write(io,'(a)')''
-write(io,'(a)')'      E     ='
-write(io,'(a)')''
-write(io,'(a)')'         1.0e-15 *'
-write(io,'(a)')''
-write(io,'(a)')'           .3053'
-write(io,'(a)')'          -.2498'
-write(io,'(a)')'           .0000'
-write(io,'(a)')''
-write(io,'(a)')'   The quantity 1.0e-15 is a scale factor which multiplies all the'
-write(io,'(a)')'   components which follow. Thus our vectors x and y actually'
-write(io,'(a)')'   agree to about 15 decimal places on this computer.'
-write(io,'(a)')''
-write(io,'(a)')'   It is also possible to obtain element-by-element'
-write(io,'(a)')'   multiplicative operations. If A and B have the same dimensions,'
-write(io,'(a)')'   then A .* B denotes the matrix whose elements are simply the'
-write(io,'(a)')'   products of the individual elements of A and B . The expressions'
-write(io,'(a)')'   A ./ B and A .\ B give the quotients of the individual elements.'
-write(io,'(a)')''
-write(io,'(a)')'   There are several possible output formats. The statement'
-write(io,'(a)')''
-write(io,'(a)')'      long, x'
-write(io,'(a)')''
-write(io,'(a)')'   results in'
-write(io,'(a)')''
-write(io,'(a)')'      X     ='
-write(io,'(a)')''
-write(io,'(a)')'         -1.300000000000000'
-write(io,'(a)')'           .800000000000000'
-write(io,'(a)')'          3.141592653589793'
-write(io,'(a)')''
-write(io,'(a)')'   The statement'
-write(io,'(a)')''
-write(io,'(a)')'      short'
-write(io,'(a)')''
-write(io,'(a)')'   restores the original format.'
-write(io,'(a)')''
-write(io,'(a)')'   The expression A**p means A to the p-th power. It is'
-write(io,'(a)')'   defined if A is a square matrix and p is a scalar. If p is an'
-write(io,'(a)')'   integer greater than one, the power is computed by repeated'
-write(io,'(a)')'   multiplication. For other values of p the calculation involves'
-write(io,'(a)')'   the eigenvalues and eigenvectors of A.'
-write(io,'(a)')''
-write(io,'(a)')'   Previously defined matrices and matrix expressions can be'
-write(io,'(a)')'   used inside brackets to generate larger matrices, for example'
-write(io,'(a)')''
-write(io,'(a)')'      C = <A, b; <4 2 0>*x, x''>'
-write(io,'(a)')''
-write(io,'(a)')'   results in'
-write(io,'(a)')''
-write(io,'(a)')'      C     ='
-write(io,'(a)')''
-write(io,'(a)')'         1.0000   2.0000   3.0000   9.7248'
-write(io,'(a)')'         4.0000   5.0000   6.0000  17.6496'
-write(io,'(a)')'         7.0000   8.0000  10.0000  28.7159'
-write(io,'(a)')'        -3.6000  -1.3000   0.8000   3.1416'
-write(io,'(a)')''
-write(io,'(a)')'   There are four predefined variables, "eps", "flop", "rand" and'
-write(io,'(a)')'   "eye". The variable "eps" is used as a tolerance is determining such'
-write(io,'(a)')'   things as near singularity and rank. Its initial value is the'
-write(io,'(a)')'   distance from 1.0 to the next largest floating point number on'
-write(io,'(a)')'   the particular computer being used. The user may reset this to'
-write(io,'(a)')'   any other value, including zero. "eps" is changed by "chop", which is'
-write(io,'(a)')'   described in section 12.'
-write(io,'(a)')''
-write(io,'(a)')'   The value of "rand" is a random variable, with a choice of a'
-write(io,'(a)')'   uniform or a normal distribution.'
-write(io,'(a)')''
-write(io,'(a)')'   The name "eye" is used in place of I to denote identity'
-write(io,'(a)')'   matrices because I is often used as a subscript or as sqrt(-1).'
-write(io,'(a)')'   The dimensions of "eye" are determined by context. For example,'
-write(io,'(a)')''
-write(io,'(a)')'      B = A + 3*eye'
-write(io,'(a)')''
-write(io,'(a)')'   adds 3 to the diagonal elements of A and'
-write(io,'(a)')''
-write(io,'(a)')'      X = eye/A'
-write(io,'(a)')''
-write(io,'(a)')'   is one of several ways in MAT88 to invert a matrix.'
-write(io,'(a)')''
-write(io,'(a)')'   "flop" provides a count of the number of floating point'
-write(io,'(a)')'   operations, or "flops", required for each calculation.'
-write(io,'(a)')''
-write(io,'(a)')'   A statement may consist of an expression alone, in which case a'
-write(io,'(a)')'   variable named "ans" is created and the result stored in "ans" for'
-write(io,'(a)')'   possible future use. Thus'
-write(io,'(a)')''
-write(io,'(a)')'      A\A - eye'
-write(io,'(a)')''
-write(io,'(a)')'   is the same as'
-write(io,'(a)')''
-write(io,'(a)')'      ans = A\A - eye'
-write(io,'(a)')''
-write(io,'(a)')'   (Roundoff error usually causes this result to be a matrix of'
-write(io,'(a)')'   "small" numbers, rather than all zeros.)'
-write(io,'(a)')''
-write(io,'(a)')'   All computations are done using either single or double'
-write(io,'(a)')'   precision real arithmetic, whichever is appropriate for the'
-write(io,'(a)')'   particular computer. There is no mixed-precision arithmetic.'
-write(io,'(a)')'   The Fortran COMPLEX data type is not used because many systems'
-write(io,'(a)')'   create unnecessary underflows and overflows with complex'
-write(io,'(a)')'   operations and because some systems do not allow double precision'
-write(io,'(a)')'   complex arithmetic.'
-write(io,'(a)')''
-write(io,'(a)')'2.  MAT88 FUNCTIONS'
-write(io,'(a)')''
-write(io,'(a)')'   Much of MAT88''s computational power comes from the various'
-write(io,'(a)')'   matrix functions available. The current list includes:'
-write(io,'(a)')''
-write(io,'(a)')'      inv(A)          - Inverse.'
-write(io,'(a)')'      det(A)          - Determinant.'
-write(io,'(a)')'      cond(A)         - Condition number.'
-write(io,'(a)')'      rcond(A)        - A measure of nearness to singularity.'
-write(io,'(a)')'      eig(A)          - Eigenvalues and eigenvectors.'
-write(io,'(a)')'      schur(A)        - Schur triangular form.'
-write(io,'(a)')'      hess(A)         - Hessenberg or tridiagonal form.'
-write(io,'(a)')'      poly(A)         - Characteristic polynomial.'
-write(io,'(a)')'      svd(A)          - Singular value decomposition.'
-write(io,'(a)')'      pinv(A,eps)     - Pseudo-inverse with optional tolerance.'
-write(io,'(a)')'      rank(A,eps)     - Matrix rank with optional tolerance.'
-write(io,'(a)')'      lu(A)           - Factors from Gaussian elimination.'
-write(io,'(a)')'      chol(A)         - Factor from Cholesky factorization.'
-write(io,'(a)')'      qr(A)           - Factors from Householder orthogonalization.'
-write(io,'(a)')'      rref(A)         - Reduced row echelon form.'
-write(io,'(a)')'      orth(A)         - Orthogonal vectors spanning range of A.'
-write(io,'(a)')'      exp(A)          - e to the A.'
-write(io,'(a)')'      log(A)          - Natural logarithm.'
-write(io,'(a)')'      sqrt(A)         - Square root.'
-write(io,'(a)')'      sin(A)          - Trigonometric sine.'
-write(io,'(a)')'      cos(A)          - Cosine.'
-write(io,'(a)')'      atan(A)         - Arctangent.'
-write(io,'(a)')'      round(A)        - Round the elements to nearest integers.'
-write(io,'(a)')'      abs(A)          - Absolute value of the elements.'
-write(io,'(a)')'      real(A)         - Real parts of the elements.'
-write(io,'(a)')'      imag(A)         - Imaginary parts of the elements.'
-write(io,'(a)')'      conjg(A)        - Complex conjugate.'
-write(io,'(a)')'      sum(A)          - Sum of the elements.'
-write(io,'(a)')'      prod(A)         - Product of the elements.'
-write(io,'(a)')'      diag(A)         - Extract or create diagonal matrices.'
-write(io,'(a)')'      tril(A)         - Lower triangular part of A.'
-write(io,'(a)')'      triu(A)         - Upper triangular part of A.'
-write(io,'(a)')'      norm(A,p)       - Norm with p = 1, 2 or ''Infinity''.'
-write(io,'(a)')'      eye(m,n)        - Portion of identity matrix.'
-write(io,'(a)')'      rand(m,n)       - Matrix with random elements.'
-write(io,'(a)')'      ones(m,n)       - Matrix of all ones.'
-write(io,'(a)')'      magic(n)        - Interesting test matrices.'
-write(io,'(a)')'      invh(n)         - Inverse Hilbert matrices.'
-write(io,'(a)')'      roots(C)        - Roots of polynomial with coefficients C.'
-write(io,'(a)')'      display(A,p)    - Print base p representation of A.'
-write(io,'(a)')'      kron(A,B)       - Kronecker tensor product of A and B.'
-write(io,'(a)')'      plot(X,Y)       - Plot Y as a function of X .'
-write(io,'(a)')'      rat(A)          - Find "simple" rational approximation to A.'
-write(io,'(a)')'      user(A)         - Function defined by external program.'
-write(io,'(a)')''
-write(io,'(a)')'   Some of these functions have different interpretations when'
-write(io,'(a)')'   the argument is a matrix or a vector and some of them have'
-write(io,'(a)')'   additional optional arguments. Details are given in the HELP'
-write(io,'(a)')'   document in the appendix.'
-write(io,'(a)')''
-write(io,'(a)')'   Several of these functions can be used in a generalized'
-write(io,'(a)')'   assignment statement with two or three variables on the left hand'
-write(io,'(a)')'   side. For example'
-write(io,'(a)')''
-write(io,'(a)')'      <X,D> = eig(A)'
-write(io,'(a)')''
-write(io,'(a)')'   stores the eigenvectors of A in the matrix X and a diagonal'
-write(io,'(a)')'   matrix containing the eigenvalues in the matrix D. The statement'
-write(io,'(a)')''
-write(io,'(a)')'      eig(A)'
-write(io,'(a)')''
-write(io,'(a)')'   simply computes the eigenvalues and stores them in "ans".'
-write(io,'(a)')''
-write(io,'(a)')'   Future versions of MAT88 will probably include additional'
-write(io,'(a)')'   functions, since they can easily be added to the system.'
-write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'3.  ROWS, COLUMNS AND SUBMATRICES'
-write(io,'(a)')''
-write(io,'(a)')'   Individual elements of a matrix can be accessed by giving'
-write(io,'(a)')'   their subscripts in parentheses, eg. A(1,2), x(i), TAB(ind(k)+1).'
-write(io,'(a)')'   An expression used as a subscript is rounded to the nearest'
-write(io,'(a)')'   integer.'
-write(io,'(a)')''
-write(io,'(a)')'   Individual rows and columns can be accessed using a colon'
-write(io,'(a)')'   '':'' (or a ''|'') for the free subscript. For example, A(1,:) is the'
-write(io,'(a)')'   first row of A and A(:,j) is the j-th column. Thus'
-write(io,'(a)')''
-write(io,'(a)')'      A(i,:) = A(i,:) + c*A(k,:)'
-write(io,'(a)')''
-write(io,'(a)')'   adds c times the k-th row of A to the i-th row.'
-write(io,'(a)')''
-write(io,'(a)')'   The colon is used in several other ways in MAT88, but all'
-write(io,'(a)')'   of the uses are based on the following definition.'
-write(io,'(a)')''
-write(io,'(a)')'      j:k    is the same as  <j, j+1, ..., k>'
-write(io,'(a)')'      j:k    is empty if  j > k .'
-write(io,'(a)')'      j:i:k  is the same as  <j, j+i, j+2i, ..., k>'
-write(io,'(a)')'      j:i:k  is empty if  i > 0 and j > k or if i < 0 and j < k .'
-write(io,'(a)')''
-write(io,'(a)')'   The colon is usually used with integers, but it is possible to'
-write(io,'(a)')'   use arbitrary real scalars as well. Thus'
-write(io,'(a)')''
-write(io,'(a)')'      1:4  is the same as  <1, 2, 3, 4>'
-write(io,'(a)')'      0: 0.1: 0.5 is the same as <0.0, 0.1, 0.2, 0.3, 0.4, 0.5>'
-write(io,'(a)')''
-write(io,'(a)')'   In general, a subscript can be a vector. If X and V are'
-write(io,'(a)')'   vectors, then X(V) is <X(V(1)), X(V(2)), ..., X(V(n))> . This can'
-write(io,'(a)')'   also be used with matrices. If V has m components and W has n'
-write(io,'(a)')'   components, then A(V,W) is the m by n matrix formed from the'
-write(io,'(a)')'   elements of A whose subscripts are the elements of V and W.'
-write(io,'(a)')'   Combinations of the colon notation and the indirect subscripting'
-write(io,'(a)')'   allow manipulation of various submatrices. For example,'
-write(io,'(a)')''
-write(io,'(a)')'      A(<1,5>,:) = A(<5,1>,:)  interchanges rows 1 and 5 of A.'
-write(io,'(a)')'      A(2:k,1:n)  is the submatrix formed from rows 2 through k'
-write(io,'(a)')'         and columns 1 through n of A .'
-write(io,'(a)')'      A(:,<3 1 2>)  is a permutation of the first three columns.'
-write(io,'(a)')''
-write(io,'(a)')'   The notation A(:) has a special meaning. On the right hand'
-write(io,'(a)')'   side of an assignment statement, it denotes all the elements of'
-write(io,'(a)')'   A, regarded as a single column. When an expression is assigned'
-write(io,'(a)')'   to A(:), the current dimensions of A, rather than of the'
-write(io,'(a)')'   expression, are used.'
-write(io,'(a)')''
-write(io,'(a)')'4.  FOR, WHILE AND IF'
-write(io,'(a)')''
-write(io,'(a)')'   The "for" clause allows statements to be repeated a specific'
-write(io,'(a)')'   number of times. The general form is'
-write(io,'(a)')''
-write(io,'(a)')'      for variable = expr, statement, ..., statement, end'
-write(io,'(a)')''
-write(io,'(a)')'   The "end" and the comma before it may be omitted. In general, the'
-write(io,'(a)')'   expression may be a matrix, in which case the columns are stored'
-write(io,'(a)')'   one at a time in the variable and the following statements, up to'
-write(io,'(a)')'   the "end" or the end of the line, are executed. The expression is'
-write(io,'(a)')'   often of the form j:k, and its "columns" are simply the scalars'
-write(io,'(a)')'   from j to k. Some examples (assume n has already been assigned a'
-write(io,'(a)')'   value):'
-write(io,'(a)')''
-write(io,'(a)')'      for i = 1:n, for j = 1:n, A(i,j) = 1/(i+j-1);'
-write(io,'(a)')''
-write(io,'(a)')'   generates the Hilbert matrix.'
-write(io,'(a)')''
-write(io,'(a)')'      for j = 2:n-1, for i = j:n-1, ...'
-write(io,'(a)')'         A(i,j) = 0; end; A(j,j) = j; end; A'
-write(io,'(a)')''
-write(io,'(a)')'   changes all but the "outer edge" of the lower triangle and then'
-write(io,'(a)')'   prints the final matrix.'
-write(io,'(a)')''
-write(io,'(a)')'      for h = 1.0: -0.1: -1.0, (<h, cos(pi*h)>)'
-write(io,'(a)')''
-write(io,'(a)')'   prints a table of cosines.'
-write(io,'(a)')''
-write(io,'(a)')'      <X,D> = eig(A); for v = X, v, A*v'
-write(io,'(a)')''
-write(io,'(a)')'   displays eigenvectors, one at a time.'
-write(io,'(a)')''
-write(io,'(a)')'        The "while" clause allows statements to be repeated an'
-write(io,'(a)')'   indefinite number of times. The general form is'
-write(io,'(a)')''
-write(io,'(a)')'      while expr relop expr,   statement,..., statement, end'
-write(io,'(a)')''
-write(io,'(a)')'   where relop is =, <, >, <=, >=, or <> (not equal). The'
-write(io,'(a)')'   statements are repeatedly executed as long as the indicated'
-write(io,'(a)')'   comparison between the real parts of the first components of the'
-write(io,'(a)')'   two expressions is true. Here are two examples. (Exercise for'
-write(io,'(a)')'   the reader: What do these segments do?)'
-write(io,'(a)')''
-write(io,'(a)')'      eps = 1;'
-write(io,'(a)')'      while 1 + eps > 1, eps = eps/2;'
-write(io,'(a)')'      eps = 2*eps'
-write(io,'(a)')''
-write(io,'(a)')'      E = 0*A;  F = E + eye; n = 1;'
-write(io,'(a)')'      while norm(E+F-E,1) > 0, E = E + F; F = A*F/n; n = n + 1;'
-write(io,'(a)')'      E'
-write(io,'(a)')''
-write(io,'(a)')'   The IF clause allows conditional execution of statements.'
-write(io,'(a)')'   The general form is'
-write(io,'(a)')''
-write(io,'(a)')'      if expr relop expr,  statement, ..., statement,'
-write(io,'(a)')'         else statement, ..., statement'
-write(io,'(a)')''
-write(io,'(a)')'   The first group of statements are executed if the relation is'
-write(io,'(a)')'   true and the second group are executed if the relation is false.'
-write(io,'(a)')'   The "else" and the statements following it may be omitted. For'
-write(io,'(a)')'   example,'
-write(io,'(a)')''
-write(io,'(a)')'      if abs(i-j) = 2, A(i,j) = 0;'
-write(io,'(a)')''
-write(io,'(a)')'5.  COMMANDS, TEXT, FILES AND MACROS.'
-write(io,'(a)')''
-write(io,'(a)')'   MAT88 has several commands which control the output format and the'
-write(io,'(a)')'   overall execution of the system.'
-write(io,'(a)')''
-write(io,'(a)')'   The "help" command allows on-line access to short portions of text'
-write(io,'(a)')'   describing various operations, functions and special characters. The'
-write(io,'(a)')'   entire "help" document is reproduced in an appendix.'
-write(io,'(a)')''
-write(io,'(a)')'   Results are usually printed in a scaled fixed point format that shows'
-write(io,'(a)')'   4 or 5 significant figures. The commands "short", "long", "short e",'
-write(io,'(a)')'   "long e" and "long z" alter the output format, but do not alter the'
-write(io,'(a)')'   precision of the computations or the internal storage.'
-write(io,'(a)')''
-write(io,'(a)')'   The "who" and "what" commands provide information about the functions'
-write(io,'(a)')'   and variables that are currently defined.'
-write(io,'(a)')''
-write(io,'(a)')'   The "clear" command erases all variables, except "eps", "flop",'
-write(io,'(a)')'   "rand" and "eye". The statement A = <> indicates that a "0 by 0"'
-write(io,'(a)')'   matrix is to be stored in A. This causes A to be erased so that its'
-write(io,'(a)')'   storage can be used for other variables.'
-write(io,'(a)')''
-write(io,'(a)')'   The "quit" and "exit" commands cause return to the underlying operating'
-write(io,'(a)')'   system through the Fortran RETURN statement.'
-write(io,'(a)')''
-write(io,'(a)')'   MAT88 has a limited facility for handling text. Any string of'
-write(io,'(a)')'   characters delineated by quotes (with two quotes used to allow one'
-write(io,'(a)')'   quote within the string) is saved as a vector of integer values with'
-write(io,'(a)')'   ''1'' = 1, ''A'' = 10, '' '' = 36, etc. (The complete list is in the appendix'
-write(io,'(a)')'   under "char".) For example'
-write(io,'(a)')''
-write(io,'(a)')'      ''2*A + 3''  is the same as  <2 43 10 36 41 36 3>'
-write(io,'(a)')''
-write(io,'(a)')'   It is possible, though seldom very meaningful, to use such'
-write(io,'(a)')'   strings in matrix operations. More frequently, the text is used'
-write(io,'(a)')'   as a special argument to various functions.'
-write(io,'(a)')''
-write(io,'(a)')'      norm(A,''inf'')    computes the infinity norm of A .'
-write(io,'(a)')'      display(T)       prints the text stored in T .'
-write(io,'(a)')'      exec(''file'')     obtains MAT88 input from an external file.'
-write(io,'(a)')'      save(''file'')     stores all the current variables in a file.'
-write(io,'(a)')'      load(''file'')     retrieves all the variables from a file.'
-write(io,'(a)')'      print(''file'',X)  prints X on a file.'
-write(io,'(a)')'      diary(''file'')    makes a copy of the complete MAT88 session.'
-write(io,'(a)')''
-write(io,'(a)')'   The text can also be used in a limited string substitution'
-write(io,'(a)')'   macro facility. If a variable, say T, contains the source text'
-write(io,'(a)')'   for a MAT88 statement or expression, then the construction'
-write(io,'(a)')''
-write(io,'(a)')'      > T <'
-write(io,'(a)')''
-write(io,'(a)')'   causes T to be executed or evaluated. For example'
-write(io,'(a)')''
-write(io,'(a)')'      T = ''2*A + 3'';'
-write(io,'(a)')'      S = ''B = >T< + 5'''
-write(io,'(a)')'      A = 4;'
-write(io,'(a)')'      > S <'
-write(io,'(a)')''
-write(io,'(a)')'   produces'
-write(io,'(a)')''
-write(io,'(a)')'      B     ='
-write(io,'(a)')''
-write(io,'(a)')'         16.'
-write(io,'(a)')''
-write(io,'(a)')'   Some other examples are given under MACRO in the appendix. This'
-write(io,'(a)')'   facility is useful for fairly short statements and expressions.'
-write(io,'(a)')'   More complicated MAT88 "programs" should use the "exec" facility.'
-write(io,'(a)')''
-write(io,'(a)')'   The operations which access external files cannot be handled'
-write(io,'(a)')'   in a completely machine-independent manner by portable Fortran'
-write(io,'(a)')'   code. It is necessary for each particular installation to'
-write(io,'(a)')'   provide a subroutine which associates external text files with'
-write(io,'(a)')'   Fortran logical unit numbers.'
-write(io,'(a)')''
-write(io,'(a)')'6.  CENSUS EXAMPLE'
-write(io,'(a)')''
-write(io,'(a)')'   Our first extended example involves predicting the'
-write(io,'(a)')'   population of the United States in 1980 using extrapolation of'
-write(io,'(a)')'   various fits to the census data from 1900 through 1970. There'
-write(io,'(a)')'   are eight observations, so we begin with the MAT88 statement'
-write(io,'(a)')''
-write(io,'(a)')'      n = 8'
-write(io,'(a)')''
-write(io,'(a)')'   The values of the dependent variable, the population in millions,'
-write(io,'(a)')'   can be entered with'
-write(io,'(a)')''
-write(io,'(a)')'      y = < 75.995   91.972  105.711  123.203   ...'
-write(io,'(a)')'           131.669  150.697  179.323  203.212>'''
-write(io,'(a)')''
-write(io,'(a)')'   In order to produce a reasonably scaled matrix, the independent'
-write(io,'(a)')'   variable, time, is transformed from the interval [1900,1970] to'
-write(io,'(a)')'   [-1.00,0.75]. This can be accomplished directly with'
-write(io,'(a)')''
-write(io,'(a)')'      t = -1.0:0.25:0.75'
-write(io,'(a)')''
-write(io,'(a)')'   or in a fancier, but perhaps clearer, way with'
-write(io,'(a)')''
-write(io,'(a)')'      t = 1900:10:1970;   t = (t - 1940*ones(t))/40'
-write(io,'(a)')''
-write(io,'(a)')'   Either of these is equivalent to'
-write(io,'(a)')''
-write(io,'(a)')'      t = <-1 -.75 -.50 -.25 0 .25 .50 .75>'
-write(io,'(a)')''
-write(io,'(a)')'   The interpolating polynomial of degree n-1 involves an'
-write(io,'(a)')'   Vandermonde matrix of order n with elements that might be'
-write(io,'(a)')'   generated by'
-write(io,'(a)')''
-write(io,'(a)')'      for i = 1:n, for j = 1:n, a(i,j) = t(i)**(j-1);'
-write(io,'(a)')''
-write(io,'(a)')'   However, this results in an error caused by 0**0 when i = 5 and'
-write(io,'(a)')'   j = 1 . The preferable approach is'
-write(io,'(a)')''
-write(io,'(a)')'      A = ones(n,n);'
-write(io,'(a)')'      for i = 1:n, for j = 2:n, a(i,j) = t(i)*a(i,j-1);'
-write(io,'(a)')''
-write(io,'(a)')'   Now the statement'
-write(io,'(a)')''
-write(io,'(a)')'      cond(A)'
-write(io,'(a)')''
-write(io,'(a)')'   produces the output'
-write(io,'(a)')''
-write(io,'(a)')'      ans  ='
-write(io,'(a)')''
-write(io,'(a)')'         1.1819E+03'
-write(io,'(a)')''
-write(io,'(a)')'   which indicates that transformation of the time variable has'
-write(io,'(a)')'   resulted in a reasonably well conditioned matrix.'
-write(io,'(a)')''
-write(io,'(a)')'        The statement'
-write(io,'(a)')''
-write(io,'(a)')'      c = A\y'
-write(io,'(a)')''
-write(io,'(a)')'   results in'
-write(io,'(a)')''
-write(io,'(a)')'      C     ='
-write(io,'(a)')''
-write(io,'(a)')'        131.6690'
-write(io,'(a)')'         41.0406'
-write(io,'(a)')'        103.5396'
-write(io,'(a)')'        262.4535'
-write(io,'(a)')'       -326.0658'
-write(io,'(a)')'       -662.0814'
-write(io,'(a)')'        341.9022'
-write(io,'(a)')'        533.6373'
-write(io,'(a)')''
-write(io,'(a)')'   These are the coefficients in the interpolating polynomial'
-write(io,'(a)')''
-write(io,'(a)')'         n-1'
-write(io,'(a)')''
-write(io,'(a)')'         c  + c t + ... + c t'
-write(io,'(a)')'          1    2           n'
-write(io,'(a)')''
-write(io,'(a)')'   Our transformation of the time variable has resulted in t = 1'
-write(io,'(a)')'   corresponding to the year 1980. Consequently, the extrapolated'
-write(io,'(a)')'   population is simply the sum of the coefficients. This can be'
-write(io,'(a)')'   computed by'
-write(io,'(a)')''
-write(io,'(a)')'      p = sum(c)'
-write(io,'(a)')''
-write(io,'(a)')'   The result is'
-write(io,'(a)')''
-write(io,'(a)')'      P     ='
-write(io,'(a)')''
-write(io,'(a)')'        426.0950'
-write(io,'(a)')''
-write(io,'(a)')'   which indicates a 1980 population of over 426 million. Clearly,'
-write(io,'(a)')'   using the seventh degree interpolating polynomial to extrapolate'
-write(io,'(a)')'   even a fairly short distance beyond the end of the data interval'
-write(io,'(a)')'   is not a good idea.'
-write(io,'(a)')''
-write(io,'(a)')'   The coefficients in least squares fits by polynomials of'
-write(io,'(a)')'   lower degree can be computed using fewer than n columns of the'
-write(io,'(a)')'   matrix.'
-write(io,'(a)')''
-write(io,'(a)')'      for k = 1:n, c = A(:,1:k)\y,  p = sum(c)'
-write(io,'(a)')''
-write(io,'(a)')'   would produce the coefficients of these fits, as well as the'
-write(io,'(a)')'   resulting extrapolated population. If we do not want to print'
-write(io,'(a)')'   all the coefficients, we can simply generate a small table of'
-write(io,'(a)')'   populations predicted by polynomials of degrees zero through'
-write(io,'(a)')'   seven. We also compute the maximum deviation between the fitted'
-write(io,'(a)')'   and observed values.'
-write(io,'(a)')''
-write(io,'(a)')'      for k = 1:n, X = A(:,1:k);  c = X\y;  ...'
-write(io,'(a)')'         d(k) = k-1;  p(k) = sum(c);  e(k) = norm(X*c-y,''inf'');'
-write(io,'(a)')'      <d, p, e>'
-write(io,'(a)')''
-write(io,'(a)')'   The resulting output is'
-write(io,'(a)')''
-write(io,'(a)')'         0   132.7227  70.4892'
-write(io,'(a)')'         1   211.5101   9.8079'
-write(io,'(a)')'         2   227.7744   5.0354'
-write(io,'(a)')'         3   241.9574   3.8941'
-write(io,'(a)')'         4   234.2814   4.0643'
-write(io,'(a)')'         5   189.7310   2.5066'
-write(io,'(a)')'         6   118.3025   1.6741'
-write(io,'(a)')'         7   426.0950   0.0000'
-write(io,'(a)')''
-write(io,'(a)')'   The zeroth degree fit, 132.7 million, is the result of fitting a'
-write(io,'(a)')'   constant to the data and is simply the average. The results'
-write(io,'(a)')'   obtained with polynomials of degree one through four all appear'
-write(io,'(a)')'   reasonable. The maximum deviation of the degree four fit is'
-write(io,'(a)')'   slightly greater than the degree three, even though the sum of'
-write(io,'(a)')'   the squares of the deviations is less. The coefficients of the'
-write(io,'(a)')'   highest powers in the fits of degree five and six turn out to be'
-write(io,'(a)')'   negative and the predicted populations of less than 200 million'
-write(io,'(a)')'   are probably unrealistic. The hopefully absurd prediction of the'
-write(io,'(a)')'   interpolating polynomial concludes the table.'
-write(io,'(a)')''
-write(io,'(a)')'   We wish to emphasize that roundoff errors are not significant'
-write(io,'(a)')'   here. Nearly identical results would be obtained on other computers,'
-write(io,'(a)')'   or with other algorithms. The results simply indicate the difficulties'
-write(io,'(a)')'   associated with extrapolation of polynomial fits of even modest degree.'
-write(io,'(a)')''
-write(io,'(a)')'   A stabilized fit by a seventh degree polynomial can be obtained using'
-write(io,'(a)')'   the pseudoinverse, but it requires a fairly delicate choice of a'
-write(io,'(a)')'   tolerance. The statement'
-write(io,'(a)')''
-write(io,'(a)')'      s = svd(A)'
-write(io,'(a)')''
-write(io,'(a)')'   produces the singular values'
-write(io,'(a)')''
-write(io,'(a)')'      S     ='
-write(io,'(a)')''
-write(io,'(a)')'         3.4594'
-write(io,'(a)')'         2.2121'
-write(io,'(a)')'         1.0915'
-write(io,'(a)')'         0.4879'
-write(io,'(a)')'         0.1759'
-write(io,'(a)')'         0.0617'
-write(io,'(a)')'         0.0134'
-write(io,'(a)')'         0.0029'
-write(io,'(a)')''
-write(io,'(a)')'   We see that the last three singular values are less than 0.1 ,'
-write(io,'(a)')'   consequently, A can be approximately by a matrix of rank five with an'
-write(io,'(a)')'   error less than 0.1 . The Moore-Penrose pseudoinverse of this rank'
-write(io,'(a)')'   five matrix is obtained from the singular value decomposition with'
-write(io,'(a)')'   the following statements'
-write(io,'(a)')''
-write(io,'(a)')'      c = pinv(A,0.1)*y, p = sum(c), e = norm(a*c-y,''inf'')'
-write(io,'(a)')''
-write(io,'(a)')'   The output is'
-write(io,'(a)')''
-write(io,'(a)')'      C     ='
-write(io,'(a)')''
-write(io,'(a)')'       134.7972'
-write(io,'(a)')'        67.5055'
-write(io,'(a)')'        23.5523'
-write(io,'(a)')'         9.2834'
-write(io,'(a)')'         3.0174'
-write(io,'(a)')'         2.6503'
-write(io,'(a)')'        -2.8808'
-write(io,'(a)')'         3.2467'
-write(io,'(a)')''
-write(io,'(a)')'      P     ='
-write(io,'(a)')''
-write(io,'(a)')'       241.1720'
-write(io,'(a)')''
-write(io,'(a)')'      E     ='
-write(io,'(a)')''
-write(io,'(a)')'         3.9469'
-write(io,'(a)')''
-write(io,'(a)')'   The resulting seventh degree polynomial has coefficients which'
-write(io,'(a)')'   are much smaller than those of the interpolating polynomial given'
-write(io,'(a)')'   earlier. The predicted population and the maximum deviation are'
-write(io,'(a)')'   reasonable. Any choice of the tolerance between the fifth and sixth'
-write(io,'(a)')'   singular values would produce the same results, but choices outside'
-write(io,'(a)')'   this range result in pseudoinverses of different rank and do not work'
-write(io,'(a)')'   as well.'
-write(io,'(a)')''
-write(io,'(a)')'   The one term exponential approximation'
-write(io,'(a)')''
-write(io,'(a)')'        y(t) = k exp(pt)'
-write(io,'(a)')''
-write(io,'(a)')'   can be transformed into a linear approximation by taking logarithms.'
-write(io,'(a)')''
-write(io,'(a)')'        log(y(t)) = log k + pt'
-write(io,'(a)')''
-write(io,'(a)')'                  = c  + c t'
-write(io,'(a)')'                     1    2'
-write(io,'(a)')''
-write(io,'(a)')'   The following segment makes use of the fact that a function of a'
-write(io,'(a)')'   vector is the function applied to the individual components.'
-write(io,'(a)')''
-write(io,'(a)')'      X = A(:,1:2);'
-write(io,'(a)')'      c = X\log(y)'
-write(io,'(a)')'      p = exp(sum(c))'
-write(io,'(a)')'      e = norm(exp(X*c)-y,''inf'')'
-write(io,'(a)')''
-write(io,'(a)')'   The resulting output is'
-write(io,'(a)')''
-write(io,'(a)')'      C     ='
-write(io,'(a)')''
-write(io,'(a)')'         4.9083'
-write(io,'(a)')'         0.5407'
-write(io,'(a)')''
-write(io,'(a)')'      P     ='
-write(io,'(a)')''
-write(io,'(a)')'       232.5134'
-write(io,'(a)')''
-write(io,'(a)')'      E     ='
-write(io,'(a)')''
-write(io,'(a)')'         4.9141'
-write(io,'(a)')''
-write(io,'(a)')'   The predicted population and maximum deviation appear satisfactory and'
-write(io,'(a)')'   indicate that the exponential model is a reasonable one to consider.'
-write(io,'(a)')''
-write(io,'(a)')'   As a curiosity, we return to the degree six polynomial.  Since the'
-write(io,'(a)')'   coefficient of the high order term is negative and the value of the'
-write(io,'(a)')'   polynomial at t = 1 is positive, it must have a root at some value'
-write(io,'(a)')'   of t greater than one. The statements'
-write(io,'(a)')''
-write(io,'(a)')'      X = A(:,1:7);'
-write(io,'(a)')'      c = X\y;'
-write(io,'(a)')'      c = c(7:-1:1);  //reverse the order of the coefficients'
-write(io,'(a)')'      z = roots(c)'
-write(io,'(a)')''
-write(io,'(a)')'   produce'
-write(io,'(a)')''
-write(io,'(a)')'      Z     ='
-write(io,'(a)')''
-write(io,'(a)')'         1.1023-  0.0000*i'
-write(io,'(a)')'         0.3021+  0.7293*i'
-write(io,'(a)')'        -0.8790+  0.6536*i'
-write(io,'(a)')'        -1.2939-  0.0000*i'
-write(io,'(a)')'        -0.8790-  0.6536*i'
-write(io,'(a)')'         0.3021-  0.7293*i'
-write(io,'(a)')''
-write(io,'(a)')'   There is only one real, positive root. The corresponding time on'
-write(io,'(a)')'   the original scale is'
-write(io,'(a)')''
-write(io,'(a)')'      1940 + 40*real(z(1))'
-write(io,'(a)')''
-write(io,'(a)')'        =  1984.091'
-write(io,'(a)')''
-write(io,'(a)')'   We conclude that the United States population should become zero'
-write(io,'(a)')'   early in February of 1984.'
-write(io,'(a)')''
-write(io,'(a)')'7. PARTIAL DIFFERENTIAL EQUATION EXAMPLE'
-write(io,'(a)')''
-write(io,'(a)')'   Our second extended example is a boundary value problem for Laplace''s'
-write(io,'(a)')'   equation. The underlying physical problem involves the conductivity'
-write(io,'(a)')'   of a medium with cylindrical inclusions and is considered by Keller'
-write(io,'(a)')'   and Sachs [7].'
-write(io,'(a)')''
-write(io,'(a)')'        Find a function  u(x,y)  satisfying Laplace''s equation'
-write(io,'(a)')''
-write(io,'(a)')'                  u   + u   = 0'
-write(io,'(a)')'                   xx    yy'
-write(io,'(a)')''
-write(io,'(a)')'   The domain is a unit square with a quarter circle of radius rho removed'
-write(io,'(a)')'   from one corner. There are Neumann conditions on the top and bottom'
-write(io,'(a)')'   edges and Dirichlet conditions on the remainder of the boundary.'
-write(io,'(a)')''
-write(io,'(a)')'                            u  = 0'
-write(io,'(a)')'                             n'
-write(io,'(a)')''
-write(io,'(a)')'                        -------------'
-write(io,'(a)')'                       |             .'
-write(io,'(a)')'                       |             .'
-write(io,'(a)')'                       |              .'
-write(io,'(a)')'                       |               .  u = 1'
-write(io,'(a)')'                       |                 .'
-write(io,'(a)')'                       |                    .'
-write(io,'(a)')'                       |                       .'
-write(io,'(a)')'                u = 0  |                        |'
-write(io,'(a)')'                       |                        |'
-write(io,'(a)')'                       |                        |'
-write(io,'(a)')'                       |                        |  u = 1'
-write(io,'(a)')'                       |                        |'
-write(io,'(a)')'                       |                        |'
-write(io,'(a)')'                       |                        |'
-write(io,'(a)')'                        ------------------------'
-write(io,'(a)')''
-write(io,'(a)')'                                 u  = 0'
-write(io,'(a)')'                                  n'
-write(io,'(a)')''
-write(io,'(a)')'   The effective conductivity of an medium is then given by the integral'
-write(io,'(a)')'   along the left edge,'
-write(io,'(a)')''
-write(io,'(a)')'                               1'
-write(io,'(a)')'                    sigma = integral  u (0,y) dy'
-write(io,'(a)')'                              0        n'
-write(io,'(a)')''
-write(io,'(a)')'   It is of interest to study the relation between the radius rho and'
-write(io,'(a)')'   the conductivity sigma. In particular, as rho approaches one, sigma'
-write(io,'(a)')'   becomes infinite.'
-write(io,'(a)')''
-write(io,'(a)')'   Keller and Sachs use a finite difference approximation. The following'
-write(io,'(a)')'   technique makes use of the fact that the equation is actually Laplace''s'
-write(io,'(a)')'   equation and leads to a much smaller matrix problem to solve.'
-write(io,'(a)')''
-write(io,'(a)')'        Consider an approximate solution of the form'
-write(io,'(a)')''
-write(io,'(a)')'                    n      2j-1'
-write(io,'(a)')'              u =  sum  c r    cos(2j-1)t'
-write(io,'(a)')'                   j=1   j'
-write(io,'(a)')''
-write(io,'(a)')'   where r,t are polar coordinates (t is theta). The coefficients are'
-write(io,'(a)')'   to be determined. For any set of coefficients, this function already'
-write(io,'(a)')'   satisfies the differential equation because the basis functions are'
-write(io,'(a)')'   harmonic; it satisfies the normal derivative boundary condition on'
-write(io,'(a)')'   the bottom edge of the domain because we used cos t in preference to'
-write(io,'(a)')'   sin t ; and it satisfies the boundary condition on the left edge of'
-write(io,'(a)')'   the domain because we use only odd multiples of t .'
-write(io,'(a)')''
-write(io,'(a)')'   The computational task is to find coefficients so that the boundary'
-write(io,'(a)')'   conditions on the remaining edges are satisfied as well as possible. To'
-write(io,'(a)')'   accomplish this, pick m points (r,t) on the remaining edges. It is'
-write(io,'(a)')'   desirable to have m > n and in practice we usually choose m to be two'
-write(io,'(a)')'   or three times as large as n .  Typical values of n are 10 or 20 and'
-write(io,'(a)')'   of m are 20 to 60. An m by n matrix A is generated. The i,j element'
-write(io,'(a)')'   is the j-th basis function, or its normal derivative, evaluated at'
-write(io,'(a)')'   the i-th boundary point. A right hand side with m components is also'
-write(io,'(a)')'   generated. In this example, the elements of the right hand side are'
-write(io,'(a)')'   either zero or one. The coefficients are then found by solving the'
-write(io,'(a)')'   overdetermined set of equations'
-write(io,'(a)')''
-write(io,'(a)')'               Ac = b'
-write(io,'(a)')''
-write(io,'(a)')'   in a least squares sense.'
-write(io,'(a)')''
-write(io,'(a)')'   Once the coefficients have been determined, the approximate solution'
-write(io,'(a)')'   is defined everywhere on the domain. It is then possible to compute the'
-write(io,'(a)')'   effective conductivity sigma . In fact, a very simple formula results,'
-write(io,'(a)')''
-write(io,'(a)')'                        n       j-1'
-write(io,'(a)')'              sigma =  sum  (-1)   c'
-write(io,'(a)')'                       j=1          j'
-write(io,'(a)')''
-write(io,'(a)')'   To use MAT88 for this problem, the following "program" is first stored'
-write(io,'(a)')'   in the local computer file system, say under the name "PDE".'
-write(io,'(a)')''
-write(io,'(a)')'      //Conductivity example.'
-write(io,'(a)')'      //Parameters ---'
-write(io,'(a)')'         rho       //radius of cylindrical inclusion'
-write(io,'(a)')'         n         //number of terms in solution'
-write(io,'(a)')'         m         //number of boundary points'
-write(io,'(a)')'      //initialize operation counter'
-write(io,'(a)')'         flop = <0 0>;'
-write(io,'(a)')'      //initialize variables'
-write(io,'(a)')'         m1 = round(m/3);   //number of points on each straight edge'
-write(io,'(a)')'         m2 = m - m1;       //number of points with Dirichlet conditions'
-write(io,'(a)')'         pi = 4*atan(1);'
-write(io,'(a)')'      //generate points in Cartesian coordinates'
-write(io,'(a)')'         //right hand edge'
-write(io,'(a)')'         for i = 1:m1, x(i) = 1; y(i) = (1-rho)*(i-1)/(m1-1);'
-write(io,'(a)')'         //top edge'
-write(io,'(a)')'         for i = m2+1:m, x(i) = (1-rho)*(m-i)/(m-m2-1); y(i) = 1;'
-write(io,'(a)')'         //circular edge'
-write(io,'(a)')'         for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); ...'
-write(io,'(a)')'            x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);'
-write(io,'(a)')'      //convert to polar coordinates'
-write(io,'(a)')'         for i = 1:m-1, th(i) = atan(y(i)/x(i));  ...'
-write(io,'(a)')'            r(i) = sqrt(x(i)**2+y(i)**2);'
-write(io,'(a)')'         th(m) = pi/2;  r(m) = 1;'
-write(io,'(a)')'      //generate matrix'
-write(io,'(a)')'         //Dirichlet conditions'
-write(io,'(a)')'         for i = 1:m2, for j = 1:n, k = 2*j-1; ...'
-write(io,'(a)')'            a(i,j) = r(i)**k*cos(k*th(i));'
-write(io,'(a)')'         //Neumann conditions'
-write(io,'(a)')'         for i = m2+1:m, for j = 1:n, k = 2*j-1; ...'
-write(io,'(a)')'            a(i,j) = k*r(i)**(k-1)*sin((k-1)*th(i));'
-write(io,'(a)')'      //generate right hand side'
-write(io,'(a)')'         for i = 1:m2, b(i) = 1;'
-write(io,'(a)')'         for i = m2+1:m, b(i) = 0;'
-write(io,'(a)')'      //solve for coefficients'
-write(io,'(a)')'         c = A\b'
-write(io,'(a)')'      //compute effective conductivity'
-write(io,'(a)')'         c(2:2:n) = -c(2:2:n);'
-write(io,'(a)')'         sigma = sum(c)'
-write(io,'(a)')'      //output total operation count'
-write(io,'(a)')'         ops = flop(2)'
-write(io,'(a)')''
-write(io,'(a)')'   The program can be used within MAT88 by setting the three parameters'
-write(io,'(a)')'   and then accessing the file. For example,'
-write(io,'(a)')''
-write(io,'(a)')'      rho = .9;'
-write(io,'(a)')'      n = 15;'
-write(io,'(a)')'      m = 30;'
-write(io,'(a)')'      exec(''PDE'')'
-write(io,'(a)')''
-write(io,'(a)')'   The resulting output is'
-write(io,'(a)')''
-write(io,'(a)')'      rho   ='
-write(io,'(a)')''
-write(io,'(a)')'         .9000'
-write(io,'(a)')''
-write(io,'(a)')'      n     ='
-write(io,'(a)')''
-write(io,'(a)')'       15.'
-write(io,'(a)')''
-write(io,'(a)')'      m     ='
-write(io,'(a)')''
-write(io,'(a)')'       30.'
-write(io,'(a)')''
-write(io,'(a)')'      c     ='
-write(io,'(a)')''
-write(io,'(a)')'         2.2275'
-write(io,'(a)')'        -2.2724'
-write(io,'(a)')'         1.1448'
-write(io,'(a)')'         0.1455'
-write(io,'(a)')'        -0.1678'
-write(io,'(a)')'        -0.0005'
-write(io,'(a)')'        -0.3785'
-write(io,'(a)')'         0.2299'
-write(io,'(a)')'         0.3228'
-write(io,'(a)')'        -0.2242'
-write(io,'(a)')'        -0.1311'
-write(io,'(a)')'         0.0924'
-write(io,'(a)')'         0.0310'
-write(io,'(a)')'        -0.0154'
-write(io,'(a)')'        -0.0038'
-write(io,'(a)')''
-write(io,'(a)')'      sigm  ='
-write(io,'(a)')''
-write(io,'(a)')'         5.0895'
-write(io,'(a)')''
-write(io,'(a)')'      ops   ='
-write(io,'(a)')''
-write(io,'(a)')'         16204.'
-write(io,'(a)')''
-write(io,'(a)')'   A total of 16204 floating point operations were necessary to set up the'
-write(io,'(a)')'   matrix, solve for the coefficients and compute the conductivity. The'
-write(io,'(a)')'   operation count is roughly proportional to m*n**2. The results obtained'
-write(io,'(a)')'   for sigma as a function of rho by this approach are essentially the'
-write(io,'(a)')'   same as those obtained by the finite difference technique of Keller'
-write(io,'(a)')'   and Sachs, but the computational effort involved is much less.'
-write(io,'(a)')''
-write(io,'(a)')'8.  EIGENVALUE SENSITIVITY EXAMPLE'
-write(io,'(a)')''
-write(io,'(a)')'   In this example, we construct a matrix whose eigenvalues are moderately'
-write(io,'(a)')'   sensitive to perturbations and then analyze that sensitivity. We'
-write(io,'(a)')'   begin with the statement'
-write(io,'(a)')''
-write(io,'(a)')'      B = <3 0 7; 0 2 0; 0 0 1>'
-write(io,'(a)')''
-write(io,'(a)')'   which produces'
-write(io,'(a)')''
-write(io,'(a)')'      B     ='
-write(io,'(a)')''
-write(io,'(a)')'          3.    0.    7.'
-write(io,'(a)')'          0.    2.    0.'
-write(io,'(a)')'          0.    0.    1.'
-write(io,'(a)')''
-write(io,'(a)')'   Obviously, the eigenvalues of B are 1, 2 and 3 . Moreover, since'
-write(io,'(a)')'   B is not symmetric, these eigenvalues are slightly sensitive to'
-write(io,'(a)')'   perturbation. (The value b(1,3) = 7 was chosen so that the elements'
-write(io,'(a)')'   of the matrix A below are less than 1000.)'
-write(io,'(a)')''
-write(io,'(a)')'   We now generate a similarity transformation to disguise the eigenvalues'
-write(io,'(a)')'   and make them more sensitive.'
-write(io,'(a)')''
-write(io,'(a)')'      L = <1 0 0; 2 1 0; -3 4 1>, M = L\L'''
-write(io,'(a)')''
-write(io,'(a)')'      L     ='
-write(io,'(a)')''
-write(io,'(a)')'          1.    0.    0.'
-write(io,'(a)')'          2.    1.    0.'
-write(io,'(a)')'         -3.    4.    1.'
-write(io,'(a)')''
-write(io,'(a)')'      M     ='
-write(io,'(a)')''
-write(io,'(a)')'          1.0000    2.0000   -3.0000'
-write(io,'(a)')'         -2.0000   -3.0000   10.0000'
-write(io,'(a)')'         11.0000   18.0000  -48.0000'
-write(io,'(a)')''
-write(io,'(a)')'   The matrix M has determinant equal to 1 and is moderately badly'
-write(io,'(a)')'   conditioned. The similarity transformation is'
-write(io,'(a)')''
-write(io,'(a)')'      A = M*B/M'
-write(io,'(a)')''
-write(io,'(a)')'      A     ='
-write(io,'(a)')''
-write(io,'(a)')'        -64.0000   82.0000   21.0000'
-write(io,'(a)')'        144.0000 -178.0000  -46.0000'
-write(io,'(a)')'       -771.0000  962.0000  248.0000'
-write(io,'(a)')''
-write(io,'(a)')'   Because det(M) = 1 , the elements of A would be exact integers'
-write(io,'(a)')'   if there were no roundoff. So,'
-write(io,'(a)')''
-write(io,'(a)')'      A = round(A)'
-write(io,'(a)')''
-write(io,'(a)')'      A     ='
-write(io,'(a)')''
-write(io,'(a)')'        -64.   82.   21.'
-write(io,'(a)')'        144. -178.  -46.'
-write(io,'(a)')'       -771.  962.  248.'
-write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'   This, then, is our test matrix. We can now forget how it'
-write(io,'(a)')'   was generated and analyze its eigenvalues.'
-write(io,'(a)')''
-write(io,'(a)')'      <X,D> = eig(A)'
-write(io,'(a)')''
-write(io,'(a)')'      D     ='
-write(io,'(a)')''
-write(io,'(a)')'          3.0000    0.0000    0.0000'
-write(io,'(a)')'          0.0000    1.0000    0.0000'
-write(io,'(a)')'          0.0000    0.0000    2.0000'
-write(io,'(a)')''
-write(io,'(a)')'      X     ='
-write(io,'(a)')''
-write(io,'(a)')'          -.0891    3.4903   41.8091'
-write(io,'(a)')'           .1782   -9.1284  -62.7136'
-write(io,'(a)')'          -.9800   46.4473  376.2818'
-write(io,'(a)')''
-write(io,'(a)')'   Since A is similar to B, its eigenvalues are also 1, 2 and 3.  They'
-write(io,'(a)')'   happen to be computed in another order by the EISPACK subroutines. The'
-write(io,'(a)')'   fact that the columns of X, which are the eigenvectors, are so far'
-write(io,'(a)')'   from being orthonormal is our first indication that the eigenvalues'
-write(io,'(a)')'   are sensitive. To see this sensitivity, we display more figures of'
-write(io,'(a)')'   the computed eigenvalues.'
-write(io,'(a)')''
-write(io,'(a)')'      long, diag(D)'
-write(io,'(a)')''
-write(io,'(a)')'      ans   ='
-write(io,'(a)')''
-write(io,'(a)')'         2.999999999973599'
-write(io,'(a)')'         1.000000000015625'
-write(io,'(a)')'         2.000000000011505'
-write(io,'(a)')''
-write(io,'(a)')'   We see that, on this computer, the last five significant figures are'
-write(io,'(a)')'   contaminated by roundoff error. A somewhat superficial explanation'
-write(io,'(a)')'   of this is provided by'
-write(io,'(a)')''
-write(io,'(a)')'      short,  cond(X)'
-write(io,'(a)')''
-write(io,'(a)')'      ans   ='
-write(io,'(a)')''
-write(io,'(a)')'         3.2216e+05'
-write(io,'(a)')''
-write(io,'(a)')'   The condition number of X gives an upper bound for the relative'
-write(io,'(a)')'   error in the computed eigenvalues. However, this condition'
-write(io,'(a)')'   number is affected by scaling.'
-write(io,'(a)')''
-write(io,'(a)')'      X = X/diag(X(3,:)),  cond(X)'
-write(io,'(a)')''
-write(io,'(a)')'      X     ='
-write(io,'(a)')''
-write(io,'(a)')'           .0909     .0751     .1111'
-write(io,'(a)')'          -.1818    -.1965    -.1667'
-write(io,'(a)')'          1.0000    1.0000    1.0000'
-write(io,'(a)')''
-write(io,'(a)')'      ans   ='
-write(io,'(a)')''
-write(io,'(a)')'         1.7692e+03'
-write(io,'(a)')''
-write(io,'(a)')'   Rescaling the eigenvectors so that their last components are all'
-write(io,'(a)')'   equal to one has two consequences. The condition of X is decreased'
-write(io,'(a)')'   by over two orders of magnitude. (This is about the minimum condition'
-write(io,'(a)')'   that can be obtained by such diagonal scaling.)  Moreover, it is now'
-write(io,'(a)')'   apparent that the three eigenvectors are nearly parallel.'
-write(io,'(a)')''
-write(io,'(a)')'   More detailed information on the sensitivity of the individual'
-write(io,'(a)')'   eigenvalues involves the left eigenvectors.'
-write(io,'(a)')''
-write(io,'(a)')'      Y = inv(X''),  Y''*A*X'
-write(io,'(a)')''
-write(io,'(a)')'      Y     ='
-write(io,'(a)')''
-write(io,'(a)')'       -511.5000  259.5000  252.0000'
-write(io,'(a)')'        616.0000 -346.0000 -270.0000'
-write(io,'(a)')'        159.5000  -86.5000  -72.0000'
-write(io,'(a)')''
-write(io,'(a)')'      ans   ='
-write(io,'(a)')''
-write(io,'(a)')'          3.0000     .0000     .0000'
-write(io,'(a)')'           .0000    1.0000     .0000'
-write(io,'(a)')'           .0000     .0000    2.0000'
-write(io,'(a)')''
-write(io,'(a)')'   We are now in a position to compute the sensitivities of the individual'
-write(io,'(a)')'   eigenvalues.'
-write(io,'(a)')''
-write(io,'(a)')'      for j = 1:3, c(j) = norm(Y(:,j))*norm(X(:,j)); end,  C'
-write(io,'(a)')''
-write(io,'(a)')'      C     ='
-write(io,'(a)')''
-write(io,'(a)')'        833.1092'
-write(io,'(a)')'        450.7228'
-write(io,'(a)')'        383.7564'
-write(io,'(a)')''
-write(io,'(a)')'   These three numbers are the reciprocals of the cosines of the'
-write(io,'(a)')'   angles between the left and right eigenvectors. It can be shown that'
-write(io,'(a)')'   perturbation of the elements of A can result in a perturbation of'
-write(io,'(a)')'   the j-th eigenvalue which is c(j) times as large.  In this example,'
-write(io,'(a)')'   the first eigenvalue has the largest sensitivity.'
-write(io,'(a)')''
-write(io,'(a)')'   We now proceed to show that A is close to a matrix with a double'
-write(io,'(a)')'   eigenvalue. The direction of the required perturbation is given by'
-write(io,'(a)')''
-write(io,'(a)')'      E = -1.e-6*Y(:,1)*X(:,1)'''
-write(io,'(a)')''
-write(io,'(a)')'      E     ='
-write(io,'(a)')''
-write(io,'(a)')'         1.0e-03 *'
-write(io,'(a)')''
-write(io,'(a)')'           .0465    -.0930     .5115'
-write(io,'(a)')'          -.0560     .1120    -.6160'
-write(io,'(a)')'          -.0145     .0290    -.1595'
-write(io,'(a)')''
-write(io,'(a)')'   With some trial and error which we do not show, we bracket the'
-write(io,'(a)')'   point where two eigenvalues of a perturbed A coalesce and then'
-write(io,'(a)')'   become complex.'
-write(io,'(a)')''
-write(io,'(a)')'      eig(A + .4*E),  eig(A + .5*E)'
-write(io,'(a)')''
-write(io,'(a)')'      ans   ='
-write(io,'(a)')''
-write(io,'(a)')'          1.1500'
-write(io,'(a)')'          2.5996'
-write(io,'(a)')'          2.2504'
-write(io,'(a)')''
-write(io,'(a)')'      ans   ='
-write(io,'(a)')''
-write(io,'(a)')'         2.4067 +  .1753*i'
-write(io,'(a)')'         2.4067 -  .1753*i'
-write(io,'(a)')'         1.1866 + 0.0000*i'
-write(io,'(a)')''
-write(io,'(a)')'   Now, a bisecting search, driven by the imaginary part of one of'
-write(io,'(a)')'   the eigenvalues, finds the point where two eigenvalues are nearly'
-write(io,'(a)')'   equal.'
-write(io,'(a)')''
-write(io,'(a)')'      r = .4;  s = .5;'
-write(io,'(a)')''
-write(io,'(a)')'      while s-r > 1.e-14, t = (r+s)/2; d = eig(A+t*E); ...'
-write(io,'(a)')'        if imag(d(1))=0, r = t; else, s = t;'
-write(io,'(a)')''
-write(io,'(a)')'      long,  T'
-write(io,'(a)')''
-write(io,'(a)')'      T     ='
-write(io,'(a)')''
-write(io,'(a)')'           .450380734134507'
-write(io,'(a)')''
-write(io,'(a)')'   Finally, we display the perturbed matrix, which is obviously close'
-write(io,'(a)')'   to the original, and its pair of nearly equal eigenvalues.  (We have'
-write(io,'(a)')'   dropped a few digits from the long output.)'
-write(io,'(a)')''
-write(io,'(a)')'      A+t*E,  eig(A+t*E)'
-write(io,'(a)')''
-write(io,'(a)')'      A'
-write(io,'(a)')''
-write(io,'(a)')'       -63.999979057   81.999958114   21.000230369'
-write(io,'(a)')'       143.999974778 -177.999949557  -46.000277434'
-write(io,'(a)')'      -771.000006530  962.000013061  247.999928164'
-write(io,'(a)')''
-write(io,'(a)')'      ans   ='
-write(io,'(a)')''
-write(io,'(a)')'         2.415741150'
-write(io,'(a)')'         2.415740621'
-write(io,'(a)')'         1.168517777'
-write(io,'(a)')''
-write(io,'(a)')'   The first two eigenvectors of A + t*E are almost indistinguishable'
-write(io,'(a)')'   indicating that the perturbed matrix is almost defective.'
-write(io,'(a)')''
-write(io,'(a)')'      <X,D> = eig(A+t*E);  X = X/diag(X(3,:))'
-write(io,'(a)')''
-write(io,'(a)')'      X     ='
-write(io,'(a)')''
-write(io,'(a)')'          .096019578     .096019586    .071608466'
-write(io,'(a)')'         -.178329614    -.178329608   -.199190520'
-write(io,'(a)')'         1.000000000    1.000000000   1.000000000'
-write(io,'(a)')''
-write(io,'(a)')'      short,  cond(X)'
-write(io,'(a)')''
-write(io,'(a)')'      ans   ='
-write(io,'(a)')''
-write(io,'(a)')'         3.3997e+09'
-write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'9.  SYNTAX DIAGRAMS'
-write(io,'(a)')''
-write(io,'(a)')'   A formal description of the language acceptable to MAT88, as well as'
-write(io,'(a)')'   a flow chart of the mat88 program, is provided by the syntax diagrams'
-write(io,'(a)')'   or syntax graphs of wirth [6]. There are eleven non-terminal symbols'
-write(io,'(a)')'   in the language:'
-write(io,'(a)')''
-write(io,'(a)')'      LINE, STATEMENT, CLAUSE, EXPRESSION, TERM,'
-write(io,'(a)')'      FACTOR, NUMBER, INTEGER, NAME, COMMAND, TEXT .'
-write(io,'(a)')''
-write(io,'(a)')'   The diagrams define each of the non-terminal symbols using the others'
-write(io,'(a)')'   and the terminal symbols:'
-write(io,'(a)')''
-write(io,'(a)')'      LETTER -- A THROUGH Z,'
-write(io,'(a)')'      DIGIT  -- 0 THROUGH 9,'
-write(io,'(a)')'      CHAR   -- ( ) ; : + - * / \ = . , < >'
-write(io,'(a)')'      QUOTE  -- '''
-write(io,'(a)')''
-write(io,'(a)')'   LINE'
-write(io,'(a)')''
-write(io,'(a)')'          |-----> STATEMENT >----|'
-write(io,'(a)')'          |                      |'
-write(io,'(a)')'          |-----> CLAUSE >-------|'
-write(io,'(a)')'          |                      |'
-write(io,'(a)')'   -------|-----> EXPR >---------|------>'
-write(io,'(a)')'        | |                      | |'
-write(io,'(a)')'        | |-----> COMMAND >------| |'
-write(io,'(a)')'        | |                      | |'
-write(io,'(a)')'        | |-> > >-> EXPR >-> < >-| |'
-write(io,'(a)')'        | |                      | |'
-write(io,'(a)')'        | |----------------------| |'
-write(io,'(a)')'        |                          |'
-write(io,'(a)')'        |        |-< ; <-|         |'
-write(io,'(a)')'        |--------|       |---------|'
-write(io,'(a)')'                 |-< , <-|'
-write(io,'(a)')''
-write(io,'(a)')'   STATEMENT'
-write(io,'(a)')''
-write(io,'(a)')'        |-> NAME >--------------------------------|'
-write(io,'(a)')'        |          |                              |'
-write(io,'(a)')'        |          |         |--> : >---|         |'
-write(io,'(a)')'        |          |         |          |         |'
-write(io,'(a)')'        |          |-> ( >---|-> EXPR >-|---> ) >-|'
-write(io,'(a)')'        |                  |              |       |'
-write(io,'(a)')'   -----|                  |-----< , <----|       |--> = >--> EXPR >--->'
-write(io,'(a)')'        |                                         |'
-write(io,'(a)')'        |       |--< , <---|                      |'
-write(io,'(a)')'        |       |          |                      |'
-write(io,'(a)')'        |-> < >---> NAME >---> > >----------------|'
-write(io,'(a)')''
-write(io,'(a)')'   CLAUSE'
-write(io,'(a)')''
-write(io,'(a)')'        |---> FOR   >---> NAME >---> = >---> EXPR >--------------|'
-write(io,'(a)')'        |                                                        |'
-write(io,'(a)')'        | |-> WHILE >-|                                          |'
-write(io,'(a)')'        |-|           |-> EXPR >----------------------           |'
-write(io,'(a)')'        | |-> IF    >-|          |   |   |   |   |   |           |'
-write(io,'(a)')'   -----|                        <   <=  =   <>  >=  >           |---->'
-write(io,'(a)')'        |                        |   |   |   |   |   |           |'
-write(io,'(a)')'        |                        ----------------------> EXPR >--|'
-write(io,'(a)')'        |                                                        |'
-write(io,'(a)')'        |---> ELSE  >--------------------------------------------|'
-write(io,'(a)')'        |                                                        |'
-write(io,'(a)')'        |---> END   >--------------------------------------------|'
-write(io,'(a)')''
-write(io,'(a)')'   EXPR'
-write(io,'(a)')''
-write(io,'(a)')'          |-> + >-|'
-write(io,'(a)')'          |       |'
-write(io,'(a)')'   -------|-------|-------> TERM >---------->'
-write(io,'(a)')'          |       |    |             |'
-write(io,'(a)')'          |-> - >-|    |  |-< + <-|  |'
-write(io,'(a)')'                       |  |       |  |'
-write(io,'(a)')'                       |--|-< - <-|--|'
-write(io,'(a)')'                          |       |'
-write(io,'(a)')'                          |-< : <-|'
-write(io,'(a)')''
-write(io,'(a)')'   TERM'
-write(io,'(a)')''
-write(io,'(a)')'   ---------------------> FACTOR >---------------------->'
-write(io,'(a)')'           |                                   |'
-write(io,'(a)')'           |             |-< * <-|             |'
-write(io,'(a)')'           |  |-------|  |       |  |-------|  |'
-write(io,'(a)')'           |--|       |--|-< / <-|--|       |--|'
-write(io,'(a)')'              |-< . <-|  |       |  |-< . <-|'
-write(io,'(a)')'                         |-< \ <-|'
-write(io,'(a)')''
-write(io,'(a)')'   FACTOR'
-write(io,'(a)')''
-write(io,'(a)')'        |----------------> NUMBER >---------------|'
-write(io,'(a)')'        |                                         |'
-write(io,'(a)')'        |-> NAME >--------------------------------|'
-write(io,'(a)')'        |          |                              |'
-write(io,'(a)')'        |          |         |--> : >---|         |'
-write(io,'(a)')'        |          |         |          |         |'
-write(io,'(a)')'        |          |-> ( >---|-> EXPR >-|---> ) >-|'
-write(io,'(a)')'        |                  |              |       |'
-write(io,'(a)')'        |                  |-----< , <----|       |'
-write(io,'(a)')'        |                                         |'
-write(io,'(a)')'   -----|------------> ( >-----> EXPR >-----> ) >-|-|-------|----->'
-write(io,'(a)')'        |                                         | |       | |'
-write(io,'(a)')'        |                  |--------------|       | |-> '' >-| |'
-write(io,'(a)')'        |                  |              |       |           |'
-write(io,'(a)')'        |------------> < >-|---> EXPR >---|-> > >-|           |'
-write(io,'(a)')'        |                    |          |         |           |'
-write(io,'(a)')'        |                    |--<   <---|         |           |'
-write(io,'(a)')'        |                    |          |         |           |'
-write(io,'(a)')'        |                    |--< ; <---|         |           |'
-write(io,'(a)')'        |                    |          |         |           |'
-write(io,'(a)')'        |                    |--< , <---|         |           |'
-write(io,'(a)')'        |                                         |           |'
-write(io,'(a)')'        |------------> > >-----> EXPR >-----> < >-|           |'
-write(io,'(a)')'        |                                         |           |'
-write(io,'(a)')'        |-----> FACTOR >---> ** >---> FACTOR >----|           |'
-write(io,'(a)')'        |                                                     |'
-write(io,'(a)')'        |------------> '' >-----> TEXT >-----> '' >-------------|'
-write(io,'(a)')''
-write(io,'(a)')'   NUMBER'
-write(io,'(a)')''
-write(io,'(a)')'       |----------|                          |-> + >-|'
-write(io,'(a)')'       |          |                          |       |'
-write(io,'(a)')'   -----> INT >-----> . >---> INT >-----> E >---------> INT >---->'
-write(io,'(a)')'                |                   | |      |       |        |'
-write(io,'(a)')'                |                   | |      |-> - >-|        |'
-write(io,'(a)')'                |                   | |                       |'
-write(io,'(a)')'                |---------------------------------------------|'
-write(io,'(a)')''
-write(io,'(a)')'   INT'
-write(io,'(a)')''
-write(io,'(a)')'   ------------> DIGIT >----------->'
-write(io,'(a)')'             |           |'
-write(io,'(a)')'             |-----------|'
-write(io,'(a)')''
-write(io,'(a)')'   NAME'
-write(io,'(a)')''
-write(io,'(a)')'                     |--< LETTER <--|'
-write(io,'(a)')'                     |              |'
-write(io,'(a)')'   ------> LETTER >--|--------------|----->'
-write(io,'(a)')'                     |              |'
-write(io,'(a)')'                     |--< DIGIT  <--|'
-write(io,'(a)')''
-write(io,'(a)')'   COMMAND'
-write(io,'(a)')''
-write(io,'(a)')'                           |--> NAME >--|'
-write(io,'(a)')'                           |            |'
-write(io,'(a)')'   --------> NAME >--------|------------|---->'
-write(io,'(a)')'                           |            |'
-write(io,'(a)')'                           |--> CHAR >--|'
-write(io,'(a)')'                           |            |'
-write(io,'(a)')'                           |---> '' >----|'
-write(io,'(a)')''
-write(io,'(a)')'   TEXT'
-write(io,'(a)')''
-write(io,'(a)')'                   |-> LETTER >--|'
-write(io,'(a)')'                   |             |'
-write(io,'(a)')'                   |-> DIGIT >---|'
-write(io,'(a)')'   ----------------|             |-------------->'
-write(io,'(a)')'               |   |-> CHAR >----|   |'
-write(io,'(a)')'               |   |             |   |'
-write(io,'(a)')'               |   |-> '' >-> '' >-|   |'
-write(io,'(a)')'               |                     |'
-write(io,'(a)')'               |---------------------|'
-write(io,'(a)')''
-write(io,'(a)')'10.  THE PARSER-INTERPRETER'
-write(io,'(a)')''
-write(io,'(a)')'   The structure of the parser-interpreter is similar to that of Wirth''s'
-write(io,'(a)')'   compiler [6] for his simple language, PL/0 , except that MAT88 is'
-write(io,'(a)')'   programmed in Fortran, which does not have explicit recursion. The'
-write(io,'(a)')'   interrelation of the primary subroutines is shown in the following'
-write(io,'(a)')'   diagram.'
-write(io,'(a)')''
-write(io,'(a)')'         MAIN'
-write(io,'(a)')'           |'
-write(io,'(a)')'         MAT88     |--CLAUSE'
-write(io,'(a)')'           |       |    |'
-write(io,'(a)')'         PARSE-----|--EXPR----TERM----FACTOR'
-write(io,'(a)')'                   |    |       |       |'
-write(io,'(a)')'                   |    |-------|-------|'
-write(io,'(a)')'                   |    |       |       |'
-write(io,'(a)')'                   |  STACK1  STACK2  STACKG'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |--STACKP--PRINT'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |--COMAND'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |          |--CGECO'
-write(io,'(a)')'                   |          |'
-write(io,'(a)')'                   |          |--CGEFA'
-write(io,'(a)')'                   |          |'
-write(io,'(a)')'                   |--MATFN1--|--CGESL'
-write(io,'(a)')'                   |          |'
-write(io,'(a)')'                   |          |--CGEDI'
-write(io,'(a)')'                   |          |'
-write(io,'(a)')'                   |          |--CPOFA'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |          |--IMTQL2'
-write(io,'(a)')'                   |          |'
-write(io,'(a)')'                   |          |--HTRIDI'
-write(io,'(a)')'                   |          |'
-write(io,'(a)')'                   |--MATFN2--|--HTRIBK'
-write(io,'(a)')'                   |          |'
-write(io,'(a)')'                   |          |--CORTH'
-write(io,'(a)')'                   |          |'
-write(io,'(a)')'                   |          |--COMQR3'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |--MATFN3-----CSVDC'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |          |--CQRDC'
-write(io,'(a)')'                   |--MATFN4--|'
-write(io,'(a)')'                   |          |--CQRSL'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |'
-write(io,'(a)')'                   |          |--FILES'
-write(io,'(a)')'                   |--MATFN5--|'
-write(io,'(a)')'                              |--SAVLOD'
-write(io,'(a)')''
-write(io,'(a)')'   Subroutine PARSE controls the interpretation of each statement. It'
-write(io,'(a)')'   calls subroutines that process the various syntactic quantities such'
-write(io,'(a)')'   as command, expression, term and factor. A fairly simple program'
-write(io,'(a)')'   stack mechanism allows these subroutines to recursively "call"'
-write(io,'(a)')'   each other along the lines allowed by the syntax diagrams. The four'
-write(io,'(a)')'   STACK subroutines manage the variable memory and perform elementary'
-write(io,'(a)')'   operations, such as matrix addition and transposition.'
-write(io,'(a)')''
-write(io,'(a)')'   The four subroutines MATFN1 though MATFN4 are called whenever "serious"'
-write(io,'(a)')'   matrix computations are required. They are interface routines which'
-write(io,'(a)')'   call the various LINPACK and EISPACK subroutines. MATFN5 primarily'
-write(io,'(a)')'   handles the file access tasks.'
-write(io,'(a)')''
-write(io,'(a)')'11. THE NUMERICAL ALGORITHMS'
-write(io,'(a)')''
-write(io,'(a)')'   The algorithms underlying the basic MAT88 functions are described in'
-write(io,'(a)')'   the LINPACK and EISPACK guides [1-3]. The following list gives the'
-write(io,'(a)')'   subroutines used by these functions.'
-write(io,'(a)')''
-write(io,'(a)')'      inv(A)          - CGECO,CGEDI'
-write(io,'(a)')'      det(A)          - CGECO,CGEDI'
-write(io,'(a)')'      lu(A)           - CGEFA'
-write(io,'(a)')'      rcond(A)        - CGECO'
-write(io,'(a)')'      chol(A)         - CPOFA'
-write(io,'(a)')'      svd(A)          - CSVDC'
-write(io,'(a)')'      cond(A)         - CSVDC'
-write(io,'(a)')'      norm(A,2)       - CSVDC'
-write(io,'(a)')'      pinv(A,eps)     - CSVDC'
-write(io,'(a)')'      rank(A,eps)     - CSVDC'
-write(io,'(a)')'      qr(A)           - CQRDC,CQRSL'
-write(io,'(a)')'      orth(A)         - CQRDC,CSQSL'
-write(io,'(a)')'      A\B and B/A     - CGECO,CGESL if A is square.'
-write(io,'(a)')'                      - CQRDC,CQRSL if A is not square.'
-write(io,'(a)')'      eig(A)          - HTRIDI,IMTQL2,HTRIBK if A is Hermitian.'
-write(io,'(a)')'                      - CORTH,COMQR2         if A is not Hermitian.'
-write(io,'(a)')'      schur(A)        - same as EIG.'
-write(io,'(a)')'      hess(A)         - same as EIG.'
-write(io,'(a)')''
-write(io,'(a)')'   Minor modifications were made to all these subroutines. The LINPACK'
-write(io,'(a)')'   routines were changed to replace the Fortran complex arithmetic'
-write(io,'(a)')'   with explicit references to real and imaginary parts.  Since most'
-write(io,'(a)')'   of the floating point arithmetic is concentrated in a few low-level'
-write(io,'(a)')'   subroutines which perform vector operations (the Basic Linear Algebra'
-write(io,'(a)')'   Subprograms), this was not an extensive change. It also facilitated'
-write(io,'(a)')'   implementation of the "flop" and "chop" features which count and'
-write(io,'(a)')'   optionally truncate each floating point operation.'
-write(io,'(a)')''
-write(io,'(a)')'   The EISPACK subroutine COMQR2 was modified to allow access to the'
-write(io,'(a)')'   Schur triangular form, ordinarily just an intermediate result. IMTQL2'
-write(io,'(a)')'   was modified to make computation of the eigenvectors optional. Both'
-write(io,'(a)')'   subroutines were modified to eliminate the machine-dependent accuracy'
-write(io,'(a)')'   parameter and all the EISPACK subroutines were changed to include'
-write(io,'(a)')'   "flop" and "chop".'
-write(io,'(a)')''
-write(io,'(a)')'   The algorithms employed for the "poly" and "roots" functions'
-write(io,'(a)')'   illustrate an interesting aspect of the modern approach to eigenvalue'
-write(io,'(a)')'   computation. "poly(A)" generates the characteristic polynomial of'
-write(io,'(a)')'   A and "roots(poly(A))" finds the roots of that polynomial, which'
-write(io,'(a)')'   are, of course, the eigenvalues of A . But both "poly" and "roots"'
-write(io,'(a)')'   use EISPACK eigenvalues subroutines, which are based on similarity'
-write(io,'(a)')'   transformations. So the classical approach which characterizes'
-write(io,'(a)')'   eigenvalues as roots of the characteristic polynomial is actually'
-write(io,'(a)')'   reversed.'
-write(io,'(a)')''
-write(io,'(a)')'   If A is an n by n matrix, "poly(A)" produces the coefficients C(1)'
-write(io,'(a)')'   through C(n+1), with C(1) = 1, in'
-write(io,'(a)')''
-write(io,'(a)')'         det(z*eye-A) = C(1)*z**n + ... + C(n)*z + C(n+1) .'
-write(io,'(a)')''
-write(io,'(a)')'   The algorithm can be expressed compactly using MAT88:'
-write(io,'(a)')''
-write(io,'(a)')'         Z = eig(A);'
-write(io,'(a)')'         C = 0*ones(n+1,1);  C(1) = 1;'
-write(io,'(a)')'         for j = 1:n, C(2:j+1) = C(2:j+1) - Z(j)*C(1:j);'
-write(io,'(a)')'         C'
-write(io,'(a)')''
-write(io,'(a)')'   This recursion is easily derived by expanding the product'
-write(io,'(a)')''
-write(io,'(a)')'         (z - z(1))*(z - z(2))* ... * (z-z(n)) .'
-write(io,'(a)')''
-write(io,'(a)')'   It is possible to prove that "poly(A)" produces the coefficients in'
-write(io,'(a)')'   the characteristic polynomial of a matrix within roundoff error of'
-write(io,'(a)')'   A. This is true even if the eigenvalues of A are badly conditioned. The'
-write(io,'(a)')'   traditional algorithms for obtaining the characteristic polynomial'
-write(io,'(a)')'   which do not use the eigenvalues do not have such satisfactory'
-write(io,'(a)')'   numerical properties.'
-write(io,'(a)')''
-write(io,'(a)')'   If C is a vector with n+1 components, "roots(C)" finds the roots of'
-write(io,'(a)')'   the polynomial of degree n ,'
-write(io,'(a)')''
-write(io,'(a)')'          p(z) = C(1)*z**n + ... + C(n)*z + C(n+1) .'
-write(io,'(a)')''
-write(io,'(a)')'   The algorithm simply involves computing the eigenvalues of the'
-write(io,'(a)')'   companion matrix:'
-write(io,'(a)')''
-write(io,'(a)')'         A = 0*ones(n,n)'
-write(io,'(a)')'         for j = 1:n, A(1,j) = -C(j+1)/C(1);'
-write(io,'(a)')'         for i = 2:n, A(i,i-1) = 1;'
-write(io,'(a)')'         eig(A)'
-write(io,'(a)')''
-write(io,'(a)')'   It is possible to prove that the results produced are the exact'
-write(io,'(a)')'   eigenvalues of a matrix within roundoff error of the companion matrix'
-write(io,'(a)')'   A, but this does not mean that they are the exact roots of a polynomial'
-write(io,'(a)')'   with coefficients within roundoff error of those in C . There are'
-write(io,'(a)')'   more accurate, more efficient methods for finding polynomial roots,'
-write(io,'(a)')'   but this approach has the crucial advantage that it does not require'
-write(io,'(a)')'   very much additional code.'
-write(io,'(a)')''
-write(io,'(a)')'   The elementary functions "exp", "log", "sqrt", "sin", "cos" and "atan"'
-write(io,'(a)')'   are applied to square matrices by diagonalizing the matrix, applying'
-write(io,'(a)')'   the functions to the individual eigenvalues and then transforming'
-write(io,'(a)')'   back. For example, "exp(A)" is computed by'
-write(io,'(a)')''
-write(io,'(a)')'         <X,D> = eig(A);'
-write(io,'(a)')'         for j = 1:n, D(j,j) = exp(D(j,j));'
-write(io,'(a)')'         X*D/X'
-write(io,'(a)')''
-write(io,'(a)')'   This is essentially method number 14 out of the 19 ''dubious'''
-write(io,'(a)')'   possibilities described in [8]. It is dubious because it doesn''t'
-write(io,'(a)')'   always work. The matrix of eigenvectors X can be arbitrarily'
-write(io,'(a)')'   badly conditioned and all accuracy lost in the computation of'
-write(io,'(a)')'   X*D/X. A warning message is printed if "rcond(X)" is very small,'
-write(io,'(a)')'   but this only catches the extreme cases. An example of a case'
-write(io,'(a)')'   not detected is when A has a double eigenvalue, but theoretically'
-write(io,'(a)')'   only one linearly independent eigenvector associated with it.'
-write(io,'(a)')'   The computed eigenvalues will be separated by something on the'
-write(io,'(a)')'   order of the square root of the roundoff level. This separation'
-write(io,'(a)')'   will be reflected in "rcond(X)" which will probably not be small'
-write(io,'(a)')'   enough to trigger the error message. The computed "exp(A)" will be'
-write(io,'(a)')'   accurate to only half precision. Better methods are known for'
-write(io,'(a)')'   computing "exp(A)", but they do not easily extend to the other five'
-write(io,'(a)')'   functions and would require a considerable amount of additional'
-write(io,'(a)')'   code.'
-write(io,'(a)')''
-write(io,'(a)')'   The expression A**p is evaluated by repeated multiplication'
-write(io,'(a)')'   if p is an integer greater than 1. Otherwise it is evaluated by'
-write(io,'(a)')''
-write(io,'(a)')'         <X,D> = eig(A);'
-write(io,'(a)')'         for j = 1:n, D(j,j) = exp(p*log(D(j,j)))'
-write(io,'(a)')'         X*D/X'
-write(io,'(a)')''
-write(io,'(a)')'   This suffers from the same potential loss of accuracy if X is'
-write(io,'(a)')'   badly conditioned. It was partly for this reason that the case'
-write(io,'(a)')'   p = 1 is included in the general case. Comparison of A**1 with A'
-write(io,'(a)')'   gives some idea of the loss of accuracy for other values of p and'
-write(io,'(a)')'   for the elementary functions.'
-write(io,'(a)')''
-write(io,'(a)')'   "rref", the reduced row echelon form, is of some interest in'
-write(io,'(a)')'   theoretical linear algebra, although it has little computational'
-write(io,'(a)')'   value. It is included in MAT88 for pedagogical reasons. The'
-write(io,'(a)')'   algorithm is essentially Gauss-Jordan elimination with detection'
-write(io,'(a)')'   of negligible columns applied to rectangular matrices.'
-write(io,'(a)')''
-write(io,'(a)')'   There are three separate places in MAT88 where the rank of a matrix'
-write(io,'(a)')'   is implicitly computed: in rref(A), in A\B for non-square A, and'
-write(io,'(a)')'   in the pseudoinverse pinv(A). Three different algorithms with three'
-write(io,'(a)')'   different criteria for negligibility are used and so it is possible'
-write(io,'(a)')'   that three different values could be produced for the same matrix. With'
-write(io,'(a)')'   rref(A), the rank of A is the number of nonzero rows. The elimination'
-write(io,'(a)')'   algorithm used for "rref" is the fastest of the three rank-determining'
-write(io,'(a)')'   algorithms, but it is the least sophisticated numerically and the'
-write(io,'(a)')'   least reliable.  With A\B, the algorithm is essentially that used'
-write(io,'(a)')'   by example subroutine SQRST in chapter 9 of the LINPACK guide. With'
-write(io,'(a)')'   pinv(A), the algorithm is based on the singular value decomposition'
-write(io,'(a)')'   and is described in chapter 11 of the LINPACK guide. The SVD algorithm'
-write(io,'(a)')'   is the most time-consuming, but the most reliable and is therefore'
-write(io,'(a)')'   also used for rank(A).'
-write(io,'(a)')''
-write(io,'(a)')'   The uniformly distributed random numbers in "rand" are obtained from'
-write(io,'(a)')'   the machine-independent random number generator URAND described in'
-write(io,'(a)')'   [9]. It is possible to switch to normally distributed random numbers,'
-write(io,'(a)')'   which are obtained using a transformation also described in [9].'
-write(io,'(a)')''
-write(io,'(a)')'        The computation of'
-write(io,'(a)')''
-write(io,'(a)')'                   2    2'
-write(io,'(a)')'             sqrt(a  + b )'
-write(io,'(a)')''
-write(io,'(a)')'   is required in many matrix algorithms, particularly those involving'
-write(io,'(a)')'   complex arithmetic. A new approach to carrying out this operation is'
-write(io,'(a)')'   described by Moler and Morrison [10]. It is a cubically convergent'
-write(io,'(a)')'   algorithm which starts with a and b , rather than with their squares,'
-write(io,'(a)')'   and thereby avoids destructive arithmetic underflows and overflows. In'
-write(io,'(a)')'   MAT88, the algorithm is used for complex modulus, Euclidean vector'
-write(io,'(a)')'   norm, plane rotations, and the shift calculation in the eigenvalue'
-write(io,'(a)')'   and singular value iterations.'
-write(io,'(a)')''
-write(io,'(a)')'12. FLOP AND CHOP'
-write(io,'(a)')''
-write(io,'(a)')'   Detailed information about the amount of work involved in matrix'
-write(io,'(a)')'   calculations and the resulting accuracy is provided by "flop" and'
-write(io,'(a)')'   "chop". The basic unit of work is the "flop", or floating point'
-write(io,'(a)')'   operation. Roughly, one flop is one execution of a Fortran statement'
-write(io,'(a)')'   like'
-write(io,'(a)')''
-write(io,'(a)')'         S = S + X(I)*Y(I)'
-write(io,'(a)')''
-write(io,'(a)')'   or'
-write(io,'(a)')''
-write(io,'(a)')'         Y(I) = Y(I) + T*X(I)'
-write(io,'(a)')''
-write(io,'(a)')'   In other words, it consists of one floating point multiplication,'
-write(io,'(a)')'   together with one floating point addition and the associated'
-write(io,'(a)')'   indexing and storage reference operations.'
-write(io,'(a)')''
-write(io,'(a)')'   MAT88 will print the number of flops required for a particular'
-write(io,'(a)')'   statement when the statement is terminated by an extra comma. For'
-write(io,'(a)')'   example, the line'
-write(io,'(a)')''
-write(io,'(a)')'         n = 20;  rand(n)*rand(n);,'
-write(io,'(a)')''
-write(io,'(a)')'   ends with an extra comma. Two 20 by 20 random matrices are generated'
-write(io,'(a)')'   and multiplied together. The result is assigned to "ans", but the'
-write(io,'(a)')'   semicolon suppresses its printing. The only output is'
-write(io,'(a)')''
-write(io,'(a)')'           8800 flops'
-write(io,'(a)')''
-write(io,'(a)')'   This is n**3 + 2*n**2 flops, n**2 for each random matrix and n**3'
-write(io,'(a)')'   for the product.'
-write(io,'(a)')''
-write(io,'(a)')'   "flop" is a predefined vector with two components. "flop(1)" is'
-write(io,'(a)')'   the number of flops used by the most recently executed statement,'
-write(io,'(a)')'   except that statements with zero flops are ignored. For example,'
-write(io,'(a)')'   after executing the previous statement,'
-write(io,'(a)')''
-write(io,'(a)')'         flop(1)/n**3'
-write(io,'(a)')''
-write(io,'(a)')'   results in'
-write(io,'(a)')''
-write(io,'(a)')'         ans   ='
-write(io,'(a)')''
-write(io,'(a)')'             1.1000'
-write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'   "flop(2)" is the cumulative total of all the flops used since'
-write(io,'(a)')'   the beginning of the MAT88 session. The statement'
-write(io,'(a)')''
-write(io,'(a)')'         flop = <0 0>'
-write(io,'(a)')''
-write(io,'(a)')'   resets the total.'
-write(io,'(a)')''
-write(io,'(a)')'   There are several difficulties associated with keeping a'
-write(io,'(a)')'   precise count of floating point operations. An addition or'
-write(io,'(a)')'   subtraction that is not paired with a multiplication is usually'
-write(io,'(a)')'   counted as a flop. The same is true of an isolated multiplication'
-write(io,'(a)')'   that is not paired with an addition. Each floating point'
-write(io,'(a)')'   division counts as a flop. But the number of operations required'
-write(io,'(a)')'   by system dependent library functions such as square root cannot'
-write(io,'(a)')'   be counted, so most elementary functions are arbitrarily counted'
-write(io,'(a)')'   as using only one flop.'
-write(io,'(a)')''
-write(io,'(a)')'   The biggest difficulty occurs with complex arithmetic.'
-write(io,'(a)')'   Almost all operations on the real parts of matrices are counted.'
-write(io,'(a)')'   However, the operations on the complex parts of matrices are'
-write(io,'(a)')'   counted only when they involve nonzero elements. This means that'
-write(io,'(a)')'   simple operations on nonreal matrices require only about twice as'
-write(io,'(a)')'   many flops as the same operations on real matrices. This factor'
-write(io,'(a)')'   of two is not necessarily an accurate measure of the relative'
-write(io,'(a)')'   costs of real and complex arithmetic.'
-write(io,'(a)')''
-write(io,'(a)')'   The result of each floating point operation may also be'
-write(io,'(a)')'   "chopped" to simulate a computer with a shorter word length. The'
-write(io,'(a)')'   details of this chopping operation depend upon the format of the'
-write(io,'(a)')'   floating point word. Usually, the fraction in the floating point'
-write(io,'(a)')'   word can be regarded as consisting of several octal or'
-write(io,'(a)')'   hexadecimal digits. The least significant of these digits can be'
-write(io,'(a)')'   set to zero by a logical masking operation. Thus the statement'
-write(io,'(a)')''
-write(io,'(a)')'         chop(p)'
-write(io,'(a)')''
-write(io,'(a)')'   causes the p least significant octal or hexadecimal digits in'
-write(io,'(a)')'   the result of each floating point operation to be set to zero.'
-write(io,'(a)')'   For example, if the computer being used has an IBM 360 long floating'
-write(io,'(a)')'   point word with 14 hexadecimal digits in the fraction, then "chop(8)"'
-write(io,'(a)')'   results in simulation of a computer with only 6 hexadecimal digits'
-write(io,'(a)')'   in the fraction, i.e. a short floating point word. On a computer such'
-write(io,'(a)')'   as the CDC 6600 with 16 octal digits, "chop(8)" results in about the'
-write(io,'(a)')'   same accuracy because the remaining 8 octal digits represent the same'
-write(io,'(a)')'   number of bits as 6 hexadecimal digits.'
-write(io,'(a)')''
-write(io,'(a)')'   Some idea of the effect of "chop" on any particular system can'
-write(io,'(a)')'   be obtained by executing the following statements.'
-write(io,'(a)')''
-write(io,'(a)')'         long,   t = 1/10'
-write(io,'(a)')'         long z, t = 1/10'
-write(io,'(a)')'         chop(8)'
-write(io,'(a)')'         long,   t = 1/10'
-write(io,'(a)')'         long z, t = 1/10'
-write(io,'(a)')''
-write(io,'(a)')'   The following Fortran subprograms illustrate more details of'
-write(io,'(a)')'   "flop" and "chop". The first subprogram is a simplified example of a'
-write(io,'(a)')'   system-dependent function used within MAT88 itself. The common'
-write(io,'(a)')'   variable G_FLOP_COUNTER is essentially the first component of the variable'
-write(io,'(a)')'   FLOP. The common variable CHP is initially zero, but it is set'
-write(io,'(a)')'   to p by the statement "chop(p)". To shorten the DATA statement,'
-write(io,'(a)')'   we assume there are only 6 hexadecimal digits. We also assume an'
-write(io,'(a)')'   extension of Fortran that allows .AND. to be used as a binary'
-write(io,'(a)')'   operation between two real variables.'
-write(io,'(a)')''
-write(io,'(a)')'         REAL FUNCTION FLOP(X)'
-write(io,'(a)')'         REAL X'
-write(io,'(a)')'         INTEGER G_FLOP_COUNTER,CHP'
-write(io,'(a)')'         COMMON G_FLOP_COUNTER,CHP'
-write(io,'(a)')'         REAL MASK(5)'
-write(io,'(a)')'         DATA MASK/ZFFFFFFF0,ZFFFFFF00,ZFFFFF000,ZFFFF0000,ZFFF00000/'
-write(io,'(a)')'         G_FLOP_COUNTER = G_FLOP_COUNTER + 1'
-write(io,'(a)')'         IF (CHP .EQ. 0) FLOP = X'
-write(io,'(a)')'         IF (CHP .GE. 1 .AND. CHP .LE. 5) FLOP = X .AND. MASK(CHP)'
-write(io,'(a)')'         IF (CHP .GE. 6) FLOP = 0.0'
-write(io,'(a)')'         END REAL FUNCTION FLOP'
-write(io,'(a)')''
-write(io,'(a)')'   The following subroutine illustrates a typical use of the'
-write(io,'(a)')'   previous function within MAT88. It is a simplified version of'
-write(io,'(a)')'   the Basic Linear Algebra Subprogram that adds a scalar multiple'
-write(io,'(a)')'   of one vector to another. We assume here that the vectors are'
-write(io,'(a)')'   stored with a memory increment of one.'
-write(io,'(a)')''
-write(io,'(a)')'         SUBROUTINE SAXPY(N,TR,TI,XR,XI,YR,YI)'
-write(io,'(a)')'         REAL TR,TI,XR(N),XI(N),YR(N),YI(N),FLOP'
-write(io,'(a)')'         IF (N .LE. 0) RETURN'
-write(io,'(a)')'         IF (TR .EQ. 0.0 .AND. TI .EQ. 0.0) RETURN'
-write(io,'(a)')'         DO I = 1, N'
-write(io,'(a)')'            YR(I) = FLOP(YR(I) + TR*XR(I) - TI*XI(I))'
-write(io,'(a)')'            YI(I) = YI(I) + TR*XI(I) + TI*XR(I)'
-write(io,'(a)')'            IF (YI(I) .NE. 0.0D0) YI(I) = FLOP(YI(I))'
-write(io,'(a)')'         enddo'
-write(io,'(a)')'         END SUBROUTINE SAXPY'
-write(io,'(a)')''
-write(io,'(a)')'   The saxpy operation is perhaps the most fundamental'
-write(io,'(a)')'   operation within LINPACK. It is used in the computation of the'
-write(io,'(a)')'   LU, the QR and the SVD factorizations, and in several other'
-write(io,'(a)')'   places. We see that adding a multiple of one vector with n'
-write(io,'(a)')'   components to another uses n flops if the vectors are real and'
-write(io,'(a)')'   between n and 2*n flops if the vectors have nonzero imaginary'
-write(io,'(a)')'   components.'
-write(io,'(a)')''
-write(io,'(a)')'   The permanent MAT88 variable "eps" is reset by the statement'
-write(io,'(a)')'   CHOP(p). Its new value is usually the smallest inverse power of'
-write(io,'(a)')'   two that satisfies the Fortran logical test'
-write(io,'(a)')''
-write(io,'(a)')'               FLOP(1.0+eps) .GT. 1.0'
-write(io,'(a)')''
-write(io,'(a)')'   However, if "eps" had been directly reset to a larger value, the'
-write(io,'(a)')'   old value is retained.'
-write(io,'(a)')''
-write(io,'(a)')'13. COMMUNICATING WITH OTHER PROGRAMS'
-write(io,'(a)')''
-write(io,'(a)')'   There are four different ways MAT88 can be used in'
-write(io,'(a)')'   conjunction with other programs:'
-write(io,'(a)')''
-write(io,'(a)')'         -- user,'
-write(io,'(a)')'         -- exec,'
-write(io,'(a)')'         -- save and load,'
-write(io,'(a)')'         -- MATZ, CALL and quit .'
-write(io,'(a)')''
-write(io,'(a)')'   Let us illustrate each of these by the following simple'
-write(io,'(a)')'   example.'
-write(io,'(a)')''
-write(io,'(a)')'         n = 6'
-write(io,'(a)')'         for i = 1:n, for j = 1:n, a(i,j) = abs(i-j);'
-write(io,'(a)')'         A'
-write(io,'(a)')'         X = inv(A)'
-write(io,'(a)')''
-write(io,'(a)')'   The example A could be introduced into MAT88 by writing'
-write(io,'(a)')'   the following Fortran subroutine.'
-write(io,'(a)')''
-write(io,'(a)')'            SUBROUTINE mat88_user(A,M,N,S,T)'
-write(io,'(a)')'            DOUBLEPRECISION A(*),S,T'
-write(io,'(a)')'            N = int(A(1))'
-write(io,'(a)')'            M = N'
-write(io,'(a)')'            DO J = 1, N'
-write(io,'(a)')'               DO I = 1, N'
-write(io,'(a)')'                  K = I + (J-1)*M'
-write(io,'(a)')'                  A(K) = IABS(I-J)'
-write(io,'(a)')'               enddo'
-write(io,'(a)')'            enddo'
-write(io,'(a)')'            END SUBROUTINE USER'
-write(io,'(a)')''
-write(io,'(a)')'   This subroutine should be compiled and linked into MAT88 in'
-write(io,'(a)')'   place of the original version of USER. Then the MAT88'
-write(io,'(a)')'   statements'
-write(io,'(a)')''
-write(io,'(a)')'         n = 6'
-write(io,'(a)')'         A = user(n)'
-write(io,'(a)')'         X = inv(A)'
-write(io,'(a)')''
-write(io,'(a)')'   do the job.'
-write(io,'(a)')''
-write(io,'(a)')'   The example A could be generated by storing the following'
-write(io,'(a)')'   text in a file named, say, EXAMPLE .'
-write(io,'(a)')''
-write(io,'(a)')'         for i = 1:n, for j = 1:n, a(i,j) = abs(i-j);'
-write(io,'(a)')''
-write(io,'(a)')'   Then the MAT88 statements'
-write(io,'(a)')''
-write(io,'(a)')'         n = 6'
-write(io,'(a)')'         exec(''EXAMPLE'',0)'
-write(io,'(a)')'         X = inv(A)'
-write(io,'(a)')''
-write(io,'(a)')'   have the desired effect. The 0 as the optional second parameter'
-write(io,'(a)')'   of exec indicates that the text in the file should not be printed'
-write(io,'(a)')'   on the terminal.'
-write(io,'(a)')''
-write(io,'(a)')'   The matrices A and X could also be stored in files. Two'
-write(io,'(a)')'   separate main programs would be involved. The first is:'
-write(io,'(a)')''
-write(io,'(a)')'            PROGRAM MAINA'
-write(io,'(a)')'            DOUBLEPRECISION A(10,10)'
-write(io,'(a)')'            N = 6'
-write(io,'(a)')'            DO J = 1, N'
-write(io,'(a)')'               DO I = 1, N'
-write(io,'(a)')'                  A(I,J) = IABS(I-J)'
-write(io,'(a)')'               enddo'
-write(io,'(a)')'            enddo'
-write(io,'(a)')'            OPEN(UNIT=1,FILE=''A'')'
-write(io,'(a)')'            WRITE(1,101) N,N'
-write(io,'(a)')'        101 FORMAT(''A   '',2I4)'
-write(io,'(a)')'            DO J = 1, N'
-write(io,'(a)')'               WRITE(1,102) (A(I,J),I=1,N)'
-write(io,'(a)')'            enddo'
-write(io,'(a)')'        102 FORMAT(4Z18)'
-write(io,'(a)')'            END PROGRAM MAINA'
-write(io,'(a)')''
-write(io,'(a)')'   The OPEN statement may take different forms on different systems.'
-write(io,'(a)')'   It attaches Fortran logical unit number 1 to the file named A.'
-write(io,'(a)')'   The FORMAT number 102 may also be system dependent. This'
-write(io,'(a)')'   particular one is appropriate for hexadecimal computers with an 8'
-write(io,'(a)')'   byte double precision floating point word. Check, or modify,'
-write(io,'(a)')'   MAT88 subroutine SAVLOD.'
-write(io,'(a)')''
-write(io,'(a)')'   After this program is executed, enter MAT88 and give the'
-write(io,'(a)')'   following statements:'
-write(io,'(a)')''
-write(io,'(a)')'         load(''A'')'
-write(io,'(a)')'         X = inv(A)'
-write(io,'(a)')'         save(''X'',X)'
-write(io,'(a)')''
-write(io,'(a)')'   If all goes according to plan, this will read the matrix A from'
-write(io,'(a)')'   the file A, invert it, store the inverse in X and then write the'
-write(io,'(a)')'   matrix X on the file X. The following program can then access X.'
-write(io,'(a)')''
-write(io,'(a)')'            PROGRAM MAINX'
-write(io,'(a)')'            DOUBLEPRECISION X(10,10)'
-write(io,'(a)')'            OPEN(UNIT=1,FILE=''X'')'
-write(io,'(a)')'            REWIND 1'
-write(io,'(a)')'            READ (1,101) ID,M,N'
-write(io,'(a)')'        101 FORMAT(A32,2I4)'
-write(io,'(a)')'            DO J = 1, N'
-write(io,'(a)')'               READ(1,102) (X(I,J),I=1,M)'
-write(io,'(a)')'            ENDDO'
-write(io,'(a)')'        102 FORMAT(4Z18)'
-write(io,'(a)')'            ...'
-write(io,'(a)')'            ...'
-write(io,'(a)')''
-write(io,'(a)')'   The most elaborate mechanism involves using MAT88 as a subroutine'
-write(io,'(a)')'   within another program. Communication with the MAT88 stack is'
-write(io,'(a)')'   accomplished using subroutine MATZ which is distributed with MAT88,'
-write(io,'(a)')'   but which is not used by MAT88 itself. The preamble of MATZ is:'
-write(io,'(a)')''
-write(io,'(a)')'         SUBROUTINE MATZ(A,LDA,M,N,ID,JOB,IERR)'
-write(io,'(a)')'         INTEGER LDA,M,N,JOB,IERR'
-write(io,'(a)')'         character(len=*) :: id'
-write(io,'(a)')'         DOUBLEPRECISION A(LDA,N)'
-write(io,'(a)')''
-write(io,'(a)')'         ! ACCESS MAT88 VARIABLE STACK'
-write(io,'(a)')'         ! A IS AN M BY N MATRIX, STORED IN AN ARRAY WITH'
-write(io,'(a)')'         !     LEADING DIMENSION LDA.'
-write(io,'(a)')'         ! ID IS THE NAME OF A. ID IS UP TO FOUR CHARACTERS.'
-write(io,'(a)')'         ! JOB =  0  GET REAL A FROM MAT88,'
-write(io,'(a)')'         !     =  1  PUT REAL A INTO MAT88,'
-write(io,'(a)')'         !     = 10  GET IMAG PART OF A FROM MAT88,'
-write(io,'(a)')'         !     = 11  PUT IMAG PART OF A INTO MAT88.'
-write(io,'(a)')'         ! RETURN WITH NONZERO IERR AFTER MAT88 ERROR MESSAGE.'
-write(io,'(a)')'         !'
-write(io,'(a)')'         ! USES MAT88 ROUTINES STACKG, STACKP AND ERROR'
-write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'        The preamble of subroutine MAT88 is:'
-write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'         SUBROUTINE MAT88(INIT)'
-write(io,'(a)')'         ! INIT = 0 FOR FIRST ENTRY, NONZERO FOR SUBSEQUENT ENTRIES'
-write(io,'(a)')''
-write(io,'(a)')''
-write(io,'(a)')'        To do our example, write the following program:'
-write(io,'(a)')''
-write(io,'(a)')'            DOUBLEPRECISION A(10,10),X(10,10)'
-write(io,'(a)')'            DATA LDA/10/'
-write(io,'(a)')'            CALL M_88(0,'''')'
-write(io,'(a)')'            N = 6'
-write(io,'(a)')'            DO J = 1, N'
-write(io,'(a)')'               DO I = 1, N'
-write(io,'(a)')'                  A(I,J) = IABS(I-J)'
-write(io,'(a)')'               enddo'
-write(io,'(a)')'            enddo'
-write(io,'(a)')'            CALL MATZ(A,LDA,N,N,''A'',1,IERR)'
-write(io,'(a)')'            IF (IERR .NE. 0) GO TO ...'
-write(io,'(a)')'            CALL MAT88(1,'''')'
-write(io,'(a)')'            CALL MATZ(X,LDA,N,N,''X'',0,IERR)'
-write(io,'(a)')'            IF (IERR .NE. 0) GO TO ...'
-write(io,'(a)')'            ...'
-write(io,'(a)')'            ...'
-write(io,'(a)')''
-write(io,'(a)')'   When this program is executed, the call to MAT88(0) produces the'
-write(io,'(a)')'   MAT88 greeting, then waits for input. The command'
-write(io,'(a)')''
-write(io,'(a)')'            quit'
-write(io,'(a)')''
-write(io,'(a)')'   sends control back to our example program. The matrix A is'
-write(io,'(a)')'   generated by the program and sent to the stack by the first call'
-write(io,'(a)')'   to MATZ. The call to MAT88(1) produces the MAT88(1) prompt. Then'
-write(io,'(a)')'   the statements'
-write(io,'(a)')''
-write(io,'(a)')'            X = inv(A)'
-write(io,'(a)')'            quit'
-write(io,'(a)')''
-write(io,'(a)')'   will invert our matrix, put the result on the stack and go back'
-write(io,'(a)')'   to our program. The second call to MATZ will retrieve X .'
-write(io,'(a)')''
-write(io,'(a)')'   By the way, this matrix X is interesting. Take a look at'
-write(io,'(a)')'   round(2*(n-1)*X).'
-write(io,'(a)')''
-write(io,'(a)')'ACKNOWLEDGEMENT'
-write(io,'(a)')''
-write(io,'(a)')'   Most of the work on MAT88 has been carried out at the University'
-write(io,'(a)')'   of New Mexico, where it is being supported by the National Science'
-write(io,'(a)')'   Foundation. Additional work has been done during visits to Stanford'
-write(io,'(a)')'   Linear Accelerator Center, Argonne National Laboratory and Los Alamos'
-write(io,'(a)')'   Scientific Laboratory, where support has been provided by NSF and the'
-write(io,'(a)')'   Department of Energy.'
-write(io,'(a)')''
-write(io,'(a)')'REFERENCES'
-write(io,'(a)')''
-write(io,'(a)')' [1]  J. J. Dongarra, J. R. Bunch, C. B. Moler and G. W. Stewart,'
-write(io,'(a)')'      LINPACK Users'' Guide, Society for Industrial and Applied'
-write(io,'(a)')'      Mathematics, Philadelphia, 1979.'
-write(io,'(a)')''
-write(io,'(a)')' [2]  B. T. Smith, J. M. Boyle, J. J. Dongarra, B. S. Garbow, Y.'
-write(io,'(a)')'      Ikebe, V. C. Klema, C. B. Moler, Matrix Eigensystem Routines'
-write(io,'(a)')'      -- EISPACK Guide, Lecture Notes in Computer Science, volume'
-write(io,'(a)')'      6, second edition, Springer-Verlag, 1976.'
-write(io,'(a)')''
-write(io,'(a)')' [3]  B. S. Garbow, J. M. Boyle, J. J. Dongarra, C. B. Moler,'
-write(io,'(a)')'      Matrix Eigensystem Routines -- EISPACK Guide Extension,'
-write(io,'(a)')'      Lecture Notes in Computer Science, volume 51, Springer-'
-write(io,'(a)')'      Verlag, 1977.'
-write(io,'(a)')''
-write(io,'(a)')' [4]  S. Cohen and S. Piper, SPEAKEASY III Reference Manual,'
-write(io,'(a)')'      Speakeasy Computing Corp., Chicago, Ill., 1979.'
-write(io,'(a)')''
-write(io,'(a)')' [5]  J. H. Wilkinson and C. Reinsch, Handbook for Automatic'
-write(io,'(a)')'      Computation, volume II, Linear Algebra, Springer-Verlag,'
-write(io,'(a)')'     1971.'
-write(io,'(a)')''
-write(io,'(a)')' [6]  Niklaus Wirth, Algorithms + Data Structures = Programs,'
-write(io,'(a)')'      Prentice-Hall, 1976.'
-write(io,'(a)')''
-write(io,'(a)')' [7]  H. B. Keller and D. Sachs, "Calculations of the Conductivity'
-write(io,'(a)')'      of a Medium Containing Cylindrical Inclusions", J. Applied'
-write(io,'(a)')'      Physics 35, 537-538, 1964.'
-write(io,'(a)')''
-write(io,'(a)')' [8]  C. B. Moler and C. F. Van Loan, Nineteen Dubious Ways to'
-write(io,'(a)')'      Compute the Exponential of a Matrix, SIAM Review 20, 801-'
-write(io,'(a)')'      836, 1979.'
-write(io,'(a)')''
-write(io,'(a)')' [9]  G. E. Forsythe, M. A. Malcolm and C. B. Moler, Computer'
-write(io,'(a)')'      Methods for Mathematical Computations, Prentice-Hall, 1977.'
-write(io,'(a)')''
-write(io,'(a)')' [10] C. B. Moler and D. R. Morrison, "Replacing square roots by'
-write(io,'(a)')'      Pythagorean sums", University of New Mexico, Computer'
-write(io,'(a)')'      Science Department, technical report, submitted for'
-write(io,'(a)')'     publication, 1980.'
-write(io,'(a)')''
-write(io,'(a)')'APPENDIX'
-end subroutine mat_make_manual
+function getd2(varname) result(answer)
+character(len=*),intent(in)  :: varname
+doubleprecision, allocatable :: answer(:,:)
+integer                      :: ierr
+   call mat88_get(answer,varname,type=0,ierr=ierr)
+end function getd2
+!===================================================================================================================================
+!x!function getc2(varname) result(answer)
+!x!character(len=*),intent(in)          :: varname
+!x!complex(kind=dp),allocatable         :: answer(:,:)
+!x!doubleprecision(kind=dp),allocatable :: AR(:,:), AI(:,:)
+!x!integer                              :: ierr
+!x!   call mat88_get(AR,varname,type=0,ierr=ierr)
+!x!   call mat88_get(AI,varname,type=1,ierr=ierr)
+!x!   answer=cmplx(AR,AI)
+!x!end function getc2
+!===================================================================================================================================
+function geti2(varname) result(answer)
+character(len=*),intent(in) :: varname
+integer, allocatable        :: answer(:,:)
+   answer=int(getd2('varname'))
+end function geti2
+!===================================================================================================================================
+function getr2(varname) result(answer)
+character(len=*),intent(in) :: varname
+real, allocatable           :: answer(:,:)
+   answer=int(getd2('varname'))
+end function getr2
+!===================================================================================================================================
+function gets2(varname) result(answer)
+character(len=*),intent(in)  :: varname
+integer, allocatable         :: A(:,:)
+character(len=:),allocatable :: answer(:)
+integer                      :: i
+   A=int(geti2('varname'))
+   allocate( character(len=size(A,dim=1)) :: answer(size(A,dim=2)) )
+   do i=1,size(A,dim=2)
+      call mat_buf2str(answer(i),A(i,:),len(answer))
+   enddo
+end function gets2
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine mat88_get(A,varname,JOB,IERR)
+subroutine mat88_get(A,varname,type,IERR)
 
-! ident_42="@(#)M_matrix::mat88_get(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
+! ident_41="@(#)M_matrix::mat88_get(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
 
 character(len=*),intent(in)              :: varname    ! the name of A.
-integer,intent(in)                       :: job        ! JOB =  0  get REAL A from MAT88, JOB  = 1  get IMAGINARY A into MAT88,
+integer,intent(in)                       :: type       ! type =  0  get REAL A from MAT88, type  = 1  get IMAGINARY A into MAT88,
 integer,INTENT(OUT)                      :: ierr       ! return with nonzero IERR after MAT88 error message.
 doubleprecision,allocatable,intent(out)  :: a(:,:)     ! A is an M by N matrix
 
@@ -10185,10 +10033,10 @@ integer                      :: i,j,k,l,m,n
          l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          do i=1,m
             do j=1,n
-               if(job.eq.0)then
-                  a(i,j)=G_STACK_REALS(l)       ! JOB =  0  GET REAL A FROM MAT88,
+               if(type.eq.0)then
+                  a(i,j)=G_STACK_REALS(l)       ! type =  0  GET REAL A FROM MAT88,
                else
-                  a(i,j)=G_STACK_IMAGS(l)       ! JOB =  1  GET IMAGINARY A FROM MAT88,
+                  a(i,j)=G_STACK_IMAGS(l)       ! type =  1  GET IMAGINARY A FROM MAT88,
                endif
                l=l+1
             enddo
@@ -10227,61 +10075,107 @@ end subroutine mat88_get
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-SUBROUTINE mat88_put(A,LDA,M,N,CID,JOB,IERR) !JSU
+SUBROUTINE mat88_put(A,CID,JOB,IERR) !JSU
 
-! ident_43="@(#)M_matrix:: mat88_put(3f0: put a variable name and its data from the stack into an array returned to the program"
+! ident_42="@(#)M_matrix:: mat88_put(3f): put a variable name and its data onto MAT88 stack"
 
-INTEGER                     :: LDA,M,N
-character(len=*),intent(in) :: cid        ! THE NAME OF A.  ID IS FOUR CHARACTERS
-DOUBLE PRECISION            :: A(LDA,N)   ! A IS AN M BY N MATRIX, STORED IN AN ARRAY WITH LEADING DIMENSION LDA.
-INTEGER,intent(in)          :: JOB
-                                          !     JOB =  0  GET REAL A FROM MAT88,
-                                          !         =  1  PUT REAL A INTO MAT88,
-                                          !         = 10  GET IMAG PART OF A FROM MAT88,
-                                          !         = 11  PUT IMAG PART OF A INTO MAT88.
-INTEGER,intent(out)         :: IERR       ! RETURN WITH NONZERO IERR AFTER MAT88 ERROR MESSAGE.
-INTEGER                     :: ID(GG_MAX_NAME_LENGTH)
-integer                     :: i,j,k
-!
-!     USES MAT88 ROUTINES MAT_STACK_GET, MAT_STACK_PUT AND MAT_ERROR
-!
-   IERR=0
+character(len=*),intent(in) :: cid                    ! the name of A.
+doubleprecision,intent(in)  :: a(:,:)                 ! A is an M by N matrix, stored in an array with leading dimension size_of_a.
+integer,intent(in)          :: job                    !     JOB =  1  put real A from MAT88,
+                                                      !         = 11  put imag part of A into MAT88.
+integer,intent(out)         :: ierr                   ! return with nonzero ierr after MAT88 error message.
+integer                     :: id(GG_MAX_NAME_LENGTH) ! ID = name, in numeric format
+integer                     :: i,j,k,location
+integer                     :: m,n,mn                 ! m, n = dimensions
+integer                     :: size_of_a
+integer                     :: space_left             ! JOB = SPACE AVAILABLE FOR LOAD
+integer                     :: img
+integer,parameter           :: blank=36
+integer,parameter           :: semi=39
+   ierr=0
    ! convert character name to mat88 character set
    call mat_str2buf(cid,id,len(cid))
    do j=1,GG_MAX_NAME_LENGTH
-      do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
+      do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters
          if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
             id(j)=k-1
          endif
       enddo
    enddo
+      !L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      !M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      !N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      !   JOB = G_STACK_ID_LOC(G_TOP_OF_SAVED) - L
 
-   call mat_stack_get(id)
-   if(G_ERR.gt.0)then
-      call mat_err(G_ERR)
-      iERR=G_ERR
+   write(*,*)'GOT HERE A:',G_BOTTOM_OF_SCRATCH_IN_USE
+   if(G_BOTTOM_OF_SCRATCH_IN_USE.ne.0)then
+      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) ! location of bottom of used scratch space
    else
-      call printit()
-      M=G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      N=G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      k=0
-      do i=1,m
-         do j=1,n
-               k=k+1
-               if(job.eq.0)then
-                  a(i,j)=G_STACK_REALS(k) ! JOB =  0  GET REAL A FROM MAT88,
-               else
-                  a(i,j)=G_STACK_IMAGS(k) ! JOB =  10  GET IMAGINARY A FROM MAT88,
-               endif
-         enddo
-      enddo
+     write(*,*)'GOT HERE B:',G_STACK_ID_LOC
+     location=1
    endif
 
-   contains
+   m=size(a,dim=1)
+   n=size(a,dim=2)
+   space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
+   if (m*n .GT. space_left ) then
+      m = 0
+      n = 0
+      call journal('sc','<ERROR>*mat88_put* insufficient space to save data to MAT88')
+      return
+   elseif(m*n.eq.0)then
+      return
+   else
+      size_of_a=size(a)
+   endif
+
+   !if(all(imag(a).eq.0)then
+   !      img=0  ! all imaginary values are 0
+   !else
+   !      img=1
+   !endif
+
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=m ! copy to global values
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=n
+
+   location = G_STACK_ID_LOC(G_TOP_OF_SAVED) +1
+   write(*,*)'GOT HERE A:',location
+
+   do i = 1, m
+      do j = 1, n
+         G_STACK_REALS(location)=a(i,j)              ! real
+         if (img .ne. 0) then
+            G_STACK_IMAGS(location)=a(i,j)           ! imaginary
+         endif
+         location=location+1
+      enddo
+   enddo
+
+   mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   if (mn .ne. 0)then
+      if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
+      do i = 1, GG_MAX_NAME_LENGTH
+         j = 0
+         do
+            j = j+1
+            if (id(i).ne.G_CHARSET(J) .and. j.le.blank) cycle
+            exit
+         enddo
+         id(i) = j-1
+      enddo
+      G_SYM = semi
+      G_RHS = 0
+      call mat_stack_put(ID)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
+   endif
+
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+
+contains
 
 subroutine printit()
 character(len=GG_MAX_NAME_LENGTH) :: name
-integer          :: l
+integer          :: location
    write(*,*)repeat('=',80)
    write(*,*)'CID=',CID
    write(*,*)'ID=',ID(:)
@@ -10291,9 +10185,9 @@ integer          :: l
       write(*,*)'G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       write(*,*)'G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       write(*,*)'G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,'(*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(L:L+(M*N-1))
-      write(*,'(*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(L:L+(M*N-1))
+      location=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,'(*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(location:location+(M*N-1))
+      write(*,'(*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(location:location+(M*N-1))
    endif
 end subroutine printit
 
@@ -10301,674 +10195,253 @@ end subroutine mat88_put
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine test_suite_M_matrix()
-use M_verify, only : unit_check_start,unit_check,unit_check_done,unit_check_good,unit_check_bad,unit_check_msg
-use M_verify, only : unit_check_level
-
-!! setup
-   call test_mat88()
-   call test_mat_appnum()
-   call test_mat_base()
-   call test_mat_buf2str()
-   call test_mat_clause()
-   call test_mat_comand()
-   call test_mat_eqid()
-   call test_mat_err()
-   call test_mat_expr()
-   call test_mat_factor()
-   call test_mat_files()
-   call test_mat_flop()
-   call test_mat_formz()
-   call test_mat_funs()
-   call test_mat_getch()
-   call test_mat_getlin()
-   call test_mat_getsym()
-   call test_mat_getval()
-   call test_mat_inverse_hilbert()
-   call test_mat_iwamax()
-   call test_mat_magic()
-   call test_help_command()
-   call test_mat_make_manual()
-   call test_mat_matfn1()
-   call test_mat_matfn2()
-   call test_mat_matfn3()
-   call test_mat_matfn4()
-   call test_mat_matfn5()
-   call test_mat_matfn6()
-   call test_mat_parse()
-   call test_mat_plot()
-   call test_mat_print()
-   call test_mat_prntid()
-   call test_mat_prompt()
-   call test_mat_putid()
-   call test_mat_pythag()
-   call test_mat_rat()
-   call test_mat_round()
-   call test_mat_rref()
-   call test_mat_rrot()
-   call test_mat_rrotg()
-   call test_mat_rset()
-   call test_mat_rswap()
-   call test_mat_savlod()
-   call test_mat_stack1()
-   call test_mat_stack2()
-   call test_MAT_STACK_GET()
-   call test_mat_stackp()
-   call test_mat_str2buf()
-   call test_mat_term()
-   call test_mat_urand()
-   call test_mat_wasum()
-   call test_mat_watan()
-   call test_mat_wcopy()
-   call test_mat_wdiv()
-   call test_mat_wdotci()
-   call test_mat_wdotcr()
-   call test_mat_wdotui()
-   call test_mat_wdotur()
-   call test_mat_wlog()
-   call test_mat_wmul()
-   call test_mat_wnrm2()
-   call test_mat_wpofa()
-   call test_mat_wrscal()
-   call test_mat_wscal()
-   call test_mat_wset()
-   call test_mat_wsign()
-   call test_mat_wsqrt()
-   call test_mat_wswap()
-   call test_matx_waxpy()
-   call test_ml_comqr3()
-   call test_ml_corth()
-   call test_ml_htribk()
-   call test_ml_htridi()
-   call test_ml_imtql2()
-   call test_ml_wgeco()
-   call test_ml_wgedi()
-   call test_ml_wgefa()
-   call test_ml_wgesl()
-   call test_ml_wqrdc()
-   call test_ml_wqrsl()
-   call test_ml_wsvdc()
-!! teardown
-contains
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat88()
-
-   call unit_check_start('mat88',msg='')
-   !!call unit_check('mat88', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat88',msg='')
-end subroutine test_mat88
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_appnum()
-
-   call unit_check_start('mat_appnum',msg='')
-   !!call unit_check('mat_appnum', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_appnum',msg='')
-end subroutine test_mat_appnum
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_base()
-
-   call unit_check_start('mat_base',msg='')
-   !!call unit_check('mat_base', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_base',msg='')
-end subroutine test_mat_base
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_buf2str()
-
-   call unit_check_start('mat_buf2str',msg='')
-   !!call unit_check('mat_buf2str', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_buf2str',msg='')
-end subroutine test_mat_buf2str
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_clause()
-
-   call unit_check_start('mat_clause',msg='')
-   !!call unit_check('mat_clause', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_clause',msg='')
-end subroutine test_mat_clause
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_comand()
-
-   call unit_check_start('mat_comand',msg='')
-   !!call unit_check('mat_comand', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_comand',msg='')
-end subroutine test_mat_comand
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_eqid()
-
-   call unit_check_start('mat_eqid',msg='')
-   !!call unit_check('mat_eqid', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_eqid',msg='')
-end subroutine test_mat_eqid
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_err()
-
-   call unit_check_start('mat_err',msg='')
-   !!call unit_check('mat_err', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_err',msg='')
-end subroutine test_mat_err
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_expr()
-
-   call unit_check_start('mat_expr',msg='')
-   !!call unit_check('mat_expr', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_expr',msg='')
-end subroutine test_mat_expr
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_factor()
-
-   call unit_check_start('mat_factor',msg='')
-   !!call unit_check('mat_factor', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_factor',msg='')
-end subroutine test_mat_factor
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_files()
-
-   call unit_check_start('mat_files',msg='')
-   !!call unit_check('mat_files', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_files',msg='')
-end subroutine test_mat_files
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_flop()
-
-   call unit_check_start('mat_flop',msg='')
-   !!call unit_check('mat_flop', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_flop',msg='')
-end subroutine test_mat_flop
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_formz()
-
-   call unit_check_start('mat_formz',msg='')
-   !!call unit_check('mat_formz', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_formz',msg='')
-end subroutine test_mat_formz
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_funs()
-
-   call unit_check_start('mat_funs',msg='')
-   !!call unit_check('mat_funs', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_funs',msg='')
-end subroutine test_mat_funs
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_getch()
-
-   call unit_check_start('mat_getch',msg='')
-   !!call unit_check('mat_getch', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_getch',msg='')
-end subroutine test_mat_getch
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_getlin()
-
-   call unit_check_start('mat_getlin',msg='')
-   !!call unit_check('mat_getlin', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_getlin',msg='')
-end subroutine test_mat_getlin
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_getsym()
-
-   call unit_check_start('mat_getsym',msg='')
-   !!call unit_check('mat_getsym', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_getsym',msg='')
-end subroutine test_mat_getsym
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_getval()
-
-   call unit_check_start('mat_getval',msg='')
-   !!call unit_check('mat_getval', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_getval',msg='')
-end subroutine test_mat_getval
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_inverse_hilbert()
-
-   call unit_check_start('mat_inverse_hilbert',msg='')
-   !!call unit_check('mat_inverse_hilbert', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_inverse_hilbert',msg='')
-end subroutine test_mat_inverse_hilbert
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_iwamax()
-
-   call unit_check_start('mat_iwamax',msg='')
-   !!call unit_check('mat_iwamax', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_iwamax',msg='')
-end subroutine test_mat_iwamax
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_magic()
-
-   call unit_check_start('mat_magic',msg='')
-   !!call unit_check('mat_magic', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_magic',msg='')
-end subroutine test_mat_magic
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_help_command()
-
-   call unit_check_start('help_command',msg='')
-   !!call unit_check('help_command', 0.eq.0, 'checking', 100)
-   call unit_check_done('help_command',msg='')
-end subroutine test_help_command
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_make_manual()
-
-   call unit_check_start('mat_make_manual',msg='')
-   !!call unit_check('mat_make_manual', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_make_manual',msg='')
-end subroutine test_mat_make_manual
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_matfn1()
-
-   call unit_check_start('mat_matfn1',msg='')
-   !!call unit_check('mat_matfn1', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_matfn1',msg='')
-end subroutine test_mat_matfn1
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_matfn2()
-
-   call unit_check_start('mat_matfn2',msg='')
-   !!call unit_check('mat_matfn2', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_matfn2',msg='')
-end subroutine test_mat_matfn2
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_matfn3()
-
-   call unit_check_start('mat_matfn3',msg='')
-   !!call unit_check('mat_matfn3', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_matfn3',msg='')
-end subroutine test_mat_matfn3
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_matfn4()
-
-   call unit_check_start('mat_matfn4',msg='')
-   !!call unit_check('mat_matfn4', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_matfn4',msg='')
-end subroutine test_mat_matfn4
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_matfn5()
-
-   call unit_check_start('mat_matfn5',msg='')
-   !!call unit_check('mat_matfn5', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_matfn5',msg='')
-end subroutine test_mat_matfn5
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_matfn6()
-
-   call unit_check_start('mat_matfn6',msg='')
-   !!call unit_check('mat_matfn6', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_matfn6',msg='')
-end subroutine test_mat_matfn6
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_parse()
-
-   call unit_check_start('mat_parse',msg='')
-   !!call unit_check('mat_parse', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_parse',msg='')
-end subroutine test_mat_parse
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_plot()
-
-   call unit_check_start('mat_plot',msg='')
-   !!call unit_check('mat_plot', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_plot',msg='')
-end subroutine test_mat_plot
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_print()
-
-   call unit_check_start('mat_print',msg='')
-   !!call unit_check('mat_print', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_print',msg='')
-end subroutine test_mat_print
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_prntid()
-
-   call unit_check_start('mat_print_id',msg='')
-   !!call unit_check('mat_print_id', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_print_id',msg='')
-end subroutine test_mat_prntid
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_prompt()
-
-   call unit_check_start('mat_prompt',msg='')
-   !!call unit_check('mat_prompt', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_prompt',msg='')
-end subroutine test_mat_prompt
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_putid()
-
-   call unit_check_start('mat_putid',msg='')
-   !!call unit_check('mat_putid', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_putid',msg='')
-end subroutine test_mat_putid
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_pythag()
-
-   call unit_check_start('mat_pythag',msg='')
-   !!call unit_check('mat_pythag', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_pythag',msg='')
-end subroutine test_mat_pythag
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_rat()
-
-   call unit_check_start('mat_rat',msg='')
-   !!call unit_check('mat_rat', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_rat',msg='')
-end subroutine test_mat_rat
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_round()
-
-   call unit_check_start('mat_round',msg='')
-   !!call unit_check('mat_round', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_round',msg='')
-end subroutine test_mat_round
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_rref()
-
-   call unit_check_start('mat_rref',msg='')
-   !!call unit_check('mat_rref', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_rref',msg='')
-end subroutine test_mat_rref
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_rrot()
-
-   call unit_check_start('mat_rrot',msg='')
-   !!call unit_check('mat_rrot', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_rrot',msg='')
-end subroutine test_mat_rrot
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_rrotg()
-
-   call unit_check_start('mat_rrotg',msg='')
-   !!call unit_check('mat_rrotg', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_rrotg',msg='')
-end subroutine test_mat_rrotg
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_rset()
-
-   call unit_check_start('mat_rset',msg='')
-   !!call unit_check('mat_rset', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_rset',msg='')
-end subroutine test_mat_rset
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_rswap()
-
-   call unit_check_start('mat_rswap',msg='')
-   !!call unit_check('mat_rswap', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_rswap',msg='')
-end subroutine test_mat_rswap
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_savlod()
-
-   call unit_check_start('mat_savlod',msg='')
-   !!call unit_check('mat_savlod', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_savlod',msg='')
-end subroutine test_mat_savlod
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_stack1()
-
-   call unit_check_start('mat_stack1',msg='')
-   !!call unit_check('mat_stack1', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_stack1',msg='')
-end subroutine test_mat_stack1
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_stack2()
-
-   call unit_check_start('mat_stack2',msg='')
-   !!call unit_check('mat_stack2', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_stack2',msg='')
-end subroutine test_mat_stack2
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_MAT_STACK_GET()
-
-   call unit_check_start('MAT_STACK_GET',msg='')
-   !!call unit_check('MAT_STACK_GET', 0.eq.0, 'checking', 100)
-   call unit_check_done('MAT_STACK_GET',msg='')
-end subroutine test_MAT_STACK_GET
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_stackp()
-
-   call unit_check_start('MAT_STACK_PUT',msg='')
-   !!call unit_check('MAT_STACK_PUT', 0.eq.0, 'checking', 100)
-   call unit_check_done('MAT_STACK_PUT',msg='')
-end subroutine test_mat_stackp
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_str2buf()
-
-   call unit_check_start('mat_str2buf',msg='')
-   !!call unit_check('mat_str2buf', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_str2buf',msg='')
-end subroutine test_mat_str2buf
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_term()
-
-   call unit_check_start('mat_term',msg='')
-   !!call unit_check('mat_term', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_term',msg='')
-end subroutine test_mat_term
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_urand()
-
-   call unit_check_start('mat_urand',msg='')
-   !!call unit_check('mat_urand', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_urand',msg='')
-end subroutine test_mat_urand
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wasum()
-
-   call unit_check_start('mat_wasum',msg='')
-   !!call unit_check('mat_wasum', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wasum',msg='')
-end subroutine test_mat_wasum
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_watan()
-
-   call unit_check_start('mat_watan',msg='')
-   !!call unit_check('mat_watan', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_watan',msg='')
-end subroutine test_mat_watan
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wcopy()
-
-   call unit_check_start('mat_wcopy',msg='')
-   !!call unit_check('mat_wcopy', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wcopy',msg='')
-end subroutine test_mat_wcopy
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wdiv()
-
-   call unit_check_start('mat_wdiv',msg='')
-   !!call unit_check('mat_wdiv', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wdiv',msg='')
-end subroutine test_mat_wdiv
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wdotci()
-
-   call unit_check_start('mat_wdotci',msg='')
-   !!call unit_check('mat_wdotci', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wdotci',msg='')
-end subroutine test_mat_wdotci
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wdotcr()
-
-   call unit_check_start('mat_wdotcr',msg='')
-   !!call unit_check('mat_wdotcr', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wdotcr',msg='')
-end subroutine test_mat_wdotcr
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wdotui()
-
-   call unit_check_start('mat_wdotui',msg='')
-   !!call unit_check('mat_wdotui', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wdotui',msg='')
-end subroutine test_mat_wdotui
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wdotur()
-
-   call unit_check_start('mat_wdotur',msg='')
-   !!call unit_check('mat_wdotur', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wdotur',msg='')
-end subroutine test_mat_wdotur
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wlog()
-
-   call unit_check_start('mat_wlog',msg='')
-   !!call unit_check('mat_wlog', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wlog',msg='')
-end subroutine test_mat_wlog
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wmul()
-
-   call unit_check_start('mat_wmul',msg='')
-   !!call unit_check('mat_wmul', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wmul',msg='')
-end subroutine test_mat_wmul
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wnrm2()
-
-   call unit_check_start('mat_wnrm2',msg='')
-   !!call unit_check('mat_wnrm2', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wnrm2',msg='')
-end subroutine test_mat_wnrm2
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wpofa()
-
-   call unit_check_start('mat_wpofa',msg='')
-   !!call unit_check('mat_wpofa', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wpofa',msg='')
-end subroutine test_mat_wpofa
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wrscal()
-
-   call unit_check_start('mat_wrscal',msg='')
-   !!call unit_check('mat_wrscal', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wrscal',msg='')
-end subroutine test_mat_wrscal
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wscal()
-
-   call unit_check_start('mat_wscal',msg='')
-   !!call unit_check('mat_wscal', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wscal',msg='')
-end subroutine test_mat_wscal
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wset()
-
-   call unit_check_start('mat_wset',msg='')
-   !!call unit_check('mat_wset', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wset',msg='')
-end subroutine test_mat_wset
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wsign()
-
-   call unit_check_start('mat_wsign',msg='')
-   !!call unit_check('mat_wsign', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wsign',msg='')
-end subroutine test_mat_wsign
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wsqrt()
-
-   call unit_check_start('mat_wsqrt',msg='')
-   !!call unit_check('mat_wsqrt', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wsqrt',msg='')
-end subroutine test_mat_wsqrt
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_mat_wswap()
-
-   call unit_check_start('mat_wswap',msg='')
-   !!call unit_check('mat_wswap', 0.eq.0, 'checking', 100)
-   call unit_check_done('mat_wswap',msg='')
-end subroutine test_mat_wswap
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_matx_waxpy()
-
-   call unit_check_start('matx_waxpy',msg='')
-   !!call unit_check('matx_waxpy', 0.eq.0, 'checking', 100)
-   call unit_check_done('matx_waxpy',msg='')
-end subroutine test_matx_waxpy
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_comqr3()
-
-   call unit_check_start('ml_comqr3',msg='')
-   !!call unit_check('ml_comqr3', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_comqr3',msg='')
-end subroutine test_ml_comqr3
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_corth()
-
-   call unit_check_start('ml_corth',msg='')
-   !!call unit_check('ml_corth', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_corth',msg='')
-end subroutine test_ml_corth
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_htribk()
-
-   call unit_check_start('ml_htribk',msg='')
-   !!call unit_check('ml_htribk', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_htribk',msg='')
-end subroutine test_ml_htribk
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_htridi()
-
-   call unit_check_start('ml_htridi',msg='')
-   !!call unit_check('ml_htridi', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_htridi',msg='')
-end subroutine test_ml_htridi
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_imtql2()
-
-   call unit_check_start('ml_imtql2',msg='')
-   !!call unit_check('ml_imtql2', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_imtql2',msg='')
-end subroutine test_ml_imtql2
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_wgeco()
-
-   call unit_check_start('ml_wgeco',msg='')
-   !!call unit_check('ml_wgeco', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_wgeco',msg='')
-end subroutine test_ml_wgeco
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_wgedi()
-
-   call unit_check_start('ml_wgedi',msg='')
-   !!call unit_check('ml_wgedi', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_wgedi',msg='')
-end subroutine test_ml_wgedi
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_wgefa()
-
-   call unit_check_start('ml_wgefa',msg='')
-   !!call unit_check('ml_wgefa', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_wgefa',msg='')
-end subroutine test_ml_wgefa
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_wgesl()
-
-   call unit_check_start('ml_wgesl',msg='')
-   !!call unit_check('ml_wgesl', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_wgesl',msg='')
-end subroutine test_ml_wgesl
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_wqrdc()
-
-   call unit_check_start('ml_wqrdc',msg='')
-   !!call unit_check('ml_wqrdc', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_wqrdc',msg='')
-end subroutine test_ml_wqrdc
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_wqrsl()
-
-   call unit_check_start('ml_wqrsl',msg='')
-   !!call unit_check('ml_wqrsl', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_wqrsl',msg='')
-end subroutine test_ml_wqrsl
-!TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-subroutine test_ml_wsvdc()
-
-   call unit_check_start('ml_wsvdc',msg='')
-   !!call unit_check('ml_wsvdc', 0.eq.0, 'checking', 100)
-   call unit_check_done('ml_wsvdc',msg='')
-end subroutine test_ml_wsvdc
-!===================================================================================================================================
-end subroutine test_suite_M_matrix
+function system_getenv(name,default) result(value)
+
+! ident_43="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
+
+character(len=*),intent(in)          :: name
+character(len=*),intent(in),optional :: default
+integer                              :: howbig
+integer                              :: stat
+character(len=:),allocatable         :: value
+
+   if(NAME.ne.'')then
+      call get_environment_variable(name, length=howbig, status=stat, trim_name=.true.)  ! get length required to hold value
+      if(howbig.ne.0)then
+         select case (stat)
+         case (1)     ! print *, NAME, " is not defined in the environment. Strange..."
+            value=''
+         case (2)     ! print *, "This processor doesn't support environment variables. Boooh!"
+            value=''
+         case default ! make string to hold value of sufficient size and get value
+            if(allocated(value))deallocate(value)
+            allocate(character(len=max(howbig,1)) :: VALUE)
+            call get_environment_variable(name,value,status=stat,trim_name=.true.)
+            if(stat.ne.0)VALUE=''
+         end select
+      else
+         value=''
+      endif
+   else
+      value=''
+   endif
+   if(value.eq.''.and.present(default))value=default
+
+end function system_getenv
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+subroutine mat_inverse_hilbert(a,lda,n)
+
+! ident_44="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
+!
+! References:
+! Forsythe, G. E. and C. B. Moler. Computer Solution of Linear Algebraic Systems. Englewood Cliffs, NJ: Prentice-Hall, 1967.
+
+integer,intent(in)          :: lda
+integer,intent(in)          :: n
+doubleprecision,intent(out) :: a(lda,n)
+
+doubleprecision :: p
+doubleprecision :: r
+integer         :: i
+integer         :: j
+integer         :: ip1
+
+   p = dble(n)
+
+   do i = 1, n
+      if (i.ne.1) p = (dble(n-i+1) * p * dble(n+i-1)) / dble(i-1)**2
+      r = p * p
+      a(i,i) = r / dble(2*i-1)
+      if (i.eq.n) cycle
+      ip1 = i + 1
+      do j = ip1, n
+         r = (-1) * (dble(n-j+1) * r * (n+j-1)) / dble(j-1)**2
+         a(i,j) = r/ dble(i+j-1)
+         a(j,i) = a(i,j)
+      enddo
+   enddo
+
+end subroutine mat_inverse_hilbert
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+subroutine mat_magic(a,lda,n)
+!
+! ident_45="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
+
+!        Algorithms taken from
+!        Mathematical Recreations and Essays, 12th Ed.,
+!        by W. W. Rouse Ball and H. S. M. Coxeter
+!
+integer         :: lda
+integer         :: n
+doubleprecision :: a(lda,n)
+
+doubleprecision :: t
+integer         :: i
+integer         :: j
+integer         :: k
+integer         :: m
+integer         :: mm
+integer         :: i1
+integer         :: im
+integer         :: j1
+integer         :: jm
+integer         :: m1
+integer         :: m2
+!
+   if (mod(n,4) .eq. 0) goto 100
+   if (mod(n,2) .eq. 0) m = n/2
+   if (mod(n,2) .ne. 0) m = n
+!
+!     odd order or upper corner of even order
+!
+   do j = 1,m
+      do i = 1,m
+         a(i,j) = 0
+      enddo
+   enddo
+   i = 1
+   j = (m+1)/2
+   mm = m*m
+   do k = 1, mm
+      a(i,j) = k
+      i1 = i-1
+      j1 = j+1
+      if(i1.lt.1) i1 = m
+      if(j1.gt.m) j1 = 1
+      if(int(a(i1,j1)).eq.0) goto 30
+      i1 = i+1
+      j1 = j
+30    continue
+      i = i1
+      j = j1
+   enddo
+   if (mod(n,2) .ne. 0) return
+!
+!     rest of even order
+!
+   t = dble(m*m)
+   do i = 1, m
+      do j = 1, m
+         im = i+m
+         jm = j+m
+         a(i,jm) = a(i,j) + 2*t
+         a(im,j) = a(i,j) + 3*t
+         a(im,jm) = a(i,j) + t
+      enddo
+   enddo
+   m1 = (m-1)/2
+   if (m1.eq.0) return
+   do j = 1, m1
+      call mat_rswap(m,a(1,j),1,a(m+1,j),1)
+   enddo
+   m1 = (m+1)/2
+   m2 = m1 + m
+   call mat_rswap(1,a(m1,1),1,a(m2,1),1)
+   call mat_rswap(1,a(m1,m1),1,a(m2,m1),1)
+   m1 = n+1-(m-3)/2
+   if(m1.gt.n) return
+   do j = m1, n
+      call mat_rswap(m,a(1,j),1,a(m+1,j),1)
+   enddo
+   return
+!
+!     double even order
+!
+100 continue
+   k = 1
+   do i = 1, n
+      do j = 1, n
+         a(i,j) = k
+         if (mod(i,4)/2 .eq. mod(j,4)/2) a(i,j) = n*n+1 - k
+         k = k+1
+      enddo
+   enddo
+end subroutine mat_magic
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+subroutine mat_rref(ar,ai,lda,m,n,eps)
+integer,intent(in) :: lda
+doubleprecision    :: ar(lda,*)
+doubleprecision    :: ai(lda,*)
+integer            :: m
+integer            :: n
+doubleprecision    :: eps
+
+doubleprecision    :: tol
+doubleprecision    :: tr
+doubleprecision    :: ti
+integer            :: i, j, k, l
+
+   tol = 0.0d0
+   do j = 1, n
+      tol = dmax1(tol,mat_wasum(m,ar(1,j),ai(1,j),1))
+   enddo
+   tol = eps*dble(2*max0(m,n))*tol
+   k = 1
+   l = 1
+   INFINITE: do
+      IF (K.GT.M .OR. L.GT.N) RETURN
+
+      i = mat_iwamax(m-k+1,ar(k,l),ai(k,l),1) + k-1
+      if (dabs(ar(i,l))+dabs(ai(i,l)) .le. tol)then
+         call mat_wset(m-k+1,0.0d0,0.0d0,ar(k,l),ai(k,l),1)
+         l = l+1
+         cycle INFINITE
+      endif
+
+      call mat_wswap(n-l+1,ar(i,l),ai(i,l),lda,ar(k,l),ai(k,l),lda)
+      call mat_wdiv(1.0d0,0.0d0,ar(k,l),ai(k,l),tr,ti)
+      call mat_wscal(n-l+1,tr,ti,ar(k,l),ai(k,l),lda)
+      ar(k,l) = 1.0d0
+      ai(k,l) = 0.0d0
+      do i = 1, m
+         tr = -ar(i,l)
+         ti = -ai(i,l)
+         if (i .ne. k) call matX_waxpy(n-l+1,tr,ti,ar(k,l),ai(k,l),lda,ar(i,l),ai(i,l),lda)
+      enddo
+      K = K+1
+      L = L+1
+   enddo INFINITE
+end subroutine mat_rref
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+doubleprecision function mat_pythag(a,b)
+doubleprecision :: a
+doubleprecision :: b
+
+doubleprecision :: p
+doubleprecision :: q
+doubleprecision :: r
+doubleprecision :: s
+doubleprecision :: t
+
+   p = dmax1(dabs(a),dabs(b))
+   q = dmin1(dabs(a),dabs(b))
+
+   if (q .ne. 0.0d0) then
+
+      INFINITE : do
+         r = (q/p)**2
+         t = 4.0d0 + r
+         if (t .eq. 4.0d0) exit INFINITE
+         s = r/t
+         p = p + 2.0d0*p*s
+         q = q*s
+      enddo INFINITE
+
+   endif
+
+   mat_pythag = p
+end function mat_pythag
 end module M_matrix
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!

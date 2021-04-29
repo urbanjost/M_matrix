@@ -20,8 +20,8 @@ doubleprecision,allocatable   :: answer(:,:)
       enddo   
    enddo   
    RUN: block
-!      ! The matrix ARR and sent to the stack by the first call to mat_MATZ.
-!      call mat_matz(arr,lda,n,n,'A',1,ierr)
+      ! The matrix ARR and sent to the stack by the first call to mat_MATZ.
+      call mat88_put(arr,'ARR',0,ierr)
 !      if (ierr .ne. 0) exit run
 !      ! The call to mat88(1,'X=inv(A)') will invert our matrix, put the result
 !      ! X on the stack and go back to our program.
