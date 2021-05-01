@@ -7591,8 +7591,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   is one of several ways in MAT88 to invert a matrix.                          ',&
 '                                                                                ',&
-'   "flop" provides a count of the number of floating point operations,          ',&
-'   or "flops", required for each calculation.                                   ',&
+'   "flop" provides a measure of the number of floating point operations,        ',&
+'   or "flops", required for each calculation by reporting the CPU time          ',&
+'   consumed.                                                                    ',&
 '                                                                                ',&
 '   A statement may consist of an expression alone, in which case a              ',&
 '   variable named "ans" is created and the result stored in "ans" for           ',&
@@ -7685,7 +7686,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Future versions of MAT88 will probably include additional functions,         ',&
 '   since they can easily be added to the system.                                ',&
-'                                                                                ',&
 '                                                                                ',&
 '================================================================================',&
 'ROWS COLUMNS AND SUBMATRICES                                                    ',&
@@ -8058,7 +8058,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   together with one floating point addition and the associated                 ',&
 '   indexing and storage reference operations.                                   ',&
 '                                                                                ',&
-'   MAT88 will print the number of flops required for a particular               ',&
+'   MAT88 will print the CPU time required for a particular                      ',&
 '   statement when the statement is terminated by an extra comma. For            ',&
 '   example, the line                                                            ',&
 '                                                                                ',&
@@ -8086,7 +8086,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '             1.1000                                                             ',&
 '                                                                                ',&
-'                                                                                ',&
 '   "flop(2)" is the cumulative total of all the flops used since                ',&
 '   the beginning of the MAT88 session. The statement                            ',&
 '                                                                                ',&
@@ -8095,31 +8094,20 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   resets the total.                                                            ',&
 '                                                                                ',&
 '   There are several difficulties associated with keeping a                     ',&
-'   precise count of floating point operations. An addition or                   ',&
-'   subtraction that is not paired with a multiplication is usually              ',&
-'   counted as a flop. The same is true of an isolated multiplication            ',&
-'   that is not paired with an addition. Each floating point                     ',&
-'   division counts as a flop. But the number of operations required             ',&
-'   by system dependent library functions such as square root cannot             ',&
-'   be counted, so most elementary functions are arbitrarily counted             ',&
-'   as using only one flop.                                                      ',&
+'   precise count of floating point operations.                                  ',&
 '                                                                                ',&
-'   The biggest difficulty occurs with complex arithmetic.                       ',&
-'   Almost all operations on the real parts of matrices are counted.             ',&
-'   However, the operations on the complex parts of matrices are                 ',&
-'   counted only when they involve nonzero elements. This means that             ',&
-'   simple operations on nonreal matrices require only about twice as            ',&
-'   many flops as the same operations on real matrices. This factor              ',&
-'   of two is not necessarily an accurate measure of the relative                ',&
+'   As the program generally uses complex values but only performs               ',&
+'   operations on the real matrices in many cases where all the imaginary        ',&
+'   values are zero it may not provide an accurate measure of the relative       ',&
 '   costs of real and complex arithmetic.                                        ',&
 '                                                                                ',&
-'   The result of each floating point operation may also be                      ',&
-'   "chopped" to simulate a computer with a shorter word length. The             ',&
-'   details of this chopping operation depend upon the format of the             ',&
-'   floating point word. Usually, the fraction in the floating point             ',&
-'   word can be regarded as consisting of several octal or                       ',&
-'   hexadecimal digits. The least significant of these digits can be             ',&
-'   set to zero by a logical masking operation. Thus the statement               ',&
+'   The result of each floating point operation may also be "chopped"            ',&
+'   to simulate a computer with a shorter word length. The details               ',&
+'   of this chopping operation depend upon the format of the floating            ',&
+'   point word. Usually, the fraction in the floating point word can be          ',&
+'   regarded as consisting of several octal or hexadecimal digits. The           ',&
+'   least significant of these digits can be set to zero by a logical            ',&
+'   masking operation. Thus the statement                                        ',&
 '                                                                                ',&
 '         chop(p)                                                                ',&
 '                                                                                ',&
@@ -8144,13 +8132,13 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   The following Fortran subprograms illustrate more details of                 ',&
 '   "flop" and "chop". The first subprogram is a simplified example of a         ',&
-'   system-dependent function used within MAT88 itself. The common               ',&
-'   variable G_FLOP_COUNTER is essentially the first component of the variable   ',&
-'   FLOP. The common variable CHP is initially zero, but it is set               ',&
-'   to p by the statement "chop(p)". To shorten the DATA statement,              ',&
-'   we assume there are only 6 hexadecimal digits. We also assume an             ',&
-'   extension of Fortran that allows .AND. to be used as a binary                ',&
-'   operation between two real variables.                                        ',&
+'   system-dependent function used within MAT88 itself. The common variable      ',&
+'   G_FLOP_COUNTER is essentially the first component of the variable            ',&
+'   FLOP. The common variable CHP is initially zero, but it is set to p          ',&
+'   by the statement "chop(p)". To shorten the DATA statement, we assume         ',&
+'   there are only 6 hexadecimal digits. We also assume an extension of          ',&
+'   Fortran that allows .AND. to be used as a binary operation between           ',&
+'   two real variables.                                                          ',&
 '                                                                                ',&
 '         REAL FUNCTION FLOP(X)                                                  ',&
 '         REAL X                                                                 ',&
@@ -8201,10 +8189,10 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'CENSUS EXAMPLE                                                                  ',&
 '                                                                                ',&
-'   Our first extended example involves predicting the                           ',&
-'   population of the United States in 1980 using extrapolation of               ',&
-'   various fits to the census data from 1900 through 1970. There                ',&
-'   are eight observations, so we begin with the MAT88 statement                 ',&
+'   Our first extended example involves predicting the population of the         ',&
+'   United States in 1980 using extrapolation of various fits to the             ',&
+'   census data from 1900 through 1970. There are eight observations,            ',&
+'   so we begin with the MAT88 statement                                         ',&
 '                                                                                ',&
 '      n = 8                                                                     ',&
 '                                                                                ',&
@@ -8228,9 +8216,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      t = <-1 -.75 -.50 -.25 0 .25 .50 .75>                                     ',&
 '                                                                                ',&
-'   The interpolating polynomial of degree n-1 involves an                       ',&
-'   Vandermonde matrix of order n with elements that might be                    ',&
-'   generated by                                                                 ',&
+'   The interpolating polynomial of degree n-1 involves an Vandermonde           ',&
+'   matrix of order n with elements that might be generated by                   ',&
 '                                                                                ',&
 '      for i = 1:n, for j = 1:n, a(i,j) = t(i)**(j-1);                           ',&
 '                                                                                ',&
@@ -8250,8 +8237,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '         1.1819E+03                                                             ',&
 '                                                                                ',&
-'   which indicates that transformation of the time variable has                 ',&
-'   resulted in a reasonably well conditioned matrix.                            ',&
+'   which indicates that transformation of the time variable has resulted        ',&
+'   in a reasonably well conditioned matrix.                                     ',&
 '                                                                                ',&
 '        The statement                                                           ',&
 '                                                                                ',&
@@ -8290,23 +8277,21 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '        426.0950                                                                ',&
 '                                                                                ',&
-'   which indicates a 1980 population of over 426 million. Clearly,              ',&
-'   using the seventh degree interpolating polynomial to extrapolate             ',&
-'   even a fairly short distance beyond the end of the data interval             ',&
-'   is not a good idea.                                                          ',&
+'   which indicates a 1980 population of over 426 million. Clearly, using        ',&
+'   the seventh degree interpolating polynomial to extrapolate even a            ',&
+'   fairly short distance beyond the end of the data interval is not a           ',&
+'   good idea.                                                                   ',&
 '                                                                                ',&
-'   The coefficients in least squares fits by polynomials of                     ',&
-'   lower degree can be computed using fewer than n columns of the               ',&
-'   matrix.                                                                      ',&
+'   The coefficients in least squares fits by polynomials of lower degree        ',&
+'   can be computed using fewer than n columns of the matrix.                    ',&
 '                                                                                ',&
 '      for k = 1:n, c = A(:,1:k)\y,  p = sum(c)                                  ',&
 '                                                                                ',&
 '   would produce the coefficients of these fits, as well as the                 ',&
-'   resulting extrapolated population. If we do not want to print                ',&
-'   all the coefficients, we can simply generate a small table of                ',&
-'   populations predicted by polynomials of degrees zero through                 ',&
-'   seven. We also compute the maximum deviation between the fitted              ',&
-'   and observed values.                                                         ',&
+'   resulting extrapolated population. If we do not want to print all the        ',&
+'   coefficients, we can simply generate a small table of populations            ',&
+'   predicted by polynomials of degrees zero through seven. We also              ',&
+'   compute the maximum deviation between the fitted and observed values.        ',&
 '                                                                                ',&
 '      for k = 1:n, X = A(:,1:k);  c = X\y;  ...                                 ',&
 '         d(k) = k-1;  p(k) = sum(c);  e(k) = norm(X*c-y,''inf'');               ',&
@@ -8324,15 +8309,14 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         7   426.0950   0.0000                                                  ',&
 '                                                                                ',&
 '   The zeroth degree fit, 132.7 million, is the result of fitting a             ',&
-'   constant to the data and is simply the average. The results                  ',&
-'   obtained with polynomials of degree one through four all appear              ',&
-'   reasonable. The maximum deviation of the degree four fit is                  ',&
-'   slightly greater than the degree three, even though the sum of               ',&
-'   the squares of the deviations is less. The coefficients of the               ',&
-'   highest powers in the fits of degree five and six turn out to be             ',&
-'   negative and the predicted populations of less than 200 million              ',&
-'   are probably unrealistic. The hopefully absurd prediction of the             ',&
-'   interpolating polynomial concludes the table.                                ',&
+'   constant to the data and is simply the average. The results obtained         ',&
+'   with polynomials of degree one through four all appear reasonable. The       ',&
+'   maximum deviation of the degree four fit is slightly greater than the        ',&
+'   degree three, even though the sum of the squares of the deviations           ',&
+'   is less. The coefficients of the highest powers in the fits of degree        ',&
+'   five and six turn out to be negative and the predicted populations of        ',&
+'   less than 200 million are probably unrealistic. The hopefully absurd         ',&
+'   prediction of the interpolating polynomial concludes the table.              ',&
 '                                                                                ',&
 '   We wish to emphasize that roundoff errors are not significant                ',&
 '   here. Nearly identical results would be obtained on other computers,         ',&
@@ -8715,7 +8699,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '        144. -178.  -46.                                                        ',&
 '       -771.  962.  248.                                                        ',&
 '                                                                                ',&
-'                                                                                ',&
 '   This, then, is our test matrix. We can now forget how it                     ',&
 '   was generated and analyze its eigenvalues.                                   ',&
 '                                                                                ',&
@@ -9027,13 +9010,10 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         !                                                                      ',&
 '         ! USES MAT88 ROUTINES STACKG, STACKP AND ERROR                         ',&
 '                                                                                ',&
-'                                                                                ',&
 '        The preamble of subroutine MAT88 is:                                    ',&
-'                                                                                ',&
 '                                                                                ',&
 '         SUBROUTINE MAT88(INIT)                                                 ',&
 '         ! INIT = 0 FOR FIRST ENTRY, NONZERO FOR SUBSEQUENT ENTRIES             ',&
-'                                                                                ',&
 '                                                                                ',&
 '        To do our example, write the following program:                         ',&
 '                                                                                ',&
@@ -9147,11 +9127,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 ' |______________._________________________________________________________|     ',&
 ' |OUTPUT options| lines  long  short  diary  display  plot                |     ',&
 ' |______________._________________________________________________________|     ',&
-' |PERFORMANCE   | flops  flps                                             |     ',&
-' |______________._________________________________________________________|     ',&
 ' |DOCUMENTATION | help   manual topics NEWS     SUMMARY                   |     ',&
 ' |______________._________________________________________________________|     ',&
-' |MISCELLANEOUS | char   eps   debug  what   MACROS   EDIT    sh          |     ',&
+' |MISCELLANEOUS | char   eps   debug  what   MACROS   EDIT    flops  sh   |     ',&
 ' |______________._________________________________________________________|     ',&
 '================================================================================',&
 'SAMPLE                                                                          ',&
@@ -9250,7 +9228,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      For the use of ">" and "<" to delineate macros, see MACROS.               ',&
 '                                                                                ',&
-'                                                                                ',&
 '{     see "(".                                                                  ',&
 '}     see "(".                                                                  ',&
 ')     See "(" .                                                                 ',&
@@ -9273,7 +9250,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      matrix formed from the elements of A whose subscripts are the             ',&
 '      elements of V and W. For example...  A(<1,5>,:) = A(<5,1>,:)              ',&
 '      interchanges rows 1 and 5 of A.                                           ',&
-'                                                                                ',&
 '                                                                                ',&
 '=     Used in assignment statements and to mean equality in "while"             ',&
 '      and "if" clauses.                                                         ',&
@@ -9443,7 +9419,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      nonpositive eigenvalues.                                                  ',&
 '                                                                                ',&
 'sin   sin(X) is the sine of X. See HIGH.                                        ',&
-'                                                                                ',&
 '                                                                                ',&
 'sqrt  sqrt(X) is the square root of X. See HIGH. Complex                        ',&
 '      results are produced if X is not positive, or has                         ',&
@@ -9986,7 +9961,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      "display" has an alias of "disp".                                         ',&
 '                                                                                ',&
-'                                                                                ',&
 'plot  "plot(X,Y)" produces a plot of the elements of Y against                  ',&
 '      those of X. plot(Y) is the same as plot(1:n,Y) where n is the number      ',&
 '      of elements in Y. plot(X,Y,P) or "plot(X,Y,p1,...,pk)" passes the         ',&
@@ -10011,8 +9985,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'flops  Count of floating point operations.                                      ',&
 '                                                                                ',&
 '       "flops" is a permanently defined row vector with two                     ',&
-'       elements. "flops(1)" is the number of floating point operations          ',&
-'       counted during the previous statement. "flops(2)" is a cumulative        ',&
+'       elements. "flops(1)" is the cpu time consumed by the                     ',&
+'       the previous statement. "flops(2)" is a cumulative                       ',&
 '       total. "flops" can be used in the same way as any other                  ',&
 '       vector. "flops(2) = 0" resets the cumulative total. In addition,         ',&
 '       "flops(1)" will be printed whenever a statement is terminated by         ',&
@@ -10024,24 +9998,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '         cond(A), (as the last statement on the line).                          ',&
 '                                                                                ',&
-'       "help flps" gives more details.                                          ',&
-'                                                                                ',&
-'flps   More detail on "flops".                                                  ',&
-'       It is not feasible to count absolutely all floating point                ',&
-'       operations, but most of the important ones are counted.                  ',&
-'       Each multiply and add in a real vector operation such as a               ',&
-'       dot product or a ''saxpy'' counts one flop. Each multiply                ',&
-'       and add in a complex vector operation counts two flops.                  ',&
-'       Other additions, subtractions and multiplications count one              ',&
-'       flop each if the result is real and two flops if it is not.              ',&
-'       Real divisions count one and complex divisions count two.                ',&
-'       Elementary functions count one if real and two if complex.               ',&
-'       Some examples. If A and B are real N by N matrices, then                 ',&
-'                                                                                ',&
-'        A + B  counts N**2 flops,                                               ',&
-'        A*B    counts N**3 flops,                                               ',&
-'        A**100 counts 99*N**3 flops,                                            ',&
-'        LU(A)  counts roughly (1/3)*N**3 flops.                                 ',&
 '================================================================================',&
 'MISCELLANEOUS                                                                   ',&
 '                                                                                ',&
