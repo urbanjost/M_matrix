@@ -1,4 +1,8 @@
 module M_matrix
+use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
+use M_strings, only : value_to_string, lower, v2s, s2v
+use M_journal, only : journal
+use M_history, only : redo
 !>
 !!##SYNTAX DIAGRAMS (9)
 !!
@@ -200,8 +204,6 @@ module M_matrix
 !!    I have seen it on IBM mainframes and IBM PCs.
 !!
 !!    Subsequent changes per John S. Urban: see change log and git(1) history
-use M_journal, only : journal
-use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
 implicit none
 !private
 public mat88
@@ -977,7 +979,7 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [27,10,23,13,36,GG_PAD
       call mat_help_text()                                                   ! initialize help text
       G_CURRENT_RANDOM_SEED = 0                                              ! random number seed
       G_CURRENT_RANDOM_TYPE = 0                                              ! set the type of random numbers to compute
-      G_LINECOUNT(2) = 25                                                    ! initial line limit for paging output
+      G_LINECOUNT(2) = 21                                                    ! initial line limit for paging output
 
       call mat_str2buf(G_DEFINE_CHARSET,G_CHARSET,G_CHARSET_SIZE)            ! convert character set string to hollerith
       call mat_str2buf(G_DEFINE_ALT_CHARSET,G_ALT_CHARSET,G_CHARSET_SIZE)    ! convert character set string to hollerith
@@ -1379,6 +1381,7 @@ integer,parameter :: seed(GG_MAX_NAME_LENGTH)   =[28,14,14,13,36,36,36,GG_PAD(4:
 integer           :: id(GG_MAX_NAME_LENGTH)
 doubleprecision   :: eps0,eps,s,sr,si,t
 character(len=80) :: message
+character(len=GG_LINELEN) :: string_buf
 !
       IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN6* ',G_FIN)
 !     FUNCTIONS/G_FIN
@@ -1390,7 +1393,7 @@ character(len=80) :: message
       FUN6: select case(G_fin)
 !===================================================================================================================================
       case(1) ! COMMAND::MAGIC
-      N = MAX0(int(G_STACK_REALS(L)),0)
+      N = MAX(int(G_STACK_REALS(L)),0)
       IF (N .EQ. 2) N = 0
       IF (N .GT. 0) CALL mat_magic(G_STACK_REALS(L),N,N)
       CALL mat_rset(N*N,0.0D0,G_STACK_IMAGS(L),1)
@@ -1405,11 +1408,11 @@ character(len=80) :: message
       L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       MA = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       NA = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      LA = L + MAX0(M*N*MA*NA,M*N+MA*NA)
+      LA = L + MAX(M*N*MA*NA,M*N+MA*NA)
       LB = LA + MA*NA
-      G_ERR = LB + M*N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
+
+      if(too_much_memory(LB + M*N - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
+
 !     MOVE A AND B ABOVE RESULT
       CALL mat_wcopy(MA*NA+M*N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LA),G_STACK_IMAGS(LA),1)
       DO JA = 1, NA
@@ -1561,12 +1564,10 @@ character(len=80) :: message
                if (ll .gt. 0) call mat_wset(ll, 0.0d0, 0.0d0, G_STACK_REALS(ls), G_STACK_IMAGS(ls), 1)
             enddo
       elseif (m .eq. 1 .or. n .eq. 1) then
-         n = max0(m,n)+iabs(k)
-         G_ERR = l+n*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-         if (G_ERR .gt. 0) then
-            call mat_err(17)
-            return
-         endif
+         n = max(m,n)+iabs(k)
+
+         if(too_much_memory( l+n*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
+
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
          do jb = 1, n
@@ -1585,9 +1586,9 @@ character(len=80) :: message
             enddo
          enddo
       else
-         if (k.ge.0) mn=min0(m,n-k)
-         if (k.lt.0) mn=min0(m+k,n)
-         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = max0(mn,0)
+         if (k.ge.0) mn=min(m,n-k)
+         if (k.lt.0) mn=min(m+k,n)
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = max(mn,0)
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
          if (mn .le. 0) exit FUN6
          do i = 1, mn
@@ -1634,12 +1635,12 @@ character(len=80) :: message
       endif
 
       if (n .le. 1) then
-         m = max0(int(G_STACK_REALS(l)),0)
-         if (G_RHS .eq. 2) n = max0(nn,0)
+         m = max(int(G_STACK_REALS(l)),0)
+         if (G_RHS .eq. 2) n = max(nn,0)
          if (G_RHS .ne. 2) n = m
-         G_ERR = l+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-         if (G_ERR .gt. 0) call mat_err(17)
-         if (G_ERR .gt. 0) return
+
+         if(too_much_memory( l+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED))) return
+
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
          if (m*n .eq. 0) exit FUN6
@@ -1685,7 +1686,71 @@ character(len=80) :: message
       enddo
       exit FUN6
 !===================================================================================================================================
-      end select FUN6
+   case(17) ! COMMAND::GETENV JSU
+   GETENV : block
+   character(len=:),allocatable :: answers(:)
+   character(len=GG_LINELEN)    :: varname
+   character(len=:),allocatable :: env_value
+   allocate(character(len=0)    :: answers(0) )
+   write(*,*)'GOT HERE A: M=',M,' N=',N,' G_RHS=',G_RHS,' L=',L
+   ! sort out what to do with an array of input later, for now concatenating into one string
+   if (m.lt.1 .or. G_RHS.eq.0)then
+      call journal('sc','<ERROR>GETENV:NEEDS AN ARGUMENT:ROWS=',m,' ARG_COUNT=',G_RHS)
+      G_ERR=999
+      return
+   endif
+   if (G_RHS.gt.1)then
+      call journal('sc','<ERROR>GETENV:TOO MANY ARGUMENTS:ARG_COUNT=',G_RHS)
+      G_ERR=999
+      return
+   endif
+
+   ll=l
+   do j=1,m
+      id=blank
+      id(1:n)=int(G_STACK_REALS(ll:ll+N-1))
+      varname=''
+      do i=1,n
+         if(id(i).le.0)exit
+         if(id(i).lt.len(G_DEFINE_CHARSET))then
+            varname(i:i)=G_DEFINE_CHARSET(id(i)+1:id(i)+1)
+         else
+            call journal('sc',' function name contains unacceptable characters:',id(i))
+            return
+         endif
+      enddo
+      ll=ll+n
+      env_value=system_getenv(varname)
+      answers=[character(len=max(len(answers),len_trim(env_value))) :: answers,env_value]
+   enddo
+   write(*,*)'GOT HERE C:VARNAME=',trim(varname),' ANSWERS=',answers,len(answers)
+
+   m=size(answers,dim=1)
+   n=len(answers)
+   if(too_much_memory( l+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
+   if (m*n .eq. 0) exit FUN6
+
+   write(*,*)'GOT HERE D:M=',m,' N=',n,'L=',L
+   ! so starting at G_STACK_REALS(l) convert the characters to numbers and store the M x N number of characters
+   do j = 1, n
+      do i = 1, m
+        ll = l+i-1+(j-1)*m             ! location to place value
+        G_STACK_IMAGS(ll) = 0.0d0      ! all of these functions set imaginary values to zero
+        nn=index(G_DEFINE_CHARSET,answers(m)(j:j))
+        if(nn.gt.0)then
+           G_STACK_REALS(ll) = real(nn-1)
+        else
+           call journal('sc','bad character')
+           G_STACK_REALS(ll) = 0.0d0
+        endif
+      enddo
+   enddo
+   endblock GETENV
+   exit FUN6
+!===================================================================================================================================
+   end select FUN6
 end subroutine mat_matfn6
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -1786,6 +1851,7 @@ integer                          :: i
    case('tril');            selector=614
    case('triu');            selector=615
    case('zeros');           selector=616
+   case('getenv');          selector=617
 
    case default !  function name was not found
       G_fin = 0
@@ -1880,7 +1946,6 @@ end function mat_wdotur
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_appnum(rval,string,ilen,ierr)
-use M_strings, only: value_to_string
 
 ! ident_11="@(#)M_matrix::mat_appnum(3fp): subroutine returns a string given a prefix string and a real value"
 
@@ -2157,7 +2222,7 @@ integer           :: itype
       tr = G_STACK_REALS(ls)
       ti = G_STACK_IMAGS(ls)
       s = dmax1(s,dabs(tr),dabs(ti))
-      if (mat_round(tr) .ne. tr) typ = max0(2,typ)
+      if (mat_round(tr) .ne. tr) typ = max(2,typ)
       if (ti .ne. 0.0d0) typ = 3
    enddo
    if (s .ne. 0.0d0) s = dlog10(s)
@@ -2220,7 +2285,7 @@ integer           :: itype
       endif
    endif
    do j1 = 1, n, jinc
-      j2 = min0(n, j1+jinc-1)
+      j2 = min(n, j1+jinc-1)
       if (n .gt. jinc)then
          write(message,'(''     COLUMNS'',I6,'' THRU'',I6)') j1,j2
          if(G_OUTPUT_LUN.eq.STDOUT)then
@@ -2522,9 +2587,9 @@ integer           :: n
       CALL mat_wrscal(MN,-1.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
    else                                                        ! TRANSPOSE
       LL = L + MN
-      G_ERR = LL+MN - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
+
+      if(too_much_memory( LL+MN - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
+
       CALL mat_wcopy(MN,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
       M = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -2622,8 +2687,8 @@ integer             :: i, j, k, l
    INFINITE : do
       linebuf(1)=hollerith_blank          ! put a space at beginning of line
       l = 2                               ! pointer into output line being built
-      do j = j1,min0(j1+7,iabs(argcnt))   ! copy up to eight names into buffer
-         do i = 1, GG_MAX_NAME_LENGTH      ! copy one name into buffer
+      do j = j1,min(j1+7,iabs(argcnt))    ! copy up to eight names into buffer
+         do i = 1, GG_MAX_NAME_LENGTH     ! copy one name into buffer
             k = id(i,j)+1                 ! this is the kth letter of the set
             linebuf(l) = G_CHARSET(k)
             if(linebuf(l).ne.hollerith_blank)l = l+1   ! increment pointer into output
@@ -2737,9 +2802,9 @@ integer             :: nt
    mt = mk
    nt = nk
    lt = l + mn
-   G_err = lt + mnk - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-   if (G_err .gt. 0) call mat_err(17)
-   if (G_err .gt. 0) return
+
+   if(too_much_memory( lt + mnk - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
    call mat_wcopy(mnk,G_STACK_REALS(lk),G_STACK_IMAGS(lk),1,G_STACK_REALS(lt),G_STACK_IMAGS(lt),1)
 !
 !     DOES IT FIT
@@ -2834,26 +2899,26 @@ integer             :: nt
    if (m1 .lt. 0) goto 62
    do i = 1, mn1
       ls = l1+i-1
-      mk = max0(mk,int(G_STACK_REALS(ls)))
-      ll = min0(ll,int(G_STACK_REALS(ls)))
+      mk = max(mk,int(G_STACK_REALS(ls)))
+      ll = min(ll,int(G_STACK_REALS(ls)))
    enddo
 62 continue
-   mk = max0(mk,m)
+   mk = max(mk,m)
    if (m2 .lt. 0) goto 64
    do i = 1, mn2
       ls = l2+i-1
-      nk = max0(nk,int(G_STACK_REALS(ls)))
-      ll = min0(ll,int(G_STACK_REALS(ls)))
+      nk = max(nk,int(G_STACK_REALS(ls)))
+      ll = min(ll,int(G_STACK_REALS(ls)))
    enddo
 64 continue
-   nk = max0(nk,n)
+   nk = max(nk,n)
    if (ll .lt. 1) call mat_err(21)
    if (G_err .gt. 0) return
    mnk = mk*nk
    lk = G_STACK_ID_LOC(k+1) - mnk
-   G_err = lt + mt*nt - lk
-   if (G_err .gt. 0) call mat_err(17)
-   if (G_err .gt. 0) return
+
+   if(too_much_memory( lt + mt*nt - lk) )return
+
    G_STACK_ID_LOC(k) = lk
    G_STACK_ROWS(k) = mk
    G_STACK_COLS(k) = nk
@@ -3419,7 +3484,6 @@ subroutine mat_comand(id)
 integer              :: id(GG_MAX_NAME_LENGTH)
 integer,parameter    :: lrecl=256
 character(len=lrecl) :: mline
-integer              :: h(GG_MAX_NAME_LENGTH)
 integer,parameter    :: linelen=255
 integer              :: cmd(GG_MAX_NAME_LENGTH,17)
 integer              :: ch
@@ -3587,10 +3651,6 @@ FINISHED: block
       call journal(mline)
 !===================================================================================================================================
       case(12) !     COMMAND::WHAT
-      call journal('The functions and commands are...')
-      H(1) = 0
-      call mat_funs(H)
-      call mat_print_id(CMD,CMDL-2)
 !===================================================================================================================================
       case(15) !     COMMAND::SH
       call sh_command()
@@ -3698,7 +3758,7 @@ integer           :: l
          if (l.ne.h .and. y(i).le.y0) cycle
          j = 1 + (w-1)*(x(i) - xmin)/dx
          pbuf(j:j) = '*'
-         jmax = max0(jmax,j)
+         jmax = max(jmax,j)
       enddo
       write(lplot,'(1x,a)') pbuf(1:jmax)
    enddo
@@ -3782,9 +3842,9 @@ integer           :: nn
       if (n .ne. n2) call mat_err(11)
       if (G_err .gt. 0) return
       l3 = l2 + m2*n2
-      G_err = l3+n2 - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      if (G_err .gt. 0) call mat_err(17)
-      if (G_err .gt. 0) return
+
+      if(too_much_memory( l3+n2 - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       call ml_wgeco(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
@@ -3846,9 +3906,9 @@ integer           :: nn
       if (G_err .gt. 0) return
       if (m2*n2 .eq. 1) goto 26
       l3 = l2 + m2*n2
-      G_err = l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      if (G_err .gt. 0) call mat_err(17)
-      if (G_err .gt. 0) return
+
+      if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
@@ -3894,9 +3954,9 @@ integer           :: nn
       goto 99
 32    continue
       l3 = l + n*n
-      G_err = l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      if (G_err .gt. 0) call mat_err(17)
-      if (G_err .gt. 0) return
+
+      if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
@@ -3949,9 +4009,9 @@ integer           :: nn
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
       l3 = l + n*n
-      G_err = l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      if (G_err .gt. 0) call mat_err(17)
-      if (G_err .gt. 0) return
+
+      if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       G_STACK_REALS(l) = rcond
       G_STACK_IMAGS(l) = 0.0d0
@@ -3978,9 +4038,9 @@ integer           :: nn
       G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l + nn
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-      G_err = l+nn+nn - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      if (G_err .gt. 0) call mat_err(17)
-      if (G_err .gt. 0) return
+
+      if(too_much_memory( l+nn+nn - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       do kb = 1, n
          k = n+1-kb
          do i = 1, n
@@ -4104,9 +4164,9 @@ integer          :: nn
       LD = L2 + NN
       LE = LD + N
       LW = LE + N
-      G_ERR = LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
+
+      if(too_much_memory( LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       CALL mat_wcopy(NN,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
 !
 !     CHECK IF HERMITIAN
@@ -4267,7 +4327,7 @@ integer          :: nn
 !     POLY
 !     FORM POLYNOMIAL WITH GIVEN VECTOR AS ROOTS
    50 continue
-      N = MAX0(M,N)
+      N = MAX(M,N)
       LD = L+N+1
       CALL mat_wcopy(N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1)
 !
@@ -4297,13 +4357,13 @@ integer          :: nn
       K = K+1
       L1 = L+K
       IF (DABS(G_STACK_REALS(L1))+DABS(G_STACK_IMAGS(L1)) .EQ. 0.0D0) GOTO 61
-      N = MAX0(M*N - K-1, 0)
+      N = MAX(M*N - K-1, 0)
       IF (N .LE. 0) GOTO 65
       L2 = L1+N+1
       LW = L2+N*N
-      G_ERR = LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
+
+      if(too_much_memory( LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       CALL mat_wset(N*N+N,0.0D0,0.0D0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
       DO J = 1, N
          LL = L2+J+(J-1)*N
@@ -4369,11 +4429,11 @@ doubleprecision :: p,s,t(1,1),tol,eps
 !===================================================================================================================================
     case(3) ! COMMAND::COND
       ld = l + m*n
-      l1 = ld + min0(m+1,n)
+      l1 = ld + min(m+1,n)
       l2 = l1 + n
-      G_err = l2+min0(m,n) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      if (G_err .gt. 0) call mat_err(17)
-      if (G_err .gt. 0) return
+
+      if(too_much_memory( l2+min(m,n) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l),   &
                   & m,m,n,                               &
                   & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
@@ -4384,7 +4444,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
       if (G_err .ne. 0) call mat_err(24)
       if (G_err .gt. 0) return
       s = G_STACK_REALS(ld)
-      ld = ld + min0(m,n) - 1
+      ld = ld + min(m,n) - 1
       t(1,1) = G_STACK_REALS(ld)
       if (t(1,1) .ne. 0.0d0) then
          G_STACK_REALS(l) = mat_flop(s/t(1,1))
@@ -4437,11 +4497,11 @@ doubleprecision :: p,s,t(1,1),tol,eps
       IF (P .NE. 2.0D0) CALL mat_err(23)
       IF (G_ERR .GT. 0) RETURN
       LD = L + M*N
-      L1 = LD + MIN0(M+1,N)
+      L1 = LD + MIN(M+1,N)
       L2 = L1 + N
-      G_ERR = L2+MIN0(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
+
+      if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l), &
                   & m,m,n, &
                   & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
@@ -4478,15 +4538,15 @@ doubleprecision :: p,s,t(1,1),tol,eps
     case(1) !     COMMAND::SVD
       IF (G_LHS .EQ. 3)then
          K = M
-         IF (G_RHS .EQ. 2) K = MIN0(M,N)
+         IF (G_RHS .EQ. 2) K = MIN(M,N)
          LU = L + M*N
          LD = LU + M*K
          LV = LD + K*N
          L1 = LV + N*N
          L2 = L1 + N
-         G_ERR = L2+MIN0(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-         IF (G_ERR .GT. 0) CALL mat_err(17)
-         IF (G_ERR .GT. 0) RETURN
+
+         if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
          JOB = 11
          IF (G_RHS .EQ. 2) JOB = 21
          call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l), &
@@ -4534,17 +4594,17 @@ doubleprecision :: p,s,t(1,1),tol,eps
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       else
          LD = L + M*N
-         L1 = LD + MIN0(M+1,N)
+         L1 = LD + MIN(M+1,N)
          L2 = L1 + N
-         G_ERR = L2+MIN0(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-         IF (G_ERR .GT. 0) CALL mat_err(17)
-         IF (G_ERR .GT. 0) RETURN
+
+         if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
          call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l),m,m,n, &
          & G_STACK_REALS(ld),G_STACK_IMAGS(ld),G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
          & t,t,1,t,t,1,G_STACK_REALS(l2),G_STACK_IMAGS(l2),0,G_err)
          IF (G_ERR .NE. 0) CALL mat_err(24)
          IF (G_ERR .GT. 0) RETURN
-         K = MIN0(M,N)
+         K = MIN(M,N)
          CALL mat_wcopy(K,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = K
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
@@ -4566,9 +4626,9 @@ doubleprecision :: p,s,t(1,1),tol,eps
       L1 = LV + N*N
       IF (G_FIN .EQ. 5) L1 = LD + N
       L2 = L1 + N
-      G_ERR = L2+MIN0(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
+
+      if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       IF (G_FIN .EQ. 2) JOB = 11
       IF (G_FIN .EQ. 5) JOB = 0
       CALL ML_WSVDC(G_STACK_REALS(L),G_STACK_IMAGS(L),M,M,N, &
@@ -4583,8 +4643,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
       IF (G_ERR .NE. 0) CALL mat_err(24)
       IF (G_ERR .GT. 0) RETURN
       EPS = G_STACK_REALS(GG_BIGMEM-4)
-      IF (TOL .LT. 0.0D0) TOL = mat_flop(dble(MAX0(M,N))*EPS*G_STACK_REALS(LD))
-      MN = MIN0(M,N)
+      IF (TOL .LT. 0.0D0) TOL = mat_flop(dble(MAX(M,N))*EPS*G_STACK_REALS(LD))
+      MN = MIN(M,N)
       K = 0
       DO J = 1, MN
          LS = LD+J-1
@@ -4686,19 +4746,19 @@ INTEGER,parameter :: QUOTE= 49
       IF (M2*N2 .GT. 1) GOTO 21
         M2 = M
         N2 = M
-        G_ERR = L2+M*M - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-        IF (G_ERR .GT. 0) CALL mat_err(17)
-        IF (G_ERR .GT. 0) RETURN
+
+        if(too_much_memory( L2+M*M - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
         CALL mat_wset(M*M-1,0.0D0,0.0D0,G_STACK_REALS(L2+1),G_STACK_IMAGS(L2+1),1)
         CALL mat_wcopy(M,G_STACK_REALS(L2),G_STACK_IMAGS(L2),0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),M+1)
    21 continue
       IF (M2 .NE. M) CALL mat_err(12)
       IF (G_ERR .GT. 0) RETURN
-      L3 = L2 + MAX0(M,N)*N2
+      L3 = L2 + MAX(M,N)*N2
       L4 = L3 + N
-      G_ERR = L4 + N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
+
+      if(too_much_memory( L4 + N - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       IF (M .GT. N) GOTO 23
       DO JB = 1, N2
         J = N+1-JB
@@ -4719,8 +4779,8 @@ INTEGER,parameter :: QUOTE= 49
       K = 0
       EPS = G_STACK_REALS(GG_BIGMEM-4)
       T(1) = DABS(G_STACK_REALS(L))+DABS(G_STACK_IMAGS(L))
-      TOL = mat_flop(dble(MAX0(M,N))*EPS*T(1))
-      MN = MIN0(M,N)
+      TOL = mat_flop(dble(MAX(M,N))*EPS*T(1))
+      MN = MIN(M,N)
       DO J = 1, MN
         LS = L+J-1+(J-1)*M
         T(1) = DABS(G_STACK_REALS(LS)) + DABS(G_STACK_IMAGS(LS))
@@ -4730,7 +4790,7 @@ INTEGER,parameter :: QUOTE= 49
          WRITE(message,'(" RANK DEFICIENT,  RANK =",I4,",  TOL =",1PD13.4)') K,TOL
          call journal(message)
       endif
-      MN = MAX0(M,N)
+      MN = MAX(M,N)
       DO J = 1, N2
         LS = L2+(J-1)*MN
         CALL ML_WQRSL(G_STACK_REALS(L),G_STACK_IMAGS(L), &
@@ -4774,14 +4834,14 @@ INTEGER,parameter :: QUOTE= 49
 !     QR
 !
    40 continue
-      MM = MAX0(M,N)
+      MM = MAX(M,N)
       LS = L + MM*MM
       IF (G_LHS.EQ.1 .AND. G_FIN.EQ.1) LS = L
       LE = LS + M*N
       L4 = LE + MM
-      G_ERR = L4+MM - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) RETURN
+
+      if(too_much_memory( L4+MM - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
       IF (LS.NE.L) CALL mat_wcopy(M*N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1)
       JOB = 1
       IF (G_LHS.LT.3) JOB = 0
@@ -5019,9 +5079,9 @@ logical             :: isfound
          l2 = l
          if (G_lhs .eq. 2) l2 = l + mn
          lw = l2 + mn
-         G_err = lw + lrat - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-         if (G_err .gt. 0) call mat_err(17)
-         if (G_err .gt. 0) return
+
+         if(too_much_memory( lw + lrat - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
          if (G_lhs .eq. 2) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
          G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l2
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
@@ -5146,15 +5206,6 @@ logical             :: isfound
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(13) !     COMMAND::DOC
-      call mat_buf2str(name,G_buf,256)
-         open(newunit=temp_lun,file=name,status='new',iostat=ios,iomsg=errmsg) ! open help file
-         if(ios.eq.0)then
-            write(temp_lun,'(a)',iostat=ios)( trim(G_HELP_TEXT(i)),i=1,size(G_HELP_TEXT) )
-            call journal('sc','<INFO> user guide including all help text in the Appendix is on file',trim(name) )
-            close(unit=temp_lun,iostat=ios)
-         else
-            call journal(trim(errmsg))
-         endif
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       end select FUN5
@@ -5273,11 +5324,8 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_ROWS(K)
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_COLS(K)
       MN = G_STACK_ROWS(K)*G_STACK_COLS(K)
-      G_ERR = L+MN - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) then
-         CALL mat_err(17)                                                  ! Too much memory required
-         RETURN
-      endif
+
+      if(too_much_memory( L+MN - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
       !  IF RAND, MATFN6 GENERATES RANDOM NUMBER
       IF (K .EQ. GG_MAX_NUMBER_OF_NAMES) then
@@ -5433,11 +5481,9 @@ integer           :: op_select
       endif
       MN = M*N2
       LL = L + MN
-      G_ERR = LL+M*N+M2*N2 - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) then
-         exit do_op
-      endif
+
+      if(too_much_memory( LL+M*N+M2*N2 - G_STACK_ID_LOC(G_TOP_OF_SAVED)) ) exit do_op
+
       CALL mat_wcopy(M*N+M2*N2,G_STACK_REALS(L),G_STACK_IMAGS(L),-1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),-1)
       DO J = 1, N2
          DO I = 1, M
@@ -5487,11 +5533,9 @@ integer           :: op_select
       endif
 
       MN = M*N
-      G_ERR = L2+MN+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) then
-         exit do_op
-      endif
+
+      if(too_much_memory( L2+MN+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)) ) exit do_op
+
       CALL mat_wcopy(MN,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
       L3 = L2+MN
       DO KEXP = 2, NEXP
@@ -5564,11 +5608,9 @@ integer           :: op_select
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = -1
          exit DO_OP
       endif
-      G_ERR = L + MAX0(3,int((E2-E1)/ST)) - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-      IF (G_ERR .GT. 0) CALL mat_err(17)
-      IF (G_ERR .GT. 0) then
-         exit do_op
-      endif
+
+      if(too_much_memory( L + MAX(3,int((E2-E1)/ST)) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) ) exit do_op
+
    62 continue
       IF (ST .GT. 0.0D0 .AND. G_STACK_REALS(L) .GT. E2) GOTO 63
       IF (ST .LT. 0.0D0 .AND. G_STACK_REALS(L) .LT. E2) GOTO 63
@@ -5628,7 +5670,6 @@ END SUBROUTINE mat_stack2
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_getlin() ! get a new input line
-use m_history,only : redo
 
 character(len=GG_LINELEN) :: mline
 character(len=GG_LINELEN) :: shift_mline
@@ -5713,7 +5754,7 @@ integer                   :: n
          DO K = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
            IF (G_BUF(J).EQ.G_CHARSET(K) .OR. G_BUF(J).EQ.G_ALT_CHARSET(K)) GOTO 30
          enddo
-         call journal('sc','UNKNOWN CHARACTER AT COLUMN ',J) ! this is not a known character
+         call journal('sc','Unknown character at column ',J) ! this is not a known character
          K = G_EOL+1
          IF (K .GT. G_EOL) GOTO 10   ! UNKNOWN CHARACTER , K NOT CHANGED. get new line
          IF (K .EQ. G_EOL) GOTO 45
@@ -5849,9 +5890,9 @@ integer            :: n
    G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l2
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
-   G_ERR = l2+m - G_STACK_ID_LOC(G_TOP_OF_SAVED)
-   if (G_ERR .gt. 0) call mat_err(17)   ! too much memory required
-   if (G_ERR .gt. 0) return
+
+   if(too_much_memory( l2+m - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+
    call mat_wcopy(m,G_STACK_REALS(lj),G_STACK_IMAGS(lj),1,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1)
    G_RHS = 0
    call mat_stack_put(G_IDS(1,G_PT))
@@ -6918,13 +6959,18 @@ subroutine help_command(topic_name)
 
 ! ident_40="@(#)M_matrix::help_command(3f): display help text"
 
-character(len=*),intent(in)       :: topic_name
-integer                           :: end_of_first_word
-integer                           :: start_of_topic
-integer                           :: ios
-character(len=:),allocatable      :: topic
-logical                           :: block_topic
-integer                           :: i,j
+character(len=*),intent(in)            :: topic_name
+integer                                :: end_of_first_word
+integer                                :: start_of_topic
+integer                                :: ios
+character(len=:),allocatable           :: topic
+logical                                :: block_topic
+integer                                :: i,j
+logical                                :: numbered
+character(len=len(G_HELP_TEXT))        :: last_response
+
+   last_response=' '
+   numbered=.false.
 
    topic=trim(topic_name)
 
@@ -6932,35 +6978,53 @@ integer                           :: i,j
       call journal('Type "help" followed by a case-sensitive topic name ...')
       topic='SUMMARY'
    endif
-
    select case(topic)
-   case('manual')                      ! show all the help text
-      do i=1,size(G_HELP_TEXT)
+   case('manual')                             ! show all the help text
+      i=0
+      do
+         i=i+1
+         if(i.gt.size(G_HELP_TEXT))exit
          if(G_HELP_TEXT(i)(1:3).eq.'===')then
-            call journal(' ')
+            if(numbered)then
+               call journal('sc',i,' ')
+            else
+               call journal(' ')
+            endif
          else
-            call journal(G_HELP_TEXT(i))
+            if(numbered)then
+               call journal('sc',i,G_HELP_TEXT(i))
+            else
+               call journal('sc',G_HELP_TEXT(i))
+            endif
          endif
          if(want_to_stop())exit
+         if(i.gt.size(G_HELP_TEXT)) exit
       enddo
    case('topics')                             ! go through all the text showing lines not starting with a a space or equal
-      do i=1,size(G_HELP_TEXT)                ! display topic starting at start_of_topic
+      i=0                                     ! display topic starting at start_of_topic
+      do
+         i=i+1
+         if(i.gt.size(G_HELP_TEXT)) exit
          if(G_HELP_TEXT(i)(1:1).eq.'   ')cycle
          if(G_HELP_TEXT(i)(1:3).eq.'===')cycle
-         call journal(G_HELP_TEXT(i))
+         if(numbered)then
+            call journal('sc',i,G_HELP_TEXT(i))
+         else
+            call journal('sc',G_HELP_TEXT(i))
+         endif
          if(want_to_stop())exit
       enddo
    case default ! find the line that starts with the topic
       start_of_topic=0
       ! find the line to start with by finding a line that starts with the given topic ( ASSUMING FIRST LINE is ===)
       FINDIT: do j=1,len(G_HELP_TEXT)
-         do i=2,size(G_HELP_TEXT)                                           ! get first word of lines not starting with a blank
+         do i=2, size(G_HELP_TEXT)                                          ! get first word of lines not starting with a blank
             if(G_HELP_TEXT(i)(1:1).ne.' ')then                              ! only topic lines start in column one so skip these
                end_of_first_word=index(G_HELP_TEXT(i),' ')-1
                if(end_of_first_word.eq.0)end_of_first_word=len(G_HELP_TEXT) ! if line is filled and does not have a blank
                end_of_first_word=end_of_first_word-j+1
-               if(end_of_first_word.le.0)cycle
-            !x!write(*,*)'['//topic(:end_of_first_word)//']['//G_HELP_TEXT(i)(:end_of_first_word)//']'
+            if(end_of_first_word.le.0)cycle
+               !x!write(*,*)'['//topic(:end_of_first_word)//']['//G_HELP_TEXT(i)(:end_of_first_word)//']'
                if(topic.eq.G_HELP_TEXT(i)(:end_of_first_word))then      ! find a line that matches topic
                   exit FINDIT
                endif
@@ -6985,36 +7049,182 @@ integer                           :: i,j
          call journal('sc','SORRY, No help on ',topic)
       else
          G_LINECOUNT(1) = 0
-         call journal(G_HELP_TEXT(start_of_topic))                          ! show the start line
+         if(numbered)then
+            call journal('sc',i,G_HELP_TEXT(start_of_topic))                       ! show the start line
+         else
+            call journal('sc',G_HELP_TEXT(start_of_topic))                       ! show the start line
+         endif
 
-         do i=start_of_topic+1,size(G_HELP_TEXT)                            ! display topic starting at start_of_topic
+         i=start_of_topic+1                                              ! display topic starting at start_of_topic
+         do
             if(G_HELP_TEXT(i)(1:1).ne.' '.and. .not.block_topic )then       ! stop at next topic if not a block of help
                exit
             elseif(block_topic .and. G_HELP_TEXT(i)(1:3).eq.'===')then
                exit
             endif
-            call journal(G_HELP_TEXT(i))
+            if(numbered)then
+               call journal('sc',i,G_HELP_TEXT(i))
+            else
+               call journal('sc',G_HELP_TEXT(i))
+            endif
             if(want_to_stop())exit
+            i=max(start_of_topic+1,i)
+            i=i+1
+            if(i.gt.size(G_HELP_TEXT)) exit
          enddo
       endif
    end select
 contains
 
 function want_to_stop()
-character(len=1) :: response
-logical          :: want_to_stop
+character(len=len(G_HELP_TEXT))      :: response
+character(len=1)                     :: letter
+logical                              :: want_to_stop
+integer                              :: j
+integer                              :: jj
    G_LINECOUNT(1) = G_LINECOUNT(1) + 1
    want_to_stop=.false.
-   if(G_LINECOUNT(1) .gt. G_LINECOUNT(2)) then
-      call journal('continue ..')
-      read(G_INPUT_LUN,'(a1)',iostat=ios) response         ! read response to pause from standard input
-      If (response .ne. ' ') then                          ! if blank or a return display the values
-         G_LINECOUNT(1) = -1
-         want_to_stop=.true.
-      else
-         G_LINECOUNT(1) = 0                                ! beginning of new page
+   do
+      if(G_LINECOUNT(1) .gt. G_LINECOUNT(2)) then
+         call journal('sc','continue ..')
+         read(G_INPUT_LUN,'(a)',iostat=ios) response         ! read letter to pause from standard input
+         response=adjustl(response)
+         letter=response(1:1)
+         select case(letter)
+         case(' ','f')                                        ! next page
+            G_LINECOUNT(1) = 0                                ! start new page
+         case('b')                                            ! back one page
+            i=max(1,i-G_LINECOUNT(2)-1)
+            i=max(1,i-G_LINECOUNT(2)-1)
+            G_LINECOUNT(1) = 0
+         case('0':'9')                                        ! assumed to be a number
+            i=s2v(response)-1
+            i=max(i,1)
+            i=min(i,size(G_HELP_TEXT)-1)
+            G_LINECOUNT(1) = 0
+         case('+')                                            ! assumed to be a number
+            i=i+s2v(response)-1
+            i=max(i,1)
+            i=min(i,size(G_HELP_TEXT)-1)
+            G_LINECOUNT(1) = 0
+         case('-')                                            ! assumed to be a number
+            i=i-s2v(response)-1
+            i=max(i,1)
+            i=min(i,size(G_HELP_TEXT)-1)
+            G_LINECOUNT(1) = 0
+         case('u')                                            ! back one-half page
+            i=max(1,i-G_LINECOUNT(2)-1)
+            i=max(1,i-G_LINECOUNT(2)/2-1)
+            G_LINECOUNT(1) = 0
+         case('e')                                            ! back one-half page
+            i=i-G_LINECOUNT(2)-1
+            i=max(1,i-1)
+            G_LINECOUNT(1) = 0
+         case('y')                                            ! back one-half page
+            i=i-G_LINECOUNT(2)-1
+            i=max(1,i+1)
+            G_LINECOUNT(1) = 0
+         case('w')
+            WRITEFILE: block
+            character(len=1000) :: errmsg
+            integer :: temp_lun
+               response=adjustl(response(2:))
+               if(response(2:).eq.'')response='mat88_userguide.txt'
+               open(newunit=temp_lun,file=response,status='new',iostat=ios,iomsg=errmsg) ! open help file
+               if(ios.eq.0)then
+                  write(temp_lun,'(a)',iostat=ios)( trim(G_HELP_TEXT(i)),i=1,size(G_HELP_TEXT) )
+                  call journal('sc','<INFO> user guide including all help text in the Appendix is on file',trim(response) )
+                  close(unit=temp_lun,iostat=ios)
+               else
+                  call journal(trim(errmsg))
+               endif
+            endblock WRITEFILE
+         case('d')                                            ! down one-half page
+            i=min(size(G_HELP_TEXT)-1,i-G_LINECOUNT(2)/2-1)
+            G_LINECOUNT(1) = 0
+         case('r')                                            ! repaint page
+            i=max(1,i-G_LINECOUNT(2)-1)
+            G_LINECOUNT(1) = 0
+         case('/','n')                                        ! find string below
+            if(letter.eq.'n')response=last_response
+            if(response(2:).eq.'')response=last_response
+            i=i+1
+            do
+               if(index(lower(G_HELP_TEXT(i)),trim(response(2:))).ne.0)then
+                  i=max(1,i-1)
+
+                  exit
+               else
+                  i=i+1
+               endif
+               if(i.gt.size(G_HELP_TEXT)) exit
+            enddo
+            G_LINECOUNT(1) = 0
+            last_response=response
+         case('?') ! find string
+            response=lower(adjustl(response(2:)))
+            if(response.eq.' ')response=last_response
+            jj=len_trim(response)
+            do j=1,size(G_HELP_TEXT)
+               if(index(lower(G_HELP_TEXT(j)),response(:jj)).ne.0)then
+                  call journal('sc',j,G_HELP_TEXT(j))
+               endif
+            enddo
+            last_response='/'//response
+         case('\','N','p')                                            ! find string above
+            if(letter.eq.'N'.or.letter.eq.' ')response=last_response
+            if(response(2:).eq.'')response=last_response
+            i=i-1
+            do
+               if(index(lower(G_HELP_TEXT(i)),trim(response(2:))).ne.0)then
+                  write(*,*)'GOT HERE A:',i,trim(G_HELP_TEXT(i))
+                  write(*,*)'GOT HERE B:',i,trim(response(2:))
+                  exit
+               else
+                  i=i-1
+               endif
+               if(i.le.1) exit
+            enddo
+            i=max(1,i-G_LINECOUNT(2)-1)
+            G_LINECOUNT(1) = 0
+            last_response=response
+         case('g','t')                                        ! repaint page
+            i=1
+            G_LINECOUNT(1) = 0
+         case('.')                                            ! help
+            G_LINECOUNT(1) = 0
+            numbered=.not.numbered
+         case('h')                                            ! help
+            call journal('sc','#----------------------------------------------------#')
+            call journal('sc','| f|SPACE b  forward or backward one page            |')
+            call journal('sc','| u d        redraw up or down one-half page         |')
+            call journal('sc','| r          refresh page                            |')
+            call journal('sc','| e y        refresh page moving up or down one line |')
+            call journal('sc','#----------------------------------------------------#')
+            call journal('sc','| g,t        go to top of manual                     |')
+            call journal('sc','| .          toggle line numbering                   |')
+            call journal('sc','| NNN        go to line number NNN. Use a sign       |')
+            call journal('sc','|            for a relative move.                    |')
+            call journal('sc','#----------------------------------------------------#')
+            call journal('sc','| /STRING    advance to line containing string       |')
+            call journal('sc','| \STRING    search for string above current line    |')
+            call journal('sc','| n N        find next occurrence up or down in file |')
+            call journal('sc','| ?STRING    show lines with specified string        |')
+            call journal('sc','#----------------------------------------------------#')
+            call journal('sc','| w FILENAME write entire user guide to local file   |')
+            call journal('sc','| h          display this help                       |')
+            call journal('sc','| q          quit                                    |')
+            call journal('sc','#----------------------------------------------------#')
+            call journal('sc','Anything else quits.')
+            call journal('sc','Line count is ',i,'out of',size(G_HELP_TEXT),'. Page size is',G_LINECOUNT(2),'(see "lines")')
+            cycle
+         case default
+            G_LINECOUNT(1) = -1
+            want_to_stop=.true.
+         end select
       endif
-   endif
+      exit
+   enddo
 end function want_to_stop
 
 end subroutine help_command
@@ -7039,9 +7249,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   <ABSTRACT> MAT88 is an interactive computer procedure that serves            ',&
 '   as a convenient "laboratory" for computations involving matrices. It         ',&
 '   provides easy access to matrix software developed by the LINPACK and         ',&
-'   EISPACK projects. The program is written in Fortran and is designed          ',&
-'   to be readily installed under any operating system which permits             ',&
-'   interactive execution of Fortran programs.                                   ',&
+'   EISPACK projects.                                                            ',&
 '                                                                                ',&
 '                            CONTENTS                                            ',&
 '                                                                                ',&
@@ -7058,38 +7266,29 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '          -  Communicating with other programs                                  ',&
 '          -  Appendix  (The HELP file)                                          ',&
 '                                                                                ',&
-'   MAT88 is an interactive computer program that serves as a convenient         ',&
-'   "laboratory" for computations involving matrices. It provides easy           ',&
-'   access to matrix software developed by the LINPACK and EISPACK               ',&
-'   projects [1-3]. The capabilities range from standard tasks such              ',&
-'   as solving simultaneous linear equations and inverting matrices,             ',&
-'   through symmetric and nonsymmetric eigenvalue problems, to fairly            ',&
-'   sophisticated matrix tools such as the singular value decomposition.         ',&
+'   The capabilities range from standard tasks such as solving simultaneous      ',&
+'   linear equations and inverting matrices, through symmetric and               ',&
+'   nonsymmetric eigenvalue problems, to fairly sophisticated matrix             ',&
+'   tools such as the singular value decomposition.                              ',&
 '                                                                                ',&
-'   It is expected that one of MAT88''s primary uses will be in the              ',&
-'   classroom. It should be useful in introductory courses in applied            ',&
-'   linear algebra, as well as more advanced courses in numerical                ',&
-'   analysis, matrix theory, statistics and applications of matrices             ',&
-'   to other disciplines. In nonacademic settings, MAT88 can serve as a          ',&
-'   "desk calculator" for the quick solution of small problems involving         ',&
-'   matrices.                                                                    ',&
+'   MAT88 is well suited for classroom use.  It should be useful in              ',&
+'   introductory courses in applied linear algebra, as well as more              ',&
+'   advanced courses in numerical analysis, matrix theory, statistics and        ',&
+'   applications of matrices to other disciplines. In nonacademic settings,      ',&
+'   MAT88 can serve as a "desk calculator" for the quick solution of             ',&
+'   small problems involving matrices.                                           ',&
 '                                                                                ',&
 '   The program is written in Fortran and is designed to be readily              ',&
 '   installed under any operating system which permits interactive               ',&
 '   execution of Fortran programs. The resources required are fairly             ',&
 '   modest. There are less than 7000 lines of Fortran source code,               ',&
-'   including the LINPACK and EISPACK subroutines used. With proper use          ',&
-'   of overlays, it is possible run the system on a minicomputer with            ',&
-'   only 32K bytes of memory.                                                    ',&
+'   including the LINPACK and EISPACK subroutines used.                          ',&
 '                                                                                ',&
-'   The size of the matrices that can be handled in MAT88 depends upon the       ',&
-'   amount of storage that is set aside when the system is compiled on a         ',&
-'   particular machine. We have found that an allocation of 5000 words           ',&
-'   for matrix elements is usually quite satisfactory. This provides             ',&
-'   room for several 20 by 20 matrices, for example. One implementation          ',&
-'   on a virtual memory system provides 100,000 elements. Since most of          ',&
-'   the algorithms used access memory in a sequential fashion, the large         ',&
-'   amount of allocated storage causes no difficulties.                          ',&
+'   The size of the matrices that can be handled in MAT88 depends upon           ',&
+'   the amount of storage that is set aside when the system is compiled          ',&
+'   on a particular machine.  Since most of the algorithms used access           ',&
+'   memory in a sequential fashion, a large amount of allocated storage          ',&
+'   causes little or no difficulties even when virtual memory is used.           ',&
 '                                                                                ',&
 '   In some ways, MAT88 resembles SPEAKEASY [4] and, to a lesser extent,         ',&
 '   APL. All are interactive terminal languages that ordinarily accept           ',&
@@ -7098,19 +7297,19 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   for MAT88, the matrix is the only data type (although scalars, vectors       ',&
 '   and text are special cases), the underlying system is portable and           ',&
 '   requires fewer resources, and the supporting subroutines are more            ',&
-'   powerful and, in some cases, have better numerical properties.               ',&
+'   powerful and in some cases, have better numerical properties.                ',&
 '                                                                                ',&
-'   Together, LINPACK and EISPACK represent the state of the art in              ',&
-'   software for matrix computation. EISPACK is a package of over 70             ',&
-'   Fortran subroutines for various matrix eigenvalue computations that are      ',&
-'   based for the most part on Algol procedures published by Wilkinson,          ',&
-'   Reinsch and their colleagues [5]. LINPACK is a package of 40 Fortran         ',&
-'   subroutines (in each of four data types) for solving and analyzing           ',&
-'   simultaneous linear equations and related matrix problems. Since MAT88       ',&
-'   is not primarily concerned with either execution time efficiency or          ',&
-'   storage savings, it ignores most of the special matrix properties that       ',&
-'   LINPACK and EISPACK subroutines use to advantage. Consequently, only         ',&
-'   8 subroutines from LINPACK and 5 from EISPACK are actually involved.         ',&
+'   Together, LINPACK and EISPACK provide for powerful matrix                    ',&
+'   computation. EISPACK is a package of over 70 Fortran subroutines for         ',&
+'   various matrix eigenvalue computations that are based for the most           ',&
+'   part on Algol procedures published by Wilkinson, Reinsch and their           ',&
+'   colleagues [5]. LINPACK is a package of 40 Fortran subroutines (in           ',&
+'   each of four data types) for solving and analyzing simultaneous linear       ',&
+'   equations and related matrix problems. Since MAT88 is not primarily          ',&
+'   concerned with either execution time efficiency or storage savings,          ',&
+'   it ignores most of the special matrix properties that LINPACK and            ',&
+'   EISPACK subroutines use to advantage. Consequently, only 8 subroutines       ',&
+'   from LINPACK and 5 from EISPACK are actually involved.                       ',&
 '                                                                                ',&
 '   In more advanced applications, MAT88 can be used in conjunction with         ',&
 '   other programs in several ways. It is possible to define new MAT88           ',&
@@ -7121,17 +7320,15 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   power and flexibility is obtained by using MAT88 as a subroutine             ',&
 '   which is called by other programs.                                           ',&
 '                                                                                ',&
-'   This document first gives an overview of MAT88 from the user''s point        ',&
-'   of view. Several extended examples involving data fitting, partial           ',&
-'   differential equations, eigenvalue sensitivity and other topics are          ',&
-'   included. A formal definition of the MAT88 language and an brief             ',&
-'   description of the parser and interpreter are given. The system was          ',&
-'   designed and programmed using techniques described by Wirth [6],             ',&
-'   implemented in nonrecursive, portable Fortran. There is a brief              ',&
-'   discussion of some of the matrix algorithms and of their numerical           ',&
-'   properties. The final section describes how MAT88 can be used with           ',&
-'   other programs. The appendix includes the HELP documentation available       ',&
-'   on-line.                                                                     ',&
+'   This document first gives an overview of MAT88 from the user''s              ',&
+'   point of view. Several extended examples involving data fitting,             ',&
+'   partial differential equations, eigenvalue sensitivity and other             ',&
+'   topics are included.  The system was designed and programmed using           ',&
+'   techniques described by Wirth [6], implemented in nonrecursive,              ',&
+'   portable Fortran. There is a brief discussion of some of the matrix          ',&
+'   algorithms and of their numerical properties. A final section describes      ',&
+'   how MAT88 can be used with other programs. The appendix includes the         ',&
+'   HELP documentation available on-line.                                        ',&
 '                                                                                ',&
 '================================================================================',&
 'ELEMENTARY OPERATIONS                                                           ',&
@@ -7151,9 +7348,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '           --  Read from an external file,                                      ',&
 '           --  Execute an external Fortran program.                             ',&
 '                                                                                ',&
-'   The explicit list is surrounded by angle brackets, ''<'' and ''>'', and      ',&
-'   uses the semicolon '';'' to indicate the ends of the rows. For example,      ',&
-'   the input line                                                               ',&
+'   The explicit list is surrounded by angle brackets, ''<'' and ''>'' or        ',&
+'   braces ''['' and '']'', and uses the semicolon '';'' to indicate the ends    ',&
+'   of the rows. For example, the input line                                     ',&
 '                                                                                ',&
 '      A = <1 2 3; 4 5 6; 7 8 9>                                                 ',&
 '                                                                                ',&
@@ -7225,11 +7422,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   The special character prime ('') is used to denote the transpose of          ',&
 '   a matrix, so                                                                 ',&
 '                                                                                ',&
-'      x = x''                                                                   ',&
+'      X = X''                                                                   ',&
 '                                                                                ',&
 '   changes the row vector above into the column vector                          ',&
 '                                                                                ',&
-'      x     =                                                                   ',&
+'      X     =                                                                   ',&
 '                                                                                ',&
 '        -1.3000                                                                 ',&
 '         0.8000                                                                 ',&
@@ -7239,11 +7436,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   subscripts in parentheses. When any element is changed, the entire           ',&
 '   matrix is reprinted. For example, using the above matrix,                    ',&
 '                                                                                ',&
-'      a(3,3) = a(1,3) + a(3,1)                                                  ',&
+'      B(3,3) = B(1,3) + B(3,1)                                                  ',&
 '                                                                                ',&
 '   results in                                                                   ',&
 '                                                                                ',&
-'      a     =                                                                   ',&
+'      B     =                                                                   ',&
 '                                                                                ',&
 '          1.    2.    3.                                                        ',&
 '          4.    5.    6.                                                        ',&
@@ -7252,10 +7449,10 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Addition, subtraction and multiplication of matrices are denoted by          ',&
 '   +, -, and * . The operations are performed whenever the matrices             ',&
 '   have the proper dimensions. For example, with the above A and x,             ',&
-'   the expressions A + x and x*A are incorrect because A is 3 by 3 and          ',&
-'   x is now 3 by 1. However,                                                    ',&
+'   the expressions A + X and X*A are incorrect because A is 3 by 3 and          ',&
+'   X is now 3 by 1. However,                                                    ',&
 '                                                                                ',&
-'      b = A*x                                                                   ',&
+'      B = A*B                                                                   ',&
 '                                                                                ',&
 '   is correct and results in the output                                         ',&
 '                                                                                ',&
@@ -7278,27 +7475,25 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   general, A\B denotes the solution X to the equation A*X = B and              ',&
 '   B/A denotes the solution to X*A = B.                                         ',&
 '                                                                                ',&
-'   Left division, A\B, is defined whenever B has as many rows                   ',&
-'   as A. If A is square, it is factored using Gaussian                          ',&
-'   elimination. The factors are used to solve the equations                     ',&
-'   A*X(:,j) = B(:,j) where B(:,j) denotes the j-th column of B. The             ',&
-'   result is a matrix X with the same dimensions as B. If A is                  ',&
-'   nearly singular (according to the LINPACK condition estimator,               ',&
-'   RCOND), a warning message is printed. If A is not square, it is              ',&
-'   factored using Householder orthogonalization with column                     ',&
-'   pivoting. The factors are used to solve the under- or                        ',&
-'   overdetermined equations in a least squares sense. The result is             ',&
-'   an m by n matrix X where m is the number of columns of A and n is            ',&
-'   the number of columns of B . Each column of X has at most k                  ',&
-'   nonzero components, where k is the effective rank of A .                     ',&
+'   Left division, A\B, is defined whenever B has as many rows as A. If A        ',&
+'   is square, it is factored using Gaussian elimination. The factors are        ',&
+'   used to solve the equations A*X(:,j) = B(:,j) where B(:,j) denotes the       ',&
+'   j-th column of B. The result is a matrix X with the same dimensions          ',&
+'   as B. If A is nearly singular (according to the LINPACK condition            ',&
+'   estimator, RCOND(3f)), a warning message is printed. If A is not             ',&
+'   square, it is factored using Householder orthogonalization with column       ',&
+'   pivoting. The factors are used to solve the under- or overdetermined         ',&
+'   equations in a least squares sense. The result is an M by N matrix X         ',&
+'   where M is the number of columns of A and N is the number of columns         ',&
+'   of B . Each column of X has at most K nonzero components, where K is         ',&
+'   the effective rank of A .                                                    ',&
 '                                                                                ',&
-'   Right division, B/A, can be defined in terms of left                         ',&
-'   division by B/A = (A''\B'')''.                                               ',&
+'   Right division, B/A, can be defined in terms of left division by B/A =       ',&
+'   (A''\B'')''.                                                                 ',&
 '                                                                                ',&
-'   For example, since our vector b was computed as A*x, the                     ',&
-'   statement                                                                    ',&
+'   For example, since our vector b was computed as A*X, the statement           ',&
 '                                                                                ',&
-'      y = A\b                                                                   ',&
+'      Y = A\B                                                                   ',&
 '                                                                                ',&
 '   results in                                                                   ',&
 '                                                                                ',&
@@ -7308,11 +7503,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         0.8000                                                                 ',&
 '         3.1416                                                                 ',&
 '                                                                                ',&
-'   Of course, y is not exactly equal to x because of the roundoff errors        ',&
-'   involved in both A*x and A\b , but we are not printing enough digits         ',&
+'   Of course, Y is not exactly equal to X because of the roundoff errors        ',&
+'   involved in both A*X and A\B , but we are not printing enough digits         ',&
 '   to see the difference. The result of the statement                           ',&
 '                                                                                ',&
-'      E = x - y                                                                 ',&
+'      E = X - Y                                                                 ',&
 '                                                                                ',&
 '   depends upon the particular computer being used. In one case it              ',&
 '   produces                                                                     ',&
@@ -7326,7 +7521,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '           .0000                                                                ',&
 '                                                                                ',&
 '   The quantity 1.0e-15 is a scale factor which multiplies all the              ',&
-'   components which follow. Thus our vectors x and y actually                   ',&
+'   components which follow. Thus our vectors X and Y actually                   ',&
 '   agree to about 15 decimal places on this computer.                           ',&
 '                                                                                ',&
 '   It is also possible to obtain element-by-element                             ',&
@@ -7337,11 +7532,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   There are several possible output formats. The statement                     ',&
 '                                                                                ',&
-'      long, x                                                                   ',&
+'      long, X                                                                   ',&
 '                                                                                ',&
 '   results in                                                                   ',&
 '                                                                                ',&
-'      x     =                                                                   ',&
+'      X     =                                                                   ',&
 '                                                                                ',&
 '         -1.300000000000000                                                     ',&
 '           .800000000000000                                                     ',&
@@ -7362,7 +7557,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Previously defined matrices and matrix expressions can be                    ',&
 '   used inside brackets to generate larger matrices, for example                ',&
 '                                                                                ',&
-'      C = <A, b; <4 2 0>*x, x''>                                                ',&
+'      C = <A, B; <4 2 0>*X, X''>                                                ',&
 '                                                                                ',&
 '   results in                                                                   ',&
 '                                                                                ',&
@@ -7378,14 +7573,14 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   things as near singularity and rank. Its initial value is the distance       ',&
 '   from 1.0 to the next largest floating point number on the particular         ',&
 '   computer being used. The user may reset this to any other value,             ',&
-'   including zero. "eps" is changed by "chop", which is described in            ',&
-'   section 12.                                                                  ',&
+'   including zero. "eps" is changed by "chop", which is described later         ',&
+'   in this manual.                                                              ',&
 '                                                                                ',&
 '   The value of "rand" is a random variable, with a choice of a uniform         ',&
 '   or a normal distribution.                                                    ',&
 '                                                                                ',&
-'   The name "eye" is used in place of I to denote identity matrices             ',&
-'   because I is often used as a subscript or as sqrt(-1).  The dimensions       ',&
+'   The name "eye" is used in place of "i" to denote identity matrices           ',&
+'   because "i" is often used as a subscript or as sqrt(-1).  The dimensions     ',&
 '   of "eye" are determined by context. For example,                             ',&
 '                                                                                ',&
 '      B = A + 3*eye                                                             ',&
@@ -7617,8 +7812,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   "long e" and "long z" alter the output format, but do not alter the          ',&
 '   precision of the computations or the internal storage.                       ',&
 '                                                                                ',&
-'   The "who" and "what" commands provide information about the functions        ',&
-'   and variables that are currently defined.                                    ',&
+'   The "who" command provides information about the functions and               ',&
+'   variables that are currently defined.                                        ',&
 '                                                                                ',&
 '   The "clear" command erases all variables, except "eps", "flop",              ',&
 '   "rand" and "eye". The statement A = <> indicates that a "0 by 0"             ',&
@@ -7670,12 +7865,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Some other examples are given under MACROS in the appendix. This             ',&
 '   facility is useful for fairly short statements and expressions.              ',&
 '   More complicated MAT88 "programs" should use the "exec" facility.            ',&
-'                                                                                ',&
-'   The operations which access external files cannot be handled                 ',&
-'   in a completely machine-independent manner by portable Fortran               ',&
-'   code. It is necessary for each particular installation to                    ',&
-'   provide a subroutine which associates external text files with               ',&
-'   Fortran logical unit numbers.                                                ',&
 '                                                                                ',&
 '================================================================================',&
 'NUMERICAL ALGORITHMS                                                            ',&
@@ -8891,8 +9080,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   of New Mexico, where it is being supported by the National Science           ',&
 '   Foundation. Additional work has been done during visits to Stanford          ',&
 '   Linear Accelerator Center, Argonne National Laboratory and Los Alamos        ',&
-'   Scientific Laboratory, where support has been provided by NSF and the        ',&
-'   Department of Energy.                                                        ',&
+'   Scientific Laboratory, where support has been provided by NSF and            ',&
+'   the Department of Energy.                                                    ',&
 '                                                                                ',&
 '================================================================================',&
 'REFERENCES                                                                      ',&
@@ -8938,32 +9127,32 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '     publication, 1980.                                                         ',&
 '                                                                                ',&
 '================================================================================',&
-'SUMMARY ------(A list of basic (case-sensitive) help topics)------- SUMMARY     ',&
-' ._______________________________________________________________________.      ',&
-' |SYNTAX         [ ] < > ( ) = .  , !  ; \ / '''' + - * : semi             |    ',&
-' |_______________________________________________________________________|      ',&
-' |VARIABLES      ans    clear who                                        |      ',&
-' |_______________________________________________________________________|      ',&
-' |BASIC          atan   cos   exp    log    sin      sqrt                |      ',&
-' |_______________________________________________________________________|      ',&
-' |HIGH           abs    base  chol   chop   cond     conjg  det    diag  |      ',&
-' |               eig    eye   hess   invh   imag     inv    kron   lu    |      ',&
-' |               magic  norm  ones   orth   pinv     poly   prod   qr    |      ',&
-' |               rand   rank  rcond  rat    real     rref   roots  round |      ',&
-' |               schur  size  sum    svd    tril     triu   user   zeros |      ',&
-' |_______________________________________________________________________|      ',&
-' |FLOW control   else   end   if     for    while    exit   quit         |      ',&
-' |_______________________________________________________________________|      ',&
-' |FILE access    exec   load  print  save                                |      ',&
-' |_______________________________________________________________________|      ',&
-' |OUTPUT options lines  long  short  diary  display  plot                |      ',&
-' |_______________________________________________________________________|      ',&
-' |PERFORMANCE    flops  flps                                             |      ',&
-' |_______________________________________________________________________|      ',&
-' |DOCUMENTATION  help   doc   manual topics                              |      ',&
-' |_______________________________________________________________________|      ',&
-' |MISCELLANEOUS  char   eps   debug  NEWS SUMMARY what MACROS sh         |      ',&
-' |_______________________________________________________________________|      ',&
+'SUMMARY    A list of basic (case-sensitive) section and topic names             ',&
+' .______________._________________________________________________________.     ',&
+' |SYNTAX        | [ ] < > ( ) = .  , !  ; \ / '''' + - * : semi             |   ',&
+' |______________._________________________________________________________|     ',&
+' |VARIABLES     | ans    clear who                                        |     ',&
+' |______________._________________________________________________________|     ',&
+' |BASIC         | atan   cos   exp    log    sin      sqrt                |     ',&
+' |______________._________________________________________________________|     ',&
+' |HIGH          | abs    base  chol   chop   cond     conjg  det    diag  |     ',&
+' |              | eig    eye   hess   invh   imag     inv    kron   lu    |     ',&
+' |              | magic  norm  ones   orth   pinv     poly   prod   qr    |     ',&
+' |              | rand   rank  rcond  rat    real     rref   roots  round |     ',&
+' |              | schur  size  sum    svd    tril     triu   user   zeros |     ',&
+' |______________._________________________________________________________|     ',&
+' |FLOW control  | else   end   if     for    while    exit   quit         |     ',&
+' |______________._________________________________________________________|     ',&
+' |FILE access   | exec   load  print  save                                |     ',&
+' |______________._________________________________________________________|     ',&
+' |OUTPUT options| lines  long  short  diary  display  plot                |     ',&
+' |______________._________________________________________________________|     ',&
+' |PERFORMANCE   | flops  flps                                             |     ',&
+' |______________._________________________________________________________|     ',&
+' |DOCUMENTATION | help   manual topics NEWS     SUMMARY                   |     ',&
+' |______________._________________________________________________________|     ',&
+' |MISCELLANEOUS | char   eps   debug  what   MACROS   EDIT    sh          |     ',&
+' |______________._________________________________________________________|     ',&
 '================================================================================',&
 'SAMPLE                                                                          ',&
 '      Here are a few sample statements:                                         ',&
@@ -8978,7 +9167,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      For more information, generate the MAT88 Users'' Guide                    ',&
 '      using                                                                     ',&
 '                                                                                ',&
-'        doc(''manual.txt'')                                                     ',&
+'        help manual                                                             ',&
+'        w help.txt                                                              ',&
+'        q                                                                       ',&
 '================================================================================',&
 'DOCUMENTATION                                                                   ',&
 '                                                                                ',&
@@ -8990,6 +9181,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      o  "help" with no options lists common topic and section names.           ',&
 '      o  The special topic "topics" shows all topic lines.                      ',&
 '      o  The special topic "manual" displays all the help text.                 ',&
+'         Enter "h" at the "continue ..." prompt for additional options.         ',&
 '                                                                                ',&
 '      For example:                                                              ',&
 '                                                                                ',&
@@ -9002,22 +9194,28 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         help help   // obviously prints this message.                          ',&
 '                                                                                ',&
 '      Alternatively, To place all the documenation in a file, use               ',&
-'      "doc(''help.txt'')".                                                      ',&
+'      "help manual" and enter "w help.txt" at the "continue .." prompt.         ',&
 'NEWS                                                                            ',&
+'      MAT88 is intended to be used primarily by families of FORTRAN             ',&
+'      programs that wish to add a consistent interactive "calculator"           ',&
+'      mode for interactively inspecting and modifying data.                     ',&
+'                                                                                ',&
 '      May, 1981.                                                                ',&
 '                                                                                ',&
 '      This is a port of the Argonne National Lab. FORTRAN 77 MATLAB             ',&
-'      routine circa 1981. This port is intended to be used primarily            ',&
-'      by families of FORTRAN programs that wish to add a consistent             ',&
-'      interactive "calculator" mode.                                            ',&
+'      routine circa 1981.                                                       ',&
 '                                                                                ',&
 '      Mar, 1990.                                                                ',&
 '                                                                                ',&
-'      Input lines can now be recalled and edited.  A "." on a line by           ',&
+'      Input lines can now be recalled and edited.  A "!!" on a line by          ',&
 '      itself calls the command history mode. Enter "?" after entering           ',&
 '      the mode for details.                                                     ',&
 '                                                                                ',&
-'what  Lists commands and functions currently available.                         ',&
+'      Apr, 2021.                                                                ',&
+'                                                                                ',&
+'      Rewritten but largely true to the original documentation.                 ',&
+'                                                                                ',&
+'what  does nothing for now                                                      ',&
 '                                                                                ',&
 'sh    Starts the command shell interactively, using the command defined by      ',&
 '      the environment variable SHELL. Note that in addition any line            ',&
@@ -9699,9 +9897,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'print  "print(''file'',X)" prints X on the file using the current               ',&
 '       format determined by "short", "long z", etc. See FILE.                   ',&
 '                                                                                ',&
-'doc   "doc(''file'')" stores the user guide and all the help text               ',&
-'      (as an Appendix) in the specified file if the file does not               ',&
-'      already exist.                                                            ',&
+'doc   does nothing at the moment                                                ',&
 '                                                                                ',&
 'save  "save(''file'')" stores all the current variables in a file.              ',&
 '      "save(''file'',X)" saves only X . See FILE .                              ',&
@@ -9736,7 +9932,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'lines  An internal count is kept of the number of lines of output               ',&
 '       since the last input. Whenever this count approaches a                   ',&
 '       limit, the user is asked whether or not to suppress                      ',&
-'       printing until the next input. Initially the limit is 25.                ',&
+'       printing until the next input. Initially the limit is 21.                ',&
 '       "lines(N)" resets the limit to N .                                       ',&
 '                                                                                ',&
 'long   See "short" also.                                                        ',&
@@ -9770,7 +9966,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '           display(0:10,10 ) // display values in base 10                       ',&
 '           display(0:10,16 ) // display values as hexadecimal values            ',&
-'           display(0:10,0 ) // display values as binary numbers                 ',&
+'           display(0:10,2 )  // display values as binary numbers                ',&
 '                                                                                ',&
 '      If no base is specified and all the                                       ',&
 '      elements of X are integers between 0 and 77, then X is                    ',&
@@ -10231,12 +10427,30 @@ end function system_getenv
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
+function too_much_memory(expression)
+integer,intent(in) :: expression
+logical            :: too_much_memory
+
+! ident_44="@(#)too much memory required"
+
+   G_ERR=expression
+   if(G_ERR.gt.0)then
+      call mat_err(17)
+      too_much_memory=.true.
+   else
+      too_much_memory=.false.
+   endif
+
+end function too_much_memory
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_inverse_hilbert(a,lda,n)
 
-! ident_44="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
+! ident_45="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
 !
 ! References:
 ! Forsythe, G. E. and C. B. Moler. Computer Solution of Linear Algebraic Systems. Englewood Cliffs, NJ: Prentice-Hall, 1967.
@@ -10272,7 +10486,7 @@ end subroutine mat_inverse_hilbert
 !==================================================================================================================================!
 subroutine mat_magic(a,lda,n)
 !
-! ident_45="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
+! ident_46="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
 
 !        Algorithms taken from
 !        Mathematical Recreations and Essays, 12th Ed.,
