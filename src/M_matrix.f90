@@ -2,6 +2,7 @@ module M_matrix
 use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
 use M_strings, only : value_to_string, lower, v2s, s2v
 use M_journal, only : journal
+use M_help, only    : help_command
 use M_history, only : redo
 !>
 !!##SYNTAX DIAGRAMS (9)
@@ -979,7 +980,7 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [27,10,23,13,36,GG_PAD
       call mat_help_text()                                                   ! initialize help text
       G_CURRENT_RANDOM_SEED = 0                                              ! random number seed
       G_CURRENT_RANDOM_TYPE = 0                                              ! set the type of random numbers to compute
-      G_LINECOUNT(2) = 21                                                    ! initial line limit for paging output
+      G_LINECOUNT(2) = 23                                                    ! initial line limit for paging output
 
       call mat_str2buf(G_DEFINE_CHARSET,G_CHARSET,G_CHARSET_SIZE)            ! convert character set string to hollerith
       call mat_str2buf(G_DEFINE_ALT_CHARSET,G_ALT_CHARSET,G_CHARSET_SIZE)    ! convert character set string to hollerith
@@ -1766,7 +1767,7 @@ integer                          :: i
 
    !  print function names and return
    if (id(1).eq.0) then
-      call help_command('SUMMARY')
+      call help_command(G_HELP_TEXT,'SUMMARY',G_LINECOUNT)
       return
    endif
 
@@ -2675,7 +2676,7 @@ subroutine mat_print_id(id,argcnt)
 integer             :: id(GG_MAX_NAME_LENGTH,*)
 integer             :: argcnt
 
-character(len=80)   :: mline                                 ! scratch space for building line to print
+character(len=(8*GG_MAX_NAME_LENGTH+2*8+1)) :: mline           ! scratch space for building line to print
 integer             :: linebuf(8*GG_MAX_NAME_LENGTH+2*8+1)    ! scratch buffer for building up line
 
 integer,parameter   ::  hollerith_blank=ichar(' ')+538976304-48
@@ -2707,7 +2708,7 @@ integer             :: i, j, k, l
       if(G_OUTPUT_LUN.eq.STDOUT)then
          call journal(mline)              ! print the line
       else
-         write(G_OUTPUT_LUN,'(a)')mline(1:80)    ! print the line
+         write(G_OUTPUT_LUN,'(a)')trim(mline)   ! print the line
       endif
       !-----------------------------------------------
       j1 = j1+8                           ! prepare to get up to eight more IDs
@@ -3678,7 +3679,7 @@ FINISHED: block
             endif
             call mat_buf2str(topic_name,G_BUF,len(topic_name))                    ! convert ADE array to string
          endif
-         call help_command(topic_name)
+         call help_command(G_HELP_TEXT,topic_name,G_LINECOUNT)
       endblock HELP_
 !===================================================================================================================================
       end select COMAND
@@ -6937,300 +6938,6 @@ end function mat_round
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-!>
-!!
-!!    A line beginning with a non-blank character in column one is a topic
-!!
-!!    A topic with the preceeding line beginning with "===" is a special topic
-!!    that will be displayed up to the next line beginning with "==="
-!!
-!!    The special topic "manual" displays the entire help text
-!!
-!!    The help text is paged based on the value set by the lines() function,
-!!    which defaults to 25 lines between pauses
-!!
-!!    Entering a non-blank line at the prompt exits the help text
-!!
-!!    A normal topic is displayed until another topic line (line beginning
-!!    with a non-blank) is encountered
-!!
-!!    The help text must begin with a line starting with "==="
-subroutine help_command(topic_name)
-
-! ident_40="@(#)M_matrix::help_command(3f): display help text"
-
-character(len=*),intent(in)            :: topic_name
-integer                                :: end_of_first_word
-integer                                :: start_of_topic
-integer                                :: ios
-character(len=:),allocatable           :: topic
-logical                                :: block_topic
-integer                                :: i,j
-logical                                :: numbered
-character(len=len(G_HELP_TEXT))        :: last_response
-
-   last_response=' '
-   numbered=.false.
-
-   topic=trim(topic_name)
-
-   if (topic.eq.' ') then                                           ! if no topic
-      call journal('Type "help" followed by a case-sensitive topic name ...')
-      topic='SUMMARY'
-   endif
-   select case(topic)
-   case('manual')                             ! show all the help text
-      i=0
-      do
-         i=i+1
-         if(i.gt.size(G_HELP_TEXT))exit
-         if(G_HELP_TEXT(i)(1:3).eq.'===')then
-            if(numbered)then
-               call journal('sc',i,' ')
-            else
-               call journal(' ')
-            endif
-         else
-            if(numbered)then
-               call journal('sc',i,G_HELP_TEXT(i))
-            else
-               call journal('sc',G_HELP_TEXT(i))
-            endif
-         endif
-         if(want_to_stop())exit
-         if(i.gt.size(G_HELP_TEXT)) exit
-      enddo
-   case('topics')                             ! go through all the text showing lines not starting with a a space or equal
-      i=0                                     ! display topic starting at start_of_topic
-      do
-         i=i+1
-         if(i.gt.size(G_HELP_TEXT)) exit
-         if(G_HELP_TEXT(i)(1:1).eq.'   ')cycle
-         if(G_HELP_TEXT(i)(1:3).eq.'===')cycle
-         if(numbered)then
-            call journal('sc',i,G_HELP_TEXT(i))
-         else
-            call journal('sc',G_HELP_TEXT(i))
-         endif
-         if(want_to_stop())exit
-      enddo
-   case default ! find the line that starts with the topic
-      start_of_topic=0
-      ! find the line to start with by finding a line that starts with the given topic ( ASSUMING FIRST LINE is ===)
-      FINDIT: do j=1,len(G_HELP_TEXT)
-         do i=2, size(G_HELP_TEXT)                                          ! get first word of lines not starting with a blank
-            if(G_HELP_TEXT(i)(1:1).ne.' ')then                              ! only topic lines start in column one so skip these
-               end_of_first_word=index(G_HELP_TEXT(i),' ')-1
-               if(end_of_first_word.eq.0)end_of_first_word=len(G_HELP_TEXT) ! if line is filled and does not have a blank
-               end_of_first_word=end_of_first_word-j+1
-            if(end_of_first_word.le.0)cycle
-               !x!write(*,*)'['//topic(:end_of_first_word)//']['//G_HELP_TEXT(i)(:end_of_first_word)//']'
-               if(topic.eq.G_HELP_TEXT(i)(:end_of_first_word))then      ! find a line that matches topic
-                  exit FINDIT
-               endif
-            endif
-         enddo
-      enddo FINDIT
-      start_of_topic=i
-
-      if(i.eq.0)then
-         call journal('<ERROR> internal error. First line of text must start with "==="')
-         G_HELP_TEXT=[character(len=len(G_HELP_TEXT)) :: repeat("=",80),G_HELP_TEXT]
-         start_of_topic=start_of_topic+1
-      endif
-
-      if(G_HELP_TEXT(i-1)(1:3).eq.'===')then  ! if the line above the start started with "===" it is a block comment
-         block_topic=.true.
-      else
-         block_topic=.false.
-      endif
-
-      if(start_of_topic.gt.size(G_HELP_TEXT).or.start_of_topic.eq.0)then
-         call journal('sc','SORRY, No help on ',topic)
-      else
-         G_LINECOUNT(1) = 0
-         if(numbered)then
-            call journal('sc',i,G_HELP_TEXT(start_of_topic))                       ! show the start line
-         else
-            call journal('sc',G_HELP_TEXT(start_of_topic))                       ! show the start line
-         endif
-
-         i=start_of_topic+1                                              ! display topic starting at start_of_topic
-         do
-            if(G_HELP_TEXT(i)(1:1).ne.' '.and. .not.block_topic )then       ! stop at next topic if not a block of help
-               exit
-            elseif(block_topic .and. G_HELP_TEXT(i)(1:3).eq.'===')then
-               exit
-            endif
-            if(numbered)then
-               call journal('sc',i,G_HELP_TEXT(i))
-            else
-               call journal('sc',G_HELP_TEXT(i))
-            endif
-            if(want_to_stop())exit
-            i=max(start_of_topic+1,i)
-            i=i+1
-            if(i.gt.size(G_HELP_TEXT)) exit
-         enddo
-      endif
-   end select
-contains
-
-function want_to_stop()
-character(len=len(G_HELP_TEXT))      :: response
-character(len=1)                     :: letter
-logical                              :: want_to_stop
-integer                              :: j
-integer                              :: jj
-   G_LINECOUNT(1) = G_LINECOUNT(1) + 1
-   want_to_stop=.false.
-   do
-      if(G_LINECOUNT(1) .gt. G_LINECOUNT(2)) then
-         call journal('sc','continue ..')
-         read(G_INPUT_LUN,'(a)',iostat=ios) response         ! read letter to pause from standard input
-         response=adjustl(response)
-         letter=response(1:1)
-         select case(letter)
-         case(' ','f')                                        ! next page
-            G_LINECOUNT(1) = 0                                ! start new page
-         case('b')                                            ! back one page
-            i=max(1,i-G_LINECOUNT(2)-1)
-            i=max(1,i-G_LINECOUNT(2)-1)
-            G_LINECOUNT(1) = 0
-         case('0':'9')                                        ! assumed to be a number
-            i=s2v(response)-1
-            i=max(i,1)
-            i=min(i,size(G_HELP_TEXT)-1)
-            G_LINECOUNT(1) = 0
-         case('+')                                            ! assumed to be a number
-            i=i+s2v(response)-1
-            i=max(i,1)
-            i=min(i,size(G_HELP_TEXT)-1)
-            G_LINECOUNT(1) = 0
-         case('-')                                            ! assumed to be a number
-            i=i-s2v(response)-1
-            i=max(i,1)
-            i=min(i,size(G_HELP_TEXT)-1)
-            G_LINECOUNT(1) = 0
-         case('u')                                            ! back one-half page
-            i=max(1,i-G_LINECOUNT(2)-1)
-            i=max(1,i-G_LINECOUNT(2)/2-1)
-            G_LINECOUNT(1) = 0
-         case('e')                                            ! back one-half page
-            i=i-G_LINECOUNT(2)-1
-            i=max(1,i-1)
-            G_LINECOUNT(1) = 0
-         case('y')                                            ! back one-half page
-            i=i-G_LINECOUNT(2)-1
-            i=max(1,i+1)
-            G_LINECOUNT(1) = 0
-         case('w')
-            WRITEFILE: block
-            character(len=1000) :: errmsg
-            integer :: temp_lun
-               response=adjustl(response(2:))
-               if(response(2:).eq.'')response='mat88_userguide.txt'
-               open(newunit=temp_lun,file=response,status='new',iostat=ios,iomsg=errmsg) ! open help file
-               if(ios.eq.0)then
-                  write(temp_lun,'(a)',iostat=ios)( trim(G_HELP_TEXT(i)),i=1,size(G_HELP_TEXT) )
-                  call journal('sc','<INFO> user guide including all help text in the Appendix is on file',trim(response) )
-                  close(unit=temp_lun,iostat=ios)
-               else
-                  call journal(trim(errmsg))
-               endif
-            endblock WRITEFILE
-         case('d')                                            ! down one-half page
-            i=min(size(G_HELP_TEXT)-1,i-G_LINECOUNT(2)/2-1)
-            G_LINECOUNT(1) = 0
-         case('r')                                            ! repaint page
-            i=max(1,i-G_LINECOUNT(2)-1)
-            G_LINECOUNT(1) = 0
-         case('/','n')                                        ! find string below
-            if(letter.eq.'n')response=last_response
-            if(response(2:).eq.'')response=last_response
-            i=i+1
-            do
-               if(index(lower(G_HELP_TEXT(i)),trim(response(2:))).ne.0)then
-                  i=max(1,i-1)
-
-                  exit
-               else
-                  i=i+1
-               endif
-               if(i.gt.size(G_HELP_TEXT)) exit
-            enddo
-            G_LINECOUNT(1) = 0
-            last_response=response
-         case('?') ! find string
-            response=lower(adjustl(response(2:)))
-            if(response.eq.' ')response=last_response
-            jj=len_trim(response)
-            do j=1,size(G_HELP_TEXT)
-               if(index(lower(G_HELP_TEXT(j)),response(:jj)).ne.0)then
-                  call journal('sc',j,G_HELP_TEXT(j))
-               endif
-            enddo
-            last_response='/'//response
-         case('\','N','p')                                            ! find string above
-            if(letter.eq.'N'.or.letter.eq.' ')response=last_response
-            if(response(2:).eq.'')response=last_response
-            i=i-1
-            do
-               if(index(lower(G_HELP_TEXT(i)),trim(response(2:))).ne.0)then
-                  write(*,*)'GOT HERE A:',i,trim(G_HELP_TEXT(i))
-                  write(*,*)'GOT HERE B:',i,trim(response(2:))
-                  exit
-               else
-                  i=i-1
-               endif
-               if(i.le.1) exit
-            enddo
-            i=max(1,i-G_LINECOUNT(2)-1)
-            G_LINECOUNT(1) = 0
-            last_response=response
-         case('g','t')                                        ! repaint page
-            i=1
-            G_LINECOUNT(1) = 0
-         case('.')                                            ! help
-            G_LINECOUNT(1) = 0
-            numbered=.not.numbered
-         case('h')                                            ! help
-            call journal('sc','#----------------------------------------------------#')
-            call journal('sc','| f|SPACE b  forward or backward one page            |')
-            call journal('sc','| u d        redraw up or down one-half page         |')
-            call journal('sc','| r          refresh page                            |')
-            call journal('sc','| e y        refresh page moving up or down one line |')
-            call journal('sc','#----------------------------------------------------#')
-            call journal('sc','| g,t        go to top of manual                     |')
-            call journal('sc','| .          toggle line numbering                   |')
-            call journal('sc','| NNN        go to line number NNN. Use a sign       |')
-            call journal('sc','|            for a relative move.                    |')
-            call journal('sc','#----------------------------------------------------#')
-            call journal('sc','| /STRING    advance to line containing string       |')
-            call journal('sc','| \STRING    search for string above current line    |')
-            call journal('sc','| n N        find next occurrence up or down in file |')
-            call journal('sc','| ?STRING    show lines with specified string        |')
-            call journal('sc','#----------------------------------------------------#')
-            call journal('sc','| w FILENAME write entire user guide to local file   |')
-            call journal('sc','| h          display this help                       |')
-            call journal('sc','| q          quit                                    |')
-            call journal('sc','#----------------------------------------------------#')
-            call journal('sc','Anything else quits.')
-            call journal('sc','Line count is ',i,'out of',size(G_HELP_TEXT),'. Page size is',G_LINECOUNT(2),'(see "lines")')
-            cycle
-         case default
-            G_LINECOUNT(1) = -1
-            want_to_stop=.true.
-         end select
-      endif
-      exit
-   enddo
-end function want_to_stop
-
-end subroutine help_command
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
 subroutine mat_help_text()
 G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
@@ -10136,7 +9843,7 @@ end function gets2
 !===================================================================================================================================
 subroutine mat88_get(A,varname,type,IERR)
 
-! ident_41="@(#)M_matrix::mat88_get(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
+! ident_40="@(#)M_matrix::mat88_get(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
 
 character(len=*),intent(in)              :: varname    ! the name of A.
 integer,intent(in)                       :: type       ! type =  0  get REAL A from MAT88, type  = 1  get IMAGINARY A into MAT88,
@@ -10229,7 +9936,7 @@ end subroutine mat88_get
 !===================================================================================================================================
 SUBROUTINE mat88_put(A,CID,JOB,IERR) !JSU
 
-! ident_42="@(#)M_matrix:: mat88_put(3f): put a variable name and its data onto MAT88 stack"
+! ident_41="@(#)M_matrix:: mat88_put(3f): put a variable name and its data onto MAT88 stack"
 
 character(len=*),intent(in) :: cid                    ! the name of A.
 doubleprecision,intent(in)  :: a(:,:)                 ! A is an M by N matrix, stored in an array with leading dimension size_of_a.
@@ -10349,7 +10056,7 @@ end subroutine mat88_put
 !===================================================================================================================================
 function system_getenv(name,default) result(value)
 
-! ident_43="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
+! ident_42="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
 
 character(len=*),intent(in)          :: name
 character(len=*),intent(in),optional :: default
@@ -10387,7 +10094,7 @@ function too_much_memory(expression)
 integer,intent(in) :: expression
 logical            :: too_much_memory
 
-! ident_44="@(#)too much memory required"
+! ident_43="@(#)too much memory required"
 
    G_ERR=expression
    if(G_ERR.gt.0)then
@@ -10406,7 +10113,7 @@ end function too_much_memory
 !==================================================================================================================================!
 subroutine mat_inverse_hilbert(a,lda,n)
 
-! ident_45="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
+! ident_44="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
 !
 ! References:
 ! Forsythe, G. E. and C. B. Moler. Computer Solution of Linear Algebraic Systems. Englewood Cliffs, NJ: Prentice-Hall, 1967.
@@ -10442,7 +10149,7 @@ end subroutine mat_inverse_hilbert
 !==================================================================================================================================!
 subroutine mat_magic(a,lda,n)
 !
-! ident_46="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
+! ident_45="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
 
 !        Algorithms taken from
 !        Mathematical Recreations and Essays, 12th Ed.,

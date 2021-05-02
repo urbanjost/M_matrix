@@ -6,10 +6,18 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
-**2021-04-NN**  John S. Urban  <https://github.com/urbanjost>
+**2021-05-01**  John S. Urban  <https://github.com/urbanjost>
 ### :green_circle: ADD:
 
 add zeros() function to complement ones()
+
+### :green_circle: DIFF:
+
+The help text is displayed with the M_help(3f) module from an array in
+memory instead of a file, simplifying usage by not requiring an external
+file by default, but still allowing for easily supporting alternate help
+files in future versions.
+
 <!-- ======================================================================== -->
 ---
 **2021-04-24**  John S. Urban  <https://github.com/urbanjost>
