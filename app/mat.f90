@@ -3,13 +3,21 @@
 !==================================================================================================================================!
 program bigmat
 use M_matrix, only  : mat88
-use M_CLI2, only : set_args, lget, sget, iget          ! add command-line parser module
+use M_CLI2, only : set_args, lget, sget, iget, expressions=>unnamed          ! add command-line parser module
 implicit none
 character(len=:),allocatable :: help_text(:)
 character(len=:),allocatable :: version_text(:)
+integer                      :: i
    call setup()
    call set_args('mat',help_text,version_text )        ! define command arguments,default values and crack command line
-   call mat88(0,' ')                                   ! CALL MATLAB
+   if(size(expressions).eq.0)then
+      call mat88(0,' ')                                   ! CALL MAT88 interactively
+   else
+      call mat88(-1,' ')                                  ! CALL MAT88 to initialize it
+      do i=1,size(expressions)
+         call mat88(2,expressions(i))                     ! CALL MAT88
+      enddo
+   endif
    stop
 contains
 subroutine setup()
@@ -18,24 +26,26 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   mat(1f) - interpret matrix expressions using a shell-like interface          ',&
 '                                                                                ',&
 'SYNOPSIS                                                                        ',&
-'    mat [ --help| --version]                                                    ',&
+'    mat [expression(s)] | [ --help| --version]                                  ',&
 '                                                                                ',&
 'DESCRIPTION                                                                     ',&
 '   mat(1) is an interactive computer program that serves as a convenient        ',&
-'   "laboratory" for computations involving matrices. It provides easy access    ',&
-'   to matrix software developed by the LINPACK and EISPACK projects. The        ',&
-'   capabilities range from standard tasks such as solving simultaneous linear   ',&
-'   equations and inverting matrices, through symmetric and nonsymmetric         ',&
-'   eigenvalue problems, to fairly sophisticated matrix tools such as the        ',&
-'   singular value decomposition.                                                ',&
+'   "laboratory" for computations involving matrices. It provides easy           ',&
+'   access to matrix software developed by the LINPACK and EISPACK               ',&
+'   projects. The capabilities range from standard tasks such as solving         ',&
+'   simultaneous linear equations and inverting matrices, through symmetric      ',&
+'   and nonsymmetric eigenvalue problems, to fairly sophisticated matrix         ',&
+'   tools such as the singular value decomposition.                              ',&
 '                                                                                ',&
 'OPTIONS                                                                         ',&
-'    --help     display this help and exit                                       ',&
-'    --version  output version information and exit                              ',&
+'    --help         display this help and exit                                   ',&
+'    --version      output version information and exit                          ',&
+'    expression(s)  if expressions are supplied they are evaluated and the       ',&
+'                   program terminates.                                          ',&
 '                                                                                ',&
 'AUTHOR                                                                          ',&
-'    This is heavily based on a program from the Department of Computer Science, ',&
-'    University of New Mexico, by Cleve Moler.                                   ',&
+'    This is heavily based on a program from the Department of Computer          ',&
+'    Science, University of New Mexico, by Cleve Moler.                          ',&
 '                                                                                ',&
 'EXAMPLES                                                                        ',&
 '  Sample commands                                                               ',&
@@ -51,9 +61,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   An explanation of Example 1:                                                 ',&
 '                                                                                ',&
-'    // For this session the <> character is the MATLAB prompt.                  ',&
+'    // For this session the <> character is the MAT88 prompt.                   ',&
 '     <> A=<1 2 3;5 4 6;7 8 9>            <---  you enter this                   ',&
-'     A     =                             <---  MATLAB response                  ',&
+'     A     =                             <---  MAT88 response                   ',&
 '         1.    2.    3.                                                         ',&
 '         5.    4.    6.                                                         ',&
 '         7.    8.    9.                                                         ',&
@@ -65,22 +75,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '     <> A*b             <--- you enter "multiply A and b"                       ',&
 '                                                                                ',&
-'     ANS   =            <--- MATLAB response                                    ',&
+'     ANS   =            <--- MAT88 response                                     ',&
 '        38.                                                                     ',&
 '        91.                                                                     ',&
 '       146.                                                                     ',&
 '                                                                                ',&
 '     <> b*A             <---you enter "multiply b and A"                        ',&
-'        /--ERROR                         <--- MATLAB response                   ',&
+'        /--ERROR                         <--- MAT88 response                    ',&
 '     INCOMPATIBLE FOR MULTIPLICATION                                            ',&
 '                                                                                ',&
 '     <> det(A)         <--- Take the determinant of A                           ',&
 '                                                                                ',&
-'     ANS   =           <---MATLAB response                                      ',&
+'     ANS   =           <---MAT88 response                                       ',&
 '                                                                                ',&
 '        18.                                                                     ',&
 '                                                                                ',&
-'     <> quit           <--- you quit MATLAB                                     ',&
+'     <> quit           <--- you quit MAT88                                      ',&
 '                                                                                ',&
 '     total flops        34                                                      ',&
 '     ADIOS                                                                      ',&
@@ -112,15 +122,20 @@ help_text=[ CHARACTER(LEN=128) :: &
 '    short,  cond(X)                                                             ',&
 '    // --------------------------------------                                   ',&
 '                                                                                ',&
-'   Use the HELP command and the DOC command for further information.            ',&
-'   For example:                                                                 ',&
+'   Use the HELP command for further information.                                ',&
+'   For example, to enter HELP on the entire manual,                             ',&
+'   display directions for using HELP and                                        ',&
+'   place a User manual in the file "mat88.txt",                                 ',&
+'   enter                                                                        ',&
 '                                                                                ',&
 '    mat                                                                         ',&
-'    <>doc(''mat.txt'')                                                          ',&
-'    <>quit                                                                      ',&
-'                                                                                ',&
-'   will place a User manual in the file "mat.txt".                              ',&
-'                                                                                ',&
+'    <>help manual                                                               ',&
+'    continue ...                                                                ',&
+'    h // show directions for using "help"                                       ',&
+'    w mat88.txt                                                                 ',&
+'    continue ...                                                                ',&
+'    q                                                                           ',&
+'    quit                                                                        ',&
 '']
 !>
 !!##NAME
@@ -128,24 +143,26 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!
 !!##SYNOPSIS
 !!
-!!     mat [ --help| --version]
+!!     mat [expression(s)] | [ --help| --version]
 !!
 !!##DESCRIPTION
 !!    mat(1) is an interactive computer program that serves as a convenient
-!!    "laboratory" for computations involving matrices. It provides easy access
-!!    to matrix software developed by the LINPACK and EISPACK projects. The
-!!    capabilities range from standard tasks such as solving simultaneous linear
-!!    equations and inverting matrices, through symmetric and nonsymmetric
-!!    eigenvalue problems, to fairly sophisticated matrix tools such as the
-!!    singular value decomposition.
+!!    "laboratory" for computations involving matrices. It provides easy
+!!    access to matrix software developed by the LINPACK and EISPACK
+!!    projects. The capabilities range from standard tasks such as solving
+!!    simultaneous linear equations and inverting matrices, through symmetric
+!!    and nonsymmetric eigenvalue problems, to fairly sophisticated matrix
+!!    tools such as the singular value decomposition.
 !!
 !!##OPTIONS
-!!     --help     display this help and exit
-!!     --version  output version information and exit
+!!     --help         display this help and exit
+!!     --version      output version information and exit
+!!     expression(s)  if expressions are supplied they are evaluated and the
+!!                    program terminates.
 !!
 !!##AUTHOR
-!!     This is heavily based on a program from the Department of Computer Science,
-!!     University of New Mexico, by Cleve Moler.
+!!     This is heavily based on a program from the Department of Computer
+!!     Science, University of New Mexico, by Cleve Moler.
 !!
 !!##EXAMPLES
 !!
@@ -162,9 +179,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!
 !!    An explanation of Example 1:
 !!
-!!     // For this session the <> character is the MATLAB prompt.
+!!     // For this session the <> character is the MAT88 prompt.
 !!      <> A=<1 2 3;5 4 6;7 8 9>            <---  you enter this
-!!      A     =                             <---  MATLAB response
+!!      A     =                             <---  MAT88 response
 !!          1.    2.    3.
 !!          5.    4.    6.
 !!          7.    8.    9.
@@ -176,22 +193,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!
 !!      <> A*b             <--- you enter "multiply A and b"
 !!
-!!      ANS   =            <--- MATLAB response
+!!      ANS   =            <--- MAT88 response
 !!         38.
 !!         91.
 !!        146.
 !!
 !!      <> b*A             <---you enter "multiply b and A"
-!!         /--ERROR                         <--- MATLAB response
+!!         /--ERROR                         <--- MAT88 response
 !!      INCOMPATIBLE FOR MULTIPLICATION
 !!
 !!      <> det(A)         <--- Take the determinant of A
 !!
-!!      ANS   =           <---MATLAB response
+!!      ANS   =           <---MAT88 response
 !!
 !!         18.
 !!
-!!      <> quit           <--- you quit MATLAB
+!!      <> quit           <--- you quit MAT88
 !!
 !!      total flops        34
 !!      ADIOS
@@ -223,14 +240,20 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!     short,  cond(X)
 !!     // --------------------------------------
 !!
-!!    Use the HELP command and the DOC command for further information.
-!!    For example:
+!!    Use the HELP command for further information.
+!!    For example, to enter HELP on the entire manual,
+!!    display directions for using HELP and
+!!    place a User manual in the file "mat88.txt",
+!!    enter
 !!
 !!     mat
-!!     <>doc('mat.txt')
-!!     <>quit
-!!
-!!    will place a User manual in the file "mat.txt".
+!!     <>help manual
+!!     continue ...
+!!     h // show directions for using "help"
+!!     w mat88.txt
+!!     continue ...
+!!     q
+!!     quit
 version_text=[ CHARACTER(LEN=128) :: &
 'PRODUCT:        GPF (General Purpose Fortran) utilities and examples            ',&
 'PROGRAM:        mat(1)                                                          ',&

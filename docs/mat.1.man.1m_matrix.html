@@ -70,7 +70,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 
 </A>
 <BLOCKQUOTE>
-<B>mat</B> [ <B>--help</B>| <B>--version</B>]
+mat <B>[expression</B>(<I>s</I>)] | [ <B>--help</B>| <B>--version</B>]
 </BLOCKQUOTE>
 <A name=2>
 
@@ -79,12 +79,12 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 </A>
 <BLOCKQUOTE>
 <B>mat</B>(1) is an interactive computer program that serves as a convenient
-"laboratory" for computations involving matrices. It provides easy access
-to matrix software developed by the LINPACK and EISPACK projects. The
-capabilities range from standard tasks such as solving simultaneous linear
-equations and inverting matrices, through symmetric and nonsymmetric
-eigenvalue problems, to fairly sophisticated matrix tools such as the
-singular value decomposition.
+"laboratory" for computations involving matrices. It provides easy
+access to matrix software developed by the LINPACK and EISPACK
+projects. The capabilities range from standard tasks such as solving
+simultaneous linear equations and inverting matrices, through symmetric
+and nonsymmetric eigenvalue problems, to fairly sophisticated matrix
+tools such as the singular value decomposition.
 </BLOCKQUOTE>
 <A name=3>
 
@@ -101,6 +101,11 @@ display this help and exit
 <B></B><B>--version</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 output version information and exit
 </TD></TR>
+<TR valign=top><TD colspan=2>
+<B></B><B>expression</B>(<I>s</I>) </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+if expressions are supplied they are evaluated and the
+program terminates.
+</TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <A name=4>
 
@@ -108,8 +113,8 @@ output version information and exit
 
 </A>
 <BLOCKQUOTE>
-This is heavily based on a program from the Department of Computer Science,
-University of New Mexico, by Cleve Moler.
+This is heavily based on a program from the Department of Computer
+Science, University of New Mexico, by Cleve Moler.
 </BLOCKQUOTE>
 <A name=5>
 
@@ -134,9 +139,9 @@ Sample commands
 An explanation of Example 1:
 <P>
 <PRE>
-    // For this session the &lt;&gt; character is the MATLAB prompt.
+    // For this session the &lt;&gt; character is the MAT88 prompt.
      &lt;&gt; A=&lt;1 2 3;5 4 6;7 8 9&gt;            &lt;---  you enter this
-     A     =                             &lt;---  MATLAB response
+     A     =                             &lt;---  MAT88 response
          1.    2.    3.
          5.    4.    6.
          7.    8.    9.
@@ -148,13 +153,13 @@ An explanation of Example 1:
 <P>
      &lt;&gt; A*b             &lt;--- you enter "multiply A and b"
 <P>
-     ANS   =            &lt;--- MATLAB response
+     ANS   =            &lt;--- MAT88 response
         38.
         91.
        146.
 <P>
      &lt;&gt; b*A             &lt;---you enter "multiply b and A"
-        /--ERROR                         &lt;--- MATLAB response
+        /--ERROR                         &lt;--- MAT88 response
 </PRE>
 </BLOCKQUOTE>
 </BLOCKQUOTE>
@@ -171,7 +176,7 @@ An explanation of Example 1:
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
 <B>ANS</B> </TD><TD valign=bottom>
-=           &lt;<B>---MATLAB</B> response
+=           &lt;<B>---MAT88</B> response
 </TD></TR>
 <TR><TD colspan=2>
 <PRE>
@@ -181,7 +186,7 @@ An explanation of Example 1:
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B>&lt;&gt; quit</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-&lt;--- you quit MATLAB
+&lt;--- you quit MAT88
 </TD></TR>
 <TR valign=top><TD colspan=2>
 <B>total flops</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
@@ -227,9 +232,9 @@ E = <B>-1.e-6</B>*Y(:,1)*X(:,1)&#146;
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
 <B>r = .4;</B> </TD><TD valign=bottom>
-s = .5;
-while s-r &gt; 1.e-14, t = (r+s)/2; d = <B>eig</B>(A+t*E); &#46;&#46;&#46;
-if <B>imag</B>(d(1))=0, r = t; else, s = t;
+<I>s</I> = .5;
+while <I>s</I>-r &gt; 1.e-14, t = (r+<I>s</I>)/2; d = <B>eig</B>(A+t*E); &#46;&#46;&#46;
+if <B>imag</B>(d(1))=0, r = t; else, <I>s</I> = t;
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
 <B>long,</B> </TD><TD valign=bottom>
@@ -250,20 +255,24 @@ X = <B>X/diag</B>(X(3,:))
 </TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <P>
-Use the HELP command and the DOC command for further information.
-For example:
+Use the HELP command for further information.
+For example, to enter HELP on the entire manual,
+display directions for using HELP and
+place a User manual in the file "mat88.txt",
+enter
 <P>
 <PRE>
     mat
-    &lt;&gt;doc(&#146;mat.txt&#146;)
-    &lt;&gt;quit
-<P>
+    &lt;&gt;help manual
+    continue &#46;&#46;&#46;
+    h // show directions for using "help"
+    w mat88.txt
+    continue &#46;&#46;&#46;
+    q
+    quit
 </PRE>
-<BLOCKQUOTE>
-will place a User manual in the file "mat.txt".
-</BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>mat.1.man (1m_matrix)</TD> <TD align=right width=33%><I>May 01, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from 7c0b0afa-d7e7-4254-a8a4-26bb0e35a552 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>mat.1.man (1m_matrix)</TD> <TD align=right width=33%><I>May 02, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from 57e12aae-7bec-4ba3-94c6-463cff7a3ebe using man macros.</FONT>
 <br><br><center><img src="images/mat.1.gif"></center>
 </div>
 </div>

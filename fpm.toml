@@ -30,3 +30,4 @@ M_msg          = { git = "https://github.com/urbanjost/M_msg.git" }
 M_strings      = { git = "https://github.com/urbanjost/M_strings.git" }
 M_history      = { git = "https://github.com/urbanjost/M_history.git" }
 M_CLI2         = { git = "https://github.com/urbanjost/M_CLI2.git" }
+M_list         = { git = "https://github.com/urbanjost/M_list.git" }
