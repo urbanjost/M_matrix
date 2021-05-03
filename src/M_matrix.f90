@@ -2645,7 +2645,7 @@ end subroutine mat_rrot
 !==================================================================================================================================!
 subroutine mat_rset(n,dx,dy,incy)
 
-! ident_23="@(#)M_matrix::mat_rset(3f): copies a scalar, dx, to a scalar, dy."
+! ident_23="@(#)M_matrix::mat_rset(3f): copies a scalar, dx, to a vector, dy."
 
 integer         :: n
 doubleprecision :: dx,dy(*)
@@ -2669,50 +2669,49 @@ subroutine mat_print_id(id,argcnt)
 
 ! ident_24="@(#)M_matrix::mat_print_id(3fp): print table of variable id names (up to) eight per line"
 
-!     ID     IS ARRAY OF GG_MAX_NAME_LENGTH CHARACTER IDS TO PRINT
-!     ARGCNT IS NUMBER OF IDS TO PRINT
-!            IF = -1, PRINT ONE ID WITH AN "  =" SUFFIX
+!     ID     Is array of GG_MAX_NAME_LENGTH character IDs to print
+!     ARGCNT is number of IDs to print
+!            If = -1, print one ID with an "  =" suffix
 !
-integer             :: id(GG_MAX_NAME_LENGTH,*)
-integer             :: argcnt
-
+integer            :: id(GG_MAX_NAME_LENGTH,*)
+integer            :: argcnt
+integer,parameter  ::  hollerith_blank=ichar(' ')+538976304-48
+integer,parameter  ::  hollerith_equal=ichar('=')+538976304-48
+integer            :: id_counter                               !
+integer            :: i, j, k
+integer            :: line_position                            ! pointer into output line being built
+integer            :: linebuf(8*GG_MAX_NAME_LENGTH+2*8+1)      ! scratch buffer for building up line
 character(len=(8*GG_MAX_NAME_LENGTH+2*8+1)) :: mline           ! scratch space for building line to print
-integer             :: linebuf(8*GG_MAX_NAME_LENGTH+2*8+1)    ! scratch buffer for building up line
 
-integer,parameter   ::  hollerith_blank=ichar(' ')+538976304-48
-integer,parameter   ::  hollerith_equal=ichar('=')+538976304-48
-integer             :: j1
-integer             :: i, j, k, l
-
-   j1 = 1                                 ! which ID to start the line with
+   id_counter = 1                                         ! which ID to start the line with
    INFINITE : do
-      linebuf(1)=hollerith_blank          ! put a space at beginning of line
-      l = 2                               ! pointer into output line being built
-      do j = j1,min(j1+7,iabs(argcnt))    ! copy up to eight names into buffer
-         do i = 1, GG_MAX_NAME_LENGTH     ! copy one name into buffer
-            k = id(i,j)+1                 ! this is the kth letter of the set
-            linebuf(l) = G_CHARSET(k)
-            if(linebuf(l).ne.hollerith_blank)l = l+1   ! increment pointer into output
+      linebuf(1)=hollerith_blank                          ! put a space at beginning of line
+      line_position = 2
+      do j = id_counter,min(id_counter+7,iabs(argcnt))    ! copy up to eight names into buffer
+         do i = 1, GG_MAX_NAME_LENGTH                     ! copy one name into buffer
+            k = id(i,j)+1                                 ! this is the kth letter of the set
+            linebuf(line_position) = G_CHARSET(k)
+            if(linebuf(line_position).ne.hollerith_blank)line_position = line_position+1   ! increment pointer into output
          enddo
-         linebuf(l+0)=hollerith_blank     ! put two spaces between names
-         linebuf(l+1)=hollerith_blank
-         l=l+2
+         linebuf(line_position+0)=hollerith_blank         ! put two spaces between names
+         linebuf(line_position+1)=hollerith_blank
+         line_position=line_position+2
       enddo
-      if (argcnt .eq. -1) then            ! special flag to print one word and  =
-         linebuf(l) = hollerith_equal     ! put value for equal sign into buffer
+      if (argcnt .eq. -1) then                            ! special flag to print one word and  =
+         linebuf(line_position) = hollerith_equal         ! put value for equal sign into buffer
       else
-         l=l-3                            ! was prepared for another ID with two blanks
+         line_position=line_position-3                    ! was prepared for another ID with two blanks
       endif
-      !-----------------------------------------------
-      call mat_buf2str(mline,linebuf,l)   ! write LINEBUF(1:L) line to a character variable
+
+      call mat_buf2str(mline,linebuf,line_position)       ! write LINEBUF(1:line_position) line to a character variable
       if(G_OUTPUT_LUN.eq.STDOUT)then
-         call journal(mline)              ! print the line
+         call journal(mline)                              ! print the line to stdout
       else
-         write(G_OUTPUT_LUN,'(a)')trim(mline)   ! print the line
+         write(G_OUTPUT_LUN,'(a)')trim(mline)             ! print the line to a file
       endif
-      !-----------------------------------------------
-      j1 = j1+8                           ! prepare to get up to eight more IDs
-      if (j1 .gt. iabs(argcnt)) exit INFINITE   ! if not done do another line
+
+      id_counter = id_counter+8                           ! prepare to get up to eight more IDs
+      if (id_counter .gt. iabs(argcnt)) exit INFINITE     ! if not done do another line
    enddo INFINITE
 end subroutine mat_print_id
 !==================================================================================================================================!
@@ -3489,28 +3488,14 @@ integer,parameter    :: linelen=255
 integer              :: cmd(GG_MAX_NAME_LENGTH,17)
 integer              :: ch
 integer,save         :: cmdl=17
-!                   0---------1---------2---------3---------4--------- 5---------6---------7-------
-!                   012345678901234567890123456789012345678901234567890123456789012345678901234567
-!                   0123456789abcdefghijklmnopqrstuvwxyz ();:+-*/\=.,'<>ABCDEFGHIJKLMNOPQRSTUVWXYZ
-integer,parameter  :: a=10, a_up=52
-integer,parameter  :: d=13, d_up=55
-integer,parameter  :: e=14, e_up=56
-integer,parameter  :: z=35, z_up=77
-
-integer,parameter  :: semi=39
-integer,parameter  :: comma=48
-integer,parameter  :: blank=36
-integer,parameter  :: name=1
-integer,parameter  :: dot=47
 
 integer            :: chr
-integer            :: i
-integer            :: ii
-integer            :: j
-integer            :: jj
-integer            :: k
+integer            :: i, j, k, ii, jj
 integer            :: l
 
+integer,parameter  ::  semi=39, comma=48,  blank=36,  name=1, dot=47
+
+integer,parameter  ::  a=10,a_up=52,  d=13,d_up=55,  e=14,e_up=56,  z=35,z_up=77
 !.......................................................................
 !                         1         2         3         4         5
 !       COUNT   01234567890123456789012345678901234567890123456789012
@@ -10012,7 +9997,10 @@ integer,parameter           :: semi=39
 
    mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    if (mn .ne. 0)then
-      if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
+      !!------
+      !!if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
+      if (img .eq. 0) G_STACK_IMAGS(location:location+mn-1:1)=0.0d0 ! reset array to zero
+      !!------
       do i = 1, GG_MAX_NAME_LENGTH
          j = 0
          do
