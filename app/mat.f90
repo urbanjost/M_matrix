@@ -9,13 +9,13 @@ character(len=:),allocatable :: help_text(:)
 character(len=:),allocatable :: version_text(:)
 integer                      :: i
    call setup()
-   call set_args('mat',help_text,version_text )        ! define command arguments,default values and crack command line
+   call set_args('mat',help_text,version_text )       ! define command arguments,default values and crack command line
    if(size(expressions).eq.0)then
-      call mat88(0,' ')                                   ! CALL MAT88 interactively
+      call mat88()                                    ! CALL MAT88 interactively with default scratch space
    else
-      call mat88(-1,' ')                                  ! CALL MAT88 to initialize it
+      call mat88(200000)                              ! CALL MAT88 to initialize it and set scratch space size
       do i=1,size(expressions)
-         call mat88(2,expressions(i))                     ! CALL MAT88
+         call mat88(expressions(i))                   ! CALL MAT88
       enddo
    endif
    stop

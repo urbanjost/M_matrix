@@ -73,8 +73,11 @@ laboratory interpreter
 <B>subroutine</B> <B>MAT88</B>(init,cmd)
 <P>
 <PRE>
-   integer,intent(in)          :: init
-   character(len=*),intent(in) :: cmd
+   integer,intent(in),optional :: init
+   character(len=*),intent(in),optional :: cmd
+      or
+   character(len=*),intent(in),optional :: cmd(:)
+<P>
 </PRE>
 </BLOCKQUOTE>
 <A name=2>
@@ -106,38 +109,25 @@ The HELP command describes using the interpreter.
 <TABLE cellpadding=3>
 <TR valign=top><TD width=6% nowrap>
 <B>INIT</B> </TD><TD valign=bottom>
-flag indicating purpose of call
-<TABLE width=100% cellpadding=3><!-- tsb: flag indicating purpose of call
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>0</B> </TD><TD valign=bottom>
-initial entry. with reads from stdin
-</TD></TR>
-<TR></TR></TABLE><!-- .TP -->
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B></B><B>-1</B> </TD><TD valign=bottom>
-for silent initialization (ignores CMD)
-<TABLE width=100% cellpadding=3><!-- tsb: for silent initialization (ignores CMD)
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>1</B> </TD><TD valign=bottom>
-perform CMD, and enter command mode, subsequently
-reading commands from stdin.
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>2</B> </TD><TD valign=bottom>
-return after doing CMD
-</TD></TR>
-<TR></TR></TABLE><!-- .TP -->
+indicate size of scratch space to allocate
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
 <B>CMD</B> </TD><TD valign=bottom>
-MAT88 command to perform
+MAT88 <B>command</B>(s) to perform. May be CHARACTER scalar or vector
 </TD></TR>
-<TR></TR></TABLE></BLOCKQUOTE>
+<TR></TR></TABLE>INIT and CMD cannot be combined on a single call.
+<P>
+The first should be an initialization declaring the number of
+doubleprecision values to allocate for the combined scratch and
+variable storage area. This is a required initial command. It may be
+repeated. A size of zero will deallocate any allocated storage.
+<P>
+If no parameters or a blank string is supplied interactive mode
+is entered.
+<P>
+If a CMD is passed and no initialization call was made the scratch space
+will be allocated to 200000.
+</BLOCKQUOTE>
 <A name=4>
 
      <H3>EXAMPLE</H3>
@@ -150,8 +140,60 @@ Sample program
 <PRE>
       program demo_MAT88
       use M_matrix, only : mat88
-      call MAT88(0,&#146; &#146;)
-      end program demo_MAT88
+<P>
+         write(*,&#146;(a)&#146;)&#146;optionally initialize scratch area size&#146;
+         call MAT88(20000)
+<P>
+         write(*,&#146;(a)&#146;)&#146;do some commands&#146;
+         call MAT88([character(len=256) :: &
+         & &#146;semi;                         &#146;,&
+         & &#146;semi;                         &#146;,&
+         & &#146;a=magic(4),b=-a               &#146;,&
+         & &#146;a+b;a;b                       &#146;,&
+         & &#146;display("That is all Folks")  &#146;])
+<P>
+         write(*,&#146;(a)&#146;)&#146;do a single command&#146;
+         call MAT88(&#146;who&#146;)
+<P>
+         write(*,&#146;(a)&#146;)&#146;enter interactive mode&#146;
+         call MAT88()
+<P>
+         write(*,&#146;(a)&#146;)&#146;ending program&#146;
+</PRE>
+end program demo_MAT88
+<P>
+Example 2:
+<P>
+<PRE>
+   program bigmat
+   use M_matrix, only : mat88
+      ! pass strings to MAT88 but do not enter interactive mode
+      call mat88(20000)                  ! initialize silently
+      call mat88( &#146;a=[1 2 3 4; 5 6 7 8]&#146;)
+      call mat88( [character(len=80) :: &
+       & &#146;semi;lines(9999)                                      &#146;,&
+       & &#146;// create a magic square and add 100 to all the values&#146;,&
+       & &#146;A=magic(4),&lt;X,Y&gt;=size(A)                              &#146;,&
+       & &#146;B=A+ones(X,Y)*100                                     &#146;,&
+       & &#146;// save all current values to a file                  &#146;,&
+       & &#146;save("sample.mat")                                    &#146;,&
+       & &#146;// clear all user values                              &#146;,&
+       & &#146;clear                                                 &#146;,&
+       & &#146;// show variable names, load values from file         &#146;,&
+       & &#146;                                                      &#146;,&
+       & &#146;who;load("sample.mat");who                            &#146;])
+   end program bigmat
+<P>
+</PRE>
+Sample program with custom user function
+<P>
+<PRE>
+      program sample_user
+      use M_matrix, only : mat88
+         call MAT88(20000)
+         call MAT88(&#146; &#146;)
+      end program
+<P>
       !-------------------------------------------------------------
       SUBROUTINE mat88_user(A,M,N,S,T)  ! sample mat88_user routine
       ! Allows personal  Fortran  subroutines  to  be  linked  into
@@ -194,18 +236,7 @@ Sample program
       endif
       END SUBROUTINE mat88_user
 <P>
-</PRE>
-Example 2:
-<P>
-<PRE>
-   program bigmat
-   use M_matrix, only : mat88
-   ! pass strings to MAT88 but do not enter interactive mode
-   call mat88(-1,&#146; &#146;)                  ! initialize silently
-   call mat88( 2,&#146;a=[1 2 3 4; 5 6 7 8]&#146;)
-   call mat88( 2,&#146;save("file1")&#146;)
-   call mat88( 2,&#146;help INTRO&#146;)
-   end program bigmat
+      ! end program sample_user
 <P>
 </PRE>
 </BLOCKQUOTE>
@@ -943,7 +974,7 @@ w5 = [
 <TR></TR></TABLE></TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>mat88 (3m_matrix)</TD> <TD align=right width=33%><I>May 02, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from 3f0c650f-5217-4a6f-a427-a5ef8c8ce870 using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>mat88 (3m_matrix)</TD> <TD align=right width=33%><I>May 05, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from a2087778-37a9-4234-8605-e3e06cb2bb79 using man macros.</FONT>
 <br><br><center><img src="images/mat88.gif"></center>
 </div>
 </div>
