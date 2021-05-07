@@ -83,6 +83,7 @@ logical           :: logs
    call test_while ()   ! while  Repeat statements an indefinite number of times.
    call test_who ()     ! who   Lists current variables.
    call test_zeros ()   ! zeros
+   call test_general_avg () 
 !       ! call test_{ ()
 !       ! call test_} ()
 !       ! call test_) () (     ( ) or { } are used to indicate precedence in arithmetic expressions
@@ -223,426 +224,937 @@ subroutine test_ans ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help ans')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & 'if sum(tally)=0,display("ans PASSED");else,display("ans FAILED");tally ', &
+     & ''])
 end subroutine test_ans
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_atan ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help atan')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & 'PI=atan(1)*4;A=cos(PI);B=sin(PI);', &
+     & 'if A-1<eps,tally=[tally,0];display("test if near PI OK");else,tally=[tally,1];display("test if near PI OK");', &
+     & 'if B  <eps,tally=[tally,0];display("test again if near PI OK");else,tally=[tally,1];display("test again if near PI OK");', &
+     & 'if sum(tally)=0,display("atan PASSED");else,display("atan FAILED");tally ', &
+     & ''])
 end subroutine test_atan
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_base ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help base')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("base PASSED");else,display("base FAILED");tally ', &
+     & ''])
 end subroutine test_base
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_char ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help char')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("char PASSED");else,display("char FAILED");tally ', &
+     & ''])
 end subroutine test_char
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_chol ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help chol')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("chol PASSED");else,display("chol FAILED");tally ', &
+     & ''])
 end subroutine test_chol
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_chop ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help chop')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("chop PASSED");else,display("chop FAILED");tally ', &
+     & ''])
 end subroutine test_chop
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_clear ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help clear')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("clear PASSED");else,display("clear FAILED");tally ', &
+     & ''])
 end subroutine test_clear
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_cond ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help cond')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("cond PASSED");else,display("cond FAILED");tally ', &
+     & ''])
 end subroutine test_cond
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_conjg ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help conjg')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'conjg(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_conjg
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_cos ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help cos')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'cos(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_cos
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_debug ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help debug')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'debug(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_debug
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_det ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help det')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'det(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_det
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_diag ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help diag')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'diag(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_diag
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_diary ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help diary')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'diary(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_diary
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_display ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help display')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'display(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_display
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_doc ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help doc')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'doc(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_doc
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_eig ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help eig')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'eig(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_eig
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_else ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help else')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'else(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_else
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_end ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help end')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'end(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_end
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_eps ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help eps')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'eps(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_eps
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_exec ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help exec')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'exec(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_exec
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_exit ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help exit')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'exit(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_exit
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_exp ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help exp')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'exp(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_exp
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_eye ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help eye')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'eye(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_eye
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_flops ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help flops')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'flops(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_flops
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_for ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help for')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'for(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_for
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_help ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help help')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'help(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_help
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_hess ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help hess')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'hess(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_hess
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_if ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help if')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_if
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_imag ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help imag')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'imag(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_imag
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_invh ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help invh')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'invh(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_invh
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_inv ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help inv')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'inv(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_inv
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_kron ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help kron')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'kron(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_kron
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_lala ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help lala')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'lala(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_lala
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_lines ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help lines')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'lines(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
+     & ''])
 end subroutine test_lines
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_load ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help load')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("load PASSED");else,display("load FAILED");tally ', &
+     & ''])
 end subroutine test_load
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_log ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help log')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("log PASSED");else,display("log FAILED");tally ', &
+     & ''])
 end subroutine test_log
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_long ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help long')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("long PASSED");else,display("long FAILED");tally ', &
+     & ''])
 end subroutine test_long
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_lu ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help lu')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("lu PASSED");else,display("lu FAILED");tally ', &
+     & ''])
 end subroutine test_lu
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_norm ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help norm')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("norm PASSED");else,display("norm FAILED");tally ', &
+     & ''])
 end subroutine test_norm
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_orth ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help orth')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("orth PASSED");else,display("orth FAILED");tally ', &
+     & ''])
 end subroutine test_orth
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_pinv ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help pinv')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("pinv PASSED");else,display("pinv FAILED");tally ', &
+     & ''])
 end subroutine test_pinv
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_plot ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help plot')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("plot PASSED");else,display("plot FAILED");tally ', &
+     & ''])
 end subroutine test_plot
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_poly ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help poly')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("poly PASSED");else,display("poly FAILED");tally ', &
+     & ''])
 end subroutine test_poly
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_print ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help print')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("print PASSED");else,display("print FAILED");tally ', &
+     & ''])
 end subroutine test_print
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_prod ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help prod')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("prod PASSED");else,display("prod FAILED");tally ', &
+     & ''])
 end subroutine test_prod
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_qr ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help qr')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("qr PASSED");else,display("qr FAILED");tally ', &
+     & ''])
 end subroutine test_qr
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_quit ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help quit')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("quit PASSED");else,display("quit FAILED");tally ', &
+     & ''])
 end subroutine test_quit
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rand ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help rand')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("rand PASSED");else,display("rand FAILED");tally ', &
+     & ''])
 end subroutine test_rand
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rank ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help rank')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("rank PASSED");else,display("rank FAILED");tally ', &
+     & ''])
 end subroutine test_rank
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rat ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help rat')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("rat PASSED");else,display("rat FAILED");tally ', &
+     & ''])
 end subroutine test_rat
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rcond ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help rcond')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("rcond PASSED");else,display("rcond FAILED");tally ', &
+     & ''])
 end subroutine test_rcond
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_real ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help real')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("real PASSED");else,display("real FAILED");tally ', &
+     & ''])
 end subroutine test_real
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_roots ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help roots')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("roots PASSED");else,display("roots FAILED");tally ', &
+     & ''])
 end subroutine test_roots
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_round ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help round')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("round PASSED");else,display("round FAILED");tally ', &
+     & ''])
 end subroutine test_round
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rref ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help rref')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("rref PASSED");else,display("rref FAILED");tally ', &
+     & ''])
 end subroutine test_rref
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_save ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help save')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("save PASSED");else,display("save FAILED");tally ', &
+     & ''])
 end subroutine test_save
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_schur ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help schur')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("schur PASSED");else,display("schur FAILED");tally ', &
+     & ''])
 end subroutine test_schur
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_semi ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help semi')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("semi PASSED");else,display("semi FAILED");tally ', &
+     & ''])
 end subroutine test_semi
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_short ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help short')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("short PASSED");else,display("short FAILED");tally ', &
+     & ''])
 end subroutine test_short
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sh ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help sh')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("sh PASSED");else,display("sh FAILED");tally ', &
+     & ''])
 end subroutine test_sh
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sin ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help sin')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("sin PASSED");else,display("sin FAILED");tally ', &
+     & ''])
 end subroutine test_sin
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_size ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help size')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & 'a=10;b=magic(4);c=ones(11,5);                                            ', &
+     & '<X,Y>=size(c);                                                           ', &
+     & 'if X=11,display("X is 11"),else,display("X is NOT 11");X                 ', &
+     & 'if Y= 5,display("Y is  5"),else,display("Y is NOT  5");Y                 ', &
+     & 'if size(a) = 1,       display("size of a OK");tally=[tally,0];else,display("size of a BAD");size(a),tally=[tally,1];', &
+     & 'if size(b) = [ 4, 4], display("size of b OK");tally=[tally,0];else,display("size of b BAD");size(b),tally=[tally,1];', &
+     & 'if size(c) = [11, 5], display("size of c OK");tally=[tally,0];else,display("size of c BAD");size(c),tally=[tally,1];', &
+     & 'if sum(tally)=0,display("size PASSED");else,display("size FAILED");tally ', &
+     & ''])
 end subroutine test_size
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sqrt ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help sqrt')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("sqrt PASSED");else,display("sqrt FAILED");tally ', &
+     & ''])
 end subroutine test_sqrt
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_svd ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help svd')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("svd PASSED");else,display("svd FAILED");tally ', &
+     & ''])
 end subroutine test_svd
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_tril ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help tril')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("tril PASSED");else,display("tril FAILED");tally ', &
+     & ''])
 end subroutine test_tril
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_triu ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help triu')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("triu PASSED");else,display("triu FAILED");tally ', &
+     & ''])
 end subroutine test_triu
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_user ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help user')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("user PASSED");else,display("user FAILED");tally ', &
+     & ''])
 end subroutine test_user
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_what ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help what')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("what PASSED");else,display("what FAILED");tally ', &
+     & ''])
 end subroutine test_what
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_while ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help while')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("while PASSED");else,display("while FAILED");tally ', &
+     & ''])
 end subroutine test_while
 !-------------------------------------------------------------------------------------------------------------------------------------
 subroutine test_who ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help who')
    call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("who PASSED");else,display("who FAILED");tally ', &
+     & ''])
 end subroutine test_who
+!-------------------------------------------------------------------------------------------------------------------------------------
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
+!-------------------------------------------------------------------------------------------------------------------------------------
+subroutine test_general_avg()
+   logs=.true.
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'display("general tests: avg")')
+   if(logs)call mat88( 'diary("test-general-avg.log");')
+   call mat88( [ character(len=256) :: &
+   & 'tally=[0];                                                              ', &
+   & 'a=magic(8); n=3;                                                        ', &
+   & 'for i = 2:2:n, for j=2:2:n,t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ', &
+   & 'if t = 32.5, tally=[tally, 0], else, tally=[tally, -1];                 ', &
+   & 'if sum(tally) = 0,display("avg PASSED"),else,display("avg FAILED");tally'])
+end subroutine test_general_avg
 !-------------------------------------------------------------------------------------------------------------------------------------
 end program testit
