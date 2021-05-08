@@ -6,10 +6,15 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
-**2021-05-01**  John S. Urban  <https://github.com/urbanjost>
+**2021-05-08**  John S. Urban  <https://github.com/urbanjost>
+
 ### :green_circle: ADD:
 
-add zeros() function to complement ones()
+  +  all printable characters are allowed in display()
+  +  underscores are allowed in variable and function names
+  +  character arrays of commands may be passed to mat88()
+  +  began a set of unit tests
+  +  add zeros() function to complement ones()
 
 ### :green_circle: DIFF:
 
@@ -23,9 +28,8 @@ files in future versions.
 **2021-04-24**  John S. Urban  <https://github.com/urbanjost>
 ### :green_circle: ADD:
 
-Variable names now have 32 significant characters instead of 4. 
-
-Up to 480 unique variable names are allowed instead of a limit of 48.
+  + Variable names now have 32 significant characters instead of 4. 
+  + Up to 480 unique variable names are allowed instead of a limit of 48.
 
 ### :green_circle: DIFF:
 

@@ -8,12 +8,15 @@ implicit none
 character(len=:),allocatable :: help_text(:)
 character(len=:),allocatable :: version_text(:)
 integer                      :: i
+logical                      :: echo
+logical                      :: markdown
    call setup()
-   call set_args('mat',help_text,version_text )       ! define command arguments,default values and crack command line
+   call set_args('mat --markdown F -echo F',help_text,version_text ) ! define command arguments,default values and crack command line
+   echo=lget('echo')
    if(size(expressions).eq.0)then
-      call mat88()                                    ! CALL MAT88 interactively with default scratch space
+      call mat88(echo=echo)                           ! CALL MAT88 interactively with default scratch space
    else
-      call mat88(200000)                              ! CALL MAT88 to initialize it and set scratch space size
+      call mat88(200000,echo=echo)                    ! CALL MAT88 to initialize it and set scratch space size
       do i=1,size(expressions)
          call mat88(expressions(i))                   ! CALL MAT88
       enddo

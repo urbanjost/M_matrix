@@ -230,9 +230,10 @@ integer,parameter        :: GG_MAX_NAME_LENGTH=32       ! <WARNING> just began c
 
 integer,parameter        :: GG_PAD(*)=[36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36]
 !==================================================================================================================================!
-character(len=GG_LINELEN),save :: G_INPUT_STRING        ! allow for input line to be passed from program instead of read from file
-logical                        :: G_EXIT_AFTER_COMMAND  ! companion for G_INPUT_STRING
-logical                        :: G_PROMPT              ! companion for G_INPUT_STRING
+character(len=GG_LINELEN),allocatable,save :: G_PSEUDO_FILE(:) ! allow for input to be passed from program instead of from file
+logical                        :: G_PROMPT              ! companion for G_PSEUDO_FILE
+logical,save                   :: G_MARKDOWN=.false.    ! only process lines from ```mat* to ```
+logical,save                   :: G_ECHO=.false.        ! echo input lines
 
 integer,parameter        :: G_EOL=99
 integer                  :: G_LIN(GG_LINELEN)
@@ -356,7 +357,7 @@ integer                     :: G_TOP_OF_SAVED, G_BOTTOM_OF_SCRATCH_IN_USE
 !==================================================================================================================================!
 !
 ! CHARACTER SET
-integer,parameter        :: G_CHARSET_SIZE=78      ! number of characters in character set
+integer,parameter        :: G_CHARSET_SIZE=87      ! number of characters in character set
 
 !            0       10       20       30       40       50
 !
@@ -371,14 +372,59 @@ integer,parameter        :: G_CHARSET_SIZE=78      ! number of characters in cha
 !     8      8        I        S  RPAREN )  COMMA  ,
 !     9      9        J        T  SEMI   ;  QUOTE  '
 
+! unused: `~!#%^&_?
 character(len=G_CHARSET_SIZE),parameter ::  G_DEFINE_CHARSET=&
-                            &"0123456789abcdefghijklmnopqrstuvwxyz ();:+-*/\=.,'<>ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                            &"0123456789abcdefghijklmnopqrstuvwxyz ();:+-*/\=.,'<>ABCDEFGHIJKLMNOPQRSTUVWXYZ`~!#%^&_?"
 ! ALTERNATE CHARACTER SET     0---------1---------2---------3---------4---------5---------6---------7-------
-!                             012345678901234567890123456789012345678901234567890123456789012345678901234567
+!                             012345678901234567890123456789012345678901234567890123456789012345678901234567890123456
 character(len=G_CHARSET_SIZE),parameter ::  G_DEFINE_ALT_CHARSET=&
-                            &'0123456789abcdefghijklmnopqrstuvwxyz {};|+-*/$=@,"[]ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                            &'0123456789abcdefghijklmnopqrstuvwxyz {};|+-*/$=@,"[]ABCDEFGHIJKLMNOPQRSTUVWXYZ`~!#%^&_?'
 ! CHARACTER SET               0---------1---------2---------3---------4---------5---------6---------7-------
-!                             012345678901234567890123456789012345678901234567890123456789012345678901234567
+!                             012345678901234567890123456789012345678901234567890123456789012345678901234567890123456
+!            0       10       20       30         40        50
+!
+!     0      0        A        K        U   COLON  :  LESS   <
+!     1      1        B        L        V   PLUS   +  GREAT  >
+!     2      2        C        M        W   MINUS  -
+!     3      3        D        N        X   STAR   *
+!     4      4        E        O        Y   SLASH  /
+!     5      5        F        P        Z   BSLASH \
+!     6      6        G        Q  BLANK     EQUAL  =
+!     7      7        H        R  LPAREN (  DOT    .
+!     8      8        I        S  RPAREN )  COMMA  ,
+!     9      9        J        T  SEMI   ;  QUOTE  '
+
+integer,parameter :: score=85
+integer,parameter :: blank=36
+integer,parameter :: bslash=45
+integer,parameter :: colon=40
+integer,parameter :: comma=48
+integer,parameter :: dot=47
+integer,parameter :: dstar=54
+integer,parameter :: equal=46
+integer,parameter :: great=51
+integer,parameter :: less=50
+integer,parameter :: lparen=37
+integer,parameter :: minus=42
+integer,parameter :: plus=41
+integer,parameter :: quote=49
+integer,parameter :: rparen=38
+integer,parameter :: semi=39
+integer,parameter :: slash=44
+integer,parameter :: star=43
+
+integer,parameter :: zero=0
+integer,parameter :: name=1
+integer,parameter :: num=0
+
+integer,parameter :: a_low=10
+integer,parameter :: a_up=52
+integer,parameter :: d_low=13
+integer,parameter :: d_up=55
+integer,parameter :: e_low=14
+integer,parameter :: e_up=56
+integer,parameter :: z_low=35
+integer,parameter :: z_up=77
 
 integer                  :: G_CHARSET(G_CHARSET_SIZE)      ! G_DEFINE_CHARSET converted to "Hollerith" values
 integer                  :: G_ALT_CHARSET(G_CHARSET_SIZE)  ! G_DEFINE_ALT_CHARSET converted to "Hollerith" values
@@ -553,7 +599,7 @@ contains
 !!
 !!     // ======================================================
 !!     // cdiv
-!!     a=sqrt(random(8)
+!!     a=sqrt(random(8))
 !!     ar = real(a); ai = imag(a); br = real(b); bi = imag(b);
 !!     p = bi/br;
 !!     t = (ai - p*ar)/(br + p*bi);
@@ -1001,20 +1047,27 @@ contains
 !!            205.     0.      0.      1.      1.
 !!            024.     0.      0.      0.     -4.
 !!           ]
-subroutine MAT88_init(init)
+subroutine MAT88_init(init,echo,markdown)
 
 ! ident_1="@(#)M_matrix::mat88(3f): initialize and/or pass commands to matrix laboratory interpreter"
 
-integer,intent(in)   :: init
-doubleprecision      :: s,t
-integer,parameter    :: EPS(GG_MAX_NAME_LENGTH)=   [14,25,28,36,36,GG_PAD(2:)]
-integer,parameter    :: FLOPS(GG_MAX_NAME_LENGTH)= [15,21,24,25,28,GG_PAD(2:)]
-integer,parameter    :: EYE(GG_MAX_NAME_LENGTH)=   [14,34,14,36,36,GG_PAD(2:)]
-integer,parameter    :: RAND(GG_MAX_NAME_LENGTH)=  [27,10,23,13,36,GG_PAD(2:)]
+integer,intent(in)          :: init
+logical,intent(in),optional :: echo
+logical,intent(in),optional :: markdown
+doubleprecision             :: s,t
+integer,parameter           :: EPS(GG_MAX_NAME_LENGTH)=   [14,25,28,36,36,GG_PAD(2:)]
+integer,parameter           :: FLOPS(GG_MAX_NAME_LENGTH)= [15,21,24,25,28,GG_PAD(2:)]
+integer,parameter           :: EYE(GG_MAX_NAME_LENGTH)=   [14,34,14,36,36,GG_PAD(2:)]
+integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [27,10,23,13,36,GG_PAD(2:)]
 
-   G_EXIT_AFTER_COMMAND=.false.
+   if(present(echo)) G_ECHO=echo
+   if(present(markdown)) G_MARKDOWN=markdown
+
    G_PROMPT=.true.
-   G_INPUT_STRING=''
+
+   if(allocated(G_PSEUDO_FILE))deallocate(G_PSEUDO_FILE)
+   allocate(G_PSEUDO_FILE(0))
+
    G_BIGMEM=INIT
    if(G_BIGMEM.lt.0)G_BIGMEM=200000
    if(allocated(G_STACK_REALS) )deallocate(G_STACK_REALS)
@@ -1079,38 +1132,38 @@ integer,parameter    :: RAND(GG_MAX_NAME_LENGTH)=  [27,10,23,13,36,GG_PAD(2:)]
 
 end subroutine MAT88_init
 !==================================================================================================================================
-subroutine MAT88_cmds(input_string)
+subroutine MAT88_cmd(input_string,echo,markdown)
 
 ! ident_2="@(#)M_matrix::mat88(3f): initialize and run commands matrix laboratory interpreter"
 
-character(len=*),intent(in) :: input_string(:)
-integer :: i
+character(len=*),intent(in) :: input_string
+logical,intent(in),optional :: echo
+logical,intent(in),optional :: markdown
 
-   do i=1,size(input_string)
-      call mat88_cmd( input_string(i) )
-   enddo
+   call mat88_cmds( [input_string],echo=echo,markdown=markdown)
 
-end subroutine MAT88_cmds
+end subroutine MAT88_cmd
 !==================================================================================================================================
-subroutine MAT88_cmd(input_string)
+subroutine MAT88_cmds(pseudo_file,echo,markdown)
 
 ! ident_3="@(#)M_matrix::mat88(3f): initialize matrix laboratory interpreter"
 
-character(len=*),intent(in),optional :: input_string
+character(len=*),intent(in),optional :: pseudo_file(:)
+logical,intent(in),optional          :: echo
+logical,intent(in),optional          :: markdown
+
+   if(present(echo)) G_ECHO=echo
+   if(present(markdown)) G_MARKDOWN=markdown
 
    if(G_BIGMEM.LT.0)then
       call mat88_init(200000)
    else
-      G_EXIT_AFTER_COMMAND=.false.
       G_PROMPT=.true.
    endif
 
-   if(present(input_string))then
-      G_INPUT_STRING=input_string
-      if(G_INPUT_STRING.eq.'')G_INPUT_STRING='//'
+   if(present(pseudo_file))then
+      G_PSEUDO_FILE=[character(len=GG_LINELEN) :: pseudo_file,'quit']
       G_PROMPT=.false.
-   else
-      G_INPUT_STRING=''
    endif
 
    PARSE_LINE : do
@@ -1128,7 +1181,7 @@ character(len=*),intent(in),optional :: input_string
       end select
    enddo PARSE_LINE
 
-end subroutine MAT88_cmd
+end subroutine MAT88_cmds
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -1151,7 +1204,7 @@ character(len=255)   :: msg
     case(3);  msg='Expected right parenthesis'
     case(4);
       G_BUF(:GG_MAX_NAME_LENGTH) = G_CHARSET(G_IDS(:GG_MAX_NAME_LENGTH,G_PT+1)+1) ! extract variable name into buffer
-      call mat_buf2str(msg,G_buf,GG_MAX_NAME_LENGTH)                             ! convert buffer to string
+      call mat_buf2str(msg,G_BUF,GG_MAX_NAME_LENGTH)                              ! convert buffer to string
       msg='Undefined variable: '//msg(1:GG_MAX_NAME_LENGTH)
     case(5);  msg='Column lengths do not match'
     case(6);  msg='Row lengths do not match'
@@ -1271,26 +1324,9 @@ subroutine mat_getsym()
 ! ident_5="@(#)M_matrix::mat_getsym(3fp): get a symbol"
 
 character(len=80) :: message
-integer,parameter :: a2=52
-integer,parameter :: z2=77
 
 doubleprecision   :: syv
 doubleprecision   :: s
-
-integer,parameter :: BLANK=36
-integer,parameter :: Z=35
-integer,parameter :: DOT=47
-
-integer,parameter :: d=13, d_up=55
-integer,parameter :: e=14, e_up=56
-
-integer,parameter :: PLUS=41
-integer,parameter :: MINUS=42
-integer,save :: NAME=1
-integer,save :: NUM=0
-integer,parameter :: STAR=43
-integer,parameter :: SLASH=44
-integer,parameter :: BSLASH=45
 
 integer      :: SIGN
 integer      :: CHCNT
@@ -1305,7 +1341,7 @@ integer      :: i
    G_LINE_POINTER(2) = G_LINE_POINTER(3)
    G_LINE_POINTER(3) = G_LINE_POINTER(4)
    if (G_CHRA .le. 9) goto 50                                     ! numeric character (0-9)
-   if (G_CHRA .le. z.or.(G_CHRA.ge.a2.and.G_CHRA.le.z2)) then     ! alphameric (A-Z OR a-z)
+   if (G_CHRA.le.z_low .or. (G_CHRA.ge.a_up.and.G_CHRA.le.z_up).or.G_CHRA.eq.score) then     ! alphameric (0-9a-zA-Z_)
       ! name
       G_sym = name
       G_syn(1) = G_CHRA
@@ -1314,8 +1350,8 @@ integer      :: i
       do
          call mat_getch() ! get next character
          chcnt = chcnt+1
-         if (.not.(G_CHRA .ge. a2.and.G_CHRA.le.z2)) then ! alternate case letter
-            if (G_CHRA .gt. z) exit ! a control character not alphanumeric and not special like eol
+         if ( .not.(G_CHRA .ge. a_up .and. G_CHRA.le.z_up .or. G_CHRA.eq.score ) ) then ! alternate case letter
+            if (G_CHRA .gt. z_low) exit ! a control character not alphanumeric and not special like eol
          endif
          if (chcnt .le. GG_MAX_NAME_LENGTH) G_syn(chcnt) = G_CHRA
       enddo
@@ -1353,7 +1389,7 @@ integer      :: i
    if (G_CHRA .eq. G_EOL) chcnt = chcnt+1
    syv = syv + s/10.0d0**chcnt
 60 continue
-   if (.not.(G_CHRA.ne.d .and. G_CHRA.ne.e .and. G_CHRA.ne.d_up .and. G_CHRA.ne.e_up) )then
+   if (.not.(G_CHRA.ne.d_low .and. G_CHRA.ne.e_low .and. G_CHRA.ne.d_up .and. G_CHRA.ne.e_up) )then
       call mat_getch() ! get next character
       sign = G_CHRA
       if (sign.eq.minus .or. sign.eq.plus) call mat_getch() ! get next character
@@ -1445,21 +1481,6 @@ integer :: mn
 integer :: n
 integer :: na
 integer :: nn
-!            0       10       20       30       40       50
-!
-!     0      0        A        K        U   COLON  :  LESS   <
-!     1      1        B        L        V   PLUS   +  GREAT  >
-!     2      2        C        M        W   MINUS  -
-!     3      3        D        N        X   STAR   *
-!     4      4        E        O        Y   SLASH  /
-!     5      5        F        P        Z   BSLASH \
-!     6      6        G        Q  BLANK     EQUAL  =
-!     7      7        H        R  LPAREN (  DOT    .
-!     8      8        I        S  RPAREN )  COMMA  ,
-!     9      9        J        T  SEMI   ;  QUOTE  '
-
-integer,parameter :: semi=39
-INTEGER,parameter :: BLANK=36
 integer,parameter :: unifor(GG_MAX_NAME_LENGTH) =[30,23,18,15,24,27,22,GG_PAD(4:)]
 integer,parameter :: normal(GG_MAX_NAME_LENGTH) =[23,24,27,22,10,21,36,GG_PAD(4:)]
 integer,parameter :: seed(GG_MAX_NAME_LENGTH)   =[28,14,14,13,36,36,36,GG_PAD(4:)]
@@ -1618,18 +1639,25 @@ character(len=GG_LINELEN) :: string_buf
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
 !===================================================================================================================================
       case(10) ! COMMAND::SIZE
+      ! store the two output values onto stack
       G_STACK_REALS(L) = M
-      G_STACK_REALS(L+1) = N
       G_STACK_IMAGS(L) = 0.0D0
+      G_STACK_REALS(L+1) = N
       G_STACK_IMAGS(L+1) = 0.0D0
-      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
-      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 2
-      IF (G_LHS .EQ. 1) exit FUN6
-      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
-      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
-      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L+1
-      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
-      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      if(G_LHS.eq.1)then
+         ! output is a 1x2 array so store values indicating the size of the new stack value
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 2
+      else
+         ! output is two scalars
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
+         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L+1
+         G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+         G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      endif
 !===================================================================================================================================
       case(2,14,15) ! COMMAND::DIAG=2
                     ! COMMAND::TRIL=14
@@ -1843,6 +1871,18 @@ character(len=GG_LINELEN) :: string_buf
    endblock GETENV
    exit FUN6
 !===================================================================================================================================
+      case(18) ! COMMAND::DAT
+      DATETIME: block
+      integer :: time_values(8)
+      ! store the two output values onto stack
+      call date_and_time(values=time_values)
+      G_STACK_REALS(L:L+8-1) = dble(time_values)
+      G_STACK_IMAGS(L:L+8-1) = 0.0D0
+      ! output is a 1x8 array so store values indicating the size of the new stack value
+      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
+      G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 8
+      endblock DATETIME
+!===================================================================================================================================
    end select FUN6
 end subroutine mat_matfn6
 !==================================================================================================================================!
@@ -1921,7 +1961,7 @@ integer                          :: i
    case('load');            selector=503
    case('print');           selector=504
    case('diary');           selector=505
-   case('disp','display');  selector=506
+   case('disp','display','echo');  selector=506
    case('base');            selector=507
    case('lines');           selector=508
    case('char');            selector=509
@@ -1936,7 +1976,7 @@ integer                          :: i
    case('prod');            selector=604
    case('user');            selector=605
    case('eye');             selector=606
-   case('rand');            selector=607
+   case('rand','random');   selector=607
    case('ones');            selector=608
    case('chop');            selector=609
    case('size');            selector=610
@@ -1945,6 +1985,7 @@ integer                          :: i
    case('triu');            selector=615
    case('zeros');           selector=616
    case('getenv');          selector=617
+   case('dat','date_and_time');   selector=618
 
    case default !  function name was not found
       G_fin = 0
@@ -2169,11 +2210,6 @@ doubleprecision :: t
 !
 ! ident_16="@(#)M_matrix::mat_base(3fp): store base b representation of x in s(1:n)"
 !
-integer,save :: plus=41
-integer,save :: minus=42
-integer,save :: dot=47
-integer,save :: zero=0
-integer,save :: comma=48
 
 integer      :: l
 integer      :: j
@@ -2289,8 +2325,6 @@ integer           :: j3
 integer           :: jinc
 integer           :: jm
 integer           :: ls
-integer,save      :: plus=41
-integer,save      :: minus=42
 integer,save      :: fno(11)= [11,12,21,22,23,24,31,32,33,34,-1]
 integer,save      :: fnl(11)= [12, 6, 8, 4, 6, 3, 4, 2, 3, 1, 1]
 integer           :: itype
@@ -2822,7 +2856,6 @@ subroutine MAT_STACK_PUT(id)
 
 integer                    :: id(GG_MAX_NAME_LENGTH)
 character(len=GG_LINELEN)  :: mline
-integer,parameter   :: semi=39
 integer             :: i
 integer             :: ib
 integer             :: j
@@ -3054,119 +3087,6 @@ end subroutine MAT_STACK_PUT
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_wpofa(ar,ai,lda,n,info)
-integer          :: lda
-doubleprecision  :: ar(lda,*)
-doubleprecision  :: ai(lda,*)
-integer          :: n
-integer          :: info
-
-doubleprecision  :: s
-doubleprecision  :: TR
-doubleprecision  :: TI
-integer          :: j
-integer          :: jm1
-integer          :: k
-
-   do j = 1, n
-      info = j
-      s = 0.0d0
-      jm1 = j-1
-      if (jm1 .ge. 1) then
-         do k = 1, jm1
-           tr=ar(k,j)-mat_wdotcr(k-1,ar(1,k),ai(1,k),1,ar(1,j),ai(1,j),1)
-           ti=ai(k,j)-mat_wdotci(k-1,ar(1,k),ai(1,k),1,ar(1,j),ai(1,j),1)
-           call mat_wdiv(tr,ti,ar(k,k),ai(k,k),tr,ti)
-           ar(k,j) = tr
-           ai(k,j) = ti
-           s = s + tr*tr + ti*ti
-         enddo
-      endif
-      s = ar(j,j) - s
-      if (s.le.0.0d0 .or. ai(j,j).ne.0.0d0) goto 40
-      ar(j,j) = dsqrt(s)
-   enddo
-   info = 0
-40 continue
-end subroutine mat_wpofa
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
-subroutine mat_watan(xr,xi,yr,yi)
-
-! ident_28="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
-
-doubleprecision :: xr
-doubleprecision :: xi
-doubleprecision :: yr
-doubleprecision :: yi
-doubleprecision :: tr
-doubleprecision :: ti
-
-   if (xi .eq. 0.0d0) then
-      yr = datan2(xr,1.0d0)
-      yi = 0.0d0
-   elseif (xr.ne.0.0d0 .or. dabs(xi).ne.1.0d0) then
-      call mat_wdiv(xr,1.0d0+xi,-xr,1.0d0-xi,tr,ti)
-      call mat_wlog(tr,ti,tr,ti)
-      yr = -(ti/2.0d0)
-      yi = tr/2.0d0
-   else
-      call mat_err(32) ! Singularity of LOG or ATAN
-   endif
-
-end subroutine mat_watan
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
-subroutine mat_rrotg(da,db,c,s)
-
-! ident_29="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
-
-doubleprecision :: da
-doubleprecision :: db
-doubleprecision :: c
-doubleprecision :: s
-
-doubleprecision :: rho
-doubleprecision :: r
-doubleprecision :: z
-
-   rho = db
-   if ( dabs(da) .gt. dabs(db) ) rho = da
-   c = 1.0d0
-   s = 0.0d0
-   z = 1.0d0
-   r = mat_flop(dsign(mat_pythag(da,db),rho))
-   if (r .ne. 0.0d0) c = mat_flop(da/r)
-   if (r .ne. 0.0d0) s = mat_flop(db/r)
-   if ( dabs(da) .gt. dabs(db) ) z = s
-   if (dabs(db) .ge. dabs(da) .and. c .ne. 0.0d0)z = mat_flop(1.0d0/c)
-   da = r
-   db = z
-end subroutine mat_rrotg
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
-subroutine mat_wsign(xr,xi,yr,yi,zr,zi)
-
-! ident_30="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
-
-doubleprecision :: xr
-doubleprecision :: xi
-doubleprecision :: yr
-doubleprecision :: yi
-doubleprecision :: zr
-doubleprecision :: zi
-doubleprecision :: t
-   t = mat_pythag(yr,yi)
-   zr = xr
-   zi = xi
-   if (t .ne. 0.0d0) call mat_wmul(yr/t,yi/t,zr,zi,zr,zi)
-end subroutine mat_wsign
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
 !>
 !!##THE PARSER-INTERPRETER (10)
 !!
@@ -3238,19 +3158,9 @@ end subroutine mat_wsign
 !!    call the various LINPACK and EISPACK subroutines. MATFN5 primarily
 !!    handles the file access tasks.
 SUBROUTINE mat_parse()
-integer,parameter  :: semi=39
-integer,parameter  :: equal=46
 integer            :: id(GG_MAX_NAME_LENGTH)
 integer            :: excnt
-integer,parameter  :: lparen=37
-integer,parameter  :: rparen=38
-integer,parameter  :: colon=40
 integer            :: pts
-integer,parameter  :: blank=36
-integer,parameter  :: comma=48
-integer,parameter  :: less=50
-integer,parameter  :: great=51
-integer            :: name=1
 integer,parameter  :: ans(GG_MAX_NAME_LENGTH) =[10,23,28,36,GG_PAD(:)]
 integer,parameter  :: ennd(GG_MAX_NAME_LENGTH)=[14,23,13,36,GG_PAD(:)]
 integer,parameter  :: else(GG_MAX_NAME_LENGTH)=[14,21,28,14,GG_PAD(:)]
@@ -3585,17 +3495,12 @@ integer              :: id(GG_MAX_NAME_LENGTH)
 integer,parameter    :: lrecl=256
 character(len=lrecl) :: mline
 integer,parameter    :: linelen=255
-integer              :: cmd(GG_MAX_NAME_LENGTH,17)
-integer              :: ch
-integer,save         :: cmdl=17
+integer,parameter    :: cmdl=18
+integer              :: cmd(GG_MAX_NAME_LENGTH,cmdl)
 
 integer            :: chr
 integer            :: i, j, k, ii, jj
 integer            :: l
-
-integer,parameter  ::  semi=39, comma=48,  blank=36,  name=1, dot=47
-
-integer,parameter  ::  a=10,a_up=52,  d=13,d_up=55,  e=14,e_up=56,  z=35,z_up=77
 !.......................................................................
 !                         1         2         3         4         5
 !       COUNT   01234567890123456789012345678901234567890123456789012
@@ -3618,6 +3523,7 @@ cmd(:, 14)=[32,17,24,36,36,GG_PAD(2:)] ! who
 cmd(:, 15)=[28,17,36,36,36,GG_PAD(2:)] ! sh
 cmd(:, 16)=[21,10,21,10,36,GG_PAD(2:)] ! lala
 cmd(:, 17)=[28,17,14,21,21,GG_PAD(2:)] ! shell
+cmd(:, 18)=[12,24,23,29,18,23,30,14,GG_PAD(5:)] ! continue
 
 FINISHED: block
 !
@@ -3626,7 +3532,8 @@ FINISHED: block
       do k = 1, cmdl
         if (mat_eqid(id,cmd(1,k)))then ! found match to command
            if (G_CHRA.eq.comma .or. G_CHRA.eq.semi .or. G_CHRA.eq.G_EOL) exit
-           if ((G_CHRA.le.z.or.(G_CHRA.ge.a_up.and.G_CHRA.le.z_up)) .or. k.eq.6) exit    ! if alphanumeric or K=6
+           ! if alphanumeric or K=6 which means it is a HELP command
+           if ( G_CHRA.le.z_low .or. (G_CHRA.ge.a_up.and.G_CHRA.le.z_up) .or. G_CHRA.eq.score  .or. k.eq.6) exit
            call mat_err(16) ! improper command
            return
         endif
@@ -3640,21 +3547,22 @@ FINISHED: block
 !===================================================================================================================================
       COMAND : select case(k)
 !===================================================================================================================================
-      case(1) ! COMMAND::CLEAR
-      IF ((G_CHRA.GE.A.AND.G_CHRA.LE.Z).or.(G_CHRA.GE.a_up.AND.G_CHRA.LE.z_up)) then ! alphameric character
-         CALL mat_getsym()
+      case(1) ! command::clear
+      ! alphameric character
+      if ( (G_CHRA.ge.a_low.and.G_CHRA.le.Z_low) .or. (G_CHRA.GE.a_up.and.G_CHRA.LE.z_up) .or. G_CHRA.eq.score) then
+         call mat_getsym()
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
          G_RHS = 0
-         CALL MAT_STACK_PUT(G_SYN)
-         IF (G_ERR .GT. 0) RETURN
+         call mat_stack_put(G_SYN)
+         if (G_ERR .gt. 0) return
          G_FIN = 1
       else
          G_TOP_OF_SAVED = GG_MAX_NUMBER_OF_NAMES-3
       endif
 !===================================================================================================================================
-!     COMMAND::FOR, WHILE, IF, ELSE, END
+!     command::for, while, if, else, end
    case(5)
       G_FIN = -11
       exit FINISHED
@@ -3710,31 +3618,36 @@ FINISHED: block
       G_SYM = COMMA
       exit FINISHED
 !===================================================================================================================================
+      case(18) ! COMMAND::CONTINUE
+      write(*,*)'GOT HERE A:CONTINUE'
+      G_FUN = 99
+      exit FINISHED
+!===================================================================================================================================
       case(16) ! COMMAND::LALA
       call journal('QUIT SINGING AND GET BACK TO WORK.')
 !===================================================================================================================================
-      case(17) ! COMMAND::SHELL
+      case(17) ! command::shell
       call journal(' Your place or mine?')
 !===================================================================================================================================
-      case(11,8) ! COMMAND::SHORT, LONG
+      case(11,8) ! command::short, long
       if(k.eq.11)then
          G_FMT = 1
       else
          G_FMT = 2
       endif
-      IF (G_CHRA.EQ.E .OR. G_CHRA.EQ.D .or. G_CHRA.eq.e_up .or. chr.eq.d_up ) G_FMT = G_FMT+2
-      IF (G_CHRA .EQ. Z) G_FMT = 5
-      IF (G_CHRA.EQ.E    .OR. G_CHRA.EQ.D    .OR. G_CHRA.EQ.Z   ) CALL mat_getsym()
-      IF (G_CHRA.EQ.E_up .OR. G_CHRA.EQ.D_up .OR. G_CHRA.EQ.Z_up) CALL mat_getsym()
+      if (G_CHRA.eq.e_low .or. G_CHRA.eq.d_low .or. G_CHRA.eq.e_up .or. chr.eq.d_up ) G_FMT = G_FMT+2
+      if (G_CHRA .eq. z_low) G_FMT = 5
+      if (G_CHRA.eq.e_low .or. G_CHRA.eq.d_low .or. G_CHRA.eq.z_low) call mat_getsym()
+      if (G_CHRA.eq.e_UP .or. G_CHRA.eq.d_up .or. G_CHRA.eq.z_up ) call mat_getsym()
 !===================================================================================================================================
-      case(10) !     COMMAND::SEMI
+      case(10) !     command::semi
       G_LINECOUNT(3) = 1 - G_LINECOUNT(3)
 !===================================================================================================================================
-      case(14) !     COMMAND::WHO
+      case(14) !     command::who
       call journal(' Your current variables are...')
-      CALL mat_print_id(G_STACK_IDS(1,G_TOP_OF_SAVED),GG_MAX_NUMBER_OF_NAMES-G_TOP_OF_SAVED+1)
-      L = G_BIGMEM-G_STACK_ID_LOC(G_TOP_OF_SAVED)+1
-      WRITE(mline,161) L,G_BIGMEM
+      call mat_print_id(G_STACK_IDS(1,G_TOP_OF_SAVED),GG_MAX_NUMBER_OF_NAMES-G_TOP_OF_SAVED+1)
+      l = G_BIGMEM-G_STACK_ID_LOC(G_TOP_OF_SAVED)+1
+      write(mline,161) L,G_BIGMEM
   161 format(1X,'using ',I7,' out of ',I7,' elements.')
       call journal(mline)
 !===================================================================================================================================
@@ -3746,25 +3659,21 @@ FINISHED: block
       case(6) ! COMMAND::HELP
       HELP_ : block
       character(len=lrecl) :: topic_name
-      integer,parameter    :: name=1
-      integer,parameter    :: blank=36
-      integer,parameter    :: dot=47
-      integer              :: ch
-         if (G_CHRA .eq. G_EOL) then                                           ! if no topic
+         G_BUF=G_CHARSET(blank+1)
+         if (G_CHRA .eq. G_EOL) then                                ! if no topic
             topic_name= ' '
          else
             call mat_getsym()
             if (G_SYM .ne. NAME) then
                if (G_SYM .eq. 0) G_SYM = dot
-               G_BUF(1) = G_CHARSET(G_SYM+1)
+               G_BUF(1)  = G_CHARSET(G_SYM+1)
                G_BUF(2:) = G_CHARSET(blank+1)
             else
-               do i = 1, GG_MAX_NAME_LENGTH  ! assuming G_BUF can hold at least GG_MAX_NAME_LENGTH characters
-                 ch = G_SYN(i)
-                 G_BUF(i) = G_CHARSET(ch+1)
+               do i = 1, GG_MAX_NAME_LENGTH                         ! assuming G_BUF can hold at least GG_MAX_NAME_LENGTH characters
+                 G_BUF(i) = G_CHARSET(G_SYN(i)+1)
                enddo
             endif
-            call mat_buf2str(topic_name,G_BUF,len(topic_name))                    ! convert ADE array to string
+            call mat_buf2str(topic_name,G_BUF,len(topic_name))      ! convert ADE array to string
          endif
          call help_command(G_HELP_TEXT,topic_name,merge(G_LINECOUNT(:2),[0,huge(0)],G_PROMPT))
       endblock HELP_
@@ -3779,7 +3688,7 @@ end subroutine mat_comand
 !==================================================================================================================================!
 subroutine sh_command()
 
-! ident_31="@(#)M_matrix::sh_command(3f): start system shell interactively"
+! ident_28="@(#)M_matrix::sh_command(3f): start system shell interactively"
 
 character(len=GG_LINELEN) :: line
 integer                  :: istat
@@ -3795,7 +3704,7 @@ end subroutine sh_command
 !==================================================================================================================================!
 subroutine mat_plot(lplot,x,y,n,p,k)
 
-! ident_32="@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
+! ident_29="@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
 
 integer           :: lplot
 integer           :: n
@@ -3879,7 +3788,7 @@ end subroutine mat_plot
 !==================================================================================================================================!
 subroutine mat_matfn1()
 
-! ident_33="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
+! ident_30="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
 
 doubleprecision   :: dtr(2)
 doubleprecision   :: dti(2)
@@ -3933,7 +3842,7 @@ integer           :: nn
 
          if(too_much_memory( l3+n2 - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-         call ml_wgeco(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+         call ml_wgeco(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
          if (rcond .eq. 0.0d0) call mat_err(19)
          if (G_err .gt. 0) return
          t = mat_flop(1.0d0 + rcond)
@@ -3956,7 +3865,7 @@ integer           :: nn
                G_STACK_REALS(ll) = G_STACK_REALS(ls)
                G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ls)
             enddo
-            call ml_wgesl(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_buf,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
+            call ml_wgesl(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_BUF,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
             do j = 1, n
                ll = l+i-1+(j-1)*m
                ls = l3+j-1
@@ -3998,7 +3907,7 @@ integer           :: nn
 
          if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-         call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+         call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
          if (rcond .eq. 0.0d0) call mat_err(19)
          if (G_err .gt. 0) return
          t = mat_flop(1.0d0 + rcond)
@@ -4012,7 +3921,7 @@ integer           :: nn
          if (G_err .gt. 0) return
          do j = 1, n2
             lj = l2+(j-1)*m2
-            call ml_wgesl(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,G_STACK_REALS(lj),G_STACK_IMAGS(lj),0)
+            call ml_wgesl(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,G_STACK_REALS(lj),G_STACK_IMAGS(lj),0)
          enddo
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n2
          call mat_wcopy(m2*n2,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
@@ -4047,7 +3956,7 @@ integer           :: nn
 
       if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+      call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
@@ -4057,15 +3966,15 @@ integer           :: nn
          write(mline,'(''results may be inaccurate. rcond='',1pd13.4)') rcond
          call journal(mline)
       endif
-      call ml_wgedi(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,dtr,dti,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
+      call ml_wgedi(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,dtr,dti,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
       if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(l),G_STACK_IMAGS(l),1)
 !===================================================================================================================================
     case (2) ! COMMAND::DET
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call ml_wgefa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,info)
+      call ml_wgefa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,info)
       !SUBROUTINE ML_WGEDI(ar,ai,LDA,N,ipvt,detr,deti,workr,worki,JOB)
-      call ml_wgedi(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,dtr,dti,sr(1),si(1),10)
+      call ml_wgedi(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,dtr,dti,sr(1),si(1),10)
       k = int(dtr(2))
       ka = iabs(k)+2
       t = 1.0d0
@@ -4102,7 +4011,7 @@ integer           :: nn
 
       if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+      call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       G_STACK_REALS(l) = rcond
       G_STACK_IMAGS(l) = 0.0d0
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
@@ -4119,7 +4028,7 @@ integer           :: nn
     case(4) ! COMMAND::LU
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call ml_wgefa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_buf,info)
+      call ml_wgefa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,info)
       if (G_lhs .ne. 2) goto 99
       nn = n*n
       if (G_BOTTOM_OF_SCRATCH_IN_USE+1 .ge. G_TOP_OF_SAVED) call mat_err(18)
@@ -4147,7 +4056,7 @@ integer           :: nn
             if (i .gt. k) G_STACK_REALS(ll) = -G_STACK_REALS(ll)
             if (i .gt. k) G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ll)
          enddo
-         i = G_buf(k)
+         i = G_BUF(k)
          if (i .eq. k) cycle
          li = l+i-1+(k-1)*n
          lk = l+k-1+(k-1)*n
@@ -4483,7 +4392,7 @@ END SUBROUTINE mat_matfn2
 !==================================================================================================================================!
 subroutine mat_matfn3()
 
-! ident_34="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
+! ident_31="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
 
 integer         :: i
 integer         :: j
@@ -4771,7 +4680,7 @@ end subroutine mat_matfn3
 !==================================================================================================================================!
 SUBROUTINE mat_matfn4()
 
-! ident_35="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
+! ident_32="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
 
 integer           :: info
 integer           :: j
@@ -4793,7 +4702,6 @@ integer           :: n
 integer           :: n2
 character(len=81) :: message
 DOUBLEPRECISION   :: T(1),TOL,EPS
-INTEGER,parameter :: QUOTE= 49
 !
       IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN4* ', G_FIN)
 !
@@ -4986,7 +4894,7 @@ END SUBROUTINE mat_matfn4
 !==================================================================================================================================!
 subroutine mat_matfn5()
 
-! ident_36="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
+! ident_33="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
 
 character(len=256)  :: mline
 character(len=256)  :: errmsg
@@ -4996,7 +4904,6 @@ integer             :: temp_lun
 integer             :: ios
 
 integer,save        :: flag=0  ! should be saved or set at each call?
-integer,parameter   :: blank=36, plus=41, minus=42, quote=49, semi=39
 integer,save        :: lrat=5
 integer,save        :: mrat=100
 integer             :: ch,top2,ch1(1)
@@ -5229,7 +5136,7 @@ logical             :: isfound
            IF (TEXT) CH = int(G_STACK_REALS(LS))
            G_BUF(J) = G_CHARSET(CH+1)
          enddo
-         call mat_buf2str(mline,G_buf,n)
+         call mat_buf2str(mline,G_BUF,n)
          call journal(mline)
       enddo
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
@@ -5306,7 +5213,7 @@ end subroutine mat_matfn5
 !==================================================================================================================================!
 SUBROUTINE MAT_STACK_GET(ID)
 
-! ident_37="@(#)M_matrix::mat_stack_get(3fp): get variables from storage"
+! ident_34="@(#)M_matrix::mat_stack_get(3fp): get variables from storage"
 
 integer,intent(in)  :: id(GG_MAX_NAME_LENGTH)
 integer             :: i
@@ -5436,19 +5343,11 @@ END SUBROUTINE MAT_STACK_GET
 !==================================================================================================================================!
 SUBROUTINE mat_stack2(OP)
 
-! ident_38="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
+! ident_35="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
 
 INTEGER           :: OP
 DOUBLEPRECISION   :: SR,SI,E1,ST,E2
 
-integer,parameter :: plus=41
-integer,parameter :: MINUS=42
-integer,parameter :: STAR=43
-integer,parameter :: DSTAR=54
-integer,parameter :: SLASH=44
-integer,parameter :: BSLASH=45
-integer,parameter :: DOT=47
-integer,parameter :: COLON=40
 
 integer           ::  i
 integer           ::  j
@@ -5681,12 +5580,13 @@ integer           :: op_select
       E2 = G_STACK_REALS(L2)
       ST = 1.0D0
       N = 0
-      IF (G_RHS .LT. 3) GOTO 61
-      ST = G_STACK_REALS(L)
-      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      IF (ST .EQ. 0.0D0) GOTO 63
-   61 continue
+      IF (G_RHS .GE. 3) then
+         ST = G_STACK_REALS(L)
+         G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+         L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         IF (ST .EQ. 0.0D0) GOTO 63
+      endif
+
       E1 = G_STACK_REALS(L)
       ! CHECK FOR CLAUSE
       IF (G_RSTK(G_PT) .EQ. 3) then
@@ -5701,29 +5601,30 @@ integer           :: op_select
 
       if(too_much_memory( L + MAX(3,int((E2-E1)/ST)) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) ) exit do_op
 
-   62 continue
-      IF (ST .GT. 0.0D0 .AND. G_STACK_REALS(L) .GT. E2) GOTO 63
-      IF (ST .LT. 0.0D0 .AND. G_STACK_REALS(L) .LT. E2) GOTO 63
-      N = N+1
-      L = L+1
-      G_STACK_REALS(L) = E1 + dble(N)*ST
-      G_STACK_IMAGS(L) = 0.0D0
-      GOTO 62
+      do
+         IF (ST .GT. 0.0D0 .AND. G_STACK_REALS(L) .GT. E2) exit
+         IF (ST .LT. 0.0D0 .AND. G_STACK_REALS(L) .LT. E2) exit
+         N = N+1
+         L = L+1
+         G_STACK_REALS(L) = E1 + dble(N)*ST
+         G_STACK_IMAGS(L) = 0.0D0
+      enddo
+
    63 continue
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       IF (N .EQ. 0) G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case (DOT+1:2*DOT) ! ELEMENTWISE OPERATIONS
-      OP = OP - DOT
-      IF (M.NE.M2 .OR. N.NE.N2) CALL mat_err(10)
-      IF (G_ERR .GT. 0) then
+   case (dot+1:2*dot) ! element-wise operations
+      op = op - dot
+      if (m.ne.m2 .or. n.ne.n2) call mat_err(10)
+      if (g_err .gt. 0) then
          exit do_op
       endif
-      MN = M*N
-      DO I = 1, MN
-         J = L+I-1
-         K = L2+I-1
+      mn = m*n
+      do i = 1, mn
+         j = l+i-1
+         k = l2+i-1
          IF (OP .EQ. STAR)CALL mat_wmul(G_STACK_REALS(J),G_STACK_IMAGS(J), &
                                         G_STACK_REALS(K),G_STACK_IMAGS(K), &
                                         G_STACK_REALS(J),G_STACK_IMAGS(J))
@@ -5736,8 +5637,8 @@ integer           :: op_select
          IF (G_ERR .GT. 0) exit
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case (2*DOT+1:) ! KRONECKER
-      G_FIN = OP - 2*DOT - STAR + 11
+   case (2*dot+1:) ! kronecker
+      G_FIN = op - 2*dot - star + 11
       G_FUN = 6
       G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
       G_RHS = 2
@@ -5749,13 +5650,13 @@ integer           :: op_select
 !-----------------------------------------------------------------------------------------------------------------------------------
 contains
 subroutine finish()
-   DO I = 1, N
-      LL = L + (I-1)*(N+1)
-      G_STACK_REALS(LL) = mat_flop(G_STACK_REALS(LL)+SR)
-      G_STACK_IMAGS(LL) = mat_flop(G_STACK_IMAGS(LL)+SI)
+   do i = 1, n
+      ll = l + (i-1)*(n+1)
+      G_STACK_REALS(ll) = mat_flop(G_STACK_REALS(LL)+sr)
+      G_STACK_IMAGS(ll) = mat_flop(G_STACK_IMAGS(LL)+si)
    enddo
 end subroutine finish
-END SUBROUTINE mat_stack2
+end subroutine mat_stack2
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -5765,65 +5666,64 @@ character(len=GG_LINELEN) :: mline
 character(len=GG_LINELEN) :: shift_mline
 
 integer                   :: istat
-integer,parameter         :: slash=44
-integer,parameter         :: bslash=45
-integer,parameter         :: dot=47
-integer,parameter         :: blank=36
 integer,parameter         :: retu(GG_MAX_NAME_LENGTH)=[26,30,18,29,GG_PAD(:)] ! quit
-integer                   :: i
-integer                   :: j
-integer                   :: k
+integer                   :: i, j, k
 integer                   :: l
 integer                   :: n
-
+integer                   :: ios
+!.......................................................................
    L = G_LINE_POINTER(1)
 !.......................................................................
    11 CONTINUE
-      if(G_EXIT_AFTER_COMMAND)then
-         G_INPUT_STRING='quit'
-      endif
+
       G_BUF(:GG_LINELEN)= G_CHARSET(blank+1)               ! blank out buffer before reading it
       n = GG_LINELEN+1
-!     get line of input
 
-      IF(G_INPUT_STRING.ne.' ')THEN                        ! read from string instead of file
-         CALL REDO(G_INPUT_STRING,'.')                     ! This is a no-op except for storing the line into the input history
-         call mat_str2buf(G_INPUT_STRING,G_buf,GG_LINELEN) ! read input line from MAT88 call string
-         call journal('t',G_INPUT_STRING)                  ! write to log file
-         G_EXIT_AFTER_COMMAND=.true.
-      ELSE
+      ! get line of input and place it in line buffer
+      if(size(G_PSEUDO_FILE).ne.0)then
+         mline=get_pseudo_line()
+      else
          mline(:)=' '
-
-         READ(G_RIO,'(A)',END=50,ERR=15) mline       ! read input line from file
-         shift_mline=adjustl(mline)
-         if(shift_mline(1:2).eq.'!!')then            ! edit command line history
-            mline='. '//mline(3:)
+         read(G_RIO,'(a)',iostat=ios) mline       ! read input line from file
+         if(ios.ne.0)then
+             if(is_iostat_end(ios))then           ! hit end of file
+                call mat_putid(G_LIN(L),retu) ! store RETU onto G_LIN(L) to simulate RETURN command
+                L = L + 4
+                GOTO 45
+             else
+                goto 15
+             endif
          endif
-
-         if(G_RIO.eq.stdin)then
-            call journal('t',mline)   ! reading from standard input, so copy to trail file
-         else
-            call journal('c',mline)   ! reading from an exec() command, so write as a comment
-         endif
-         call redo(mline,'.')         ! pass line to REDO(3f). This is a no-op except for storing the line into the input history
-                                      ! (unless the input line is the "r" command)
-
-         ! look for other lines to immediately process and then ignore
-         shift_mline=adjustl(mline)
-         if(shift_mline(1:1).eq.'#')then
-            mline=''                                                      ! ignore lines with a # as first non-blank character
-         elseif(shift_mline(1:1).eq.'!')then
-            if(shift_mline.eq.'!')then
-               call get_environment_variable('SHELL',shift_mline)         ! get command to execute
-               call execute_command_line(shift_mline,cmdstat=istat)       ! call system shell
-            else
-               call execute_command_line(shift_mline(2:),cmdstat=istat)   ! call system shell
-            endif
-            mline=''
-         endif
-
-         call mat_str2buf(mline,G_buf,GG_LINELEN)    ! convert input line to "Hollerith" buffer
       endif
+      if(G_ECHO)write(*,'(*(g0))')'',trim(mline)
+      shift_mline=adjustl(mline)
+      if(shift_mline(1:2).eq.'!!')then            ! edit command line history
+         mline='. '//mline(3:)
+      endif
+
+      if(G_RIO.eq.stdin)then
+         call journal('t',mline)   ! reading from standard input, so copy to trail file
+      else
+         call journal('c',mline)   ! reading from an exec() command, so write as a comment
+      endif
+      call redo(mline,'.')         ! pass line to REDO(3f). This is a no-op except for storing the line into the input history
+                                   ! (unless the input line is the "r" command)
+
+      ! look for other lines to immediately process and then ignore
+      shift_mline=adjustl(mline)
+      if(shift_mline(1:1).eq.'#')then
+         mline=''                                                      ! ignore lines with a # as first non-blank character
+      elseif(shift_mline(1:1).eq.'!')then
+         if(shift_mline.eq.'!')then
+            call get_environment_variable('SHELL',shift_mline)         ! get command to execute
+            call execute_command_line(shift_mline,cmdstat=istat)       ! call system shell
+         else
+            call execute_command_line(shift_mline(2:),cmdstat=istat)   ! call system shell
+         endif
+         mline=''
+      endif
+
+      call mat_str2buf(mline,G_BUF,GG_LINELEN)    ! convert input line to "Hollerith" buffer
 !.......................................................................
    15 continue
       N = N-1
@@ -5834,7 +5734,7 @@ integer                   :: n
       endif
 !.......................................................................
       IF (MOD(G_LINECOUNT(4),2) .EQ. 1) then
-              call mat_buf2str(mline,G_buf,n) ! convert ADE buffer to character
+              call mat_buf2str(mline,G_BUF,n) ! convert ADE buffer to character
               call journal('s',mline) ! just to standard output
       endif
 !.......................................................................
@@ -5848,13 +5748,13 @@ integer                   :: n
             L = G_LINE_POINTER(1)
             GOTO 11   ! UNKNOWN CHARACTER , K NOT CHANGED. get new line
          endif
-         IF (K .EQ. G_EOL) GOTO 45
+         IF (K .EQ. G_EOL) exit
          IF (K .EQ. -1) L = L-1
          IF (K .LE. 0) cycle
 !
    30    CONTINUE
          K = K-1   ! K is index into ALF*, should be in range 0 to 51
-         IF (K.EQ.SLASH .AND. G_BUF(J+1).EQ.G_BUF(J)) GOTO 45  ! if // rest is comment
+         IF (K.EQ.SLASH .AND. G_BUF(J+1).EQ.G_BUF(J)) exit     ! if // rest is comment
          IF (K.EQ.DOT .AND. G_BUF(J+1).EQ.G_BUF(J)) GOTO 11    ! if .. line continuation
          IF (K.EQ.BSLASH .AND. N.EQ.1) then                    ! if \ in column 1
             N = G_LINE_POINTER(6) - G_LINE_POINTER(1)
@@ -5877,13 +5777,20 @@ integer                   :: n
       G_LINE_POINTER(2) = 0
       G_LINECOUNT(1) = 0
       CALL mat_getch() ! load first character onto G_CHRA
-      RETURN
-!.......................................................................
-   50 CONTINUE ! hit end of file
-      CALL mat_putid(G_LIN(L),RETU) ! store RETU onto G_LIN(L) to simulate RETURN command
-      L = L + 4
-      GOTO 45
-!.......................................................................
+
+contains
+
+function get_pseudo_line() result(line)
+character(len=GG_LINELEN) :: line
+! reallocating all the time is inefficient
+   line=G_PSEUDO_FILE(1)
+   if(size(G_PSEUDO_FILE).gt.1)then
+      G_PSEUDO_FILE=G_PSEUDO_FILE(2:)
+   else
+      G_PSEUDO_FILE=[character(len=GG_LINELEN) :: ]
+   endif
+end function get_pseudo_line
+
 end subroutine mat_getlin
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -5892,14 +5799,7 @@ subroutine mat_clause()
 character(len=256) :: mline
 doubleprecision    :: e1,e2
 integer            :: op
-integer,parameter  :: name=1
 integer            :: r
-integer,parameter  :: semi=39
-integer,parameter  :: equal=46
-integer,parameter  :: blank=36
-integer,parameter  :: comma=48
-integer,parameter  :: less=50
-integer,parameter  :: great=51
 integer,parameter  :: for(GG_MAX_NAME_LENGTH)  =[15,24,27,36,36,GG_PAD(2:)]
 integer,parameter  :: while(GG_MAX_NAME_LENGTH)=[32,17,18,21,14,GG_PAD(2:)]
 integer,parameter  :: iff(GG_MAX_NAME_LENGTH)  =[18,15,36,36,36,GG_PAD(2:)]
@@ -6098,7 +5998,7 @@ end subroutine mat_clause
 !==================================================================================================================================!
 subroutine mat_rat(x,len,maxd,a,b,d)
 
-! ident_39="@(#)M_matrix::mat_rat(3fp): A/B = continued fraction approximation to X using  len  terms each less than MAXD"
+! ident_36="@(#)M_matrix::mat_rat(3fp): A/B = continued fraction approximation to X using  len  terms each less than MAXD"
 
 integer         :: len,maxd
 doubleprecision :: x,a,b,d(len)
@@ -6145,11 +6045,6 @@ subroutine mat_expr()
 character(len=80) :: mline
 integer           :: r
 integer           :: sign
-integer,parameter :: COLON=40
-integer,parameter :: BLANK=36
-integer,parameter :: PLUS=41
-integer,parameter :: MINUS=42
-integer,parameter :: NAME=1
 integer,parameter :: EYE(GG_MAX_NAME_LENGTH)=[14,34,14,36,GG_PAD(:)]
 integer           :: kount
 integer           :: ls
@@ -6235,18 +6130,6 @@ character(len=80) :: mline
 integer           :: r
 integer           :: id(gg_max_name_length)
 integer           :: excnt
-integer,parameter :: dstar=54
-integer,parameter :: semi=39
-integer,parameter :: blank=36
-integer,parameter :: star=43
-integer,parameter :: comma=48
-integer,parameter :: lparen=37
-integer,parameter :: rparen=38
-integer,parameter :: less=50
-integer,parameter :: great=51
-integer,parameter :: quote=49
-integer,parameter :: num=0
-integer,parameter :: name=1
 integer           :: i
 integer           :: j
 integer           :: k
@@ -6285,14 +6168,19 @@ integer           :: n
       if (G_SYM .eq. lparen) goto 42
       G_RHS = 0
       call mat_funs(ID)
-      if (G_FIN .ne. 0) call mat_err(25)
-      if (G_ERR .gt. 0) return
+      if (G_FIN .ne. 0) then
+         call mat_err(25)
+         return
+      endif
       call mat_stack_get(id)
       if (G_ERR .gt. 0) return
       if (G_FIN .eq. 7) goto 50
       if (G_FIN .eq. 0) call mat_putid(G_IDS(1,G_PT+1),id)
-      if (G_FIN .eq. 0) call mat_err(4)
-      if (G_ERR .gt. 0) return
+
+      if (G_FIN .eq. 0) then
+         call mat_err(4) ! undefined variable
+         return
+      endif
       goto 60
    endif
    id(1) = BLANK
@@ -6328,6 +6216,7 @@ integer           :: n
    n = 0
    G_LINE_POINTER(4) = G_LINE_POINTER(3)
    call mat_getch()  ! get next character
+
 16 continue
    if (G_CHRA .eq. QUOTE) goto 18
 17 continue
@@ -6339,6 +6228,7 @@ integer           :: n
    n = n+1
    call mat_getch()  ! get next character
    goto 16
+
 18 continue
    call mat_getch()  ! get next character
    if (G_CHRA .eq. QUOTE) goto 17
@@ -6350,9 +6240,11 @@ integer           :: n
    goto 60
 !
 !  EXPLICIT MATRIX
+
 20 continue
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+
 21 continue
    G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
    G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = &
@@ -6362,6 +6254,7 @@ integer           :: n
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
    call mat_getsym()
+
 22 continue
    if (G_SYM.eq.semi .or. G_SYM.eq.great .or. G_SYM.eq.G_EOL) then
       if (G_SYM.eq.semi .and. G_CHRA.eq.g_eol) call mat_getsym()
@@ -6393,8 +6286,11 @@ integer           :: n
    G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
    if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .eq. 0)  &
       & G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
-   if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .ne. G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1)) call mat_err(5)
-   if (G_ERR .gt. 0) return
+
+   if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .ne. G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1))then
+      call mat_err(5)
+      return
+   endif
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) =  &
       & G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) + G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE+1)
    goto 22
@@ -6468,7 +6364,7 @@ integer           :: n
    CALL MAT_STACK_GET(ID)
    IF (G_ERR .GT. 0) RETURN
    IF (G_FIN .EQ. 0) CALL mat_funs(ID)
-   IF (G_FIN .EQ. 0) CALL mat_err(4)
+   IF (G_FIN .EQ. 0) CALL mat_err(4) ! undefined variable
    IF (G_ERR .GT. 0) RETURN
    ! EVALUATE MATRIX FUNCTION
 50 CONTINUE
@@ -6526,10 +6422,6 @@ SUBROUTINE mat_term()
 character(len=256) :: mline
 INTEGER            :: R
 INTEGER            :: OP
-integer,parameter  :: BSLASH=45
-integer,parameter  :: STAR=43
-integer,parameter  :: SLASH=44
-integer,parameter  :: DOT=47
 integer            :: ierr
 integer            :: ilen
 
@@ -6594,10 +6486,6 @@ subroutine mat_term_DIDNOTWORK()
 character(len=256) :: mline
 integer            :: r
 integer            :: op
-integer,parameter  :: bslash=45
-integer,parameter  :: star=43
-integer,parameter  :: slash=44
-integer,parameter  :: dot=47
 integer            :: ierr
 integer            :: ilen
 
@@ -6666,7 +6554,7 @@ end subroutine mat_term_DIDNOTWORK
 !==================================================================================================================================!
 subroutine mat_savlod(lsave,id,m,n,img,job,xreal,ximag)
 
-! ident_40="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
+! ident_37="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
 
 integer,intent(in)                :: lsave                   ! logical unit number
 integer                           :: id(GG_MAX_NAME_LENGTH)  ! name, format 4a1
@@ -6738,7 +6626,7 @@ doubleprecision function mat_urand(iy)
 !!
 !!   doubleprecision function mat_urand(iy)
 !!
-!!    integer :: iy
+!!    integer,intent(inout) :: iy
 !!
 !!##DESCRIPTION
 !!    mat_urand(3f) is a uniform random number generator based on theory and
@@ -6749,7 +6637,6 @@ doubleprecision function mat_urand(iy)
 !!    be returned in the interval (0,1).
 !!
 !!##OPTIONS
-!!
 !!    IY seed for generating a sequence.
 !!
 !!##EXAMPLE
@@ -6766,7 +6653,7 @@ doubleprecision,save :: s
 doubleprecision      :: datan
 doubleprecision      :: dsqrt
 !-----------------------------------------------------------------------
-   if (m2 .eq. 0) then                                  !  IF FIRST ENTRY, COMPUTE MACHINE INTEGER WORD LENGTH
+   if (m2 .eq. 0) then                                !  if first entry, compute machine integer word length
       m = 1
       INFINITE : do
          m2 = m
@@ -6774,19 +6661,19 @@ doubleprecision      :: dsqrt
          if (m .le. m2) exit INFINITE
       enddo INFINITE
       halfm = m2
-      ia = 8*int(halfm*datan(1.d0)/8.d0) + 5          !  COMPUTE MULTIPLIER AND INCREMENT FOR LINEAR CONGRUENTIAL METHOD
+      ia = 8*int(halfm*datan(1.d0)/8.d0) + 5          !  compute multiplier and increment for linear congruential method
       ic = 2*int(halfm*(0.5d0-dsqrt(3.d0)/6.d0)) + 1
       mic = (m2 - ic) + m2
-      s = 0.5d0/halfm                                   !  S IS THE SCALE FACTOR FOR CONVERTING TO FLOATING POINT
+      s = 0.5d0/halfm                                 !  s is the scale factor for converting to floating point
    endif
-!  COMPUTE NEXT RANDOM NUMBER
+!  compute next random number
    iy = iy*ia
-!  THE FOLLOWING STATEMENT IS FOR COMPUTERS WHICH DO NOT ALLOW INTEGER OVERFLOW ON ADDITION
+!  the following statement is for computers which do not allow integer overflow on addition
    if (iy .gt. mic) iy = (iy - m2) - m2
    iy = iy + ic
-!  THE FOLLOWING STATEMENT IS FOR COMPUTERS WHERE THE WORD LENGTH FOR ADDITION IS GREATER THAN FOR MULTIPLICATION
+!  the following statement is for computers where the word length for addition is greater than for multiplication
    if (iy/2 .gt. m2) iy = (iy - m2) - m2
-!  THE FOLLOWING STATEMENT IS FOR COMPUTERS WHERE INTEGER OVERFLOW AFFECTS THE SIGN BIT
+!  the following statement is for computers where integer overflow affects the sign bit
    if (iy .lt. 0) iy = (iy + m2) + m2
    mat_urand = dble(iy)*s
 end function mat_urand
@@ -6938,7 +6825,7 @@ end function mat_wdotci
 !==================================================================================================================================!
 integer function mat_iwamax(n,xr,xi,incx)
 
-! ident_41="@(#)M_matrix::mat_iwamax(3fp):index of norminf(x)"
+! ident_38="@(#)M_matrix::mat_iwamax(3fp):index of norminf(x)"
 
 integer         :: n
 doubleprecision :: xr(*)
@@ -7097,6 +6984,430 @@ doubleprecision,parameter :: h=1.0d9
       mat_round = x
    endif
 end function mat_round
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+function getd2(varname) result(answer)
+character(len=*),intent(in)  :: varname
+doubleprecision, allocatable :: answer(:,:)
+integer                      :: ierr
+   call mat88_get(answer,varname,type=0,ierr=ierr)
+end function getd2
+!===================================================================================================================================
+!x!function getc2(varname) result(answer)
+!x!character(len=*),intent(in)          :: varname
+!x!complex(kind=dp),allocatable         :: answer(:,:)
+!x!doubleprecision(kind=dp),allocatable :: AR(:,:), AI(:,:)
+!x!integer                              :: ierr
+!x!   call mat88_get(AR,varname,type=0,ierr=ierr)
+!x!   call mat88_get(AI,varname,type=1,ierr=ierr)
+!x!   answer=cmplx(AR,AI)
+!x!end function getc2
+!===================================================================================================================================
+function geti2(varname) result(answer)
+character(len=*),intent(in) :: varname
+integer, allocatable        :: answer(:,:)
+   answer=int(getd2('varname'))
+end function geti2
+!===================================================================================================================================
+function getr2(varname) result(answer)
+character(len=*),intent(in) :: varname
+real, allocatable           :: answer(:,:)
+   answer=int(getd2('varname'))
+end function getr2
+!===================================================================================================================================
+function gets2(varname) result(answer)
+character(len=*),intent(in)  :: varname
+integer, allocatable         :: A(:,:)
+character(len=:),allocatable :: answer(:)
+integer                      :: i
+   A=int(geti2('varname'))
+   allocate( character(len=size(A,dim=1)) :: answer(size(A,dim=2)) )
+   do i=1,size(A,dim=2)
+      call mat_buf2str(answer(i),A(i,:),len(answer))
+   enddo
+end function gets2
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+subroutine mat88_get(A,varname,type,IERR)
+
+! ident_39="@(#)M_matrix::mat88_get(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
+
+character(len=*),intent(in)              :: varname    ! the name of A.
+integer,intent(in)                       :: type       ! type =  0  get REAL A from MAT88, type  = 1  get IMAGINARY A into MAT88,
+integer,INTENT(OUT)                      :: ierr       ! return with nonzero IERR after MAT88 error message.
+doubleprecision,allocatable,intent(out)  :: a(:,:)     ! A is an M by N matrix
+
+integer                      :: id(GG_MAX_NAME_LENGTH)
+integer                      :: i,j,k,l,m,n
+   IERR=0
+   G_ERR=0
+   ! convert character name to mat88 character set
+   call mat_str2buf(varname,id,len(varname))
+   do j=1,GG_MAX_NAME_LENGTH
+      do k = 1, G_CHARSET_SIZE                       ! make sure this letter is in set of MAT88 characters and get its MAT88 number
+         if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
+            id(j)=k-1
+         endif
+      enddo
+   enddo
+   call mat_putid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)    ! copy ID to next blank entry in G_STACK_IDS for messages(?)
+
+   do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
+      if (mat_eqid(G_STACK_IDS(1,k), id))exit             ! if found name exit loop
+   enddo
+
+   ! if matched the name inserted above did not find it.
+   if ( (k .ge. GG_MAX_NUMBER_OF_NAMES-1 .and. G_RHS .gt. 0) .or. (k .eq. G_TOP_OF_SAVED-1) ) then
+      call journal('sc','<ERROR>MAT88_GET: unknown variable name',varname)
+      IERR=4
+      if(allocated(a))deallocate(a)
+      allocate(a(0,0))
+   else
+      call mat_stack_get(id)
+
+      if(G_ERR.ge.0)then
+         if(G_ERR.eq.0)G_ERR=4
+         call mat_err(G_ERR)
+         IERR=G_ERR
+         if(allocated(a))deallocate(a)
+         allocate(a(0,0))
+      else
+         M=G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+         N=G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+         if(allocated(a))deallocate(a)
+         allocate(a(m,n))
+         l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         do i=1,m
+            do j=1,n
+               if(type.eq.0)then
+                  a(i,j)=G_STACK_REALS(l)       ! type =  0  GET REAL A FROM MAT88,
+               else
+                  a(i,j)=G_STACK_IMAGS(l)       ! type =  1  GET IMAGINARY A FROM MAT88,
+               endif
+               l=l+1
+            enddo
+         enddo
+      endif
+
+      if(G_DEBUG_LEVEL.ne.0)then
+         call printit()
+      endif
+
+   endif
+
+contains
+
+subroutine printit()
+character(len=GG_MAX_NAME_LENGTH) :: name
+integer          :: l
+   write(*,*)repeat('=',80)
+   write(*,*)'*MAT88_GET'
+   write(*,*)'   varname=',varname
+   write(*,*)'   ID=',ID(:)
+   write(*,*)'   G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
+   write(*,*)'   G_ERR=',G_ERR
+   if(G_ERR.lt.0.and.G_BOTTOM_OF_SCRATCH_IN_USE.gt.0)then
+      write(*,*)'   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,*)'   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE),M
+      write(*,*)'   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE),N
+      l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,'(3x,*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(L:L+(M*N-1))
+      write(*,'(3x,*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(L:L+(M*N-1))
+   endif
+   write(*,*)repeat('=',80)
+end subroutine printit
+
+end subroutine mat88_get
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+SUBROUTINE mat88_put(A,CID,JOB,IERR) !JSU
+
+! ident_40="@(#)M_matrix:: mat88_put(3f): put a variable name and its data onto MAT88 stack"
+
+character(len=*),intent(in) :: cid                    ! the name of A.
+doubleprecision,intent(in)  :: a(:,:)                 ! A is an M by N matrix, stored in an array with leading dimension size_of_a.
+integer,intent(in)          :: job                    !     JOB =  1  put real A from MAT88,
+                                                      !         = 11  put imag part of A into MAT88.
+integer,intent(out)         :: ierr                   ! return with nonzero ierr after MAT88 error message.
+integer                     :: id(GG_MAX_NAME_LENGTH) ! ID = name, in numeric format
+integer                     :: i,j,k,location
+integer                     :: m,n,mn                 ! m, n = dimensions
+integer                     :: size_of_a
+integer                     :: space_left             ! JOB = SPACE AVAILABLE FOR LOAD
+integer                     :: img
+   ierr=0
+   ! convert character name to mat88 character set
+   call mat_str2buf(cid,id,len(cid))
+   do j=1,GG_MAX_NAME_LENGTH
+      do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters
+         if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
+            id(j)=k-1
+         endif
+      enddo
+   enddo
+      !L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      !M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      !N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      !   JOB = G_STACK_ID_LOC(G_TOP_OF_SAVED) - L
+
+   write(*,*)'GOT HERE A:G_BOTTOM_OF_SCRATCH_IN_USE:',G_BOTTOM_OF_SCRATCH_IN_USE
+   if(G_BOTTOM_OF_SCRATCH_IN_USE.ne.0)then
+      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) ! location of bottom of used scratch space
+   else
+     write(*,*)'GOT HERE B:',G_STACK_ID_LOC
+     location=1
+   endif
+
+   m=size(a,dim=1)
+   n=size(a,dim=2)
+   space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
+   if (m*n .GT. space_left ) then
+      m = 0
+      n = 0
+      call journal('sc','<ERROR>*mat88_put* insufficient space to save data to MAT88')
+      return
+   elseif(m*n.eq.0)then
+      return
+   else
+      size_of_a=size(a)
+   endif
+
+   !if(all(imag(a).eq.0)then
+   !      img=0  ! all imaginary values are 0
+   !else
+   !      img=1
+   !endif
+
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=m ! copy to global values
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=n
+
+   location = G_STACK_ID_LOC(G_TOP_OF_SAVED) +1
+   write(*,*)'GOT HERE A:LOCATION:',location
+
+   do i = 1, m
+      do j = 1, n
+         G_STACK_REALS(location)=a(i,j)              ! real
+         if (img .ne. 0) then
+            G_STACK_IMAGS(location)=a(i,j)           ! imaginary
+         endif
+         location=location+1
+      enddo
+   enddo
+
+   mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   if (mn .ne. 0)then
+      !!------
+      !!if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
+      if (img .eq. 0) G_STACK_IMAGS(location:location+mn-1:1)=0.0d0 ! reset array to zero
+      !!------
+      do i = 1, GG_MAX_NAME_LENGTH
+         j = 0
+         do
+            j = j+1
+            if (id(i).ne.G_CHARSET(J) .and. j.le.blank) cycle
+            exit
+         enddo
+         id(i) = j-1
+      enddo
+      G_SYM = semi
+      G_RHS = 0
+      call mat_stack_put(ID)
+      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
+   endif
+
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+
+contains
+
+subroutine printit()
+character(len=GG_MAX_NAME_LENGTH) :: name
+integer          :: location
+   write(*,*)repeat('=',80)
+   write(*,*)'CID=',CID
+   write(*,*)'ID=',ID(:)
+   write(*,*)'G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
+   write(*,*)'G_ERR=',G_ERR
+   if(G_ERR.lt.1.and.G_BOTTOM_OF_SCRATCH_IN_USE.gt.0)then
+      write(*,*)'G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,*)'G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,*)'G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+      location=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,'(*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(location:location+(M*N-1))
+      write(*,'(*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(location:location+(M*N-1))
+   endif
+end subroutine printit
+
+end subroutine mat88_put
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+function too_much_memory(expression)
+integer,intent(in) :: expression
+logical            :: too_much_memory
+
+! ident_41="@(#)too much memory required"
+
+   G_ERR=expression
+   if(G_ERR.gt.0)then
+      call mat_err(17)
+      too_much_memory=.true.
+   else
+      too_much_memory=.false.
+   endif
+
+end function too_much_memory
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+function system_getenv(name,default) result(value)
+
+! ident_42="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
+
+character(len=*),intent(in)          :: name
+character(len=*),intent(in),optional :: default
+integer                              :: howbig
+integer                              :: stat
+character(len=:),allocatable         :: value
+
+   if(NAME.ne.'')then
+      call get_environment_variable(name, length=howbig, status=stat, trim_name=.true.)  ! get length required to hold value
+      if(howbig.ne.0)then
+         select case (stat)
+         case (1)     ! print *, NAME, " is not defined in the environment. Strange..."
+            value=''
+         case (2)     ! print *, "This processor doesn't support environment variables. Boooh!"
+            value=''
+         case default ! make string to hold value of sufficient size and get value
+            if(allocated(value))deallocate(value)
+            allocate(character(len=max(howbig,1)) :: VALUE)
+            call get_environment_variable(name,value,status=stat,trim_name=.true.)
+            if(stat.ne.0)VALUE=''
+         end select
+      else
+         value=''
+      endif
+   else
+      value=''
+   endif
+   if(value.eq.''.and.present(default))value=default
+
+end function system_getenv
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+subroutine mat_wpofa(ar,ai,lda,n,info)
+integer          :: lda
+doubleprecision  :: ar(lda,*)
+doubleprecision  :: ai(lda,*)
+integer          :: n
+integer          :: info
+
+doubleprecision  :: s
+doubleprecision  :: TR
+doubleprecision  :: TI
+integer          :: j
+integer          :: jm1
+integer          :: k
+
+   do j = 1, n
+      info = j
+      s = 0.0d0
+      jm1 = j-1
+      if (jm1 .ge. 1) then
+         do k = 1, jm1
+           tr=ar(k,j)-mat_wdotcr(k-1,ar(1,k),ai(1,k),1,ar(1,j),ai(1,j),1)
+           ti=ai(k,j)-mat_wdotci(k-1,ar(1,k),ai(1,k),1,ar(1,j),ai(1,j),1)
+           call mat_wdiv(tr,ti,ar(k,k),ai(k,k),tr,ti)
+           ar(k,j) = tr
+           ai(k,j) = ti
+           s = s + tr*tr + ti*ti
+         enddo
+      endif
+      s = ar(j,j) - s
+      if (s.le.0.0d0 .or. ai(j,j).ne.0.0d0) goto 40
+      ar(j,j) = dsqrt(s)
+   enddo
+   info = 0
+40 continue
+end subroutine mat_wpofa
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+subroutine mat_watan(xr,xi,yr,yi)
+
+! ident_43="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
+
+doubleprecision :: xr
+doubleprecision :: xi
+doubleprecision :: yr
+doubleprecision :: yi
+doubleprecision :: tr
+doubleprecision :: ti
+
+   if (xi .eq. 0.0d0) then
+      yr = datan2(xr,1.0d0)
+      yi = 0.0d0
+   elseif (xr.ne.0.0d0 .or. dabs(xi).ne.1.0d0) then
+      call mat_wdiv(xr,1.0d0+xi,-xr,1.0d0-xi,tr,ti)
+      call mat_wlog(tr,ti,tr,ti)
+      yr = -(ti/2.0d0)
+      yi = tr/2.0d0
+   else
+      call mat_err(32) ! Singularity of LOG or ATAN
+   endif
+
+end subroutine mat_watan
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+subroutine mat_rrotg(da,db,c,s)
+
+! ident_44="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
+
+doubleprecision :: da
+doubleprecision :: db
+doubleprecision :: c
+doubleprecision :: s
+
+doubleprecision :: rho
+doubleprecision :: r
+doubleprecision :: z
+
+   rho = db
+   if ( dabs(da) .gt. dabs(db) ) rho = da
+   c = 1.0d0
+   s = 0.0d0
+   z = 1.0d0
+   r = mat_flop(dsign(mat_pythag(da,db),rho))
+   if (r .ne. 0.0d0) c = mat_flop(da/r)
+   if (r .ne. 0.0d0) s = mat_flop(db/r)
+   if ( dabs(da) .gt. dabs(db) ) z = s
+   if (dabs(db) .ge. dabs(da) .and. c .ne. 0.0d0)z = mat_flop(1.0d0/c)
+   da = r
+   db = z
+end subroutine mat_rrotg
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+subroutine mat_wsign(xr,xi,yr,yi,zr,zi)
+
+! ident_45="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
+
+doubleprecision :: xr
+doubleprecision :: xi
+doubleprecision :: yr
+doubleprecision :: yi
+doubleprecision :: zr
+doubleprecision :: zi
+doubleprecision :: t
+   t = mat_pythag(yr,yi)
+   zr = xr
+   zi = xi
+   if (t .ne. 0.0d0) call mat_wmul(yr/t,yi/t,zr,zi,zr,zi)
+end subroutine mat_wsign
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -9391,7 +9702,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      Just in case they might be useful, MAT88 includes                         ',&
 '      constructions called Kronecker tensor quotients, denoted by               ',&
 '      X ./. Y and X .\. Y . They are obtained by replacing the                  ',&
-'      elementwise multiplications in X .*. Y with divisions.                    ',&
+'      element-wise multiplications in X .*. Y with divisions.                   ',&
 '                                                                                ',&
 'lu    Factors from Gaussian elimination. <L,U> = LU(X) stores a                 ',&
 '      upper triangular matrix in U and a ''psychologically lower                ',&
@@ -9621,7 +9932,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '         if expression rop expression, statements                               ',&
 '                                                                                ',&
-'      where rop is =, <, >, <=, >=, o <> (not equal). The                       ',&
+'      where rop is =, <, >, <=, >=, or <> (not equal). The                      ',&
 '      statements are executed once if the indicated comparison                  ',&
 '      between the real parts of the first components of the two                 ',&
 '      expressions is true, otherwise the statements are skipped.                ',&
@@ -9962,319 +10273,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 '']
 end subroutine mat_help_text
-!==================================================================================================================================!
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
-!==================================================================================================================================!
-function getd2(varname) result(answer)
-character(len=*),intent(in)  :: varname
-doubleprecision, allocatable :: answer(:,:)
-integer                      :: ierr
-   call mat88_get(answer,varname,type=0,ierr=ierr)
-end function getd2
-!===================================================================================================================================
-!x!function getc2(varname) result(answer)
-!x!character(len=*),intent(in)          :: varname
-!x!complex(kind=dp),allocatable         :: answer(:,:)
-!x!doubleprecision(kind=dp),allocatable :: AR(:,:), AI(:,:)
-!x!integer                              :: ierr
-!x!   call mat88_get(AR,varname,type=0,ierr=ierr)
-!x!   call mat88_get(AI,varname,type=1,ierr=ierr)
-!x!   answer=cmplx(AR,AI)
-!x!end function getc2
-!===================================================================================================================================
-function geti2(varname) result(answer)
-character(len=*),intent(in) :: varname
-integer, allocatable        :: answer(:,:)
-   answer=int(getd2('varname'))
-end function geti2
-!===================================================================================================================================
-function getr2(varname) result(answer)
-character(len=*),intent(in) :: varname
-real, allocatable           :: answer(:,:)
-   answer=int(getd2('varname'))
-end function getr2
-!===================================================================================================================================
-function gets2(varname) result(answer)
-character(len=*),intent(in)  :: varname
-integer, allocatable         :: A(:,:)
-character(len=:),allocatable :: answer(:)
-integer                      :: i
-   A=int(geti2('varname'))
-   allocate( character(len=size(A,dim=1)) :: answer(size(A,dim=2)) )
-   do i=1,size(A,dim=2)
-      call mat_buf2str(answer(i),A(i,:),len(answer))
-   enddo
-end function gets2
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
-!===================================================================================================================================
-subroutine mat88_get(A,varname,type,IERR)
-
-! ident_42="@(#)M_matrix::mat88_get(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
-
-character(len=*),intent(in)              :: varname    ! the name of A.
-integer,intent(in)                       :: type       ! type =  0  get REAL A from MAT88, type  = 1  get IMAGINARY A into MAT88,
-integer,INTENT(OUT)                      :: ierr       ! return with nonzero IERR after MAT88 error message.
-doubleprecision,allocatable,intent(out)  :: a(:,:)     ! A is an M by N matrix
-
-integer                      :: id(GG_MAX_NAME_LENGTH)
-integer                      :: i,j,k,l,m,n
-   IERR=0
-   G_ERR=0
-   ! convert character name to mat88 character set
-   call mat_str2buf(varname,id,len(varname))
-   do j=1,GG_MAX_NAME_LENGTH
-      do k = 1, G_CHARSET_SIZE                       ! make sure this letter is in set of MAT88 characters and get its MAT88 number
-         if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
-            id(j)=k-1
-         endif
-      enddo
-   enddo
-   call mat_putid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)    ! copy ID to next blank entry in G_STACK_IDS for messages(?)
-
-   do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
-      if (mat_eqid(G_STACK_IDS(1,k), id))exit             ! if found name exit loop
-   enddo
-
-   ! if matched the name inserted above did not find it.
-   if ( (k .ge. GG_MAX_NUMBER_OF_NAMES-1 .and. G_RHS .gt. 0) .or. (k .eq. G_TOP_OF_SAVED-1) ) then
-      call journal('sc','<ERROR>MAT88_GET: unknown variable name',varname)
-      IERR=4
-      if(allocated(a))deallocate(a)
-      allocate(a(0,0))
-   else
-      call mat_stack_get(id)
-
-      if(G_ERR.ge.0)then
-         if(G_ERR.eq.0)G_ERR=4
-         call mat_err(G_ERR)
-         IERR=G_ERR
-         if(allocated(a))deallocate(a)
-         allocate(a(0,0))
-      else
-         M=G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
-         N=G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-         if(allocated(a))deallocate(a)
-         allocate(a(m,n))
-         l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-         do i=1,m
-            do j=1,n
-               if(type.eq.0)then
-                  a(i,j)=G_STACK_REALS(l)       ! type =  0  GET REAL A FROM MAT88,
-               else
-                  a(i,j)=G_STACK_IMAGS(l)       ! type =  1  GET IMAGINARY A FROM MAT88,
-               endif
-               l=l+1
-            enddo
-         enddo
-      endif
-
-      if(G_DEBUG_LEVEL.ne.0)then
-         call printit()
-      endif
-
-   endif
-
-contains
-
-subroutine printit()
-character(len=GG_MAX_NAME_LENGTH) :: name
-integer          :: l
-   write(*,*)repeat('=',80)
-   write(*,*)'*MAT88_GET'
-   write(*,*)'   varname=',varname
-   write(*,*)'   ID=',ID(:)
-   write(*,*)'   G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
-   write(*,*)'   G_ERR=',G_ERR
-   if(G_ERR.lt.0.and.G_BOTTOM_OF_SCRATCH_IN_USE.gt.0)then
-      write(*,*)'   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,*)'   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE),M
-      write(*,*)'   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE),N
-      l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,'(3x,*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(L:L+(M*N-1))
-      write(*,'(3x,*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(L:L+(M*N-1))
-   endif
-   write(*,*)repeat('=',80)
-end subroutine printit
-
-end subroutine mat88_get
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
-!===================================================================================================================================
-SUBROUTINE mat88_put(A,CID,JOB,IERR) !JSU
-
-! ident_43="@(#)M_matrix:: mat88_put(3f): put a variable name and its data onto MAT88 stack"
-
-character(len=*),intent(in) :: cid                    ! the name of A.
-doubleprecision,intent(in)  :: a(:,:)                 ! A is an M by N matrix, stored in an array with leading dimension size_of_a.
-integer,intent(in)          :: job                    !     JOB =  1  put real A from MAT88,
-                                                      !         = 11  put imag part of A into MAT88.
-integer,intent(out)         :: ierr                   ! return with nonzero ierr after MAT88 error message.
-integer                     :: id(GG_MAX_NAME_LENGTH) ! ID = name, in numeric format
-integer                     :: i,j,k,location
-integer                     :: m,n,mn                 ! m, n = dimensions
-integer                     :: size_of_a
-integer                     :: space_left             ! JOB = SPACE AVAILABLE FOR LOAD
-integer                     :: img
-integer,parameter           :: blank=36
-integer,parameter           :: semi=39
-   ierr=0
-   ! convert character name to mat88 character set
-   call mat_str2buf(cid,id,len(cid))
-   do j=1,GG_MAX_NAME_LENGTH
-      do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters
-         if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
-            id(j)=k-1
-         endif
-      enddo
-   enddo
-      !L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      !M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      !N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      !   JOB = G_STACK_ID_LOC(G_TOP_OF_SAVED) - L
-
-   write(*,*)'GOT HERE A:G_BOTTOM_OF_SCRATCH_IN_USE:',G_BOTTOM_OF_SCRATCH_IN_USE
-   if(G_BOTTOM_OF_SCRATCH_IN_USE.ne.0)then
-      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) ! location of bottom of used scratch space
-   else
-     write(*,*)'GOT HERE B:',G_STACK_ID_LOC
-     location=1
-   endif
-
-   m=size(a,dim=1)
-   n=size(a,dim=2)
-   space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
-   if (m*n .GT. space_left ) then
-      m = 0
-      n = 0
-      call journal('sc','<ERROR>*mat88_put* insufficient space to save data to MAT88')
-      return
-   elseif(m*n.eq.0)then
-      return
-   else
-      size_of_a=size(a)
-   endif
-
-   !if(all(imag(a).eq.0)then
-   !      img=0  ! all imaginary values are 0
-   !else
-   !      img=1
-   !endif
-
-   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=m ! copy to global values
-   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=n
-
-   location = G_STACK_ID_LOC(G_TOP_OF_SAVED) +1
-   write(*,*)'GOT HERE A:LOCATION:',location
-
-   do i = 1, m
-      do j = 1, n
-         G_STACK_REALS(location)=a(i,j)              ! real
-         if (img .ne. 0) then
-            G_STACK_IMAGS(location)=a(i,j)           ! imaginary
-         endif
-         location=location+1
-      enddo
-   enddo
-
-   mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-   if (mn .ne. 0)then
-      !!------
-      !!if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
-      if (img .eq. 0) G_STACK_IMAGS(location:location+mn-1:1)=0.0d0 ! reset array to zero
-      !!------
-      do i = 1, GG_MAX_NAME_LENGTH
-         j = 0
-         do
-            j = j+1
-            if (id(i).ne.G_CHARSET(J) .and. j.le.blank) cycle
-            exit
-         enddo
-         id(i) = j-1
-      enddo
-      G_SYM = semi
-      G_RHS = 0
-      call mat_stack_put(ID)
-      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
-   endif
-
-   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
-
-contains
-
-subroutine printit()
-character(len=GG_MAX_NAME_LENGTH) :: name
-integer          :: location
-   write(*,*)repeat('=',80)
-   write(*,*)'CID=',CID
-   write(*,*)'ID=',ID(:)
-   write(*,*)'G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
-   write(*,*)'G_ERR=',G_ERR
-   if(G_ERR.lt.1.and.G_BOTTOM_OF_SCRATCH_IN_USE.gt.0)then
-      write(*,*)'G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,*)'G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,*)'G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      location=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,'(*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(location:location+(M*N-1))
-      write(*,'(*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(location:location+(M*N-1))
-   endif
-end subroutine printit
-
-end subroutine mat88_put
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
-!===================================================================================================================================
-function system_getenv(name,default) result(value)
-
-! ident_44="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
-
-character(len=*),intent(in)          :: name
-character(len=*),intent(in),optional :: default
-integer                              :: howbig
-integer                              :: stat
-character(len=:),allocatable         :: value
-
-   if(NAME.ne.'')then
-      call get_environment_variable(name, length=howbig, status=stat, trim_name=.true.)  ! get length required to hold value
-      if(howbig.ne.0)then
-         select case (stat)
-         case (1)     ! print *, NAME, " is not defined in the environment. Strange..."
-            value=''
-         case (2)     ! print *, "This processor doesn't support environment variables. Boooh!"
-            value=''
-         case default ! make string to hold value of sufficient size and get value
-            if(allocated(value))deallocate(value)
-            allocate(character(len=max(howbig,1)) :: VALUE)
-            call get_environment_variable(name,value,status=stat,trim_name=.true.)
-            if(stat.ne.0)VALUE=''
-         end select
-      else
-         value=''
-      endif
-   else
-      value=''
-   endif
-   if(value.eq.''.and.present(default))value=default
-
-end function system_getenv
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
-!===================================================================================================================================
-function too_much_memory(expression)
-integer,intent(in) :: expression
-logical            :: too_much_memory
-
-! ident_45="@(#)too much memory required"
-
-   G_ERR=expression
-   if(G_ERR.gt.0)then
-      call mat_err(17)
-      too_much_memory=.true.
-   else
-      too_much_memory=.false.
-   endif
-
-end function too_much_memory
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
