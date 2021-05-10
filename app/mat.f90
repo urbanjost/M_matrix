@@ -11,8 +11,9 @@ integer                      :: i
 logical                      :: echo
 logical                      :: markdown
    call setup()
-   call set_args('mat --markdown F -echo F',help_text,version_text ) ! define command arguments,default values and crack command line
-   echo=lget('echo')
+   ! define command arguments,default values and crack command line
+   call set_args('mat --markdown F -noecho F',help_text,version_text )
+   echo=.not.lget('noecho')
    if(size(expressions).eq.0)then
       call mat88(echo=echo)                           ! CALL MAT88 interactively with default scratch space
    else

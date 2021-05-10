@@ -2109,30 +2109,30 @@ subroutine mat_appnum(rval,string,ilen,ierr)
 !     Input string should have at least 20 blank characters at end
 !     03/16/87 J. S. Urban
 !
-!-------------------------------------------------------------------------------
-      real,intent(in)                :: rval   ! input value to convert to characters and append to STRING
-      character(len=*)               :: string ! string to append string value of RVAL to
-      integer,intent(out)            :: ilen   ! new length of STRING on output
-      integer,intent(out)            :: ierr   ! flag to indicate if error occurred
-!-------------------------------------------------------------------------------
-      intrinsic                      :: len_trim
-!-------------------------------------------------------------------------------
-      character(len=20)              :: chars  ! scratch string to store string representation of RVAL in
-      integer                        :: ilen2  ! length of string created by converting RVAL to a string
-!-------------------------------------------------------------------------------
-      ierr=0                                   ! initialize error flag to indicate no errors
-      chars=' '                                ! initialize scratch string to all blanks
-      ilen=len_trim(string(:len(string)))      ! find last non-blank character in initial input string
 
-      call value_to_string(rval,chars,ilen2,ierr)         ! convert RVAL to a string in CHARS
-      if(ilen+ilen2.gt.len(string))then
-         call journal('sc','*mat_appnum* error: input string variable too short to store output string')
-         call journal('sc','*mat_appnum* '//string,rval)
-         ierr=-1
-      else
-         string=string(:ilen)//chars(:ilen2)   ! append CHARS to STRING
-         ilen=ilen+ilen2                       ! calculate length of new string
-      endif
+real,intent(in)                :: rval           ! input value to convert to characters and append to STRING
+character(len=*)               :: string         ! string to append string value of RVAL to
+integer,intent(out)            :: ilen           ! new length of STRING on output
+integer,intent(out)            :: ierr           ! flag to indicate if error occurred
+
+intrinsic                      :: len_trim
+
+character(len=20)              :: chars          ! scratch string to store string representation of RVAL in
+integer                        :: ilen2          ! length of string created by converting RVAL to a string
+
+   ierr=0                                        ! initialize error flag to indicate no errors
+   chars=' '                                     ! initialize scratch string to all blanks
+   ilen=len_trim(string(:len(string)))           ! find last non-blank character in initial input string
+
+   call value_to_string(rval,chars,ilen2,ierr)   ! convert RVAL to a string in CHARS
+   if(ilen+ilen2.gt.len(string))then
+      call journal('sc','*mat_appnum* error: input string variable too short to store output string')
+      call journal('sc','*mat_appnum* '//string,rval)
+      ierr=-1
+   else
+      string=string(:ilen)//chars(:ilen2)        ! append CHARS to STRING
+      ilen=ilen+ilen2                            ! calculate length of new string
+   endif
 end subroutine mat_appnum
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -3006,6 +3006,7 @@ integer             :: nt
    lk = G_STACK_ID_LOC(k)
    call mat_wcopy(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
    goto 90
+!===================================================================================================================================
 !
 !  VECT(ARG)
 50 continue
@@ -3020,6 +3021,7 @@ integer             :: nt
    mn1 = m1*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE-1)
    m2 = -1
    goto 60
+!===================================================================================================================================
 52 continue
    if (m.ne.1 .or. mk.ne.1) call mat_err(15)
    if (G_err .gt. 0) return
@@ -3028,7 +3030,7 @@ integer             :: nt
    mn2 = m2*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE-1)
    m1 = -1
    goto 60
-!
+!===================================================================================================================================
 !     matrix(arg,arg)
 55 continue
    if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-1).lt.0 .and. G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE-2).lt.0) goto 59
@@ -3041,14 +3043,14 @@ integer             :: nt
    mn1 = m1*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE-2)
    if (m1 .lt. 0) mn1 = m
    goto 60
-!
+!===================================================================================================================================
 59 continue
    if (mn .ne. mnk) call mat_err(15)
    if (G_err .gt. 0) return
    lk = G_STACK_ID_LOC(k)
    call mat_wcopy(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
    goto 90
-!
+!===================================================================================================================================
 60 continue
    if (mn1.ne.m .or. mn2.ne.n) call mat_err(15)
    if (G_err .gt. 0) return
@@ -3100,6 +3102,7 @@ integer             :: nt
       enddo
    enddo
    goto 90
+!===================================================================================================================================
 ! PRINT IF DESIRED AND POP STACK
 90 continue
    if (G_sym.ne.semi .and. G_LINECOUNT(3).eq.0) call mat_print(id,k)
