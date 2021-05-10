@@ -5,8 +5,10 @@ integer,parameter :: lda=10
 integer           :: m,n, i,j, ierr
 doubleprecision   :: arr(lda,lda),x(lda,lda)
 logical           :: logs=.false.
+
    !!logs=.true.
-   !!call mat88(2000,echo=.true.)
+   !!call mat88(20000,echo=.true.)
+
    call test_abs ()     ! abs   abs(X) is the absolute value, or complex modulus, of the
    call test_ans ()     ! ans   Variable created automatically when expressions are not
    call test_atan ()    ! atan  atan(X) is the arctangent of X . See HIGH .
@@ -120,28 +122,28 @@ subroutine test_magic()
    call mat88( 'a=magic(N);')
    call mat88( 'b=sum(a);')
    call mat88( &
-   & 'if size(a) = [N,N] ,&
-   &    display("magic SIZE OK");&
-   &    tally=[tally,0];&
-   & else,&
-   &    display("magic SIZE BAD");&
-   &    size(a),&
-   &    tally=[tally,1];')
+   & "display(ones(80,1)'*85);       &
+   & if size(a) = [N,N]              &
+   &    display('magic SIZE OK');    &
+   &    tally=[tally,0];             &
+   & else,                           &
+   &    display('magic SIZE BAD');   &
+   &    size(a),                     &
+   &    tally=[tally,1];             ")
    call mat88( &
-   & 'if b = 5050, &
-   &    display("magic SUM OK"), &
-   &    tally=[tally,0]; &
-   & else, &
+   & 'if b = 5050,                   &
+   &    display("magic SUM OK"),     &
+   &    tally=[tally,0];             &
+   & else,                           &
    &    display("magic SUM FAILED"); &
-   &    size(a), &
-   &    tally=[tally,1]; &
-   & end')
+   &    size(a),                     &
+   &    tally=[tally,1];             &
+   & end                             ')
    call mat88( 'if sum(tally) = 0,display("magic PASSED"),else,display("magic FAILED");tally')
 end subroutine test_magic
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_ones()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help ones')
+   call mat88( "display(ones(80,1)'*46); help ones; display(ones(80,1)'*85)")
    call mat88( 'tally=[0];')
    if(logs)call mat88( 'diary("ones.log");')
    call mat88( 'a=ones(30,40);')
@@ -162,8 +164,7 @@ subroutine test_ones()
 end subroutine test_ones
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_zeros()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help zeros')
+   call mat88( "display(ones(80,1)'*46); help zeros; display(ones(80,1)'*85)")
    call mat88( 'tally=[0];')
    if(logs)call mat88( 'diary("zeros.log");')
    call mat88( 'a=zeros(30,40);')
@@ -184,8 +185,7 @@ subroutine test_zeros()
 end subroutine test_zeros
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sum()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help sum')
+   call mat88( "display(ones(80,1)'*46); help sum; display(ones(80,1)'*85)")
    call mat88( 'tally=[0];')
    if(logs)call mat88( 'diary("sum.log");')
    call mat88( 'a=<1 2 3; 4 5 6; 7 8 9>;')
@@ -207,10 +207,9 @@ subroutine test_sum()
 end subroutine test_sum
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_abs ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*46); help abs; display(ones(80,1)'*85)")
    if(logs)call mat88( 'diary("abs.log");')
    call mat88( [ character(len=256) :: &
-     & 'help abs                                                                 ', &
      & 'tally=[0];                                                               ', &
      & 'a=<1 2 3; 4 5 6; 7 8 9>;b=-a;                                            ', &
      & 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
@@ -219,6 +218,124 @@ subroutine test_abs ()
      & 'if sum(tally)=0,display("abs PASSED");else,display("abs FAILED");tally ', &
      & ''])
 end subroutine test_abs
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_atan ()
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & "help atan; display(ones(80,1)'*85)", &
+     & 'PI=atan(1)*4;A=cos(PI);B=sin(PI);', &
+     & 'if A-1<eps,tally=[tally,0];display("test if near PI OK");else,tally=[tally,1];display("test if near PI FAILED");', &
+     & 'if B<eps,tally=[tally,0];display("2nd test if near PI OK");else,tally=[tally,1];display("2nd test if near PI FAILED");', &
+     & 'if sum(tally)=0,display("atan PASSED");else,display("atan FAILED");tally ', &
+     & ''])
+end subroutine test_atan
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_cos ()
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & "help cos; display(ones(80,1)'*85)", &
+     & '                                                                         ', &
+     & 'PI=atan(1)*4;P=cos(PI);PP=cos(2*PI);Z=cos(0);HP=cos(PI/2);', &
+     & 'if abs(HP)<eps,tally=[tally,0];display("HALF-PI OK");else,tally=[tally,1];display("HALF-PI FAILED");', &
+     & 'if Z=1,tally=[tally,0];display("ZERO OK");else,tally=[tally,1];display("ZERO FAILED");', &
+     & 'if P=-1,tally=[tally,0];display("PI OK");else,tally=[tally,1];display("PI FAILED");', &
+     & 'if PP=1,tally=[tally,0];display("TWO PI OK");else,tally=[tally,1];display("TWO PI FAILED");', &
+     & 'if cos(-2*PI)=1,tally=[tally,0];display("-TWO PI OK");else,tally=[tally,1];display("-TWO PI FAILED");', &
+     & 'if cos(-2000*PI)=1,tally=[tally,0];display("-2000 PI OK");else,tally=[tally,1];display("-2000 PI FAILED");', &
+     & 'PI,P,PP,Z,HP                                                                         ', &
+     & 'if sum(tally)=0,display("cos PASSED");else,display("cos FAILED");tally ', &
+     & ''])
+end subroutine test_cos
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_round ()
+   call mat88( [ character(len=256) :: &
+   '// test round()                                                               ', &
+   'clear                                                                         ', &
+   "display(ones(80,1)'*46)                                                       ", &
+   "help round; display(ones(80,1)'*85)                                           ", &
+   'tally=[0];                                                                    ', &
+   'a=magic(10)+rand(10)*ones(10)*0.49;                                           ', &
+   'a=magic(5);                // an array of whole numbers                       ', &
+   'b=rand(5)-ones(5)*0.49999; // array with everything 0.5 < x > -0.5            ', &
+   'c=(a+b);                   // values of a randomly changed by less than +-1/2 ', &
+   '                                                                              ', &
+   'if c<>a , if round(c)=a, ..                                                   ', &
+   '   display("round of array plus random small fraction PASSED"), ..            ', &
+   '   tally=[tally,0], ..                                                        ', &
+   'else, ..                                                                      ', &
+   '   display("round of array FAILED"), ..                                       ', &
+   '   tally=[tally,1], ..                                                        ', &
+   'end;                                                                          ', &
+   '                                                                              ', &
+   'if round(a-c)=0, ..                                                           ', &
+   '   display("round delta of original and randomized PASSED"), ..               ', &
+   '   tally=[tally,0], ..                                                        ', &
+   'else, ..                                                                      ', &
+   '   display("round delta of original and randomized FAILED"), ..               ', &
+   '   tally=[tally,1], ..                                                        ', &
+   'end;                                                                          ', &
+   '                                                                              ', &
+   'if sum(tally)=0,display("round PASSED");else,display("round FAILED")          ', &
+   '<M,N>=size(tally)                                                             ', &
+   'display(tally(2:N))                                                           ', &
+   ''])
+end subroutine test_round
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_size ()
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'help size')
+   call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & 'a=10;b=magic(4);c=ones(11,5);                                            ', &
+     & '<X,Y>=size(c);                                                           ', &
+     & 'if X=11,display("X is 11"),else,display("X is NOT 11");X                 ', &
+     & 'if Y= 5,display("Y is  5"),else,display("Y is NOT  5");Y                 ', &
+     & 'if size(a) = 1,       display("size of a OK");tally=[tally,0];else,display("size of a BAD");size(a),tally=[tally,1];', &
+     & 'if size(b) = [ 4, 4], display("size of b OK");tally=[tally,0];else,display("size of b BAD");size(b),tally=[tally,1];', &
+     & 'if size(c) = [11, 5], display("size of c OK");tally=[tally,0];else,display("size of c BAD");size(c),tally=[tally,1];', &
+     & 'if sum(tally)=0,display("size PASSED");else,display("size FAILED");tally ', &
+     & ''])
+end subroutine test_size
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_hess ()
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'help hess')
+   call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & 'A=magic(5);                                                              ', &
+     & '<P,H>=hess(A);                                                           ', &
+     & "B=P*H*P';                                                                ", &
+     & 'if A=B, ...                                                              ', &
+     & '   tally=[tally,0];display("got back the original");  ...                ', &
+     & 'else,  ...                                                               ', &
+     & '   tally=[tally,1];display("does not match original");                   ', &
+     & 'if sum(tally)=0,display("hess PASSED");else,display("hess FAILED");tally ', &
+     & ''])
+end subroutine test_hess
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_if ()
+   call mat88( [ character(len=256) :: &
+     & "display(ones(80,1)'*46)                                                  ", &
+     & 'help if                                                                  ', &
+     & "display(ones(80,1)'*85)                                                  ", &
+     & 'tally=[0];                                                               ', &
+     & '                                                                         ', &
+     & ' n=5;                                                                    ', &
+     & '                                                                         ', &
+     & ' for i = 1:n, for j = 1:n, ...                                           ', &
+     & '    if i = j, a(i,j) = 2; else if abs(i-j) = 1, a(i,j) = -1; ...         ', &
+     & '    else a(i,j) = 0;                                                     ', &
+     & '                                                                         ', &
+     & ' // An easier way to accomplish the same thing is                        ', &
+     & ' b = 2*eye(n);                                                           ', &
+     & ' for i = 1:n-1, b(i,i+1) = -1; b(i+1,i) = -1;                            ', &
+     & '                                                                         ', &
+     & 'if a=b, tally=[tally,0];display("matches");else,tally=[tally,1];display("does not match");', &
+     & 'if sum(tally)=0,display("if PASSED");else,display("if FAILED");tally ', &
+     & ''])
+end subroutine test_if
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_ans ()
    call mat88( "display(ones(80,1)'*46)")
@@ -231,18 +348,6 @@ subroutine test_ans ()
      & 'if sum(tally)=0,display("ans PASSED");else,display("ans FAILED");tally ', &
      & ''])
 end subroutine test_ans
-!-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_atan ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help atan')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & 'PI=atan(1)*4;A=cos(PI);B=sin(PI);', &
-     & 'if A-1<eps,tally=[tally,0];display("test if near PI OK");else,tally=[tally,1];display("test if near PI FAILED");', &
-     & 'if B<eps,tally=[tally,0];display("2nd test if near PI OK");else,tally=[tally,1];display("2nd test if near PI FAILED");', &
-     & 'if sum(tally)=0,display("atan PASSED");else,display("atan FAILED");tally ', &
-     & ''])
-end subroutine test_atan
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_base ()
    call mat88( "display(ones(80,1)'*46)")
@@ -334,25 +439,6 @@ subroutine test_conjg ()
      & 'if sum(tally)=0,display("conjg PASSED");else,display("conjg FAILED");tally ', &
      & ''])
 end subroutine test_conjg
-!-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_cos ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help cos')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & 'PI=atan(1)*4;P=cos(PI);PP=cos(2*PI);Z=cos(0);HP=cos(PI/2);', &
-     & 'if abs(HP)<eps,tally=[tally,0];display("HALF-PI OK");else,tally=[tally,1];display("HALF-PI FAILED");', &
-     & 'if Z=1,tally=[tally,0];display("ZERO OK");else,tally=[tally,1];display("ZERO FAILED");', &
-     & 'if P=-1,tally=[tally,0];display("PI OK");else,tally=[tally,1];display("PI FAILED");', &
-     & 'if PP=1,tally=[tally,0];display("TWO PI OK");else,tally=[tally,1];display("TWO PI FAILED");', &
-     & 'if cos(-2*PI)=1,tally=[tally,0];display("-TWO PI OK");else,tally=[tally,1];display("-TWO PI FAILED");', &
-     & 'if cos(-2000*PI)=1,tally=[tally,0];display("-2000 PI OK");else,tally=[tally,1];display("-2000 PI FAILED");', &
-     & 'PI,P,PP,Z,HP                                                                         ', &
-     & 'if sum(tally)=0,display("cos PASSED");else,display("cos FAILED");tally ', &
-     & ''])
-end subroutine test_cos
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_debug ()
    call mat88( "display(ones(80,1)'*46)")
@@ -573,32 +659,6 @@ subroutine test_help ()
      & 'if sum(tally)=0,display("help PASSED");else,display("help FAILED");tally ', &
      & ''])
 end subroutine test_help
-!-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_hess ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help hess')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("hess PASSED");else,display("hess FAILED");tally ', &
-     & ''])
-end subroutine test_hess
-!-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_if ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help if')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("if PASSED");else,display("if FAILED");tally ', &
-     & ''])
-end subroutine test_if
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_imag ()
    call mat88( "display(ones(80,1)'*46)")
@@ -925,19 +985,6 @@ subroutine test_roots ()
      & ''])
 end subroutine test_roots
 !-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_round ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help round')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("round PASSED");else,display("round FAILED");tally ', &
-     & ''])
-end subroutine test_round
-!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rref ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help rref')
@@ -1026,22 +1073,6 @@ subroutine test_sin ()
      & 'if sum(tally)=0,display("sin PASSED");else,display("sin FAILED");tally ', &
      & ''])
 end subroutine test_sin
-!-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_size ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help size')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & 'a=10;b=magic(4);c=ones(11,5);                                            ', &
-     & '<X,Y>=size(c);                                                           ', &
-     & 'if X=11,display("X is 11"),else,display("X is NOT 11");X                 ', &
-     & 'if Y= 5,display("Y is  5"),else,display("Y is NOT  5");Y                 ', &
-     & 'if size(a) = 1,       display("size of a OK");tally=[tally,0];else,display("size of a BAD");size(a),tally=[tally,1];', &
-     & 'if size(b) = [ 4, 4], display("size of b OK");tally=[tally,0];else,display("size of b BAD");size(b),tally=[tally,1];', &
-     & 'if size(c) = [11, 5], display("size of c OK");tally=[tally,0];else,display("size of c BAD");size(c),tally=[tally,1];', &
-     & 'if sum(tally)=0,display("size PASSED");else,display("size FAILED");tally ', &
-     & ''])
-end subroutine test_size
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sqrt ()
    call mat88( "display(ones(80,1)'*46)")

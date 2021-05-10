@@ -5,12 +5,11 @@
                 call MAT88(20000)
 
                 write(*,'(a)')'do some commands'
-                call MAT88([character(len=256) :: &
-                & 'semi;                         ',&
+                call MAT88([character(len=80) :: &
                 & 'semi;                         ',&
                 & 'a=magic(4),b=-a               ',&
                 & 'a+b;a;b                       ',&
-                & 'display("That is all Folks")  '])
+                & 'display("That is all Folks!") '])
 
                 write(*,'(a)')'do a single command'
                 call MAT88('who')
