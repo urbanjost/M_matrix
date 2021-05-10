@@ -3200,6 +3200,7 @@ integer            :: k
 integer            :: l
 integer            :: ls
 integer            :: n
+character(len=:),allocatable :: symbol
 !
    01 continue
       r = 0
@@ -3242,7 +3243,8 @@ integer            :: n
       if (G_SYM.eq.SEMI .or. G_SYM.eq.COMMA .or. G_SYM.eq.G_EOL) goto 80
       if (G_SYM .eq. name) then
          ! lhs begins with name
-         call mat_comand(G_SYN)
+         call ints2str(G_SYN,symbol,ierr)              ! convert ID to a character variable
+         call mat_comand(symbol)
          IF (G_ERR .GT. 0) goto 01
          IF (G_FUN .EQ. 99) goto 95
          IF (G_FIN .EQ. -15) goto 80
@@ -3547,8 +3549,7 @@ end subroutine mat_parse
 !==================================================================================================================================!
 subroutine mat_comand(id)
 
-integer,intent(in)           :: id(GG_MAX_NAME_LENGTH)
-character(len=:),allocatable :: fname
+character(len=*),intent(in)  :: id
 integer                      :: chr
 integer                      :: i, j, k, ii, jj
 integer                      :: l
@@ -3566,17 +3567,15 @@ FINISHED: block
 
    G_FUN = 0
 
-   call ints2str(id,fname,ierr)              ! convert ID to a character variable
-
    do k = 1, size(cmd)
-     if (fname.eq.cmd(k))then                ! found match to command
+     if (id.eq.cmd(k))then                   ! found match to command
         select case(G_CHRA)
         case(comma,semi,G_EOL)               ! next character is end of a command so good to go
            goto 2
         case(:z_low,a_up:z_up,score)         ! if alphanumeric or a HELP command so good to go
            goto 2
         end select
-        if (fname.eq.'help')then             ! special case where anything after the help could be a topic
+        if (id.eq.'help')then                ! special case where anything after the help could be a topic
            goto 2
         else
            call mat_err(16)                  ! improper command
@@ -3592,7 +3591,7 @@ FINISHED: block
 2  continue                                  ! found a match and next character passed tests
    G_FIN = 1
 !===================================================================================================================================
-   COMAND : select case(fname)
+   COMAND : select case(id)
 !===================================================================================================================================
    case('clear')
    ! alphameric character
@@ -5122,7 +5121,6 @@ logical             :: isfound
 !===================================================================================================================================
       case(6,7) !     COMMAND::DISPLAY
 60    continue
-      call journal(' ')
       if (G_FIN.eq.7)goto 65
       if (G_RHS .eq. 2) goto 65
       mn = m*n
