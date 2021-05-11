@@ -373,26 +373,16 @@ integer,parameter        :: G_CHARSET_SIZE=87      ! number of characters in cha
 !     9      9        J        T  SEMI   ;  QUOTE  '
 
 ! unused: `~!#%^&_?
+
 character(len=G_CHARSET_SIZE),parameter ::  G_DEFINE_CHARSET=&
                             &"0123456789abcdefghijklmnopqrstuvwxyz ();:+-*/\=.,'<>ABCDEFGHIJKLMNOPQRSTUVWXYZ`~!#%^&_?"
 ! ALTERNATE CHARACTER SET     0---------1---------2---------3---------4---------5---------6---------7-------
 !                             012345678901234567890123456789012345678901234567890123456789012345678901234567890123456
+
 character(len=G_CHARSET_SIZE),parameter ::  G_DEFINE_ALT_CHARSET=&
                             &'0123456789abcdefghijklmnopqrstuvwxyz {};|+-*/$=@,"[]ABCDEFGHIJKLMNOPQRSTUVWXYZ`~!#%^&_?'
 ! CHARACTER SET               0---------1---------2---------3---------4---------5---------6---------7-------
 !                             012345678901234567890123456789012345678901234567890123456789012345678901234567890123456
-!            0       10       20       30         40        50
-!
-!     0      0        A        K        U   COLON  :  LESS   <
-!     1      1        B        L        V   PLUS   +  GREAT  >
-!     2      2        C        M        W   MINUS  -
-!     3      3        D        N        X   STAR   *
-!     4      4        E        O        Y   SLASH  /
-!     5      5        F        P        Z   BSLASH \
-!     6      6        G        Q  BLANK     EQUAL  =
-!     7      7        H        R  LPAREN (  DOT    .
-!     8      8        I        S  RPAREN )  COMMA  ,
-!     9      9        J        T  SEMI   ;  QUOTE  '
 
 integer,parameter :: score=85
 integer,parameter :: blank=36
@@ -470,22 +460,24 @@ contains
 !!    The HELP command describes using the interpreter.
 !!
 !!##OPTIONS
-!!    INIT    indicate size of scratch space to allocate
+!!    INIT    indicate size of scratch space to allocate and (re)initialize
+!!            MAT88.
 !!
 !!    CMD     MAT88 command(s) to perform. May be CHARACTER scalar or vector
 !!
 !!    INIT and CMD cannot be combined on a single call.
 !!
-!!    The first should be an initialization declaring the number of
+!!    The first call may be an initialization declaring the number of
 !!    doubleprecision values to allocate for the combined scratch and
 !!    variable storage area. This is a required initial command. It may be
-!!    repeated. A size of zero will deallocate any allocated storage.
+!!    repeated. A size of zero will deallocate any allocated storage (after
+!!    which the routine cannot be called with commands until reallocated by
+!!    another call to mat88()).
 !!
-!!    If no parameters or a blank string is supplied interactive mode
-!!    is entered.
+!!    If no parameters are supplied interactive mode is entered.
 !!
-!!    If a CMD is passed and no initialization call was made the scratch space
-!!    will be allocated to 200000.
+!!    If a CMD is passed and no previous initialization call was made the
+!!    scratch space will be allocated to 200000.
 !!
 !!##EXAMPLE
 !!
@@ -531,7 +523,7 @@ contains
 !!        & '// clear all user values                              ',&
 !!        & 'clear                                                 ',&
 !!        & '// show variable names, load values from file         ',&
-!!        & '                                                      ',&
+!!        & '// and show again to show the variables are restored  ',&
 !!        & 'who;load("sample.mat");who                            '])
 !!    end program bigmat
 !!
@@ -1133,7 +1125,7 @@ end subroutine MAT88_init
 !==================================================================================================================================
 subroutine MAT88_cmd(input_string,echo,markdown)
 
-! ident_2="@(#)M_matrix::mat88(3f): initialize and run commands matrix laboratory interpreter"
+! ident_2="@(#)M_matrix::mat88(3f): run a single command in matrix laboratory interpreter and return to calling program"
 
 character(len=*),intent(in) :: input_string
 logical,intent(in),optional :: echo
@@ -1145,7 +1137,7 @@ end subroutine MAT88_cmd
 !==================================================================================================================================
 subroutine MAT88_cmds(pseudo_file,echo,markdown)
 
-! ident_3="@(#)M_matrix::mat88(3f): initialize matrix laboratory interpreter"
+! ident_3="@(#)M_matrix::mat88(3f): run an array of commands in matrix laboratory interpreter and return to calling program"
 
 character(len=*),intent(in),optional :: pseudo_file(:)
 logical,intent(in),optional          :: echo
@@ -1186,7 +1178,7 @@ end subroutine MAT88_cmds
 !==================================================================================================================================!
 subroutine mat_err(n)
 
-! ident_4="@(#)M_matrix::mat_err(3fp): given error number, write associated error message"
+! ident_4="@(#)M_matrix::mat_err(3fp): given error number, write associated error message and set G_ERR"
 
 integer,intent(in)   :: n
 
@@ -1196,7 +1188,7 @@ integer              :: lb
 integer              :: lt
 character(len=255)   :: msg
 
-   G_err = n
+   G_ERR = n
    select case(n)
     case(1);  msg='Improper multiple assignment'
     case(2);  msg='Improper factor'
@@ -1515,14 +1507,16 @@ doubleprecision   :: eps0,eps,s,sr,si,t
 character(len=80) :: message
 character(len=GG_LINELEN) :: string_buf
 !
+
       IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN6* ',G_FIN)
+
 !     FUNCTIONS/G_FIN
 !     MAGI DIAG SUM  PROD USER EYE  RAND ONES CHOP SIZE KRON  TRIL TRIU ZEROS
 !       1    2    3    4    5    6    7    8    9   10  11-13  14   15   16
       L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      FUN6: select case(G_fin)
+      FUN6: select case(G_FIN)
 !===================================================================================================================================
       case(1) ! COMMAND::MAGIC
       N = MAX(int(G_STACK_REALS(L)),0)
@@ -4508,81 +4502,95 @@ doubleprecision :: p,s,t(1,1),tol,eps
       endif
 !===================================================================================================================================
     case(4) ! command::norm
+
       p = 2.0d0
       inf = .false.
+
       if (G_rhs .eq. 2)then
          fro = int(G_STACK_REALS(l)).eq.15 .and. mn.gt.1
          inf = int(G_STACK_REALS(l)).eq.18 .and. mn.gt.1
-         if (.not. fro) p = G_STACK_REALS(l)
+         if (.not. fro) then
+            p = G_STACK_REALS(l)
+         endif
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
          l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
          n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
          mn = m*n
-         if (fro) m = mn
-         if (fro) n = 1
+         if (fro) then
+            m = mn
+            n = 1
+         endif
       endif
-      if (m .gt. 1 .and. n .gt. 1) goto 40
-      if (p .eq. 1.0d0) goto 36
-      if (p .eq. 2.0d0) goto 38
-      i = mat_iwamax(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),1) + l - 1
-      s = dabs(G_STACK_REALS(i)) + dabs(G_STACK_IMAGS(i))
-      if (inf .or. s .eq. 0.0d0) goto 49
-      t(1,1) = 0.0d0
-      do i = 1, mn
-         ls = l+i-1
-         t(1,1) = mat_flop(t(1,1) + (mat_pythag(G_STACK_REALS(ls),G_STACK_IMAGS(ls))/s)**p)
-      enddo
-      if (p .ne. 0.0d0) p = 1.0d0/p
-      s = mat_flop(s*t(1,1)**p)
-      goto 49
-36    continue
-      S = mat_wasum(MN,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
-      goto 49
-38    continue
-      S = mat_wnrm2(MN,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
-      goto 49
-40    continue !     MATRIX NORM
-      IF (INF) goto 43
-      IF (P .EQ. 1.0D0) goto 46
-      IF (P .NE. 2.0D0) call mat_err(23)
-      IF (G_ERR .GT. 0) return
-      LD = L + M*N
-      L1 = LD + MIN(M+1,N)
-      L2 = L1 + N
 
-      if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if (m .gt. 1 .and. n .gt. 1) then
+         ! matrix norm
 
-      call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l), &
-                  & m,m,n, &
-                  & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
-                  & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
-                  & t,t,1,t,t,1, &
-                  & G_STACK_REALS(l2),G_STACK_IMAGS(l2), &
-                  & 0,G_err)
-      IF (G_ERR .NE. 0) call mat_err(24)
-      IF (G_ERR .GT. 0) return
-      S = G_STACK_REALS(LD)
-      goto 49
-43    continue
-      S = 0.0D0
-      DO I = 1, M
-         LI = L+I-1
-         T(1,1) = mat_wasum(N,G_STACK_REALS(LI),G_STACK_IMAGS(LI),M)
-         S = DMAX1(S,T(1,1))
-      enddo
-      goto 49
-46    continue
-      S = 0.0D0
-      DO J = 1, N
-         LJ = L+(J-1)*M
-         T(1,1) = mat_wasum(M,G_STACK_REALS(LJ),G_STACK_IMAGS(LJ),1)
-         S = DMAX1(S,T(1,1))
-      enddo
-      goto 49
-49    continue
-      G_STACK_REALS(L) = S
-      G_STACK_IMAGS(L) = 0.0D0
+         if (INF)then
+            s = 0.0d0
+            do i = 1, m
+               li = l+i-1
+               t(1,1) = mat_wasum(n,G_STACK_REALS(LI),G_STACK_IMAGS(li),m)
+               s = dmax1(s,t(1,1))
+            enddo
+         elseif (p .eq. 1.0d0) then
+            s = 0.0d0
+            do j = 1, n
+               lj = l+(j-1)*m
+               t(1,1) = mat_wasum(m,G_STACK_REALS(LJ),G_STACK_IMAGS(lj),1)
+               s = dmax1(s,t(1,1))
+            enddo
+         elseif (p .ne. 2.0d0) then
+            call mat_err(23)
+            return
+         else
+            ld = l + m*n
+            l1 = ld + min(m+1,n)
+            l2 = l1 + n
+
+            if(too_much_memory( l2+min(m,n) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )then
+               return
+            endif
+
+            call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l), &
+                        & m,m,n, &
+                        & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
+                        & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
+                        & t,t,1,t,t,1, &
+                        & G_STACK_REALS(l2),G_STACK_IMAGS(l2), &
+                        & 0,G_err)
+
+            if (G_ERR .ne. 0)then
+               call mat_err(24)
+               return
+            endif
+
+            s = G_STACK_REALS(LD)
+         endif
+
+      elseif (p .eq. 1.0d0)then
+         s = mat_wasum(MN,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+      elseif (p .eq. 2.0d0) then
+         s = mat_wnrm2(MN,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+      else
+         i = mat_iwamax(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),1) + l - 1
+         s = dabs(G_STACK_REALS(i)) + dabs(G_STACK_IMAGS(i))
+
+         if (.not.(inf .or. s .eq. 0.0d0))then
+            t(1,1) = 0.0d0
+            do i = 1, mn
+               ls = l+i-1
+               t(1,1) = mat_flop(t(1,1) + (mat_pythag(G_STACK_REALS(ls),G_STACK_IMAGS(ls))/s)**p)
+            enddo
+            if (p .ne. 0.0d0) then
+               p = 1.0d0/p
+            endif
+            s = mat_flop(s*t(1,1)**p)
+         endif
+      endif
+
+      G_STACK_REALS(l) = s
+      G_STACK_IMAGS(l) = 0.0d0
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
@@ -6466,71 +6474,7 @@ END SUBROUTINE mat_factor
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-SUBROUTINE mat_term()
-
-character(len=GG_LINELEN) :: mline
-INTEGER            :: R
-INTEGER            :: OP
-integer            :: ierr
-integer            :: ilen
-
-   IF (G_DEBUG_LEVEL .EQ. 1) then
-      mline='TERM '
-      call mat_appnum(real(G_pt),mline,ilen,ierr)
-      call mat_appnum(real(G_RSTK(G_pt)),mline,ilen,ierr)
-      call journal(mline)
-   endif
-   R = G_RSTK(G_PT)
-   goto (99,99,99,99,99, 1, 1, 5,25,99,99,99,99,99,35,99,99,99,99),R
-1  continue
-   G_PT = G_PT+1
-   G_RSTK(G_PT) = 8
-!     *call* FACTOR
-   return
-!.......................................................................
-5  continue
-   G_PT = G_PT-1
-10 continue
-   op = 0
-   IF (G_SYM .EQ. DOT) OP = DOT
-   IF (G_SYM .EQ. DOT) call mat_getsym
-   IF (G_SYM.EQ.STAR .OR. G_SYM.EQ.SLASH .OR. G_SYM.EQ.BSLASH) goto 20
-   return
-!.......................................................................
-20 continue
-   OP = OP + G_SYM
-   call mat_getsym()
-   IF (G_SYM .EQ. DOT) OP = OP + G_SYM
-   IF (G_SYM .EQ. DOT) call mat_getsym()
-   G_PT = G_PT+1
-   G_PSTK(G_PT) = OP
-   G_RSTK(G_PT) = 9
-!     *call* FACTOR
-   return
-!.......................................................................
-25 continue
-   OP = G_PSTK(G_PT)
-   G_PT = G_PT-1
-   call mat_stack2(OP)
-   IF (G_ERR .GT. 0) return
-!     SOME BINARY OPS DONE IN MATFNS
-   IF (G_FUN .EQ. 0) goto 10
-   G_PT = G_PT+1
-   G_RSTK(G_PT) = 15
-!     *call* MATFN
-   return
-!.......................................................................
-35 continue
-   G_PT = G_PT-1
-   goto 10
-!.......................................................................
-99 continue
-   call mat_err(22)
-   IF (G_ERR .GT. 0) return
-
-end subroutine mat_term
-!==================================================================================================================================!
-subroutine mat_term_DIDNOTWORK()
+subroutine mat_term()
 
 character(len=GG_LINELEN) :: mline
 integer            :: r
@@ -6546,58 +6490,56 @@ integer            :: ilen
    endif
 
    r = G_RSTK(G_PT)
-!         01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19
+!          1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
 !   goto (99,99,99,99,99, 1, 1, 5,25,99,99,99,99,99,35,99,99,99,99),r
-   write(*,*)'GOT HERE 1:R=',r
    select case(r)
-   case(1:5,10:14,16:19)
-      call mat_err(22) ! recursion difficulties
-      if (G_ERR .gt. 0) return
-      return
-   case(6:7)
+   case(6,7)
       G_PT = G_PT+1
       G_RSTK(G_PT) = 8
       ! *call* factor
       return
-   case(8,15)
+   case(8)
       G_PT = G_PT-1
-      goto 10
    case(9)
       op = G_PSTK(G_PT)
       G_PT = G_PT-1
-      call mat_stack2(OP)
-      if (G_ERR .gt. 0) return
+      call mat_stack2(op)
+      if (G_ERR .gt. 0)then
+         return
+      endif
       ! some binary ops done in matfns
-      if (G_FUN .eq. 0) goto 10
-      G_PT = G_PT+1
-      G_RSTK(G_PT) = 15
-      ! *call* matfn
-      return
+      if (G_FUN .ne. 0) then
+         G_PT = G_PT+1
+         G_RSTK(G_PT) = 15
+         ! *call* matfn
+         return
+      endif
+   case(15)
+      G_PT = G_PT-1
    case default
-   write(*,*)'GOT HERE 3 UNEXPECTED:R=',R
+      call mat_err(22)
+      return
    end select
-   write(*,*)'GOT HERE 2 UNEXPECTED:R=',R
-   return
-!.......................................................................
-10 continue
+
    op = 0
-   if (G_SYM .eq. dot) op = doT
+   if (G_SYM .eq. dot) op = dot
    if (G_SYM .eq. dot) call mat_getsym
-   if (.not.(G_SYM.eq.star .or. G_SYM.eq.slash .OR. G_SYM.eq.bslash))then
-      op = op + G_SYM
-      call mat_getsym()
-      if (G_SYM .eq. dot) op = op + G_SYM
-      if (G_SYM .eq. dot) call mat_getsym()
-      G_PT = G_PT+1
-      G_PSTK(G_PT) = op
-      G_RSTK(G_PT) = 9
-      ! *call* factor
+   if (.not.(G_SYM.eq.star .or. G_SYM.eq.slash .or. G_SYM.eq.bslash)) then
       return
    endif
-   return
-!.......................................................................
 
-end subroutine mat_term_DIDNOTWORK
+   op = op + G_SYM
+   call mat_getsym()
+   if (G_SYM .eq. dot)then
+      op = op + G_SYM
+      call mat_getsym()
+   endif
+   G_PT = G_PT+1
+   G_PSTK(G_PT) = op
+   G_RSTK(G_PT) = 9
+   ! *call* factor
+
+end subroutine mat_term
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -9779,19 +9721,39 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       from the integers 1 through N**2 with equal row, column and              ',&
 '       diagonal sums. N must be a positive whole number not equal to two.       ',&
 '                                                                                ',&
-'norm  For matrices..                                                            ',&
+'norm  computes the norm or P-norm of X                                          ',&
 '                                                                                ',&
-'       norm(X)  is the largest singular value of X .                            ',&
-'       norm(X,1)  is the 1-norm of X .                                          ',&
-'       norm(X,2)  is the same as "norm(X)" .                                    ',&
-'       norm(X,''inf'')  is the infinity norm of X .                             ',&
-'       norm(X,''fro'')  is the F-norm, i.e. "sqrt(sum(diag(X''*X)))" .          ',&
+'      norm(X,P) computes the P-norm of X. P=2 is the default, which defines     ',&
+'      the standard norm.                                                        ',&
+'                                                                                ',&
+'      For matrices..                                                            ',&
+'          norm(X,1)      is the 1-norm of X; ie. the largest column sum         ',&
+'                         of X.                                                  ',&
+'                                                                                ',&
+'          norm(X,2)      the largest singular value of X.                       ',&
+'          or norm(X)                                                            ',&
+'                                                                                ',&
+'          norm(X,''inf'')  is the infinity norm of X; ie. the largest row       ',&
+'                         sum of X.                                              ',&
+'                                                                                ',&
+'          norm(X,''fro'')  is the F-norm, i.e. "sqrt(sum(diag(X''*X)))" .       ',&
 '                                                                                ',&
 '      For vectors..                                                             ',&
+'          norm(V,P)      the same as sum(V(I)**P)**(1/P) .                      ',&
+'                         ??? what about negative values of (I) and odd P? abs() or not',&
 '                                                                                ',&
-'       norm(V,P) = (sum(V(I)**P))**(1/P) .                                      ',&
-'       norm(V) = norm(V,2) .                                                    ',&
-'       norm(V,''inf'') = max(abs(V(I))) .                                       ',&
+'          norm(V,2)      the square root of the sum of the squares of           ',&
+'          or norm(V)     the entries of V.                                      ',&
+'                                                                                ',&
+'          norm(V,''inf'')  the value is max(abs(V)) .                           ',&
+'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',&
+'!!          If X is a vector, then                                              ',&
+'!!                                                                              ',&
+'!!            norm(x,p) = sum(abs(x) .^ p) ^ (1/p)                              ',&
+'!!            norm(x,1) is the sum of the absolute values of X.                 ',&
+'!!            norm(x)/sqrt(n) is the root-mean-square value.                    ',&
+'!!            norm(x,-inf)=min(abs(x))                                          ',&
+'<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<',&
 '                                                                                ',&
 'ones  All ones. "ones(N)" is an N by N matrix of ones. "ones(M,N)"              ',&
 '      is an M by N matrix of ones . "ones(A)" is the same size as A and         ',&

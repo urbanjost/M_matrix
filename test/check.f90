@@ -123,7 +123,7 @@ subroutine test_magic()
    call mat88( 'b=sum(a);')
    call mat88( &
    & "display(ones(80,1)'*85);       &
-   & if size(a) = [N,N]              &
+   & if size(a) = [N,N],             &
    &    display('magic SIZE OK');    &
    &    tally=[tally,0];             &
    & else,                           &
@@ -336,6 +336,46 @@ subroutine test_if ()
      & 'if sum(tally)=0,display("if PASSED");else,display("if FAILED");tally ', &
      & ''])
 end subroutine test_if
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_norm ()
+   call mat88( "display(ones(80,1)'*46);help norm;display(ones(80,1)'*85)")
+   call mat88( [ character(len=256) :: &
+     &"tally=[0];                                                                                                                ",&
+     &"diary('norm'); long                                                                                                       ",&
+     &"X=magic(5);                                                                                                               ",&
+     &"XX=X(:);                                                                                                                  ",&
+     &"// A is answer, E is expected                                                                                             ",&
+     &"A=norm(XX)      ;E=74.330343736592525    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(X,'inf') ;E=65.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,'inf');E=25.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(X,1)     ;E=65.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(X,2)     ;E=65.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(X,'fro') ;E=74.330343736592525    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,1)    ;E=325.0                 ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,'inf');E=25.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,2)    ;E=74.330343736592525    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,3)    ;E=47.270359729914041    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,1/2)  ;E=7.333144324200370d+03 ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,1/3)  ;E=1.757406593784711d+05 ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(-XX,3)   ;E=47.270359729914041    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(-XX,-3)  ;E=0.940699519035135     ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(-XX,1/3) ;E=1.757406593784711d+05 ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"if sum(tally)=0,display('norm PASSED');else,display('norm FAILED')                                                        ",&
+     &"display(tally);                                                                                                           ",&
+     &"quit                                                                                                                      ",&
+     &"//==============================================================================                                          ",&
+     &"// YOU SHOULD GET THE FOLLOWING ERROR MESSAGE                                                                             ",&
+     &"// norm(-X,-3)                                                                                                            ",&
+     &"//              /\--ERROR:Only 1, 2 or INF norm of matrix                                                                 ",&
+     &"//==============================================================================                                          ",&
+     &"// MACROS DID NOT WORK, ACTED LIKE ELSE COMMANDS NOT PRESENT 20210510                                                     ",&
+     &"//T= 'if abs(A - E)  =     0, display(''PASSED''),else,display(''FAILED''),A,E,A-E,eps,abs(A/E)-1';                       ",&
+     &"//T= 'if abs(A - E) <=   eps, display(''PASSED''),else,display(''FAILED''),A,E,A-E,eps,abs(A/E)-1';                       ",&
+     &"//T= 'if abs(A/E)-1 <= 2*eps, display(''PASSED''),else,display(''FAILED''),A,E,A-E,eps,abs(A/E)-1';                       ",&
+     &"display(T)                                                                                                                ",&
+     &"//==============================================================================                                          ",&
+     &""])
+end subroutine test_norm
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_ans ()
    call mat88( "display(ones(80,1)'*46)")
@@ -789,19 +829,6 @@ subroutine test_lu ()
      & 'if sum(tally)=0,display("lu PASSED");else,display("lu FAILED");tally ', &
      & ''])
 end subroutine test_lu
-!-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_norm ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help norm')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("norm PASSED");else,display("norm FAILED");tally ', &
-     & ''])
-end subroutine test_norm
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_orth ()
    call mat88( "display(ones(80,1)'*46)")
