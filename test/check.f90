@@ -430,6 +430,64 @@ subroutine test_load ()
      & ''])
 end subroutine test_load
 !-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_invh ()
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'help invh')
+   call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '// generate the Hilbert matrix of order N.                               ', &
+     & 'N=5                                                                      ', &
+     & 'for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);                            ', &
+     & '// generate the inverse Hilbert matrix                                   ', &
+     & 'C=invh(N);                                                               ', &
+     & 'expected=[                                                               ', &
+     & '   25     -300     1050    -1400      630;                               ', &
+     & ' -300     4800   -18900    26880   -12600;                               ', &
+     & ' 1050   -18900    79380  -117600    56700;                               ', &
+     & '-1400    26880  -117600   179200   -88200;                               ', &
+     & '  630   -12600    56700   -88200    44100;                               ', &
+     & '];                                                                       ', &
+     & '                                                                         ', &
+     & 'if C=expected, tally=[tally,0];display("inverse Hilbert PASSED");else,tally=[tally,1];display("inverse Hilbert FAILED");', &
+     & 'if sum(tally)=0,display("invh PASSED");else,display("invh FAILED");tally ', &
+     & ''])
+end subroutine test_invh
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_kron ()
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'help kron')
+   call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & 'lines(888888)                                                            ', &
+     & '//  C = Kronecker product of A and B                                     ', &
+     & 'A=rand(4);                                                               ', &
+     & 'B=rand(4);                                                               ', &
+     & '// ==========================================                            ', &
+     & '// first, the hard way                                                   ', &
+     & '[m, n] = size(A);                                                        ', &
+     & 'for i = 1:m, ...                                                         ', &
+     & '   ci = A(i,1)*B; ...                                                    ', &
+     & '   for j = 2:n, ci = [ci A(i,j)*B]; end ...                              ', &
+     & '   if i = 1, C = ci; else, C = [C; ci];                                  ', &
+     & '// ==========================================                            ', &
+     & '// then the easy ways                                                    ', &
+     & 'D=kron(A,B);                                                             ', &
+     & 'E=A .*. B;                                                               ', &
+     & '// ==========================================                            ', &
+     & '// subtract the values from the expected results                         ', &
+     & '// and sum the deltas. Could just compare C to E                         ', &
+     & '// and C to D, of course.                                                ', &
+     & 'S1=sum(abs(C-E))                                                         ', &
+     & 'S2=sum(abs(C-D))                                                         ', &
+     & '                                                                         ', &    
+     & 'if S1=0, tally=[tally,0];display("kron(A,B) check PASSED");else,tally=[tally,1];display("kron(A,B) check FAILED");  ', &
+     & 'if S2=0, tally=[tally,0];display("A .*. B check PASSED");else,tally=[tally,1];display("A .*. B check FAILED");      ', &
+     & 'if sum(tally)=0,display("kron PASSED");else,display("kron FAILED");tally ', &
+     & ''])
+end subroutine test_kron
+!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_ans ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help ans')
@@ -764,30 +822,6 @@ subroutine test_imag ()
      & ''])
 end subroutine test_imag
 !-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_invh ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help invh')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '// generate the Hilbert matrix of order N.                               ', &
-     & 'N=5                                                                      ', &
-     & 'for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);                            ', &
-     & '// generate the inverse Hilbert matrix                                   ', &
-     & 'C=invh(N);                                                               ', &
-     & 'expected=[                                                               ', &
-     & '   25     -300     1050    -1400      630;                               ', &
-     & ' -300     4800   -18900    26880   -12600;                               ', &
-     & ' 1050   -18900    79380  -117600    56700;                               ', &
-     & '-1400    26880  -117600   179200   -88200;                               ', &
-     & '  630   -12600    56700   -88200    44100;                               ', &
-     & '];                                                                       ', &
-     & '                                                                         ', &
-     & 'if C=expected, tally=[tally,0];display("inverse Hilbert PASSED");else,tally=[tally,1];display("inverse Hilbert FAILED");', &
-     & 'if sum(tally)=0,display("invh PASSED");else,display("invh FAILED");tally ', &
-     & ''])
-end subroutine test_invh
-!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_inv ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help inv')
@@ -800,19 +834,6 @@ subroutine test_inv ()
      & 'if sum(tally)=0,display("inv PASSED");else,display("inv FAILED");tally ', &
      & ''])
 end subroutine test_inv
-!-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_kron ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help kron')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("kron PASSED");else,display("kron FAILED");tally ', &
-     & ''])
-end subroutine test_kron
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_lala ()
    call mat88( "display(ones(80,1)'*46)")
