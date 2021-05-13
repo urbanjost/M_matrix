@@ -579,8 +579,6 @@ subroutine test_diary ()
    call mat88( [ character(len=256) :: &
      & '                                                                         ', &
      & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
      & 'if sum(tally)=0,display("diary PASSED");else,display("diary FAILED");tally ', &
      & ''])
 end subroutine test_diary
@@ -772,9 +770,20 @@ subroutine test_invh ()
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
      & '                                                                         ', &
+     & '// generate the Hilbert matrix of order N.                               ', &
+     & 'N=5                                                                      ', &
+     & 'for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);                            ', &
+     & '// generate the inverse Hilbert matrix                                   ', &
+     & 'C=invh(N);                                                               ', &
+     & 'expected=[                                                               ', &
+     & '   25     -300     1050    -1400      630;                               ', &
+     & ' -300     4800   -18900    26880   -12600;                               ', &
+     & ' 1050   -18900    79380  -117600    56700;                               ', &
+     & '-1400    26880  -117600   179200   -88200;                               ', &
+     & '  630   -12600    56700   -88200    44100;                               ', &
+     & '];                                                                       ', &
      & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if C=expected, tally=[tally,0];display("inverse Hilbert PASSED");else,tally=[tally,1];display("inverse Hilbert FAILED");', &
      & 'if sum(tally)=0,display("invh PASSED");else,display("invh FAILED");tally ', &
      & ''])
 end subroutine test_invh

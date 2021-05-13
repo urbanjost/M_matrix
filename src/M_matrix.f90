@@ -9680,19 +9680,22 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      idea of the accuracy can be obtained by comparing X**1 with X .           ',&
 '      For vector arguments, the function is applied to each component.          ',&
 '                                                                                ',&
-'atan  atan(X) is the arctangent of X . See HIGH .                               ',&
+'atan  atan(X) is the arctangent of X . See "BASIC" .                            ',&
 '                                                                                ',&
-'cos   cos(X) is the cosine of X . See HIGH .                                    ',&
+'cos   cos(X) is the cosine of X . See "BASIC" .                                 ',&
 '                                                                                ',&
-'exp   exp(X) is the exponential of X , e to the X . See HIGH.                   ',&
+'exp   exp(X) is the exponential of X , e to the X . See "BASIC".                ',&
 '                                                                                ',&
-'log   log(X) is the natural logarithm of X. See HIGH.                           ',&
+'log   log(X) is the natural logarithm of X.                                     ',&
+'                                                                                ',&
 '      Complex results are produced if X is not positive, or has                 ',&
 '      nonpositive eigenvalues.                                                  ',&
 '                                                                                ',&
-'sin   sin(X) is the sine of X. See HIGH.                                        ',&
+'      See "BASIC".                                                              ',&
 '                                                                                ',&
-'sqrt  sqrt(X) is the square root of X. See HIGH. Complex                        ',&
+'sin   sin(X) is the sine of X. See "BASIC".                                     ',&
+'                                                                                ',&
+'sqrt  sqrt(X) is the square root of X. See "BASIC". Complex                     ',&
 '      results are produced if X is not positive, or has                         ',&
 '      nonpositive eigenvalues.                                                  ',&
 '================================================================================',&
