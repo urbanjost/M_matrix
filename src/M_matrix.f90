@@ -1490,7 +1490,7 @@ integer :: ia
 integer :: ib
 integer :: ja
 integer :: jb
-integer :: l
+integer :: location
 integer :: la
 integer :: lb
 integer :: ld
@@ -1515,7 +1515,7 @@ character(len=GG_LINELEN) :: string_buf
    if (G_DEBUG_LEVEL .eq. 1) call journal('sc','*MATFN6* ',G_FIN)
 
 
-   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 
@@ -1526,10 +1526,10 @@ character(len=GG_LINELEN) :: string_buf
    FUN6: select case(G_FIN)
 !===================================================================================================================================
    case(1) ! COMMAND::MAGIC
-      N = MAX(int(G_STACK_REALS(L)),0)
+      N = MAX(int(G_STACK_REALS(location)),0)
       IF (N .EQ. 2) N = 0
-      IF (N .GT. 0) call mat_magic(G_STACK_REALS(L),N,N)
-      call mat_rset(N*N,0.0D0,G_STACK_IMAGS(L),1)
+      IF (N .GT. 0) call mat_magic(G_STACK_REALS(location),N,N)
+      call mat_rset(N*N,0.0D0,G_STACK_IMAGS(location),1)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
 !===================================================================================================================================
@@ -1539,40 +1539,40 @@ character(len=GG_LINELEN) :: string_buf
          return
       endif
       G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
-      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       MA = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       NA = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      LA = L + MAX(M*N*MA*NA,M*N+MA*NA)
+      LA = location + MAX(M*N*MA*NA,M*N+MA*NA)
       LB = LA + MA*NA
 
       if(too_much_memory(LB + M*N - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
 
 !     MOVE A AND B ABOVE RESULT
-      call mat_wcopy(MA*NA+M*N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LA),G_STACK_IMAGS(LA),1)
+      call mat_wcopy(MA*NA+M*N,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(LA),G_STACK_IMAGS(LA),1)
       DO JA = 1, NA
         DO J = 1, N
           LJ = LB + (J-1)*M
           DO IA = 1, MA
 !           GET J-TH COLUMN OF B
-            call mat_wcopy(M,G_STACK_REALS(LJ),G_STACK_IMAGS(LJ),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+            call mat_wcopy(M,G_STACK_REALS(LJ),G_STACK_IMAGS(LJ),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
 !           ADDRESS OF A(IA,JA)
             LS = LA + IA-1 + (JA-1)*MA
             DO I = 1, M
 !             A(IA,JA) OP B(I,J)
               IF (G_FIN .EQ. 11) &
               call mat_wmul( G_STACK_REALS(LS), G_STACK_IMAGS(LS), &
-                             G_STACK_REALS(L),  G_STACK_IMAGS(L),  &
-                             G_STACK_REALS(L),  G_STACK_IMAGS(L))
+                             G_STACK_REALS(location),  G_STACK_IMAGS(location),  &
+                             G_STACK_REALS(location),  G_STACK_IMAGS(location))
               IF (G_FIN .EQ. 12) &
               call mat_wdiv( G_STACK_REALS(LS), G_STACK_IMAGS(LS), &
-                             G_STACK_REALS(L),  G_STACK_IMAGS(L),  &
-                             G_STACK_REALS(L),  G_STACK_IMAGS(L))
+                             G_STACK_REALS(location),  G_STACK_IMAGS(location),  &
+                             G_STACK_REALS(location),  G_STACK_IMAGS(location))
               IF (G_FIN .EQ. 13)  &
-              call mat_wdiv( G_STACK_REALS(L),  G_STACK_IMAGS(L),  &
+              call mat_wdiv( G_STACK_REALS(location),  G_STACK_IMAGS(location),  &
                              G_STACK_REALS(LS), G_STACK_IMAGS(LS), &
-                             G_STACK_REALS(L),  G_STACK_IMAGS(L))
+                             G_STACK_REALS(location),  G_STACK_IMAGS(location))
               IF (G_ERR .GT. 0) return
-              L = L + 1
+              location = location + 1
             ENDDO
           enddo
         enddo
@@ -1590,7 +1590,7 @@ character(len=GG_LINELEN) :: string_buf
       enddo
       eps0 = 2.0d0*eps0
 
-      G_FLOP_COUNTER(2) = int(G_STACK_REALS(L))
+      G_FLOP_COUNTER(2) = int(G_STACK_REALS(location))
       if (G_SYM .ne. SEMI) then
          write(message,'(''CHOP '',I2,'' PLACES.'')') G_FLOP_COUNTER(2)
          call journal(message)
@@ -1613,12 +1613,12 @@ character(len=GG_LINELEN) :: string_buf
       si = 0.0d0
       mn = m*n
       do i = 1, mn
-         ls = l+i-1
+         ls = location+i-1
          sr = mat_flop(SR+G_STACK_REALS(LS))
          si = mat_flop(SI+G_STACK_IMAGS(LS))
       enddo
-      G_STACK_REALS(l) = sr
-      G_STACK_IMAGS(l) = si
+      G_STACK_REALS(location) = sr
+      G_STACK_IMAGS(location) = si
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
@@ -1627,11 +1627,11 @@ character(len=GG_LINELEN) :: string_buf
       SI = 0.0D0
       MN = M*N
       DO I = 1, MN
-         LS = L+I-1
+         LS = location+I-1
          call mat_wmul(G_STACK_REALS(LS),G_STACK_IMAGS(LS),SR,SI,SR,SI)
       enddo
-      G_STACK_REALS(L) = SR
-      G_STACK_IMAGS(L) = SI
+      G_STACK_REALS(location) = SR
+      G_STACK_IMAGS(location) = SI
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
@@ -1645,33 +1645,33 @@ character(len=GG_LINELEN) :: string_buf
       ! results in a call with M = 1, N = 1 and A(1,1) = "float(K)".
 
       if(G_RHS.gt.2)then
-         t = G_STACK_REALS(L)
+         t = G_STACK_REALS(location)
       else
          t = 0.0D0
       endif
 
       if(G_RHS.eq.2)then
-         s = G_STACK_REALS(L)
+         s = G_STACK_REALS(location)
       else
          s = 0.0D0
       endif
 
       G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-      l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 
-      call mat88_user(G_STACK_REALS(L),m,n,s,t)
-      call mat_rset(M*N,0.0D0,G_STACK_IMAGS(l),1)
+      call mat88_user(G_STACK_REALS(location),m,n,s,t)
+      call mat_rset(M*N,0.0D0,G_STACK_IMAGS(location),1)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
 !===================================================================================================================================
    case(10) ! COMMAND::SIZE
       ! store the two output values onto stack
-      G_STACK_REALS(L) = M
-      G_STACK_IMAGS(L) = 0.0D0
-      G_STACK_REALS(L+1) = N
-      G_STACK_IMAGS(L+1) = 0.0D0
+      G_STACK_REALS(location) = M
+      G_STACK_IMAGS(location) = 0.0D0
+      G_STACK_REALS(location+1) = N
+      G_STACK_IMAGS(location+1) = 0.0D0
       if(G_LHS.eq.1)then
          ! output is a 1x2 array so store values indicating the size of the new stack value
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
@@ -1682,7 +1682,7 @@ character(len=GG_LINELEN) :: string_buf
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
-         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L+1
+         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location+1
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       endif
@@ -1692,16 +1692,16 @@ character(len=GG_LINELEN) :: string_buf
                  ! COMMAND::TRIU=15
       k = 0
       if (G_RHS .eq. 2) then
-         k = int(G_STACK_REALS(l))
+         k = int(G_STACK_REALS(location))
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-         l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
          n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       endif
 
       if (G_FIN .ge. 14) then ! COMMAND::TRIL, COMMAND::TRIU
             do j = 1, n
-               ld = l + j - k - 1 + (j-1)*m
+               ld = location + j - k - 1 + (j-1)*m
                select case(G_FIN)
                case(14)
                         ll = j - k - 1
@@ -1715,7 +1715,7 @@ character(len=GG_LINELEN) :: string_buf
       elseif (m .eq. 1 .or. n .eq. 1) then
          n = max(m,n)+iabs(k)
 
-         if(too_much_memory( l+n*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
+         if(too_much_memory( location+n*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
 
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
@@ -1725,9 +1725,9 @@ character(len=GG_LINELEN) :: string_buf
                i = n+1-ib
                sr = 0.0d0
                si = 0.0d0
-               if (k.ge.0) ls = l+i-1
-               if (k.lt.0) ls = l+j-1
-               ll = l+i-1+(j-1)*n
+               if (k.ge.0) ls = location+i-1
+               if (k.lt.0) ls = location+j-1
+               ll = location+i-1+(j-1)*n
                if (j-i .eq. k) sr = G_STACK_REALS(ls)
                if (j-i .eq. k) si = G_STACK_IMAGS(ls)
                G_STACK_REALS(LL) = sr
@@ -1741,9 +1741,9 @@ character(len=GG_LINELEN) :: string_buf
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
          if (mn .le. 0) exit FUN6
          do i = 1, mn
-            if (k.ge.0) ls = l+(i-1)+(i+k-1)*m
-            if (k.lt.0) ls = l+(i-k-1)+(i-1)*m
-            ll = l+i-1
+            if (k.ge.0) ls = location+(i-1)+(i+k-1)*m
+            if (k.lt.0) ls = location+(i-k-1)+(i-1)*m
+            ll = location+i-1
             G_STACK_REALS(ll) = G_STACK_REALS(ls)
             G_STACK_IMAGS(ll) = G_STACK_IMAGS(ls)
          enddo
@@ -1757,16 +1757,16 @@ character(len=GG_LINELEN) :: string_buf
       if (.not.(m.gt.1 .or. G_RHS.eq.0)) then
 
          if (G_RHS .eq. 2) then
-            nn = int(G_STACK_REALS(L))
+            nn = int(G_STACK_REALS(location))
             G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-            l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+            location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
             n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
          endif
 
          if (G_FIN.eq.7.and.n.lt.GG_MAX_NAME_LENGTH)then        ! a call to RAND might be RAND('UNIFORM'|'SEED'|'NORMAL')
             id=blank
             do i = 1, min(GG_MAX_NAME_LENGTH,n)  ! in case it is one of these words store it in the ID array to test if it matches
-               ls = l+i-1
+               ls = location+i-1
                id(i) = int(G_STACK_REALS(ls))
             enddo
             if(mat_eqid(id,unifor).or.mat_eqid(id,normal))then ! SWITCH UNIFORM AND NORMAL(if a matrix just happens to match, a bug)
@@ -1775,7 +1775,7 @@ character(len=GG_LINELEN) :: string_buf
                exit FUN6
             elseif (mat_eqid(id,seed)) then                     ! if a matrix just happens to match "seed" , a bug)
                if (G_RHS .eq. 2) G_CURRENT_RANDOM_SEED = nn
-               G_STACK_REALS(l) = G_CURRENT_RANDOM_SEED
+               G_STACK_REALS(location) = G_CURRENT_RANDOM_SEED
                G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
                if (G_RHS .eq. 2) G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
                G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
@@ -1784,11 +1784,11 @@ character(len=GG_LINELEN) :: string_buf
          endif
 
          if (n .le. 1) then
-            m = max(int(G_STACK_REALS(l)),0)
+            m = max(int(G_STACK_REALS(location)),0)
             if (G_RHS .eq. 2) n = max(nn,0)
             if (G_RHS .ne. 2) n = m
 
-            if(too_much_memory( l+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED))) return
+            if(too_much_memory( location+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED))) return
 
             G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
             G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
@@ -1800,7 +1800,7 @@ character(len=GG_LINELEN) :: string_buf
       do j = 1, n
          do i = 1, m
 
-           ll = l+i-1+(j-1)*m             ! location to place value
+           ll = location+i-1+(j-1)*m             ! location to place value
 
            G_STACK_IMAGS(ll) = 0.0d0      ! all of these functions set imaginary values to zero
 
@@ -1841,7 +1841,7 @@ character(len=GG_LINELEN) :: string_buf
       character(len=GG_LINELEN)    :: varname
       character(len=:),allocatable :: env_value
       allocate(character(len=0)    :: answers(0) )
-      write(*,*)'GOT HERE A: M=',M,' N=',N,' G_RHS=',G_RHS,' L=',L
+      write(*,*)'GOT HERE A: M=',M,' N=',N,' G_RHS=',G_RHS,' location=',location
       ! sort out what to do with an array of input later, for now concatenating into one string
       if (m.lt.1 .or. G_RHS.eq.0)then
          call journal('sc','<ERROR>GETENV:NEEDS AN ARGUMENT:ROWS=',m,' ARG_COUNT=',G_RHS)
@@ -1854,7 +1854,7 @@ character(len=GG_LINELEN) :: string_buf
          return
       endif
 
-      ll=l
+      ll=location
       do j=1,m
          id=blank
          id(1:n)=int(G_STACK_REALS(ll:ll+N-1))
@@ -1876,16 +1876,16 @@ character(len=GG_LINELEN) :: string_buf
 
       m=size(answers,dim=1)
       n=len(answers)
-      if(too_much_memory( l+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
+      if(too_much_memory( location+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       if (m*n .eq. 0) exit FUN6
 
-      write(*,*)'GOT HERE D:M=',m,' N=',n,'L=',L
-      ! so starting at G_STACK_REALS(l) convert the characters to numbers and store the M x N number of characters
+      write(*,*)'GOT HERE D:M=',m,' N=',n,'location=',location
+      ! so starting at G_STACK_REALS(location) convert the characters to numbers and store the M x N number of characters
       do j = 1, n
          do i = 1, m
-           ll = l+i-1+(j-1)*m             ! location to place value
+           ll = location+i-1+(j-1)*m             ! location to place value
            G_STACK_IMAGS(ll) = 0.0d0      ! all of these functions set imaginary values to zero
            nn=index(G_DEFINE_CHARSET,answers(m)(j:j))
            if(nn.gt.0)then
@@ -1904,8 +1904,8 @@ character(len=GG_LINELEN) :: string_buf
       integer :: time_values(8)
       ! store the two output values onto stack
       call date_and_time(values=time_values)
-      G_STACK_REALS(L:L+8-1) = dble(time_values)
-      G_STACK_IMAGS(L:L+8-1) = 0.0D0
+      G_STACK_REALS(location:location+8-1) = dble(time_values)
+      G_STACK_IMAGS(location:location+8-1) = 0.0D0
       ! output is a 1x8 array so store values indicating the size of the new stack value
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 8
@@ -2343,7 +2343,7 @@ doubleprecision   :: pi(12)
 integer           :: sig(12)
 integer           :: typ
 integer           :: f
-integer           :: l,m,n,mn
+integer           :: location,m,n,mn
 integer           :: ks
 integer           :: i
 integer           :: ios
@@ -2368,7 +2368,7 @@ integer           :: itype
 !.......................................................................
    if (G_LINECOUNT(1) .lt. 0) goto 99
 !.......................................................................
-   l = G_STACK_ID_LOC(k)
+   location = G_STACK_ID_LOC(k)
    m = G_STACK_ROWS(k)
    n = G_STACK_COLS(k)
    mn = m*n
@@ -2376,7 +2376,7 @@ integer           :: itype
    s = 0.0d0
    itype=-9999
    do i = 1, mn
-      ls = l+i-1
+      ls = location+i-1
       tr = G_STACK_REALS(ls)
       ti = G_STACK_IMAGS(ls)
       s = dmax1(s,dabs(tr),dabs(ti))
@@ -2460,7 +2460,7 @@ integer           :: itype
       do i = 1, m
          jm = j2-j1+1
          do j = 1, jm
-            ls = l+i-1+(j+j1-2)*m
+            ls = location+i-1+(j+j1-2)*m
             pr(j) = G_STACK_REALS(ls)/s
             pi(j) = dabs(G_STACK_IMAGS(ls)/s)
             sig(j) = G_CHARSET(plus+1)
@@ -2733,7 +2733,7 @@ integer           :: op
 integer,parameter :: quote=49
 integer           :: i
 integer           :: j
-integer           :: l
+integer           :: location
 integer           :: ll
 integer           :: ls
 integer           :: m
@@ -2741,27 +2741,27 @@ integer           :: mn
 integer           :: n
 
    if (G_DEBUG_LEVEL .eq. 1) call journal('sc','mat_stack1 ',op)
-   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    mn = m*n
    if (mn .eq. 0) then
    elseif (op .ne. quote) then                                 ! unary minus
-      call mat_wrscal(MN,-1.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      call mat_wrscal(MN,-1.0D0,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
    else                                                        ! transpose
-      ll = l + mn
+      ll = location + mn
 
       if(too_much_memory( ll+mn - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
 
-      call mat_wcopy(MN,G_STACK_REALS(L),G_STACK_IMAGS(l),1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),1)
+      call mat_wcopy(MN,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),1)
       M = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       do i = 1, m
          do j = 1, n
-            ls = l+mn+(j-1)+(i-1)*n
-            ll = l+(i-1)+(j-1)*m
+            ls = location+mn+(j-1)+(i-1)*n
+            ll = location+(i-1)+(j-1)*m
             G_STACK_REALS(ll) = G_STACK_REALS(ls)
             G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ls)
          enddo
@@ -2890,7 +2890,7 @@ integer             :: ib
 integer             :: j
 integer             :: k
 integer             :: km1
-integer             :: l
+integer             :: location
 integer             :: l1
 integer             :: l2
 integer             :: li
@@ -2930,7 +2930,7 @@ integer             :: nt
 
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-   if (m .gt. 0) l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   if (m .gt. 0) location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
 
    if (m .lt. 0) then
       call mat_err(14)
@@ -2964,7 +2964,7 @@ integer             :: nt
    endif
    mt = mk
    nt = nk
-   lt = l + mn
+   lt = location + mn
 
    if(too_much_memory( lt + mnk - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
@@ -3014,7 +3014,7 @@ integer             :: nt
    G_STACK_ROWS(k) = m
    G_STACK_COLS(k) = n
    lk = G_STACK_ID_LOC(k)
-   call mat_wcopy(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
+   call mat_wcopy(mn,G_STACK_REALS(location),G_STACK_IMAGS(location),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
    goto 90
 !===================================================================================================================================
 !
@@ -3062,7 +3062,7 @@ integer             :: nt
       return
    endif
    lk = G_STACK_ID_LOC(k)
-   call mat_wcopy(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
+   call mat_wcopy(mn,G_STACK_REALS(location),G_STACK_IMAGS(location),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
    goto 90
 !===================================================================================================================================
 60 continue
@@ -3114,7 +3114,7 @@ integer             :: nt
          lj = l2+j-1
          if (m2 .gt. 0) lj = l2 + int(G_STACK_REALS(lj)) - 1
          ll = lk+li-l1+(lj-l2)*mk
-         ls = l+i-1+(j-1)*m
+         ls = location+i-1+(j-1)*m
          G_STACK_REALS(ll) = G_STACK_REALS(ls)
          G_STACK_IMAGS(ll) = G_STACK_IMAGS(ls)
       enddo
@@ -3218,7 +3218,7 @@ integer            :: ierr
 integer            :: ilen
 integer            :: j
 integer            :: k
-integer            :: l
+integer            :: location
 integer            :: ls
 integer            :: n
 character(len=:),allocatable :: symbol
@@ -3389,10 +3389,10 @@ character(len=:),allocatable :: symbol
       G_LINE_POINTER(1) = k + 4
 !     transfer stack to input line
       k = G_LINE_POINTER(1)
-      l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       n = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       do j = 1, n
-         ls = l + j-1
+         ls = location + j-1
          G_LIN(k) = int(G_STACK_REALS(ls))
          if (G_LIN(k).lt.0 .or. G_LIN(k).ge.G_CHARSET_SIZE) call mat_err(37) ! improper MACROS
          if (G_ERR .gt. 0) return
@@ -3876,7 +3876,7 @@ integer           :: j
 integer           :: k
 integer           :: ka
 integer           :: kb
-integer           :: l
+integer           :: location
 integer           :: l2
 integer           :: l3
 integer           :: li
@@ -3893,7 +3893,7 @@ integer           :: nn
 !
    IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN1* ', G_FIN)
 !
-   L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 !===================================================================================================================================
@@ -3932,14 +3932,14 @@ integer           :: nn
          endif
          do i = 1, m
             do j = 1, n
-               ls = l+i-1+(j-1)*m
+               ls = location+i-1+(j-1)*m
                ll = l3+j-1
                G_STACK_REALS(ll) = G_STACK_REALS(ls)
                G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ls)
             enddo
             call ml_wgesl(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_BUF,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
             do j = 1, n
-               ll = l+i-1+(j-1)*m
+               ll = location+i-1+(j-1)*m
                ls = l3+j-1
                G_STACK_REALS(ll) = G_STACK_REALS(ls)
                G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ls)
@@ -3948,25 +3948,25 @@ integer           :: nn
          if (G_FUN .ne. 21) goto 99
    !
    !     CHECK FOR IMAGINARY ROUNDOFF IN MATRIX FUNCTIONS
-         sr(1) = mat_wasum(n*n,G_STACK_REALS(l),G_STACK_REALS(l),1)
-         si(1) = mat_wasum(n*n,G_STACK_IMAGS(l),G_STACK_IMAGS(l),1)
+         sr(1) = mat_wasum(n*n,G_STACK_REALS(location),G_STACK_REALS(location),1)
+         si(1) = mat_wasum(n*n,G_STACK_IMAGS(location),G_STACK_IMAGS(location),1)
          eps = G_STACK_REALS(G_BIGMEM-4)
          t = eps*sr(1)
          if (G_DEBUG_LEVEL .eq. 18)then
             WRITE(G_OUTPUT_LUN,'('' SR,SI,EPS,T'',1P4D13.4)') SR(1),SI(1),EPS,T ! debug 18
          endif
-         if (si(1) .le. eps*sr(1)) call mat_rset(n*n,0.0d0,G_STACK_IMAGS(l),1)
+         if (si(1) .le. eps*sr(1)) call mat_rset(n*n,0.0d0,G_STACK_IMAGS(location),1)
          goto 99
    !
       endif
 
-      sr(1) = G_STACK_REALS(l)
-      si(1) = G_STACK_IMAGS(l)
+      sr(1) = G_STACK_REALS(location)
+      si(1) = G_STACK_IMAGS(location)
       n = n2
       m = n
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-      call mat_wcopy(n*n,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+      call mat_wcopy(n*n,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
 !===================================================================================================================================
     case(-2) ! MATRIX LEFT DIVISION A BACKSLASH A2
       l2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
@@ -3979,7 +3979,7 @@ integer           :: nn
 
          if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-         call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+         call ml_wgeco(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
          if (rcond .eq. 0.0d0) call mat_err(19)
          if (G_err .gt. 0) return
          t = mat_flop(1.0d0 + rcond)
@@ -3993,10 +3993,10 @@ integer           :: nn
          if (G_err .gt. 0) return
          do j = 1, n2
             lj = l2+(j-1)*m2
-            call ml_wgesl(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,G_STACK_REALS(lj),G_STACK_IMAGS(lj),0)
+            call ml_wgesl(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,G_STACK_REALS(lj),G_STACK_IMAGS(lj),0)
          enddo
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n2
-         call mat_wcopy(m2*n2,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+         call mat_wcopy(m2*n2,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
          goto 99
       endif
       sr(1) = G_STACK_REALS(l2)
@@ -4012,23 +4012,23 @@ integer           :: nn
       if (G_DEBUG_LEVEL .ne. 17) then
          do j = 1, n
             do i = 1, n
-               ls = l+i-1+(j-1)*n
+               ls = location+i-1+(j-1)*n
                t0 = G_STACK_REALS(ls)
                t1 = mat_flop(1.0d0/(dble(i+j-1)))
                if (t0 .ne. t1) goto 32
             enddo
          enddo
-         call mat_inverse_hilbert(G_STACK_REALS(l),n,n)
-         call mat_rset(n*n,0.0d0,G_STACK_IMAGS(l),1)
-         if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+         call mat_inverse_hilbert(G_STACK_REALS(location),n,n)
+         call mat_rset(n*n,0.0d0,G_STACK_IMAGS(location),1)
+         if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(location),G_STACK_IMAGS(location),1)
          goto 99
       endif
 32    continue
-      l3 = l + n*n
+      l3 = location + n*n
 
       if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+      call ml_wgeco(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
       if (rcond .eq. 0.0d0) call mat_err(19)
       if (G_err .gt. 0) return
       t = mat_flop(1.0d0 + rcond)
@@ -4038,15 +4038,15 @@ integer           :: nn
          write(mline,'(''results may be inaccurate. rcond='',1pd13.4)') rcond
          call journal(mline)
       endif
-      call ml_wgedi(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,dtr,dti,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
-      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+      call ml_wgedi(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,dtr,dti,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
+      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(location),G_STACK_IMAGS(location),1)
 !===================================================================================================================================
     case (2) ! COMMAND::DET
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call ml_wgefa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,info)
+      call ml_wgefa(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,info)
       !SUBROUTINE ML_WGEDI(ar,ai,LDA,N,ipvt,detr,deti,workr,worki,JOB)
-      call ml_wgedi(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,dtr,dti,sr(1),si(1),10)
+      call ml_wgedi(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,dtr,dti,sr(1),si(1),10)
       k = int(dtr(2))
       ka = iabs(k)+2
       t = 1.0d0
@@ -4054,8 +4054,8 @@ integer           :: nn
          t = t/10.0d0
          if (t .ne. 0.0d0) goto 42
       enddo
-      G_STACK_REALS(l) = dtr(1)*10.d0**k
-      G_STACK_IMAGS(l) = dti(1)*10.d0**k
+      G_STACK_REALS(location) = dtr(1)*10.d0**k
+      G_STACK_IMAGS(location) = dti(1)*10.d0**k
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       goto 99
@@ -4067,10 +4067,10 @@ integer           :: nn
          write(mline,44) dtr(1),dti(1),k
          call journal(mline)
       endif
-      G_STACK_REALS(l) = dtr(1)
-      G_STACK_IMAGS(l) = dti(1)
-      G_STACK_REALS(l+1) = dtr(2)
-      G_STACK_IMAGS(l+1) = 0.0d0
+      G_STACK_REALS(location) = dtr(1)
+      G_STACK_IMAGS(location) = dti(1)
+      G_STACK_REALS(location+1) = dtr(2)
+      G_STACK_IMAGS(location+1) = 0.0d0
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 2
 43    format(' det =  ',f7.4,7h * 10**,i4)
@@ -4079,20 +4079,20 @@ integer           :: nn
     case(3) ! COMMAND::RCOND
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      l3 = l + n*n
+      l3 = location + n*n
 
       if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call ml_wgeco(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
-      G_STACK_REALS(l) = rcond
-      G_STACK_IMAGS(l) = 0.0d0
+      call ml_wgeco(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+      G_STACK_REALS(location) = rcond
+      G_STACK_IMAGS(location) = 0.0d0
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       if (G_lhs .ne. 1)then
-         l = l + 1
-         call mat_wcopy(n,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+         location = location + 1
+         call mat_wcopy(n,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
-         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l
+         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       endif
@@ -4100,22 +4100,22 @@ integer           :: nn
     case(4) ! COMMAND::LU
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call ml_wgefa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_BUF,info)
+      call ml_wgefa(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,info)
       if (G_lhs .ne. 2) goto 99
       nn = n*n
       if (G_BOTTOM_OF_SCRATCH_IN_USE+1 .ge. G_TOP_OF_SAVED) call mat_err(18)
       if (G_err .gt. 0) return
       G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
-      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l + nn
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location + nn
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
 
-      if(too_much_memory( l+nn+nn - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( location+nn+nn - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
       do kb = 1, n
          k = n+1-kb
          do i = 1, n
-            ll = l+i-1+(k-1)*n
+            ll = location+i-1+(k-1)*n
             lu = ll + nn
             if (i .le. k) G_STACK_REALS(lu) = G_STACK_REALS(ll)
             if (i .le. k) G_STACK_IMAGS(lu) = G_STACK_IMAGS(ll)
@@ -4130,39 +4130,39 @@ integer           :: nn
          enddo
          i = G_BUF(k)
          if (i .eq. k) cycle
-         li = l+i-1+(k-1)*n
-         lk = l+k-1+(k-1)*n
+         li = location+i-1+(k-1)*n
+         lk = location+k-1+(k-1)*n
          call mat_wswap(n-k+1,G_STACK_REALS(li),G_STACK_IMAGS(li),n,G_STACK_REALS(lk),G_STACK_IMAGS(lk),n)
       enddo
 !===================================================================================================================================
     case(5) ! COMMAND::inverse_hilbert
-      n = int(G_STACK_REALS(l))
+      n = int(G_STACK_REALS(location))
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-      call mat_inverse_hilbert(G_STACK_REALS(l),n,n)
-      call mat_rset(n*n,0.0d0,G_STACK_IMAGS(l),1)
-      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+      call mat_inverse_hilbert(G_STACK_REALS(location),n,n)
+      call mat_rset(n*n,0.0d0,G_STACK_IMAGS(location),1)
+      if (G_fin .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(location),G_STACK_IMAGS(location),1)
 !===================================================================================================================================
     case(6) ! COMMAND::CHOLESKY
       if (m .ne. n) call mat_err(20)
       if (G_err .gt. 0) return
-      call mat_wpofa(G_STACK_REALS(l),G_STACK_IMAGS(l),m,n,G_err)
+      call mat_wpofa(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_err)
       if (G_err .ne. 0) call mat_err(29)
       if (G_err .gt. 0) return
       do j = 1, n
-         ll = l+j+(j-1)*m
+         ll = location+j+(j-1)*m
          call mat_wset(m-j,0.0d0,0.0d0,G_STACK_REALS(ll),G_STACK_IMAGS(ll),1)
       enddo
 !===================================================================================================================================
     case(7) ! COMMAND::RREF
       if (G_rhs .ge. 2)then
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-         l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .ne. m) call mat_err(5)
          if (G_err .gt. 0) return
          n = n + G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       endif
-      call mat_rref(G_STACK_REALS(l),G_STACK_IMAGS(l),m,m,n,G_STACK_REALS(G_BIGMEM-4))
+      call mat_rref(G_STACK_REALS(location),G_STACK_IMAGS(location),m,m,n,G_STACK_REALS(G_BIGMEM-4))
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
 !===================================================================================================================================
    end select
@@ -4473,7 +4473,7 @@ integer         :: j
 integer         :: jb
 integer         :: job
 integer         :: k
-integer         :: l
+integer         :: location
 integer         :: l1
 integer         :: l2
 integer         :: ld
@@ -4492,7 +4492,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
    if (G_DEBUG_LEVEL .eq. 1) call journal('sc','*MATFN3* ', G_FIN)
 !
    if (G_fin.eq.1 .and. G_rhs.eq.2) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    mn = m*n
@@ -4501,13 +4501,13 @@ doubleprecision :: p,s,t(1,1),tol,eps
    FUN3: select case(G_fin)
 !===================================================================================================================================
     case(3) ! COMMAND::COND
-      ld = l + m*n
+      ld = location + m*n
       l1 = ld + min(m+1,n)
       l2 = l1 + n
 
       if(too_much_memory( l2+min(m,n) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l),   &
+      call ml_wsvdc(G_STACK_REALS(location),G_STACK_IMAGS(location),   &
                   & m,m,n,                               &
                   & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
                   & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
@@ -4520,8 +4520,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
       ld = ld + min(m,n) - 1
       t(1,1) = G_STACK_REALS(ld)
       if (t(1,1) .ne. 0.0d0) then
-         G_STACK_REALS(l) = mat_flop(s/t(1,1))
-         G_STACK_IMAGS(l) = 0.0d0
+         G_STACK_REALS(location) = mat_flop(s/t(1,1))
+         G_STACK_IMAGS(location) = 0.0d0
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       else
@@ -4535,13 +4535,13 @@ doubleprecision :: p,s,t(1,1),tol,eps
       inf = .false.
 
       if (G_rhs .eq. 2)then
-         fro = int(G_STACK_REALS(l)).eq.15 .and. mn.gt.1
-         inf = int(G_STACK_REALS(l)).eq.18 .and. mn.gt.1
+         fro = int(G_STACK_REALS(location)).eq.15 .and. mn.gt.1
+         inf = int(G_STACK_REALS(location)).eq.18 .and. mn.gt.1
          if (.not. fro) then
-            p = G_STACK_REALS(l)
+            p = G_STACK_REALS(location)
          endif
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-         l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
          n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
          mn = m*n
@@ -4557,14 +4557,14 @@ doubleprecision :: p,s,t(1,1),tol,eps
          if (INF)then
             s = 0.0d0
             do i = 1, m
-               li = l+i-1
+               li = location+i-1
                t(1,1) = mat_wasum(n,G_STACK_REALS(LI),G_STACK_IMAGS(li),m)
                s = dmax1(s,t(1,1))
             enddo
          elseif (p .eq. 1.0d0) then
             s = 0.0d0
             do j = 1, n
-               lj = l+(j-1)*m
+               lj = location+(j-1)*m
                t(1,1) = mat_wasum(m,G_STACK_REALS(LJ),G_STACK_IMAGS(lj),1)
                s = dmax1(s,t(1,1))
             enddo
@@ -4572,7 +4572,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
             call mat_err(23)
             return
          else
-            ld = l + m*n
+            ld = location + m*n
             l1 = ld + min(m+1,n)
             l2 = l1 + n
 
@@ -4580,7 +4580,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
                return
             endif
 
-            call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l), &
+            call ml_wsvdc(G_STACK_REALS(location),G_STACK_IMAGS(location), &
                         & m,m,n, &
                         & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
                         & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
@@ -4597,17 +4597,17 @@ doubleprecision :: p,s,t(1,1),tol,eps
          endif
 
       elseif (p .eq. 1.0d0)then
-         s = mat_wasum(MN,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+         s = mat_wasum(MN,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
       elseif (p .eq. 2.0d0) then
-         s = mat_wnrm2(MN,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+         s = mat_wnrm2(MN,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
       else
-         i = mat_iwamax(mn,G_STACK_REALS(l),G_STACK_IMAGS(l),1) + l - 1
+         i = mat_iwamax(mn,G_STACK_REALS(location),G_STACK_IMAGS(location),1) + location - 1
          s = dabs(G_STACK_REALS(i)) + dabs(G_STACK_IMAGS(i))
 
          if (.not.(inf .or. s .eq. 0.0d0))then
             t(1,1) = 0.0d0
             do i = 1, mn
-               ls = l+i-1
+               ls = location+i-1
                t(1,1) = mat_flop(t(1,1) + (mat_pythag(G_STACK_REALS(ls),G_STACK_IMAGS(ls))/s)**p)
             enddo
             if (p .ne. 0.0d0) then
@@ -4617,8 +4617,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
          endif
       endif
 
-      G_STACK_REALS(l) = s
-      G_STACK_IMAGS(l) = 0.0d0
+      G_STACK_REALS(location) = s
+      G_STACK_IMAGS(location) = 0.0d0
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
@@ -4626,7 +4626,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
       IF (G_LHS .EQ. 3)then
          K = M
          IF (G_RHS .EQ. 2) K = MIN(M,N)
-         LU = L + M*N
+         LU = location + M*N
          LD = LU + M*K
          LV = LD + K*N
          L1 = LV + N*N
@@ -4636,7 +4636,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
 
          JOB = 11
          IF (G_RHS .EQ. 2) JOB = 21
-         call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l), &
+         call ml_wsvdc(G_STACK_REALS(location),G_STACK_IMAGS(location), &
          & m,m,n, &
          & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
          & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
@@ -4663,36 +4663,36 @@ doubleprecision :: p,s,t(1,1),tol,eps
          call mat_wcopy(M*K+K*N+N*N, &
                       & G_STACK_REALS(LU),G_STACK_IMAGS(LU), &
                       & 1, &
-                      & G_STACK_REALS(L),G_STACK_IMAGS(L), &
+                      & G_STACK_REALS(location),G_STACK_IMAGS(location), &
                       & 1)
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = K
          IF (G_BOTTOM_OF_SCRATCH_IN_USE+1 .GE. G_TOP_OF_SAVED) call mat_err(18)
          IF (G_ERR .GT. 0) return
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
-         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L + M*K
+         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location + M*K
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = K
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
          IF (G_BOTTOM_OF_SCRATCH_IN_USE+1 .GE. G_TOP_OF_SAVED) call mat_err(18)
          IF (G_ERR .GT. 0) return
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
-         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L + M*K + K*N
+         G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location + M*K + K*N
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       else
-         LD = L + M*N
+         LD = location + M*N
          L1 = LD + MIN(M+1,N)
          L2 = L1 + N
 
          if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-         call ml_wsvdc(G_STACK_REALS(l),G_STACK_IMAGS(l),m,m,n, &
+         call ml_wsvdc(G_STACK_REALS(location),G_STACK_IMAGS(location),m,m,n, &
          & G_STACK_REALS(ld),G_STACK_IMAGS(ld),G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
          & t,t,1,t,t,1,G_STACK_REALS(l2),G_STACK_IMAGS(l2),0,G_err)
          IF (G_ERR .NE. 0) call mat_err(24)
          IF (G_ERR .GT. 0) return
          K = MIN(M,N)
-         call mat_wcopy(K,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+         call mat_wcopy(K,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = K
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       endif
@@ -4700,15 +4700,15 @@ doubleprecision :: p,s,t(1,1),tol,eps
     case(2,5) ! COMMAND::PINV AND RANK
       TOL = -1.0D0
       IF (G_RHS .EQ. 2) then
-         TOL = G_STACK_REALS(L)
+         TOL = G_STACK_REALS(location)
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-         L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
          N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       endif
-      LU = L + M*N
+      LU = location + M*N
       LD = LU + M*M
-      IF (G_FIN .EQ. 5) LD = L + M*N
+      IF (G_FIN .EQ. 5) LD = location + M*N
       LV = LD + M*N
       L1 = LV + N*N
       IF (G_FIN .EQ. 5) L1 = LD + N
@@ -4718,7 +4718,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
 
       IF (G_FIN .EQ. 2) JOB = 11
       IF (G_FIN .EQ. 5) JOB = 0
-      call ML_WSVDC(G_STACK_REALS(L),G_STACK_IMAGS(L),M,M,N, &
+      call ML_WSVDC(G_STACK_REALS(location),G_STACK_IMAGS(location),M,M,N, &
                   & G_STACK_REALS(LD),G_STACK_IMAGS(LD), &
                   & G_STACK_REALS(L1),G_STACK_IMAGS(L1), &
                   & G_STACK_REALS(LU),G_STACK_IMAGS(LU), &
@@ -4744,7 +4744,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
       if (G_fin .ne. 5) then
          do j = 1, m
             do i = 1, n
-               ll = l+i-1+(j-1)*n
+               ll = location+i-1+(j-1)*n
                l1 = lv+i-1
                l2 = lu+j-1
                G_STACK_REALS(ll) = mat_wdotcr(k,G_STACK_REALS(l2),G_STACK_IMAGS(l2),m,G_STACK_REALS(l1),G_STACK_IMAGS(l1),n)
@@ -4754,8 +4754,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       else
-         G_STACK_REALS(l) = dble(k)
-         G_STACK_IMAGS(l) = 0.0d0
+         G_STACK_REALS(location) = dble(k)
+         G_STACK_IMAGS(location) = 0.0d0
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       endif
@@ -4775,7 +4775,7 @@ integer           :: j
 integer           :: jb
 integer           :: job
 integer           :: k
-integer           :: l
+integer           :: location
 integer           :: l2
 integer           :: l3
 integer           :: l4
@@ -4793,7 +4793,7 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
 !
       IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN4* ', G_FIN)
 !
-      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 
@@ -4816,9 +4816,9 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       call mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) return
       LL = L2+M2*N2
-      call mat_wcopy(M*N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
-      call mat_wcopy(M*N+M2*N2,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
-      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L+M2*N2
+      call mat_wcopy(M*N,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
+      call mat_wcopy(M*N+M2*N2,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location+M2*N2
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       call mat_stack1(QUOTE)
@@ -4861,7 +4861,7 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       DO J = 1, N
         G_BUF(J) = 0
       enddo
-      call ML_WQRDC(G_STACK_REALS(L),G_STACK_IMAGS(L), &
+      call ML_WQRDC(G_STACK_REALS(location),G_STACK_IMAGS(location), &
                   & M,M,N, &
                   & G_STACK_REALS(L4),G_STACK_IMAGS(L4), &
                   & G_BUF, &
@@ -4869,11 +4869,11 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
                   & 1)
       K = 0
       EPS = G_STACK_REALS(G_BIGMEM-4)
-      T(1) = DABS(G_STACK_REALS(L))+DABS(G_STACK_IMAGS(L))
+      T(1) = DABS(G_STACK_REALS(location))+DABS(G_STACK_IMAGS(location))
       TOL = mat_flop(dble(MAX(M,N))*EPS*T(1))
       MN = MIN(M,N)
       DO J = 1, MN
-        LS = L+J-1+(J-1)*M
+        LS = location+J-1+(J-1)*M
         T(1) = DABS(G_STACK_REALS(LS)) + DABS(G_STACK_IMAGS(LS))
         IF (T(1) .GT. TOL) K = J
       enddo
@@ -4884,7 +4884,7 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       MN = MAX(M,N)
       DO J = 1, N2
         LS = L2+(J-1)*MN
-        call ML_WQRSL(G_STACK_REALS(L),G_STACK_IMAGS(L), &
+        call ML_WQRSL(G_STACK_REALS(location),G_STACK_IMAGS(location), &
                         & M,M,K, &
                         & G_STACK_REALS(L4),G_STACK_IMAGS(L4), &
                         & G_STACK_REALS(LS),G_STACK_IMAGS(LS), &
@@ -4913,7 +4913,7 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       enddo
       DO J = 1, N2
         LS = L2+(J-1)*MN
-        LL = L+(J-1)*N
+        LL = location+(J-1)*N
         call mat_wcopy(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
       enddo
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
@@ -4926,14 +4926,16 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
 !
    40 continue
       MM = MAX(M,N)
-      LS = L + MM*MM
-      IF (G_LHS.EQ.1 .AND. G_FIN.EQ.1) LS = L
+      LS = location + MM*MM
+      IF (G_LHS.EQ.1 .AND. G_FIN.EQ.1) LS = location
       LE = LS + M*N
       L4 = LE + MM
 
       if(too_much_memory( L4+MM - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      IF (LS.NE.L) call mat_wcopy(M*N,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1)
+      IF (LS.NE.location) then
+         call mat_wcopy(M*N,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1)
+      endif
       JOB = 1
       IF (G_LHS.LT.3) JOB = 0
       DO J = 1, N
@@ -4946,10 +4948,10 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
        & G_STACK_REALS(LE),G_STACK_IMAGS(LE), &
        & JOB)
       IF (G_LHS.EQ.1 .AND. G_FIN.EQ.1) goto 99
-      call mat_wset(M*M,0.0D0,0.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
-      call mat_wset(M,1.0D0,0.0D0,G_STACK_REALS(L),G_STACK_IMAGS(L),M+1)
+      call mat_wset(M*M,0.0D0,0.0D0,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_wset(M,1.0D0,0.0D0,G_STACK_REALS(location),G_STACK_IMAGS(location),M+1)
       DO J = 1, M
-        LL = L+(J-1)*M
+        LL = location+(J-1)*M
         call ML_WQRSL(G_STACK_REALS(LS),G_STACK_IMAGS(LS),M,M,N,G_STACK_REALS(L4),G_STACK_IMAGS(L4),   &
      &             G_STACK_REALS(LL),G_STACK_IMAGS(LL),G_STACK_REALS(LL),G_STACK_IMAGS(LL),T,T,        &
      &             T,T,T,T,T,T,10000,INFO)
@@ -5004,9 +5006,9 @@ integer             :: ch,top2,ch1(1)
 integer             :: id(GG_MAX_NAME_LENGTH)
 doubleprecision     :: eps,b,s,t,tdum(2)
 logical             :: text
-integer             :: i, j, k, l, m, n
+integer             :: i, j, k, location, m, n
 integer             :: img
-integer             :: job
+integer             :: job, space_left
 integer             :: l2
 integer             :: ll
 integer             :: ls
@@ -5017,9 +5019,10 @@ integer             :: lx
 integer             :: ly
 integer             :: mn
 logical             :: isfound
+integer,parameter   :: hollerith_blank=ichar(' ')+538976304-48
 !
    if (G_DEBUG_LEVEL .eq. 1) call journal('sc','*MATFN5* ',G_FIN)
-   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 
@@ -5029,8 +5032,9 @@ logical             :: isfound
 
    select case(G_fin)
       case(:5,13)
-         ! convert file name
+
          mn = m*n
+
          if (G_SYM .eq. semi)then
             flag = 0
          else
@@ -5038,18 +5042,22 @@ logical             :: isfound
          endif
 
          if (G_RHS .ge. 2) then            ! if more than one parameter on exec('filename',flag) get value of FLAG
-            flag = int(G_STACK_REALS(l))
+            flag = int(G_STACK_REALS(location))
             top2 = G_BOTTOM_OF_SCRATCH_IN_USE
             G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-            l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+            location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
             mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
          endif
-         lun = -1
-         if (mn.eq.1 .and. G_STACK_REALS(l).LT.10.0d0) lun = int(G_STACK_REALS(l))
+
+         if (mn.eq.1 .and. G_STACK_REALS(location).LT.10.0d0)then
+            lun = int(G_STACK_REALS(location))
+         else
+            lun = -1
+         endif
 
          if (lun .lt. 0) then
              do j = 1, GG_LINELEN
-                ls = l+j-1
+                ls = location+j-1
                 if (j .le. mn) ch = int(G_STACK_REALS(ls))
                 if (j .gt. mn) ch = blank
                 if (ch.lt.0 .or. ch.ge.g_charset_size) call mat_err(38)
@@ -5057,6 +5065,7 @@ logical             :: isfound
                 G_BUF(j) = G_CHARSET(ch+1)
              enddo
          endif
+
       case(6:12)
       case default
       end select
@@ -5097,7 +5106,7 @@ logical             :: isfound
       if (G_RHS .eq. 2) k = top2
       if (G_RHS .eq. 2) call mat_putid(G_STACK_IDS(1,k),G_SYN)
       do
-         l = G_STACK_ID_LOC(k)
+         location = G_STACK_ID_LOC(k)
          m = G_STACK_ROWS(k)
          n = G_STACK_COLS(k)
          do i = 1, GG_MAX_NAME_LENGTH
@@ -5105,47 +5114,67 @@ logical             :: isfound
             G_BUF(i) = G_CHARSET(j)
          enddo
          img = 0
-         if (mat_wasum(m*n,G_STACK_IMAGS(l),G_STACK_IMAGS(l),1) .ne. 0.0d0) img = 1
-         if(.not.G_FILE_OPEN_ERROR)call mat_savlod(lunit,G_BUF,m,n,img,0,G_STACK_REALS(l),G_STACK_IMAGS(l))
+         if (mat_wasum(m*n,G_STACK_IMAGS(location),G_STACK_IMAGS(location),1) .ne. 0.0d0) img = 1
+         if(.not.G_FILE_OPEN_ERROR)call mat_savlod(lunit,G_BUF,m,n,img,0,G_STACK_REALS(location),G_STACK_IMAGS(location))
          k = k-1
          if (k .lt. G_TOP_OF_SAVED) exit
       enddo
-      call mat_files(-LUNIT,G_BUF)
-      G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+      call mat_files(-lunit,G_BUF) ! close unit
 !===================================================================================================================================
-      case(3) ! COMMAND::LOAD
-      IF (LUN .LT. 0) LUNIT = 2
-      IF (LUN .LT. 0) call mat_files(LUNIT,G_BUF) ! open the unit
-      IF (LUN .GT. 0) LUNIT = LUN
+      case(3) ! command::load
+
+      if (lun .lt. 0) then
+         lunit = 2
+         call mat_files(LUNIT,G_BUF) ! open the unit
+      elseif (lun .gt. 0) then
+         lunit = lun
+      endif
+
       do
-         JOB = G_STACK_ID_LOC(G_TOP_OF_SAVED) - L
-         IF(.not.G_FILE_OPEN_ERROR)call mat_savlod(LUNIT,ID, &
-                                                 & G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE), &
-                                                 & G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE), &
-                                                 & IMG,JOB, &
-                                                 & G_STACK_REALS(L),G_STACK_IMAGS(L))
-         MN = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-         IF (MN .NE. 0)then
-            IF (IMG .EQ. 0) call mat_rset(MN,0.0D0,G_STACK_IMAGS(L),1)
-            DO I = 1, GG_MAX_NAME_LENGTH
-               J = 0
-               do
-                  J = J+1
-                  IF (ID(I).NE.G_CHARSET(J) .AND. J.LE.BLANK) cycle
-                  exit
+         space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
+         IF(.not.G_FILE_OPEN_ERROR)then
+            call mat_savlod(lunit, &
+                & id, &
+                & G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE), &
+                & G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE), &
+                & img, &
+                & space_left, &
+                & G_STACK_REALS(location), &
+                & G_STACK_IMAGS(location))
+         endif
+
+         mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+
+         if (mn .ne. 0)then
+            if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
+
+            do i = 1, GG_MAX_NAME_LENGTH
+               do j=1,size(G_CHARSET)
+                  if(id(i).eq.hollerith_blank)then
+                     id(i) = blank
+                     exit
+                  elseif (id(i).ne.G_CHARSET(J))then
+                     cycle
+                  else
+                     id(i) = j-1
+                     exit
+                  endif
                enddo
-               ID(I) = J-1
             enddo
-            G_SYM = SEMI
+            G_SYM = semi
             G_RHS = 0
             call MAT_STACK_PUT(ID)
             G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
          else
             exit
          endif
+
       enddo
-      call mat_files(-LUNIT,G_BUF) ! close unit
+
+      call mat_files(-lunit,G_BUF) ! close unit
+
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+
 !===================================================================================================================================
       case(4) ! command::print
       k = G_OUTPUT_LUN                                ! hold
@@ -5153,11 +5182,11 @@ logical             :: isfound
       if (lun .lt. 0) G_OUTPUT_LUN = 7
       if (lun .lt. 0) call mat_files(G_OUTPUT_LUN,G_BUF)
 
-      l = G_LINECOUNT(2)                              ! hold
+      location = G_LINECOUNT(2)                       ! hold
       G_LINECOUNT(2) = 999999                         ! turn off paging of output
       if (G_RHS .gt. 1) call mat_print(G_SYN,top2)
 
-      G_LINECOUNT(2) = l                              ! restore
+      G_LINECOUNT(2) = location                              ! restore
       G_OUTPUT_LUN = k                                ! restore
 
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
@@ -5173,7 +5202,7 @@ logical             :: isfound
       mn = m*n
       text = .true.
       do i = 1, mn
-        ls = l+i-1
+        ls = location+i-1
         ch = int(G_STACK_REALS(LS))
         text = text .and. (ch.ge.0) .and. (ch.lt.G_CHARSET_SIZE)
         text = text .and. (dble(ch).eq.G_STACK_REALS(ls) )
@@ -5181,7 +5210,7 @@ logical             :: isfound
 
       do i = 1, m
          do j = 1, n
-           ls = l+i-1+(j-1)*m
+           ls = location+i-1+(j-1)*m
            if (G_STACK_REALS(ls) .eq. 0.0d0) ch = blank
            if (G_STACK_REALS(ls) .gt. 0.0d0) ch = plus
            if (G_STACK_REALS(ls) .lt. 0.0d0) ch = minus
@@ -5197,22 +5226,22 @@ logical             :: isfound
 !     COMMAND::BASE
    65 CONTINUE
       IF (G_RHS .NE. 2) call mat_err(39) ! Incorrect number of arguments
-      IF (G_STACK_REALS(L) .LE. 1.0D0) call mat_err(36)
+      IF (G_STACK_REALS(location) .LE. 1.0D0) call mat_err(36)
       IF (G_ERR .GT. 0) exit FUN5
-      B = G_STACK_REALS(L)
-      L2 = L
+      B = G_STACK_REALS(location)
+      L2 = location
       G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
       G_RHS = 1
-      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       EPS = G_STACK_REALS(G_BIGMEM-4)
       DO I = 1, M
          LS = L2+(I-1)*N
-         LL = L+I-1
+         LL = location+I-1
          call mat_base(G_STACK_REALS(LL),B,EPS,G_STACK_REALS(LS),N)
       enddo
       call mat_rset(M*N,0.0D0,G_STACK_IMAGS(L2),1)
-      call mat_wcopy(M*N,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      call mat_wcopy(M*N,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
       call mat_stack1(QUOTE)
@@ -5220,31 +5249,31 @@ logical             :: isfound
 !===================================================================================================================================
       case(8)
 !     COMMAND::LINES
-      G_LINECOUNT(2) = int(G_STACK_REALS(L))
+      G_LINECOUNT(2) = int(G_STACK_REALS(location))
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(9) !     COMMAND::CHAR
-      K = IABS(int(G_STACK_REALS(L)))
+      K = IABS(int(G_STACK_REALS(location)))
       IF (M*N.NE.1 .OR. K.GE.G_CHARSET_SIZE) call mat_err(36)
       IF (G_ERR .GT. 0) exit FUN5
       CH = G_CHARSET(K+1)
-      IF (G_STACK_REALS(L) .LT. 0.0D0) CH = G_ALT_CHARSET(K+1)
+      IF (G_STACK_REALS(location) .LT. 0.0D0) CH = G_ALT_CHARSET(K+1)
       WRITE(mline,'('' REPLACE CHARACTER '',A1)') CHAR(CH)
       call journal(mline)
       READ(G_INPUT_LUN,'(A1)') CH_CHAR
       call mat_str2buf(ch_char,ch1,1); ch=ch1(1)
-      IF (G_STACK_REALS(L) .GE. 0.0D0) G_CHARSET(K+1) = CH
-      IF (G_STACK_REALS(L) .LT. 0.0D0) G_ALT_CHARSET(K+1) = CH
+      IF (G_STACK_REALS(location) .GE. 0.0D0) G_CHARSET(K+1) = CH
+      IF (G_STACK_REALS(location) .LT. 0.0D0) G_ALT_CHARSET(K+1) = CH
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(10) !     COMMAND::PLOT
       IF (G_RHS .GE. 2) goto 82
       N = M*N
       DO I = 1, N
-         LL = L+I-1
+         LL = location+I-1
          G_STACK_IMAGS(LL) = dble(I)
       enddo
-      call mat_plot(G_OUTPUT_LUN,G_STACK_IMAGS(L),G_STACK_REALS(L),N,TDUM,0)
+      call mat_plot(G_OUTPUT_LUN,G_STACK_IMAGS(location),G_STACK_REALS(location),N,TDUM,0)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       exit FUN5
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -5259,15 +5288,15 @@ logical             :: isfound
       IF (G_ERR .GT. 0) exit FUN5
       LX = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       LY = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
-      IF (G_RHS .GT. 3) L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+2)
-      call mat_plot(G_OUTPUT_LUN,G_STACK_REALS(LX),G_STACK_REALS(LY),N,G_STACK_REALS(L),K)
+      IF (G_RHS .GT. 3) location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+2)
+      call mat_plot(G_OUTPUT_LUN,G_STACK_REALS(LX),G_STACK_REALS(LY),N,G_STACK_REALS(location),K)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(11) ! COMMAND::RAT
       if (G_rhs .ne. 2) then
          mn = m*n
-         l2 = l
-         if (G_lhs .eq. 2) l2 = l + mn
+         l2 = location
+         if (G_lhs .eq. 2) l2 = location + mn
          lw = l2 + mn
 
          if(too_much_memory( lw + lrat - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
@@ -5276,24 +5305,24 @@ logical             :: isfound
          G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l2
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-         call mat_rset(G_lhs*mn,0.0d0,G_STACK_IMAGS(l),1)
+         call mat_rset(G_lhs*mn,0.0d0,G_STACK_IMAGS(location),1)
          do i = 1, mn
-            call mat_rat(G_STACK_REALS(l),lrat,mrat,s,t,G_STACK_REALS(lw))
-            G_STACK_REALS(l) = s
+            call mat_rat(G_STACK_REALS(location),lrat,mrat,s,t,G_STACK_REALS(lw))
+            G_STACK_REALS(location) = s
             G_STACK_REALS(l2) = t
-            if (G_lhs .eq. 1) G_STACK_REALS(l) = mat_flop(s/t)
-            l = l + 1
+            if (G_lhs .eq. 1) G_STACK_REALS(location) = mat_flop(s/t)
+            location = location + 1
             l2 = l2 + 1
          enddo
       else
-         mrat = int(G_STACK_REALS(l))
-         lrat = int(G_STACK_REALS(l-1))
+         mrat = int(G_STACK_REALS(location))
+         lrat = int(G_STACK_REALS(location-1))
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       endif
 !===================================================================================================================================
       case(12) !     COMMAND::DEBUG
-      G_DEBUG_LEVEL = int(G_STACK_REALS(L))
+      G_DEBUG_LEVEL = int(G_STACK_REALS(location))
       call journal('sc',' DEBUG ',G_DEBUG_LEVEL)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
@@ -5314,7 +5343,7 @@ integer,intent(in)  :: id(GG_MAX_NAME_LENGTH)
 integer             :: i
 integer             :: j
 integer             :: k
-integer             :: l
+integer             :: location
 integer             :: l2
 integer             :: l3
 integer             :: li
@@ -5348,12 +5377,12 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
    current_location = G_STACK_ID_LOC(K)                               ! found it, so this is the location where the data begins
    IF (G_RHS .EQ. 1) then                                             ! VECT(ARG)
       IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .EQ. 0) goto 99
-      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       MN = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       MNK = G_STACK_ROWS(K)*G_STACK_COLS(K)                            ! number of values in this variable
       IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .LT. 0) MN = MNK
       DO I = 1, MN
-        LL = L+I-1
+        LL = location+I-1
         LS = current_location+I-1
         IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .GT. 0) LS = current_location + int(G_STACK_REALS(LL)) - 1
         IF (LS .LT. current_location .OR. LS .GE. current_location+MNK) call mat_err(21)          ! Subscript out of range
@@ -5368,7 +5397,7 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       goto 99
    elseif (G_RHS .EQ. 2) then                                              ! MATRIX(ARG,ARG)
       G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-      L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1) .EQ. 0) G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .EQ. 0) goto 99
       L2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
@@ -5381,11 +5410,11 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       MNK = G_STACK_ROWS(K)*G_STACK_COLS(K)
       DO J = 1, N
          DO I = 1, M
-           LI = L+I-1
-           IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .GT. 0) LI = L + int(G_STACK_REALS(LI)) - 1
+           LI = location+I-1
+           IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .GT. 0) LI = location + int(G_STACK_REALS(LI)) - 1
            LJ = L2+J-1
            IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1) .GT. 0) LJ = L2 + int(G_STACK_REALS(LJ)) - 1
-           LS = current_location + LI-L + (LJ-L2)*MK
+           LS = current_location + LI-location + (LJ-L2)*MK
            IF (LS.LT.current_location .OR. LS.GE.current_location+MNK) call mat_err(21)
            IF (G_ERR .GT. 0) return
            LL = L3 + I-1 + (J-1)*M
@@ -5394,7 +5423,7 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
          enddo
       enddo
       MN = M*N
-      call mat_wcopy(MN,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      call mat_wcopy(MN,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       goto 99
@@ -5402,9 +5431,9 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       call mat_err(21)                                                     ! Subscript out of range
       IF (G_ERR .GT. 0) return
    else                                                                    ! SCALAR
-      L = 1
+      location = 1
       IF (G_BOTTOM_OF_SCRATCH_IN_USE .GT. 0) &
-        & L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) + &
+        & location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) + &
         & G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       IF (G_BOTTOM_OF_SCRATCH_IN_USE+1 .GE. G_TOP_OF_SAVED) call mat_err(18)  ! Too many names
       IF (G_ERR .GT. 0) return
@@ -5412,12 +5441,12 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
 
       !  LOAD VARIABLE TO TOP OF STACK
-      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = L
+      G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_ROWS(K)
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = G_STACK_COLS(K)
       MN = G_STACK_ROWS(K)*G_STACK_COLS(K)
 
-      if(too_much_memory( L+MN - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( location+MN - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
       !  IF RAND, MATFN6 GENERATES RANDOM NUMBER
       IF (K .EQ. GG_MAX_NUMBER_OF_NAMES) then
@@ -5425,7 +5454,12 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
          G_FUN = 6
          return
       endif
-      call mat_wcopy(MN,G_STACK_REALS(current_location),G_STACK_IMAGS(current_location),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      call mat_wcopy(MN,G_STACK_REALS(current_location),   &
+                        & G_STACK_IMAGS(current_location), &
+                        & 1,                               &
+                        & G_STACK_REALS(location),         &
+                        & G_STACK_IMAGS(location),         &
+                        & 1)
    endif
 
 99 continue
@@ -5449,7 +5483,7 @@ integer           ::  k
 integer           ::  k1
 integer           ::  k2
 integer           ::  kexp
-integer           ::  l
+integer           ::  location
 integer           ::  l1
 integer           ::  l2
 integer           ::  l3
@@ -5470,7 +5504,7 @@ integer           :: op_select
    m2 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n2 = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    G_FUN = 0
@@ -5492,9 +5526,9 @@ integer           :: op_select
          n = n2
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-         sr = G_STACK_REALS(l)
-         si = G_STACK_IMAGS(l)
-         call mat_wcopy(m*n,G_STACK_REALS(l+1),G_STACK_IMAGS(l+1),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+         sr = G_STACK_REALS(location)
+         si = G_STACK_IMAGS(location)
+         call mat_wcopy(m*n,G_STACK_REALS(location+1),G_STACK_IMAGS(location+1),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
          call finish()
          exit DO_OP
       endif
@@ -5516,7 +5550,7 @@ integer           :: op_select
          call mat_err(8)
          exit DO_OP
       endif
-      call matX_waxpy(m*n,1.0d0,0.0d0,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+      call matX_waxpy(m*n,1.0d0,0.0d0,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (MINUS) ! SUBTRACTION
       if (m .lt. 0) then
@@ -5528,10 +5562,10 @@ integer           :: op_select
          n = n2
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-         sr = G_STACK_REALS(l)
-         si = G_STACK_IMAGS(l)
-         call mat_wcopy(m*n,G_STACK_REALS(l+1),G_STACK_IMAGS(l+1),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
-         call mat_wrscal(m*n,-1.0d0,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+         sr = G_STACK_REALS(location)
+         si = G_STACK_IMAGS(location)
+         call mat_wcopy(m*n,G_STACK_REALS(location+1),G_STACK_IMAGS(location+1),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+         call mat_wrscal(m*n,-1.0d0,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
          call finish()
          exit DO_OP
       endif
@@ -5554,7 +5588,7 @@ integer           :: op_select
          call mat_err(9)
          exit DO_OP
       endif
-      call matX_waxpy(M*N,-1.0D0,0.0D0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(L),G_STACK_IMAGS(L),1)
+      call matX_waxpy(M*N,-1.0D0,0.0D0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (STAR) ! MULTIPLICATION
       if (m2*m2*n2 .eq. 1) goto 10
@@ -5565,16 +5599,16 @@ integer           :: op_select
          exit do_op
       endif
       mn = m*n2
-      ll = l + mn
+      ll = location + mn
 
       if(too_much_memory( ll+m*n+m2*n2 - G_STACK_ID_LOC(G_TOP_OF_SAVED)) ) exit do_op
 
-      call mat_wcopy(m*n+m2*n2,G_STACK_REALS(l),G_STACK_IMAGS(l),-1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),-1)
+      call mat_wcopy(m*n+m2*n2,G_STACK_REALS(location),G_STACK_IMAGS(location),-1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),-1)
       do j = 1, n2
          do i = 1, m
-            k1 = l + mn + (i-1)
+            k1 = location + mn + (i-1)
             k2 = l2 + mn + (j-1)*m2
-            k = l + (i-1) + (j-1)*m
+            k = location + (i-1) + (j-1)*m
             G_STACK_REALS(k) = mat_wdotur(N,G_STACK_REALS(k1),G_STACK_IMAGS(k1),m,G_STACK_REALS(k2),G_STACK_IMAGS(k2),1)
             G_STACK_IMAGS(k) = mat_wdotui(N,G_STACK_REALS(k1),G_STACK_IMAGS(k1),m,G_STACK_REALS(k2),G_STACK_IMAGS(k2),1)
          enddo
@@ -5586,18 +5620,18 @@ integer           :: op_select
    10 continue
       sr = G_STACK_REALS(l2)
       si = G_STACK_IMAGS(l2)
-      l1 = l
+      l1 = location
       goto 13
    11 continue
-      sr = G_STACK_REALS(l)
-      si = G_STACK_IMAGS(l)
-      l1 = l+1
+      sr = G_STACK_REALS(location)
+      si = G_STACK_IMAGS(location)
+      l1 = location+1
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m2
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n2
    13 continue
       mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       call mat_wscal(mn,sr,si,G_STACK_REALS(l1),G_STACK_IMAGS(l1),1)
-      if (l1.ne.l) call mat_wcopy(mn,G_STACK_REALS(l1),G_STACK_IMAGS(l1),1,G_STACK_REALS(l),G_STACK_IMAGS(l),1)
+      if (l1.ne.location) call mat_wcopy(mn,G_STACK_REALS(l1),G_STACK_IMAGS(l1),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (-DSTAR) ! POWER
       IF (M2*N2 .NE. 1) call mat_err(30)
@@ -5621,15 +5655,15 @@ integer           :: op_select
 
       if(too_much_memory( L2+MN+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)) ) exit do_op
 
-      call mat_wcopy(MN,G_STACK_REALS(L),G_STACK_IMAGS(L),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
+      call mat_wcopy(MN,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
       L3 = L2+MN
       DO KEXP = 2, NEXP
          DO J = 1, N
-            LS = L+(J-1)*N
+            LS = location+(J-1)*N
             call mat_wcopy(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1)
             DO I = 1, N
                LS = L2+I-1
-               LL = L+I-1+(J-1)*N
+               LL = location+I-1+(J-1)*N
                G_STACK_REALS(LL)=mat_wdotur(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),N,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1)
                G_STACK_IMAGS(LL)=mat_wdotui(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),N,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1)
             enddo
@@ -5648,7 +5682,7 @@ integer           :: op_select
       si = G_STACK_IMAGS(l2)
       mn = m*n
       do i = 1, mn
-         ll = l+i-1
+         ll = location+i-1
          call mat_wdiv(G_STACK_REALS(ll),G_STACK_IMAGS(ll),sr,si,G_STACK_REALS(ll),G_STACK_IMAGS(ll))
          if (G_ERR .gt. 0) exit
       enddo
@@ -5661,13 +5695,13 @@ integer           :: op_select
          G_RHS = 2
          exit DO_OP
       endif
-      SR = G_STACK_REALS(L)
-      SI = G_STACK_IMAGS(L)
+      SR = G_STACK_REALS(location)
+      SI = G_STACK_IMAGS(location)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M2
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N2
       MN = M2*N2
       DO I = 1, MN
-         LL = L+I-1
+         LL = location+I-1
          call mat_wdiv(G_STACK_REALS(LL+1),G_STACK_IMAGS(LL+1),SR,SI,G_STACK_REALS(LL),G_STACK_IMAGS(LL))
          IF (G_ERR .GT. 0) exit
       enddo
@@ -5677,33 +5711,33 @@ integer           :: op_select
       ST = 1.0D0
       N = 0
       IF (G_RHS .GE. 3) then
-         ST = G_STACK_REALS(L)
+         ST = G_STACK_REALS(location)
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
-         L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          IF (ST .EQ. 0.0D0) goto 63
       endif
 
-      E1 = G_STACK_REALS(L)
+      E1 = G_STACK_REALS(location)
       ! CHECK FOR CLAUSE
       IF (G_RSTK(G_PT) .EQ. 3) then
    !     FOR CLAUSE
-         G_STACK_REALS(L) = E1
-         G_STACK_REALS(L+1) = ST
-         G_STACK_REALS(L+2) = E2
+         G_STACK_REALS(location) = E1
+         G_STACK_REALS(location+1) = ST
+         G_STACK_REALS(location+2) = E2
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = -3
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = -1
          exit DO_OP
       endif
 
-      if(too_much_memory( L + MAX(3,int((E2-E1)/ST)) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) ) exit do_op
+      if(too_much_memory( location + MAX(3,int((E2-E1)/ST)) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) ) exit do_op
 
       do
-         IF (ST .GT. 0.0D0 .AND. G_STACK_REALS(L) .GT. E2) exit
-         IF (ST .LT. 0.0D0 .AND. G_STACK_REALS(L) .LT. E2) exit
+         IF (ST .GT. 0.0D0 .AND. G_STACK_REALS(location) .GT. E2) exit
+         IF (ST .LT. 0.0D0 .AND. G_STACK_REALS(location) .LT. E2) exit
          N = N+1
-         L = L+1
-         G_STACK_REALS(L) = E1 + dble(N)*ST
-         G_STACK_IMAGS(L) = 0.0D0
+         location = location+1
+         G_STACK_REALS(location) = E1 + dble(N)*ST
+         G_STACK_IMAGS(location) = 0.0D0
       enddo
 
    63 continue
@@ -5719,7 +5753,7 @@ integer           :: op_select
       endif
       mn = m*n
       do i = 1, mn
-         j = l+i-1
+         j = location+i-1
          k = l2+i-1
          select case(op)
          case(STAR)
@@ -5752,7 +5786,7 @@ integer           :: op_select
 contains
 subroutine finish()
    do i = 1, n
-      ll = l + (i-1)*(n+1)
+      ll = location + (i-1)*(n+1)
       G_STACK_REALS(ll) = mat_flop(G_STACK_REALS(LL)+sr)
       G_STACK_IMAGS(ll) = mat_flop(G_STACK_IMAGS(LL)+si)
    enddo
@@ -5911,7 +5945,7 @@ integer,parameter  :: thenn(GG_MAX_NAME_LENGTH)=[29,17,14,23,36,GG_PAD(2:)]
 integer            :: i
 integer            :: j
 integer            :: kount
-integer            :: l
+integer            :: location
 integer            :: l2
 integer            :: lj
 integer            :: m
@@ -5958,18 +5992,18 @@ integer            :: n
    G_SYM = semi
    G_CHRA = blank
    j = j+1
-   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-   lj = l+(j-1)*m
-   l2 = l + m*n
+   lj = location+(j-1)*m
+   l2 = location + m*n
    if (m .ne. -3) goto 12
-   lj = l+3
+   lj = location+3
    l2 = lj
-   G_STACK_REALS(lj) = G_STACK_REALS(l) + dble(j-1)*G_STACK_REALS(l+1)
+   G_STACK_REALS(lj) = G_STACK_REALS(location) + dble(j-1)*G_STACK_REALS(location+1)
    G_STACK_IMAGS(lj) = 0.0d0
-   if (G_STACK_REALS(l+1).gt.0.0d0 .and. G_STACK_REALS(lj).gt.G_STACK_REALS(l+2)) goto 20
-   if (G_STACK_REALS(l+1).lt.0.0d0 .and. G_STACK_REALS(lj).lt.G_STACK_REALS(l+2)) goto 20
+   if (G_STACK_REALS(location+1).gt.0.0d0 .and. G_STACK_REALS(lj).gt.G_STACK_REALS(location+2)) goto 20
+   if (G_STACK_REALS(location+1).lt.0.0d0 .and. G_STACK_REALS(lj).lt.G_STACK_REALS(location+2)) goto 20
    m = 1
    n = j
 12 continue
@@ -6031,10 +6065,10 @@ integer            :: n
 45 continue
    op = mod(G_PSTK(G_PT),256)
    G_PSTK(G_PT) = G_PSTK(G_PT)/256
-   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE-1)
-   e1 = G_STACK_REALS(l)
-   l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-   e2 = G_STACK_REALS(l)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE-1)
+   e1 = G_STACK_REALS(location)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   e2 = G_STACK_REALS(location)
    G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 2
    if (mat_eqid(G_SYN,do) .or. mat_eqid(G_SYN,thenn)) G_SYM = semi
    if (G_SYM .EQ. COMMA) G_SYM = SEMI
@@ -6232,7 +6266,7 @@ integer           :: r
 integer           :: id(gg_max_name_length)
 integer           :: excnt
 integer           :: i, j, k
-integer           :: l
+integer           :: location
 integer           :: ln
 integer           :: ls
 integer           :: n
@@ -6289,24 +6323,24 @@ integer           :: n
 !
 !     PUT SOMETHING ON THE STACK
 10 continue
-   l = 1
+   location = 1
    IF (G_BOTTOM_OF_SCRATCH_IN_USE .gt. 0) &
-      & l = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) &
+      & location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) &
       & + G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) &
       & * G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    if (G_BOTTOM_OF_SCRATCH_IN_USE+1 .ge. G_TOP_OF_SAVED) call mat_err(18)
    if (G_ERR .gt. 0) return
 
    G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
-   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l
+   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location
    if (G_SYM .eq. QUOTE) goto 15
    if (G_SYM .eq. LESS) goto 20
 !
 !  SINGLE NUMBER, GETSYM STORED IT IN G_STACK_IMAGS
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
-   G_STACK_REALS(L) = G_STACK_IMAGS(G_BIGMEM)
-   G_STACK_IMAGS(L) = 0.0D0
+   G_STACK_REALS(location) = G_STACK_IMAGS(G_BIGMEM)
+   G_STACK_IMAGS(location) = 0.0D0
    call mat_getsym()
    goto 60
 !
@@ -6319,7 +6353,7 @@ integer           :: n
 16 continue
    if (G_CHRA .eq. QUOTE) goto 18
 17 continue
-   ln = l+n
+   ln = location+n
    if (G_CHRA .eq. G_EOL) call mat_err(31)
    if (G_ERR .gt. 0) return
    G_STACK_REALS(LN) = dble(G_CHRA)
@@ -6406,10 +6440,10 @@ integer           :: n
    G_LINE_POINTER(1) = K + 4
 !     TRANSFER STACK TO INPUT LINE
    K = G_LINE_POINTER(1)
-   L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+   location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    DO J = 1, N
-      LS = L + J-1
+      LS = location + J-1
       G_LIN(K) = int(G_STACK_REALS(LS))
       if (G_LIN(k).lt.0 .or. G_LIN(k).ge.G_CHARSET_SIZE) call mat_err(37) ! Improper MACROS
       if (G_ERR .gt. 0) return
@@ -6585,62 +6619,64 @@ end subroutine mat_term
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_savlod(lsave,id,m,n,img,job,xreal,ximag)
+subroutine mat_savlod(lun,id,m,n,img,space_left,xreal,ximag)
 
 ! ident_38="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
 
-integer,intent(in)                :: lsave                                    ! logical unit number
-integer                           :: id(GG_MAX_NAME_LENGTH)                   ! name, format 4a1
-integer                           :: m, n                                     ! dimensions
-integer                           :: img                                      ! nonzero if ximag is nonzero.  returned on a load
-integer                           :: job                                      ! 0 for save, = space available for load
-doubleprecision                   :: xreal(*), ximag(*)                       ! real and optional imaginary parts
+integer,intent(in)                :: lun                                       ! logical unit number
+integer                           :: id(GG_MAX_NAME_LENGTH)                    ! name, format 32a1
+integer                           :: m, n                                      ! dimensions
+integer                           :: img                                       ! nonzero if ximag is nonzero.  returned on a load
+integer                           :: space_left                                ! 0 for save, = space available for load
+doubleprecision                   :: xreal(*), ximag(*)                        ! real and optional imaginary parts
 character(len=GG_MAX_NAME_LENGTH) :: cid
-integer                           :: i,j,k,l
+integer                           :: j,k,l
 integer                           :: ios
 character(len=256)                :: message
-                                                                              ! system dependent formats
-character(len=*),parameter        :: f101 ='(A32,3I4)'                        ! ID, MxN dimensions of ID, imaginary or real flag
-character(len=*),parameter        :: f102 ='(4Z18)'                           ! format for data
+                                                                               ! system dependent formats
+character(len=*),parameter        :: f101 ='(A,3I4)'                           ! ID, MxN dimensions of ID, imaginary or real flag
+character(len=*),parameter        :: f102 ='(4Z18)'                            ! format for data
 
-      if (job .le. 0) then                                                    ! save
-         call mat_buf2str(cid,id,GG_MAX_NAME_LENGTH)                          ! convert ID to a character string
-         write(lsave,f101) cid,m,n,img
+      if (space_left .le. 0) then                                              ! save
+
+         call mat_buf2str(cid,id,GG_MAX_NAME_LENGTH)                           ! convert ID to a character string
+         write(lun,f101) cid,m,n,img
+
          do j = 1, n
             k = (j-1)*m+1
             l = j*m
-            write(lsave,f102) (xreal(i),i=k,l)                                ! real
-            if (img .ne. 0) write(lsave,f102) (ximag(i),i=k,l)                ! imaginary
+            write(lun,f102) xreal(k:l)                                         ! real
+            if (img .ne. 0) write(lun,f102) ximag(k:l)                         ! imaginary
          enddo
 
-      else                                                                    ! load
-         read(lsave,f101,iostat=ios,iomsg=message) cid,m,n,img
+      else                                                                     ! load
+         read(lun,f101,iostat=ios,iomsg=message) cid,m,n,img
          if(ios.ne.0)then
             call journal(message)
-            M=0
-            N=0
+            m=0
+            n=0
          else
-            call mat_str2buf(cid,id,GG_MAX_NAME_LENGTH)                       ! convert character string to an ID
-            if (m*n .gt. job) then
+            call mat_str2buf(cid,id,GG_MAX_NAME_LENGTH)                        ! convert character string to an ID
+            if (m*n .gt. space_left) then
                m=0
                n=0
             else
                do j = 1, n
                   k = (j-1)*m+1
                   l = j*m
-                  read(lsave,f102,iostat=ios,iomsg=message) (xreal(i),i=k,l)  ! real
+                  read(lun,f102,iostat=ios,iomsg=message) xreal(k:l)           ! real
                   if(ios.ne.0)then
                      call journal(message)
-                     M=0
-                     N=0
+                     m=0
+                     n=0
                      exit
-                  else if (img .ne. 0) then
-                  read(lsave,f102,iostat=ios,iomsg=message) (ximag(i),i=k,l)  ! imaginary
-                  if(ios.ne.0)then
-                     M=0
-                     N=0
-                     exit
-                  endif
+                  elseif (img .ne. 0) then
+                     read(lun,f102,iostat=ios,iomsg=message) ximag(k:l)        ! imaginary
+                     if(ios.ne.0)then
+                        m=0
+                        n=0
+                        exit
+                     endif
                   endif
                enddo
             endif
@@ -7077,7 +7113,7 @@ integer,INTENT(OUT)                      :: ierr       ! return with nonzero IER
 doubleprecision,allocatable,intent(out)  :: a(:,:)     ! A is an M by N matrix
 
 integer                      :: id(GG_MAX_NAME_LENGTH)
-integer                      :: i,j,k,l,m,n
+integer                      :: i,j,k,location,m,n
    IERR=0
    G_ERR=0
    ! convert character name to mat88 character set
@@ -7115,15 +7151,15 @@ integer                      :: i,j,k,l,m,n
          N=G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
          if(allocated(a))deallocate(a)
          allocate(a(m,n))
-         l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+         location=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          do i=1,m
             do j=1,n
                if(type.eq.0)then
-                  a(i,j)=G_STACK_REALS(l)       ! type =  0  GET REAL A FROM MAT88,
+                  a(i,j)=G_STACK_REALS(location)       ! type =  0  GET REAL A FROM MAT88,
                else
-                  a(i,j)=G_STACK_IMAGS(l)       ! type =  1  GET IMAGINARY A FROM MAT88,
+                  a(i,j)=G_STACK_IMAGS(location)       ! type =  1  GET IMAGINARY A FROM MAT88,
                endif
-               l=l+1
+               location=location+1
             enddo
          enddo
       endif
@@ -7138,7 +7174,7 @@ contains
 
 subroutine printit()
 character(len=GG_MAX_NAME_LENGTH) :: name
-integer          :: l
+integer          :: location
    write(*,*)repeat('=',80)
    write(*,*)'*MAT88_GET'
    write(*,*)'   varname=',varname
@@ -7149,9 +7185,9 @@ integer          :: l
       write(*,*)'   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       write(*,*)'   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE),M
       write(*,*)'   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE),N
-      l=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,'(3x,*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(L:L+(M*N-1))
-      write(*,'(3x,*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(L:L+(M*N-1))
+      location=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+      write(*,'(3x,*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(location:location+(M*N-1))
+      write(*,'(3x,*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(location:location+(M*N-1))
    endif
    write(*,*)repeat('=',80)
 end subroutine printit
@@ -7160,24 +7196,27 @@ end subroutine mat88_get
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-SUBROUTINE mat88_put(A,CID,JOB,IERR) !JSU
+SUBROUTINE mat88_put(inputarray,varname,JOB,IERR) !JSU
 
 ! ident_41="@(#)M_matrix:: mat88_put(3f): put a variable name and its data onto MAT88 stack"
 
-character(len=*),intent(in) :: cid                    ! the name of A.
-doubleprecision,intent(in)  :: a(:,:)                 ! A is an M by N matrix, stored in an array with leading dimension size_of_a.
-integer,intent(in)          :: job                    !     JOB =  1  put real A from MAT88,
-                                                      !         = 11  put imag part of A into MAT88.
+character(len=*),intent(in) :: varname                ! the name of inputarray.
+doubleprecision,intent(in)  :: inputarray(:,:)        ! inputarray is an M by N matrix
+integer,intent(in)          :: job                    !     JOB =  1  put real inputarray from MAT88,
+                                                      !         = 11  put imag part of inputarray into MAT88.
 integer,intent(out)         :: ierr                   ! return with nonzero ierr after MAT88 error message.
+
+integer                     :: img
+integer                     :: space_left
 integer                     :: id(GG_MAX_NAME_LENGTH) ! ID = name, in numeric format
 integer                     :: i,j,k,location
-integer                     :: m,n,mn                 ! m, n = dimensions
+integer                     :: m,n                    ! m, n = dimensions
 integer                     :: size_of_a
-integer                     :: space_left             ! JOB = SPACE AVAILABLE FOR LOAD
-integer                     :: img
+
    ierr=0
+
    ! convert character name to mat88 character set
-   call mat_str2buf(cid,id,len(cid))
+   call mat_str2buf(varname,id,len(varname))
    do j=1,GG_MAX_NAME_LENGTH
       do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters
          if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
@@ -7185,12 +7224,13 @@ integer                     :: img
          endif
       enddo
    enddo
-      !L = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
+
+      !location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       !M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       !N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      !   JOB = G_STACK_ID_LOC(G_TOP_OF_SAVED) - L
+      !   JOB = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
 
-   write(*,*)'GOT HERE A:G_BOTTOM_OF_SCRATCH_IN_USE:',G_BOTTOM_OF_SCRATCH_IN_USE
+   write(*,*)'GOT HERE inputarray:G_BOTTOM_OF_SCRATCH_IN_USE:',G_BOTTOM_OF_SCRATCH_IN_USE
    if(G_BOTTOM_OF_SCRATCH_IN_USE.ne.0)then
       location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) ! location of bottom of used scratch space
    else
@@ -7198,21 +7238,20 @@ integer                     :: img
      location=1
    endif
 
-   m=size(a,dim=1)
-   n=size(a,dim=2)
+   m=size(inputarray,dim=1)
+   n=size(inputarray,dim=2)
+   size_of_a=size(inputarray)
    space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
-   if (m*n .GT. space_left ) then
+   if (size_of_a .GT. space_left ) then
       m = 0
       n = 0
       call journal('sc','<ERROR>*mat88_put* insufficient space to save data to MAT88')
       return
-   elseif(m*n.eq.0)then
+   elseif(size_of_a.eq.0)then
       return
-   else
-      size_of_a=size(a)
    endif
 
-   !if(all(imag(a).eq.0)then
+   !if(all(imag(inputarray).eq.0)then
    !      img=0  ! all imaginary values are 0
    !else
    !      img=1
@@ -7221,24 +7260,24 @@ integer                     :: img
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=m ! copy to global values
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=n
 
-   location = G_STACK_ID_LOC(G_TOP_OF_SAVED) +1
-   write(*,*)'GOT HERE A:LOCATION:',location
+   location = G_STACK_ID_LOC(G_TOP_OF_SAVED) + 1
+   write(*,*)'GOT HERE inputarray:LOCATION:',location
 
    do i = 1, m
       do j = 1, n
-         G_STACK_REALS(location)=a(i,j)              ! real
+         G_STACK_REALS(location)=inputarray(i,j)              ! real
          if (img .ne. 0) then
-            G_STACK_IMAGS(location)=a(i,j)           ! imaginary
+            G_STACK_IMAGS(location)=inputarray(i,j)           ! imaginary
          endif
          location=location+1
       enddo
    enddo
 
-   mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-   if (mn .ne. 0)then
+   size_of_a = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
+   if (size_of_a .ne. 0)then
       !!------
-      !!if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
-      if (img .eq. 0) G_STACK_IMAGS(location:location+mn-1:1)=0.0d0 ! reset array to zero
+      !!if (img .eq. 0) call mat_rset(size_of_a,0.0d0,G_STACK_IMAGS(location),1)
+      if (img .eq. 0) G_STACK_IMAGS(location:location+size_of_a-1:1)=0.0d0 ! reset array to zero
       !!------
       do i = 1, GG_MAX_NAME_LENGTH
          j = 0
@@ -7263,7 +7302,7 @@ subroutine printit()
 character(len=GG_MAX_NAME_LENGTH) :: name
 integer          :: location
    write(*,*)repeat('=',80)
-   write(*,*)'CID=',CID
+   write(*,*)'varname=',varname
    write(*,*)'ID=',ID(:)
    write(*,*)'G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
    write(*,*)'G_ERR=',G_ERR
@@ -10143,6 +10182,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            ! attach lunit to ''file'', then ...                                ',&
 '            REAL or DOUBLEPRECISION XREAL(MMAX,NMAX)                            ',&
 '            REAL or DOUBLEPRECISION XIMAG(MMAX,NMAX)                            ',&
+'            character(len=32) :: ID                                             ',&
 '            READ(lunit,101) ID,M,N,IMG                                          ',&
 '            DO J = 1, N                                                         ',&
 '               READ(lunit,102) (XREAL(I,J), I=1,M)                              ',&
@@ -10153,9 +10193,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      typical. See SUBROUTINE mat_savlod(3f) in your local implementation       ',&
 '      of MAT88.                                                                 ',&
 '                                                                                ',&
-'        101 FORMAT(4A1,3I4)                                                     ',&
+'        101 FORMAT(A32,3I4)                                                     ',&
 '        102 FORMAT(4Z18)                                                        ',&
-'        102 FORMAT(4O20)                                                        ',&
+'        102 FORMAT(32O20)                                                       ',&
 '        102 FORMAT(4D25.18)                                                     ',&
 '                                                                                ',&
 '================================================================================',&

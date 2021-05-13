@@ -341,7 +341,8 @@ subroutine test_norm ()
    call mat88( "display(ones(80,1)'*46);help norm;display(ones(80,1)'*85)")
    call mat88( [ character(len=256) :: &
      &"tally=[0];                                                                                                                ",&
-     &"diary('norm'); long                                                                                                       ",&
+     &"//diary('norm')                                                                                                           ",&
+     &"long                                                                                                                      ",&
      &"X=magic(5);                                                                                                               ",&
      &"XX=X(:);                                                                                                                  ",&
      &"// A is answer, E is expected                                                                                             ",&
@@ -376,6 +377,58 @@ subroutine test_norm ()
      &"//==============================================================================                                          ",&
      &""])
 end subroutine test_norm
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_save ()
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'help save')
+   call mat88( [ character(len=256) :: &
+     & 'clear                                 // clear out user variables                                             ', &
+     & 'A=magic(4); b=ones(3,4); c=12**2;     // define some variables                                                ', &
+     & 'test_Variable=1234567890;                                                                                     ', &
+     & 'save("saved");                        // save user variables to a file                                        ', &
+     & 'who; clear; who                       // list variables clear and they should be gone                         ', &
+     & 'load("saved")                         // load the variables back in                                           ', &
+     & 'who                                   // should see them now                                                  ', &
+     & 'tally=[0];                            // test they are expected values and sizes                              ', &
+     & 'if A=magic(4),  tally=[tally,0];display("save of A PASSED");else,tally=[tally,1];display("save of A FAILED"); ', &
+     & 'if b=ones(3,4), tally=[tally,0];display("save of b PASSED");else,tally=[tally,1];display("save of b FAILED"); ', &
+     & 'if c=12**2,     tally=[tally,0];display("save of c PASSED");else,tally=[tally,1];display("save of c FAILED"); ', &
+     & 'if test_Variable=1234567890, ...                                                                              ', &
+     & '   tally=[tally,0];...                                                                                        ', &
+     & '   display("save of test_variable PASSED");...                                                                ', &
+     & '   else,...                                                                                                   ', &
+     & '   tally=[tally,1];...                                                                                        ', &
+     & '   display("save of test_variable FAILED");                                                                   ', &
+     & 'end;                                                                                                          ', &
+     & 'if sum(tally)=0,display("save PASSED");else,display("save FAILED");tally                                      ', &
+     & ''])
+end subroutine test_save
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_load ()
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'help load')
+   call mat88( [ character(len=256) :: &
+     & 'clear                                                                                                         ', &
+     & 'A=magic(4); b=ones(3,4); c=12**2;                                                                             ', &
+     & 'test_Variable=1234567890;                                                                                     ', &
+     & 'save("saved");                                                                                                ', &
+     & 'who; clear; who                                                                                               ', &
+     & 'load("saved")                                                                                                 ', &
+     & 'who                                                                                                           ', &
+     & 'tally=[0];                                                                                                    ', &
+     & 'if A=magic(4),  tally=[tally,0];display("load of A PASSED");else,tally=[tally,1];display("load of A FAILED"); ', &
+     & 'if b=ones(3,4), tally=[tally,0];display("load of b PASSED");else,tally=[tally,1];display("load of b FAILED"); ', &
+     & 'if c=12**2,     tally=[tally,0];display("load of c PASSED");else,tally=[tally,1];display("load of c FAILED"); ', &
+     & 'if test_Variable=1234567890, ...                                                                              ', &
+     & '   tally=[tally,0];...                                                                                        ', &
+     & '   display("load of test_variable PASSED");...                                                                ', &
+     & '   else,...                                                                                                   ', &
+     & '   tally=[tally,1];...                                                                                        ', &
+     & '   display("load of test_variable FAILED");                                                                   ', &
+     & 'end;                                                                                                          ', &
+     & 'if sum(tally)=0,display("load PASSED");else,display("load FAILED");tally                                      ', &
+     & ''])
+end subroutine test_load
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_ans ()
    call mat88( "display(ones(80,1)'*46)")
@@ -778,19 +831,6 @@ subroutine test_lines ()
      & ''])
 end subroutine test_lines
 !-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_load ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help load')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("load PASSED");else,display("load FAILED");tally ', &
-     & ''])
-end subroutine test_load
-!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_log ()
    call mat88( "display(ones(80,1)'*46)")
    call mat88( 'help log')
@@ -1024,17 +1064,6 @@ subroutine test_rref ()
      & 'if sum(tally)=0,display("rref PASSED");else,display("rref FAILED");tally ', &
      & ''])
 end subroutine test_rref
-!-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_save ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help save')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("save PASSED");else,display("save FAILED");tally ', &
-     & ''])
-end subroutine test_save
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_schur ()
    call mat88( "display(ones(80,1)'*46)")
