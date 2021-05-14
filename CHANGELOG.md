@@ -6,6 +6,21 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
+**2021-05-14**  John S. Urban  <https://github.com/urbanjost>
+
+### :green_circle: DIFF:
+
+### :green_circle: ADD:
+
+  +  added delete('filename') to allow for erasing scratch files
+
+### :green_circle: FIX:
+
+  +  fixed "save" and "load" use of a filename with uppercase or underscore
+
+
+<!-- ======================================================================== -->
+---
 **2021-05-08**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: ADD:

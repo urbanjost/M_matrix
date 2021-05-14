@@ -1,5 +1,5 @@
 program testit
-use M_matrix, only : mat88, mat88_get, mat88_put
+use M_matrix, only : mat88, get_array_from_mat88, mat88_put
 implicit none
 integer,parameter :: lda=10
 integer           :: m,n, i,j, ierr
@@ -26,6 +26,7 @@ logical           :: logs=.false.
    call test_diary ()   ! diary  "diary('file')" causes a copy of all subsequent terminal input and
    call test_display () ! display  "display(X)" prints X in a compact format.
    call test_doc ()     ! doc   does nothing at the moment
+   call test_delete ()  ! delete delete named file
    call test_eig ()     ! eig   Eigenvalues and eigenvectors.
    call test_else ()    ! else  Used with "if".
    call test_end ()     ! end   Terminates the scope of "for", "while" and "if" statements.
@@ -86,6 +87,7 @@ logical           :: logs=.false.
    call test_who ()     ! who   Lists current variables.
    call test_zeros ()   ! zeros
    call test_general_avg () 
+   call test_general_expr()     ! basic expressions
 !       ! call test_{ ()
 !       ! call test_} ()
 !       ! call test_) () (     ( ) or { } are used to indicate precedence in arithmetic expressions
@@ -385,9 +387,9 @@ subroutine test_save ()
      & 'clear                                 // clear out user variables                                             ', &
      & 'A=magic(4); b=ones(3,4); c=12**2;     // define some variables                                                ', &
      & 'test_Variable=1234567890;                                                                                     ', &
-     & 'save("saved");                        // save user variables to a file                                        ', &
+     & 'save("__saved");                      // save user variables to a file                                        ', &
      & 'who; clear; who                       // list variables clear and they should be gone                         ', &
-     & 'load("saved")                         // load the variables back in                                           ', &
+     & 'load("__saved")                       // load the variables back in                                           ', &
      & 'who                                   // should see them now                                                  ', &
      & 'tally=[0];                            // test they are expected values and sizes                              ', &
      & 'if A=magic(4),  tally=[tally,0];display("save of A PASSED");else,tally=[tally,1];display("save of A FAILED"); ', &
@@ -401,6 +403,7 @@ subroutine test_save ()
      & '   display("save of test_variable FAILED");                                                                   ', &
      & 'end;                                                                                                          ', &
      & 'if sum(tally)=0,display("save PASSED");else,display("save FAILED");tally                                      ', &
+     & 'delete("__saved")                     // delete the scratch file                                              ', &
      & ''])
 end subroutine test_save
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -411,9 +414,9 @@ subroutine test_load ()
      & 'clear                                                                                                         ', &
      & 'A=magic(4); b=ones(3,4); c=12**2;                                                                             ', &
      & 'test_Variable=1234567890;                                                                                     ', &
-     & 'save("saved");                                                                                                ', &
+     & 'save("__saved");                                                                                              ', &
      & 'who; clear; who                                                                                               ', &
-     & 'load("saved")                                                                                                 ', &
+     & 'load("__saved")                                                                                               ', &
      & 'who                                                                                                           ', &
      & 'tally=[0];                                                                                                    ', &
      & 'if A=magic(4),  tally=[tally,0];display("load of A PASSED");else,tally=[tally,1];display("load of A FAILED"); ', &
@@ -427,6 +430,7 @@ subroutine test_load ()
      & '   display("load of test_variable FAILED");                                                                   ', &
      & 'end;                                                                                                          ', &
      & 'if sum(tally)=0,display("load PASSED");else,display("load FAILED");tally                                      ', &
+     & 'delete("__saved")                     // delete the scratch file                                              ', &
      & ''])
 end subroutine test_load
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -653,6 +657,19 @@ subroutine test_display ()
      & 'if sum(tally)=0,display("display PASSED");else,display("display FAILED");tally ', &
      & ''])
 end subroutine test_display
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_delete ()
+   call mat88( "display(ones(80,1)'*46)")
+   call mat88( 'help delete')
+   call mat88( 'tally=[0];')
+   call mat88( [ character(len=256) :: &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     & '                                                                         ', &
+     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
+     & 'if sum(tally)=0,display("delete PASSED");else,display("delete FAILED");tally ', &
+     & ''])
+end subroutine test_delete
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_doc ()
    call mat88( "display(ones(80,1)'*46)")
@@ -1263,6 +1280,28 @@ subroutine test_who ()
      & 'if sum(tally)=0,display("who PASSED");else,display("who FAILED");tally ', &
      & ''])
 end subroutine test_who
+!-----------------------------------------------------------------------------------------------------------------------------------
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_general_expr()
+   !!logs=.true.
+   if(logs)call mat88( 'diary("test_general_expr.log");')
+   call mat88( [ character(len=256) :: &
+   & "display(ones(80,1)'*46);display('general expression tests');                 ", &
+   & 'tally=[0];                                                                   ', &
+   & 'a=3+4;                                                                       ', &
+   & 'b=44-30.0;                                                                   ', &
+   & 'c=7*8;                                                                       ', &
+   & 'd=90/30;                                                                     ', &
+   & 'e=2**8;                                                                      ', &
+   & 'answers=[   a, b, c,d,  e]                                                   ', &
+   & 'expected=[7d0,14,56,3,256]                                                   ', &
+   & 'tally=[tally,answers-expected];                                              ', &
+   & '[rows,cols]=size(tally);                                                     ', &
+   & 'for i=1:cols, if abs(tally(i)) < 2*eps,tally(i)=0;else,tally(i)=1;           ', &
+   & 'if sum(abs(tally)) = 0,display("avg PASSED"),else,display("avg FAILED");tally'])
+   !!logs=.false.
+end subroutine test_general_expr
 !-----------------------------------------------------------------------------------------------------------------------------------
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
