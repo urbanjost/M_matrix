@@ -1,5 +1,5 @@
 program try_matz
-use M_matrix, only : mat88, mat88_get, mat88_put
+use M_matrix, only : mat88, get_array_from_mat88, mat88_put
 implicit none
 integer,parameter :: lda=10
 integer           :: m,n, i,j, ierr
@@ -30,10 +30,10 @@ doubleprecision,allocatable   :: answer(:,:)
       call mat88()
       ! The second call to mat_MATZ will retrieve X .
       ierr=0
-      call mat88_get(answer,'a',0,ierr); call checkit()
-      call mat88_get(answer,'b',0,ierr); call checkit()
-      call mat88_get(answer,'c',0,ierr); call checkit()
-      call mat88_get(answer,'unknown',0,ierr); call checkit()
+      call get_array_from_mat88(answer,'a',0,ierr); call checkit()
+      call get_array_from_mat88(answer,'b',0,ierr); call checkit()
+      call get_array_from_mat88(answer,'c',0,ierr); call checkit()
+      call get_array_from_mat88(answer,'unknown',0,ierr); call checkit()
       ! The next call to mat88() will place you in interactive mode in mat88().
       ! Entering "return" will return back to the main program.
       call mat88()

@@ -88,6 +88,7 @@ logical           :: logs=.false.
    call test_zeros ()   ! zeros
    call test_general_avg () 
    call test_general_expr()     ! basic expressions
+   call test_general_dots()     ! basic expressions
 !       ! call test_{ ()
 !       ! call test_} ()
 !       ! call test_) () (     ( ) or { } are used to indicate precedence in arithmetic expressions
@@ -117,14 +118,14 @@ logical           :: logs=.false.
 contains
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_magic()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help magic')
    call mat88( 'tally=[0];N=10')
    if(logs)call mat88( 'diary("magic.log");')
    call mat88( 'a=magic(N);')
    call mat88( 'b=sum(a);')
    call mat88( &
-   & "display(ones(80,1)'*85);       &
+   & "display(ones(80,1)'*95);       &
    & if size(a) = [N,N],             &
    &    display('magic SIZE OK');    &
    &    tally=[tally,0];             &
@@ -145,7 +146,7 @@ subroutine test_magic()
 end subroutine test_magic
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_ones()
-   call mat88( "display(ones(80,1)'*46); help ones; display(ones(80,1)'*85)")
+   call mat88( "display(ones(80,1)'*61); help ones; display(ones(80,1)'*95)")
    call mat88( 'tally=[0];')
    if(logs)call mat88( 'diary("ones.log");')
    call mat88( 'a=ones(30,40);')
@@ -166,7 +167,7 @@ subroutine test_ones()
 end subroutine test_ones
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_zeros()
-   call mat88( "display(ones(80,1)'*46); help zeros; display(ones(80,1)'*85)")
+   call mat88( "display(ones(80,1)'*61); help zeros; display(ones(80,1)'*95)")
    call mat88( 'tally=[0];')
    if(logs)call mat88( 'diary("zeros.log");')
    call mat88( 'a=zeros(30,40);')
@@ -187,7 +188,7 @@ subroutine test_zeros()
 end subroutine test_zeros
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sum()
-   call mat88( "display(ones(80,1)'*46); help sum; display(ones(80,1)'*85)")
+   call mat88( "display(ones(80,1)'*61); help sum; display(ones(80,1)'*95)")
    call mat88( 'tally=[0];')
    if(logs)call mat88( 'diary("sum.log");')
    call mat88( 'a=<1 2 3; 4 5 6; 7 8 9>;')
@@ -209,7 +210,7 @@ subroutine test_sum()
 end subroutine test_sum
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_abs ()
-   call mat88( "display(ones(80,1)'*46); help abs; display(ones(80,1)'*85)")
+   call mat88( "display(ones(80,1)'*61); help abs; display(ones(80,1)'*95)")
    if(logs)call mat88( 'diary("abs.log");')
    call mat88( [ character(len=256) :: &
      & 'tally=[0];                                                               ', &
@@ -222,10 +223,10 @@ subroutine test_abs ()
 end subroutine test_abs
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_atan ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
-     & "help atan; display(ones(80,1)'*85)", &
+     & "help atan; display(ones(80,1)'*95)", &
      & 'PI=atan(1)*4;A=cos(PI);B=sin(PI);', &
      & 'if A-1<eps,tally=[tally,0];display("test if near PI OK");else,tally=[tally,1];display("test if near PI FAILED");', &
      & 'if B<eps,tally=[tally,0];display("2nd test if near PI OK");else,tally=[tally,1];display("2nd test if near PI FAILED");', &
@@ -234,10 +235,10 @@ subroutine test_atan ()
 end subroutine test_atan
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_cos ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
-     & "help cos; display(ones(80,1)'*85)", &
+     & "help cos; display(ones(80,1)'*95)", &
      & '                                                                         ', &
      & 'PI=atan(1)*4;P=cos(PI);PP=cos(2*PI);Z=cos(0);HP=cos(PI/2);', &
      & 'if abs(HP)<eps,tally=[tally,0];display("HALF-PI OK");else,tally=[tally,1];display("HALF-PI FAILED");', &
@@ -255,8 +256,8 @@ subroutine test_round ()
    call mat88( [ character(len=256) :: &
    '// test round()                                                               ', &
    'clear                                                                         ', &
-   "display(ones(80,1)'*46)                                                       ", &
-   "help round; display(ones(80,1)'*85)                                           ", &
+   "display(ones(80,1)'*61)                                                       ", &
+   "help round; display(ones(80,1)'*95)                                           ", &
    'tally=[0];                                                                    ', &
    'a=magic(10)+rand(10)*ones(10)*0.49;                                           ', &
    'a=magic(5);                // an array of whole numbers                       ', &
@@ -281,12 +282,12 @@ subroutine test_round ()
    '                                                                              ', &
    'if sum(tally)=0,display("round PASSED");else,display("round FAILED")          ', &
    '<M,N>=size(tally)                                                             ', &
-   'display(tally(2:N))                                                           ', &
+   'display(tally(2:N),1)                                                         ', &
    ''])
 end subroutine test_round
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_size ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help size')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -302,7 +303,7 @@ subroutine test_size ()
 end subroutine test_size
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_hess ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help hess')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -319,9 +320,9 @@ end subroutine test_hess
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_if ()
    call mat88( [ character(len=256) :: &
-     & "display(ones(80,1)'*46)                                                  ", &
+     & "display(ones(80,1)'*61)                                                  ", &
      & 'help if                                                                  ', &
-     & "display(ones(80,1)'*85)                                                  ", &
+     & "display(ones(80,1)'*95)                                                  ", &
      & 'tally=[0];                                                               ', &
      & '                                                                         ', &
      & ' n=5;                                                                    ', &
@@ -340,31 +341,33 @@ subroutine test_if ()
 end subroutine test_if
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_norm ()
-   call mat88( "display(ones(80,1)'*46);help norm;display(ones(80,1)'*85)")
+   logs=.true.
+   call mat88( "display(ones(80,1)'*61);help norm;display(ones(80,1)'*95)")
+   if(logs)call mat88( 'diary("norm.log");')
    call mat88( [ character(len=256) :: &
-     &"tally=[0];                                                                                                                ",&
+     &"tally=[0]';                                                                                                               ",&
      &"//diary('norm')                                                                                                           ",&
      &"long                                                                                                                      ",&
      &"X=magic(5);                                                                                                               ",&
      &"XX=X(:);                                                                                                                  ",&
      &"// A is answer, E is expected                                                                                             ",&
-     &"A=norm(XX)      ;E=74.330343736592525    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(X,'inf') ;E=65.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(XX,'inf');E=25.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(X,1)     ;E=65.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(X,2)     ;E=65.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(X,'fro') ;E=74.330343736592525    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(XX,1)    ;E=325.0                 ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(XX,'inf');E=25.0                  ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(XX,2)    ;E=74.330343736592525    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(XX,3)    ;E=47.270359729914041    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(XX,1/2)  ;E=7.333144324200370d+03 ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(XX,1/3)  ;E=1.757406593784711d+05 ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(-XX,3)   ;E=47.270359729914041    ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(-XX,-3)  ;E=0.940699519035135     ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
-     &"A=norm(-XX,1/3) ;E=1.757406593784711d+05 ;if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,1];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX)      ;E=74.330343736592525   ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(X,'inf') ;E=65.0                 ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,'inf');E=25.0                 ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(X,1)     ;E=65.0                 ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(X,2)     ;E=65.0                 ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(X,'fro') ;E=74.330343736592525   ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,1)    ;E=325.0                ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,'inf');E=25.0                 ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,2)    ;E=74.330343736592525   ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,3)    ;E=47.270359729914041   ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,1/2)  ;E=7.333144324200370d+03; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(XX,1/3)  ;E=1.757406593784711d+05; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(-XX,3)   ;E=47.270359729914041   ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(-XX,-3)  ;E=0.940699519035135    ; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
+     &"A=norm(-XX,1/3) ;E=1.757406593784711d+05; if abs(A/E)-1<=2*eps,tally=[tally,0];else,tally=[tally,x];A,E,A-E,eps,abs(A/E)-1",&
      &"if sum(tally)=0,display('norm PASSED');else,display('norm FAILED')                                                        ",&
-     &"display(tally);                                                                                                           ",&
+     &"display(tally,1);                                                                                                         ",&
      &"quit                                                                                                                      ",&
      &"//==============================================================================                                          ",&
      &"// YOU SHOULD GET THE FOLLOWING ERROR MESSAGE                                                                             ",&
@@ -375,13 +378,14 @@ subroutine test_norm ()
      &"//T= 'if abs(A - E)  =     0, display(''PASSED''),else,display(''FAILED''),A,E,A-E,eps,abs(A/E)-1';                       ",&
      &"//T= 'if abs(A - E) <=   eps, display(''PASSED''),else,display(''FAILED''),A,E,A-E,eps,abs(A/E)-1';                       ",&
      &"//T= 'if abs(A/E)-1 <= 2*eps, display(''PASSED''),else,display(''FAILED''),A,E,A-E,eps,abs(A/E)-1';                       ",&
-     &"display(T)                                                                                                                ",&
+     &"display(T,1)                                                                                                              ",&
      &"//==============================================================================                                          ",&
      &""])
+   logs=.false.
 end subroutine test_norm
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_save ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help save')
    call mat88( [ character(len=256) :: &
      & 'clear                                 // clear out user variables                                             ', &
@@ -408,7 +412,7 @@ subroutine test_save ()
 end subroutine test_save
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_load ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help load')
    call mat88( [ character(len=256) :: &
      & 'clear                                                                                                         ', &
@@ -435,7 +439,7 @@ subroutine test_load ()
 end subroutine test_load
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_invh ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help invh')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -459,7 +463,7 @@ subroutine test_invh ()
 end subroutine test_invh
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_kron ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help kron')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -492,8 +496,22 @@ subroutine test_kron ()
      & ''])
 end subroutine test_kron
 !-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_prod ()
+   call mat88( [ character(len=256) :: &
+     & "display(ones(80,1)'*61);help prod;clear;tally=[0];                                                                ", &
+     & 'a = < 1  2  3 ; 4  5  6 ; 7  8  9 >;                                                                              ', &
+     & 'expected=362880;                                                                                                  ', &
+     & "c=a'*2;                                                                                                           ", &
+     & 'd=prod(c)/2**9;                                                                                                   ', &
+     & '                                                                                                                  ', &
+     & 'if prod(a) = expected, tally=[tally,0];display("prod(a) PASSED");else,tally=[tally,1];display(" prod(a) FAILED"); ', &
+     & 'if expected = d, tally=[tally,0];display("d PASSED");else,tally=[tally,1];display("d FAILED");                    ', &
+     & 'if sum(tally)=0,display("prod PASSED");else,display("prod FAILED");tally                                          ', &
+     & ''])
+end subroutine test_prod
+!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_ans ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help ans')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -505,7 +523,7 @@ subroutine test_ans ()
 end subroutine test_ans
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_base ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help base')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -518,7 +536,7 @@ subroutine test_base ()
 end subroutine test_base
 !---------------------------------------------------------------------------------------------------------------------------------
 subroutine test_char ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help char')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -531,7 +549,7 @@ subroutine test_char ()
 end subroutine test_char
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_chol ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help chol')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -544,8 +562,7 @@ subroutine test_chol ()
 end subroutine test_chol
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_chop ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help chop')
+   call mat88( "display(ones(80,1)'*61);help chop")
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
      & '                                                                         ', &
@@ -557,8 +574,7 @@ subroutine test_chop ()
 end subroutine test_chop
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_clear ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help clear')
+   call mat88( "display(ones(80,1)'*61);help clear")
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
      & '                                                                         ', &
@@ -570,7 +586,7 @@ subroutine test_clear ()
 end subroutine test_clear
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_cond ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help cond')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -583,7 +599,7 @@ subroutine test_cond ()
 end subroutine test_cond
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_conjg ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help conjg')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -596,7 +612,7 @@ subroutine test_conjg ()
 end subroutine test_conjg
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_debug ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help debug')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -609,7 +625,7 @@ subroutine test_debug ()
 end subroutine test_debug
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_det ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help det')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -622,7 +638,7 @@ subroutine test_det ()
 end subroutine test_det
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_diag ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help diag')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -635,7 +651,7 @@ subroutine test_diag ()
 end subroutine test_diag
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_diary ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help diary')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -646,7 +662,7 @@ subroutine test_diary ()
 end subroutine test_diary
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_display ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help display')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -659,7 +675,7 @@ subroutine test_display ()
 end subroutine test_display
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_delete ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help delete')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -672,7 +688,7 @@ subroutine test_delete ()
 end subroutine test_delete
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_doc ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help doc')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -685,7 +701,7 @@ subroutine test_doc ()
 end subroutine test_doc
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_eig ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help eig')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -699,7 +715,7 @@ end subroutine test_eig
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_else ()
    if(logs)call mat88( 'diary("else.log");')
-   call mat88( "display(ones(80,1)'*46);help else;tally=[0];")
+   call mat88( "display(ones(80,1)'*61);help else;tally=[0];")
    call mat88( [ character(len=256) :: &
      & '                                                                         ', &
      & '                                                                         ', &
@@ -710,7 +726,7 @@ subroutine test_else ()
 end subroutine test_else
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_end ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help end')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -723,7 +739,7 @@ subroutine test_end ()
 end subroutine test_end
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_eps ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help eps')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -736,7 +752,7 @@ subroutine test_eps ()
 end subroutine test_eps
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_exec ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help exec')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -749,7 +765,7 @@ subroutine test_exec ()
 end subroutine test_exec
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_exit ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help exit')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -762,7 +778,7 @@ subroutine test_exit ()
 end subroutine test_exit
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_exp ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help exp')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -775,7 +791,7 @@ subroutine test_exp ()
 end subroutine test_exp
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_eye ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help eye')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -788,7 +804,7 @@ subroutine test_eye ()
 end subroutine test_eye
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_flops ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help flops')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -801,7 +817,7 @@ subroutine test_flops ()
 end subroutine test_flops
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_for ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help for')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -814,7 +830,7 @@ subroutine test_for ()
 end subroutine test_for
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_help ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help help')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -827,7 +843,7 @@ subroutine test_help ()
 end subroutine test_help
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_imag ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help imag')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -840,7 +856,7 @@ subroutine test_imag ()
 end subroutine test_imag
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_inv ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help inv')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -853,7 +869,7 @@ subroutine test_inv ()
 end subroutine test_inv
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_lala ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help lala')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -866,7 +882,7 @@ subroutine test_lala ()
 end subroutine test_lala
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_lines ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help lines')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -879,7 +895,7 @@ subroutine test_lines ()
 end subroutine test_lines
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_log ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help log')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -892,7 +908,7 @@ subroutine test_log ()
 end subroutine test_log
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_long ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help long')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -905,7 +921,7 @@ subroutine test_long ()
 end subroutine test_long
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_lu ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help lu')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -918,7 +934,7 @@ subroutine test_lu ()
 end subroutine test_lu
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_orth ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help orth')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -931,7 +947,7 @@ subroutine test_orth ()
 end subroutine test_orth
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_pinv ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help pinv')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -944,7 +960,7 @@ subroutine test_pinv ()
 end subroutine test_pinv
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_plot ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help plot')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -957,7 +973,7 @@ subroutine test_plot ()
 end subroutine test_plot
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_poly ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help poly')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -970,7 +986,7 @@ subroutine test_poly ()
 end subroutine test_poly
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_print ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help print')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -982,21 +998,8 @@ subroutine test_print ()
      & ''])
 end subroutine test_print
 !-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_prod ()
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'help prod')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("prod PASSED");else,display("prod FAILED");tally ', &
-     & ''])
-end subroutine test_prod
-!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_qr ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help qr')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1009,7 +1012,7 @@ subroutine test_qr ()
 end subroutine test_qr
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_quit ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help quit')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1022,7 +1025,7 @@ subroutine test_quit ()
 end subroutine test_quit
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rand ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help rand')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1035,7 +1038,7 @@ subroutine test_rand ()
 end subroutine test_rand
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rank ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help rank')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1048,7 +1051,7 @@ subroutine test_rank ()
 end subroutine test_rank
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rat ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help rat')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1061,7 +1064,7 @@ subroutine test_rat ()
 end subroutine test_rat
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rcond ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help rcond')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1074,7 +1077,7 @@ subroutine test_rcond ()
 end subroutine test_rcond
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_real ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help real')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1087,7 +1090,7 @@ subroutine test_real ()
 end subroutine test_real
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_roots ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help roots')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1100,7 +1103,7 @@ subroutine test_roots ()
 end subroutine test_roots
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rref ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help rref')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1113,7 +1116,7 @@ subroutine test_rref ()
 end subroutine test_rref
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_schur ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help schur')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1126,7 +1129,7 @@ subroutine test_schur ()
 end subroutine test_schur
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_semi ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help semi')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1139,7 +1142,7 @@ subroutine test_semi ()
 end subroutine test_semi
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_short ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help short')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1152,7 +1155,7 @@ subroutine test_short ()
 end subroutine test_short
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sh ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help sh')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1165,7 +1168,7 @@ subroutine test_sh ()
 end subroutine test_sh
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sin ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help sin')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1178,7 +1181,7 @@ subroutine test_sin ()
 end subroutine test_sin
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sqrt ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help sqrt')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1191,7 +1194,7 @@ subroutine test_sqrt ()
 end subroutine test_sqrt
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_svd ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help svd')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1204,7 +1207,7 @@ subroutine test_svd ()
 end subroutine test_svd
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_tril ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help tril')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1217,7 +1220,7 @@ subroutine test_tril ()
 end subroutine test_tril
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_triu ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help triu')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1230,7 +1233,7 @@ subroutine test_triu ()
 end subroutine test_triu
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_user ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help user')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1243,7 +1246,7 @@ subroutine test_user ()
 end subroutine test_user
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_what ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help what')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1256,7 +1259,7 @@ subroutine test_what ()
 end subroutine test_what
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_while ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help while')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1269,7 +1272,7 @@ subroutine test_while ()
 end subroutine test_while
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_who ()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help who')
    call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
@@ -1283,11 +1286,27 @@ end subroutine test_who
 !-----------------------------------------------------------------------------------------------------------------------------------
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_general_dots()
+   !!logs=.true.
+   if(logs)call mat88( 'diary("test_general_dots.log");')
+   call mat88( [ character(len=256) :: &
+   & "display(ones(80,1)'*61);display('general expression tests');                 ", &
+   & 'tally=[0];                                                                   ', &
+   & 'a=magic(3);b=ones(3)*2;                                                      ', &
+   & '                                                                             ', &
+   & 'if a*2 = a.*b, tally=[tally, 0], else, tally=[tally, -1];                    ', &
+   & '                                                                             ', &
+   & 'if sum(abs(tally)) = 0,display("general dots PASSED"),else,display("general dots FAILED");tally'])
+   !!logs=.false.
+end subroutine test_general_dots
+!-----------------------------------------------------------------------------------------------------------------------------------
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
+!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_general_expr()
    !!logs=.true.
    if(logs)call mat88( 'diary("test_general_expr.log");')
    call mat88( [ character(len=256) :: &
-   & "display(ones(80,1)'*46);display('general expression tests');                 ", &
+   & "display(ones(80,1)'*61);display('general expression tests');                 ", &
    & 'tally=[0];                                                                   ', &
    & 'a=3+4;                                                                       ', &
    & 'b=44-30.0;                                                                   ', &
@@ -1299,14 +1318,14 @@ subroutine test_general_expr()
    & 'tally=[tally,answers-expected];                                              ', &
    & '[rows,cols]=size(tally);                                                     ', &
    & 'for i=1:cols, if abs(tally(i)) < 2*eps,tally(i)=0;else,tally(i)=1;           ', &
-   & 'if sum(abs(tally)) = 0,display("avg PASSED"),else,display("avg FAILED");tally'])
+   & 'if sum(abs(tally)) = 0,display("general expr  PASSED"),else,display("general expr  FAILED");tally'])
    !!logs=.false.
 end subroutine test_general_expr
 !-----------------------------------------------------------------------------------------------------------------------------------
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_general_avg()
-   call mat88( "display(ones(80,1)'*46)")
+   call mat88( "display(ones(80,1)'*61)")
    call mat88( 'display("general tests: avg")')
    if(logs)call mat88( 'diary("test-general-avg.log");')
    call mat88( [ character(len=256) :: &

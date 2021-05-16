@@ -1,5 +1,5 @@
 program test_1
-use M_matrix, only : mat88, mat88_get, mat88_put
+use M_matrix, only : mat88, get_array_from_mat88, mat88_put
 implicit none
 integer,parameter :: lda=10
 integer           :: m,n, i,j, ierr
