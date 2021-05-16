@@ -1112,10 +1112,10 @@ integer,intent(in)          :: init
 logical,intent(in),optional :: echo
 logical,intent(in),optional :: markdown
 doubleprecision             :: s,t
-integer,parameter           :: EPS(GG_MAX_NAME_LENGTH)=   [ichar(['e','p','s',' ',' ']),GG_PAD(6:)]
-integer,parameter           :: FLOPS(GG_MAX_NAME_LENGTH)= [ichar(['f','l','o','p','s']),GG_PAD(6:)]
-integer,parameter           :: EYE(GG_MAX_NAME_LENGTH)=   [ichar(['e','y','e',' ',' ']),GG_PAD(6:)]
-integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [ichar(['r','a','n','d',' ']),GG_PAD(6:)]
+integer,parameter           :: EPS(GG_MAX_NAME_LENGTH)=   [iachar(['e','p','s',' ',' ']),GG_PAD(6:)]
+integer,parameter           :: FLOPS(GG_MAX_NAME_LENGTH)= [iachar(['f','l','o','p','s']),GG_PAD(6:)]
+integer,parameter           :: EYE(GG_MAX_NAME_LENGTH)=   [iachar(['e','y','e',' ',' ']),GG_PAD(6:)]
+integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','d',' ']),GG_PAD(6:)]
 
    if(present(echo)) G_ECHO=echo
    if(present(markdown)) G_MARKDOWN=markdown
@@ -1387,12 +1387,12 @@ integer      :: i
 !.......................................................................
    G_LINE_POINTER(2) = G_LINE_POINTER(3)
    G_LINE_POINTER(3) = G_LINE_POINTER(4)
-   if ( verify(char(G_CHRA),digit) == 0) then
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_GETSYM:A DIGIT:',char(G_CHRA))
+   if ( verify(achar(G_CHRA),digit) == 0) then
+      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_GETSYM:A DIGIT:',achar(G_CHRA))
       call mat_getval(syv)
       if (G_CHRA .ne. dot) goto 60
       call mat_getch() ! get next character
-   elseif (verify(char(G_CHRA),digit//big//little//char(score))== 0) then ! alphameric (0-9a-zA-Z_)
+   elseif (verify(achar(G_CHRA),digit//big//little//achar(score))== 0) then ! alphameric (0-9a-zA-Z_)
       ! name
       G_SYM = isname
       G_SYN=blank
@@ -1400,7 +1400,7 @@ integer      :: i
       do i=2,GG_MAX_NAME_LENGTH
          call mat_getch() ! get next character
          ! if not alphanumeric and not special like eol
-         if (verify(char(G_CHRA),digit//big//little//char(score))== 0 ) then
+         if (verify(achar(G_CHRA),digit//big//little//achar(score))== 0 ) then
             G_SYN(i) = G_CHRA
          else
             exit
@@ -1415,7 +1415,7 @@ integer      :: i
       if (G_SYM .ne. dot) goto 90
       ! is dot part of number or operator
       syv = 0.0d0
-      if (.not.(verify(char(G_CHRA),digit)== 0) ) then ! not a number character
+      if (.not.(verify(achar(G_CHRA),digit)== 0) ) then ! not a number character
          if (G_CHRA.eq.star.or.G_CHRA.eq.slash.or.G_CHRA.eq.bslash) goto 90
          if (ss.eq.star .or. ss.eq.slash .or. ss.eq.bslash) goto 90
       endif
@@ -1453,7 +1453,7 @@ integer      :: i
    if (G_DEBUG_LEVEL .eq. 1) then
 
       if (G_sym.ge.0 .and. G_sym.lt.G_CHARSET_SIZE) then
-         call journal('sc','MAT_GETSYM:G_SYM=',G_SYM,char(G_sym))
+         call journal('sc','MAT_GETSYM:G_SYM=',G_SYM,achar(G_sym))
       endif
 
       if (G_sym .ge. G_CHARSET_SIZE) call journal('sc','MAT_GETSYM:eol:')
@@ -1467,8 +1467,8 @@ end subroutine mat_getsym
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-! integer,parameter  ::  hollerith_blank=ichar(' ')+538976304-48
-! integer,parameter  ::  hollerith_equal=ichar('=')+538976304-48
+! integer,parameter  ::  hollerith_blank=iachar(' ')+538976304-48
+! integer,parameter  ::  hollerith_equal=iachar('=')+538976304-48
 
 subroutine mat_str2buf(string,buf,lrecl)
 
@@ -1481,13 +1481,13 @@ integer,intent(in)          :: lrecl
 integer,intent(out)         :: buf(:)
 integer                     :: i
 
-!   buf=ichar(' ')+538976304-48
+!   buf=iachar(' ')+538976304-48
 !   do i=1,min(lrecl,len_trim(string),size(buf))
-!      buf(i)=ichar(string(i:i))+538976304-48
+!      buf(i)=iachar(string(i:i))+538976304-48
 !   enddo
-   buf=ichar(' ')
+   buf=iachar(' ')
    do i=1,min(lrecl,len_trim(string),size(buf))
-      buf(i)=ichar(string(i:i))
+      buf(i)=iachar(string(i:i))
    enddo
 
 end subroutine mat_str2buf
@@ -1504,7 +1504,7 @@ integer                      :: i
    string=repeat(' ',size(buf))
    do i=1,size(buf)
       if(buf(i).ge.0 .or. buf(i).lt.255)then
-         string(i:i)=char(buf(i))
+         string(i:i)=achar(buf(i))
       else
          call journal('sc','ADE2STR:string contains unacceptable characters, position=',i,'ADE=',buf(i))
       endif
@@ -1525,10 +1525,10 @@ integer                :: ilen
    string(:)=' '
    ilen=len(string)
 !   do i=1,min(lrecl,ilen,size(buf))
-!      string(i:i)=char(buf(i)-538976304+48)
+!      string(i:i)=achar(buf(i)-538976304+48)
 !   enddo
    do i=1,min(lrecl,ilen,size(buf))
-      string(i:i)=char(buf(i))
+      string(i:i)=achar(buf(i))
    enddo
 end subroutine mat_buf2str
 !==================================================================================================================================!
@@ -1551,7 +1551,7 @@ integer                                  :: i
    string(:)=' '
    do i=1,size(ints)
       if( ints(i).lt.G_CHARSET_SIZE .and. ints(i).ge.0 )then
-         string(i:i)=char(ints(i))
+         string(i:i)=achar(ints(i))
       else
          call journal('sc',' function name contains unacceptable characters:',ints(i))
          ierr=ierr+1
@@ -1584,9 +1584,9 @@ integer :: mn
 integer :: n
 integer :: na
 integer :: nn
-integer,parameter :: unifor(GG_MAX_NAME_LENGTH) =  [ichar(['u','n','i','f','o','r','m']),GG_PAD(8:)]
-integer,parameter :: normal(GG_MAX_NAME_LENGTH) =  [ichar(['n','o','r','m','a','l',' ']),GG_PAD(8:)]
-integer,parameter :: seed(GG_MAX_NAME_LENGTH)   =  [ichar(['s','e','e','d',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter :: unifor(GG_MAX_NAME_LENGTH) =  [iachar(['u','n','i','f','o','r','m']),GG_PAD(8:)]
+integer,parameter :: normal(GG_MAX_NAME_LENGTH) =  [iachar(['n','o','r','m','a','l',' ']),GG_PAD(8:)]
+integer,parameter :: seed(GG_MAX_NAME_LENGTH)   =  [iachar(['s','e','e','d',' ',' ',' ']),GG_PAD(8:)]
 integer           :: id(GG_MAX_NAME_LENGTH)
 doubleprecision   :: eps0,eps,s,sr,si,t
 character(len=80) :: message
@@ -1941,7 +1941,7 @@ character(len=GG_LINELEN) :: string_buf
          do i=1,n
             if(id(i).le.0)exit   ! ??? why exit. What is the special meaning?
             if(id(i).le.G_CHARSET_SIZE)then
-               varname(i:i)=char(id(i))
+               varname(i:i)=achar(id(i))
             else
                call journal('sc',' function name contains unacceptable characters:',id(i))
                return
@@ -1964,7 +1964,7 @@ character(len=GG_LINELEN) :: string_buf
          do i = 1, m
            ll = location+i-1+(j-1)*m             ! location to place value
            G_STACK_IMAGS(ll) = 0.0d0             ! all of these functions set imaginary values to zero
-           nn=ichar(answers(m)(j:j))
+           nn=iachar(answers(m)(j:j))
            if(nn.gt.0)then
               G_STACK_REALS(ll) = real(nn-1)
            else
@@ -2007,7 +2007,7 @@ integer                           :: i
    do i=1,size(id)
       if(id(i).le.0)exit
       if(id(i).le.G_CHARSET_SIZE)then
-         name(i:i)=char(id(i))
+         name(i:i)=achar(id(i))
       else
          call journal('sc',' function name contains unacceptable characters:',name,'... ADE=',id(i),'position=',i)
          G_FIN = 0
@@ -2126,16 +2126,16 @@ doubleprecision,intent(out) :: s
       s = 0.0d0
       INFINITE: do
          select case(G_CHRA)
-         case(ichar('0')); s = 10.0d0*s + 0.0d0
-         case(ichar('1')); s = 10.0d0*s + 1.0d0
-         case(ichar('2')); s = 10.0d0*s + 2.0d0
-         case(ichar('3')); s = 10.0d0*s + 3.0d0
-         case(ichar('4')); s = 10.0d0*s + 4.0d0
-         case(ichar('5')); s = 10.0d0*s + 5.0d0
-         case(ichar('6')); s = 10.0d0*s + 6.0d0
-         case(ichar('7')); s = 10.0d0*s + 7.0d0
-         case(ichar('8')); s = 10.0d0*s + 8.0d0
-         case(ichar('9')); s = 10.0d0*s + 9.0d0
+         case(iachar('0')); s = 10.0d0*s + 0.0d0
+         case(iachar('1')); s = 10.0d0*s + 1.0d0
+         case(iachar('2')); s = 10.0d0*s + 2.0d0
+         case(iachar('3')); s = 10.0d0*s + 3.0d0
+         case(iachar('4')); s = 10.0d0*s + 4.0d0
+         case(iachar('5')); s = 10.0d0*s + 5.0d0
+         case(iachar('6')); s = 10.0d0*s + 6.0d0
+         case(iachar('7')); s = 10.0d0*s + 7.0d0
+         case(iachar('8')); s = 10.0d0*s + 8.0d0
+         case(iachar('9')); s = 10.0d0*s + 9.0d0
          case default
             exit INFINITE
          end select
@@ -3249,12 +3249,11 @@ SUBROUTINE mat_parse()
 integer            :: id(GG_MAX_NAME_LENGTH)
 integer            :: excnt
 integer            :: pts
-integer,parameter  :: ans(GG_MAX_NAME_LENGTH)  = [ichar(['a','n','s',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter  :: ennd(GG_MAX_NAME_LENGTH) = [ichar(['e','n','d',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter  :: else(GG_MAX_NAME_LENGTH) = [ichar(['e','l','s','e',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: ans(GG_MAX_NAME_LENGTH)  = [iachar(['a','n','s',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: ennd(GG_MAX_NAME_LENGTH) = [iachar(['e','n','d',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: else(GG_MAX_NAME_LENGTH) = [iachar(['e','l','s','e',' ',' ',' ']),GG_PAD(8:)]
 integer            :: p
 integer            :: r
-character(len=80)  :: mline
 integer            :: i5
 integer            :: ierr
 integer            :: ilen
@@ -3421,11 +3420,10 @@ character(len=:),allocatable :: symbol
       if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:45:')
       call mat_getsym()
       if (G_DEBUG_LEVEL .eq. 1) then
-         mline='MACROS'
          call journal('sc','MACROS', G_PT, G_BOTTOM_OF_SCRATCH_IN_USE)
       endif
       if (G_SYM.eq.less .and. G_CHRA.eq.G_EOL) then
-         call mat_err(28)
+         call mat_err(28) ! Empty macro
          goto 01
       endif
       G_PT = G_PT+1
@@ -3667,7 +3665,7 @@ FINISHED: block
         select case(G_CHRA)                  ! check next character
         case(comma,semi,G_EOL)               ! next character is end of a command so good to go
            exit
-        case(ichar('0'):ichar('9'),ichar('a'):ichar('z'),ichar('A'):ichar('Z'),score) ! alphanumeric or a HELP command so good to go
+        case(iachar('0'):iachar('9'),iachar('a'):iachar('z'),iachar('A'):iachar('Z'),score) ! alphanumeric or a HELP command so good to go
            exit
         end select
 
@@ -3687,7 +3685,7 @@ FINISHED: block
 !===================================================================================================================================
    case('clear')
    ! alphameric character
-      if(verify(char(G_CHRA),big//little//digit)==0)then ! is alphanumeric so good to go by name
+      if(verify(achar(G_CHRA),big//little//digit)==0)then ! is alphanumeric so good to go by name
          call mat_getsym()
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE+1
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
@@ -4643,8 +4641,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
       inf = .false.
 
       if (G_rhs .eq. 2)then
-         fro = int(G_STACK_REALS(location)).eq.ichar('f') .and. mn.gt.1
-         inf = int(G_STACK_REALS(location)).eq.ichar('i') .and. mn.gt.1
+         fro = int(G_STACK_REALS(location)).eq.iachar('f') .and. mn.gt.1
+         inf = int(G_STACK_REALS(location)).eq.iachar('i') .and. mn.gt.1
          if (.not. fro) then
             p = G_STACK_REALS(location)
          endif
@@ -5414,22 +5412,15 @@ logical                    :: isfound
       G_LINECOUNT(2) = int(G_STACK_REALS(location))
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
-      case(9) !     COMMAND::CHAR
+      !!! BROKEN BY GOING TO ASCII. ELIMINATE OR CORRECT
+      case(9) !     COMMAND::CHAR                   ! does currently not do anything
       K = IABS(int(G_STACK_REALS(location)))
-      IF (M*N.NE.1 .OR. K.GT.G_CHARSET_SIZE) then
+      IF (M*N.NE.1 .OR. K.GT.G_CHARSET_SIZE-1) then
          call mat_err(36) ! Argument out of range
          exit FUN5
       endif
       CH = K
-      IF (G_STACK_REALS(location) .LT. 0.0D0) CH = K
-      WRITE(mline,'('' REPLACE CHARACTER '',A1)') CHAR(CH)
-      call journal(mline)
-      READ(G_INPUT_LUN,'(A1)') CH_CHAR
-      ch=ichar(CH_CHAR)
-      !IF (G_STACK_REALS(location) .GE. 0.0D0) G_CHARSET(K+1) = CH
-      !IF (G_STACK_REALS(location) .LT. 0.0D0) G_ALT_CHARSET(K+1) = CH
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
-      !!! BROKEN BY GOING TO ASCII. ELIMINATE OR CORRECT
 !===================================================================================================================================
       case(10) !     COMMAND::PLOT
       IF (G_RHS .GE. 2) goto 82
@@ -5984,7 +5975,7 @@ character(len=GG_LINELEN) :: mline
 character(len=GG_LINELEN) :: shift_mline
 
 integer                   :: istat
-integer,parameter         :: retu(GG_MAX_NAME_LENGTH) =  [ichar(['q','u','i','t',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter         :: retu(GG_MAX_NAME_LENGTH) =  [iachar(['q','u','i','t',' ',' ',' ']),GG_PAD(8:)]
 integer                   :: i, j, k
 integer                   :: l
 integer                   :: n
@@ -6137,13 +6128,13 @@ character(len=GG_LINELEN) :: mline
 doubleprecision    :: e1,e2
 integer            :: op
 integer            :: r
-integer,parameter :: for(GG_MAX_NAME_LENGTH)   =  [ichar(['f','o','r',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: while(GG_MAX_NAME_LENGTH) =  [ichar(['w','h','i','l','e',' ',' ']),GG_PAD(8:)]
-integer,parameter :: iff(GG_MAX_NAME_LENGTH)   =  [ichar(['i','f',' ',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: else(GG_MAX_NAME_LENGTH)  =  [ichar(['e','l','s','e',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: ennd(GG_MAX_NAME_LENGTH)  =  [ichar(['e','n','d',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: do(GG_MAX_NAME_LENGTH)    =  [ichar(['d','o',' ',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: thenn(GG_MAX_NAME_LENGTH) =  [ichar(['t','h','e','n',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter :: for(GG_MAX_NAME_LENGTH)   =  [iachar(['f','o','r',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter :: while(GG_MAX_NAME_LENGTH) =  [iachar(['w','h','i','l','e',' ',' ']),GG_PAD(8:)]
+integer,parameter :: iff(GG_MAX_NAME_LENGTH)   =  [iachar(['i','f',' ',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter :: else(GG_MAX_NAME_LENGTH)  =  [iachar(['e','l','s','e',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter :: ennd(GG_MAX_NAME_LENGTH)  =  [iachar(['e','n','d',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter :: do(GG_MAX_NAME_LENGTH)    =  [iachar(['d','o',' ',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter :: thenn(GG_MAX_NAME_LENGTH) =  [iachar(['t','h','e','n',' ',' ',' ']),GG_PAD(8:)]
 
 integer            :: i
 integer            :: j
@@ -6397,7 +6388,7 @@ end subroutine mat_rat
 subroutine mat_expr()
 integer           :: r
 integer           :: sign
-integer,parameter :: eye(GG_MAX_NAME_LENGTH) =  [ichar(['e','y','e',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter :: eye(GG_MAX_NAME_LENGTH) =  [iachar(['e','y','e',' ',' ',' ',' ']),GG_PAD(8:)]
 integer           :: kount
 integer           :: ls
 integer           :: op
@@ -6840,15 +6831,15 @@ integer            :: ilen
       return
    end select
 
-   if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:CHECK DOUBLE OPERATOR:G_SYM=',char(G_SYM))
+   if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:CHECK DOUBLE OPERATOR:G_SYM=',achar(G_SYM))
    op = 0
    if (G_SYM .eq. dot) then
       op = dot
       call mat_getsym()
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:DOT OPERATOR:NEXT G_SYM=',char(G_SYM))
+      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:DOT OPERATOR:NEXT G_SYM=',achar(G_SYM))
    endif
    if (.not.(G_SYM.eq.star .or. G_SYM.eq.slash .or. G_SYM.eq.bslash)) then
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:NOT DOUBLE OPERATOR:NEXT G_SYM=',char(G_SYM))
+      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:NOT DOUBLE OPERATOR:NEXT G_SYM=',achar(G_SYM))
       return
    endif
 
@@ -6858,13 +6849,13 @@ integer            :: ilen
       op = G_SYM + 1000
    endif
 
-   if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:DOUBLE OPERATOR:OP=',op,'G_SYM=',char(G_SYM))
+   if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:DOUBLE OPERATOR:OP=',op,'G_SYM=',achar(G_SYM))
    call mat_getsym()
 
    if (G_SYM .eq. dot)then
       op = op + 1000  ! now holds three characters
       call mat_getsym()
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:SECOND DOT:OP=',op,'G_SYM=',char(G_SYM))
+      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:SECOND DOT:OP=',op,'G_SYM=',achar(G_SYM))
    endif
 
    G_PT = G_PT+1
@@ -7769,7 +7760,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '          -  MAT88 functions                                                    ',&
 '          -  Rows, columns and submatrices                                      ',&
 '          -  "for", "while" and "if"                                            ',&
-'          -  Commands, text, files and macros                                   ',&
+'          -  Characters, text, files and macros                                 ',&
 '          -  The numerical algorithms                                           ',&
 '          -  "flop" and "chop"                                                  ',&
 '          -  Census example                                                     ',&
@@ -7979,7 +7970,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   There are two "matrix division" symbols in MAT88, \ and / .                  ',&
 '   (If your terminal does not have a backslash, use $ instead, or               ',&
-'   see "char".) If A and B are matrices, then A\B and B/A correspond            ',&
+'   see "CHAR".) If A and B are matrices, then A\B and B/A correspond            ',&
 '   formally to left and right multiplication of B by the inverse of             ',&
 '   A, that is inv(A)*B and B*inv(A), but the result is obtained                 ',&
 '   directly without the computation of the inverse. In the scalar               ',&
@@ -8310,7 +8301,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      if abs(i-j) = 2, A(i,j) = 0;                                              ',&
 '                                                                                ',&
 '================================================================================',&
-'COMMANDS TEXTFILES AND MACROS                                                   ',&
+'CHARACTERS AND TEXTFILES AND MACROS                                             ',&
 '                                                                                ',&
 '   MAT88 has several commands which control the output format and the           ',&
 '   overall execution of the system.                                             ',&
@@ -8337,11 +8328,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   MAT88 has a limited facility for handling text. Any string of                ',&
 '   characters delineated by quotes (with two quotes used to allow one           ',&
-'   quote within the string) is saved as a vector of integer values with         ',&
-'   ''1'' = 1, ''A'' = 10, '' '' = 36, etc. (The complete list is in the appendix',&
-'   under "char".) For example                                                   ',&
+'   quote within the string) is saved as a vector of integer values that         ',&
+'   are the ADE (Ascii Decimal Equivalent) value of the character.               ',&
+'   (The complete list is in the appendix under "CHAR".) For example             ',&
 '                                                                                ',&
-'      ''2*A + 3''  is the same as  <2 43 10 36 41 36 3>                         ',&
+'      ''2*A + 3''  is the same as  < 50 42 65 32 43 32 51 >.                    ',&
 '                                                                                ',&
 '   It is possible, though seldom very meaningful, to use such                   ',&
 '   strings in matrix operations. More frequently, the text is used              ',&
@@ -9641,7 +9632,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   |______________._________________________________________________________|   ',&
 '   |DOCUMENTATION | help   manual topics NEWS                               |   ',&
 '   |______________._________________________________________________________|   ',&
-'   |MISCELLANEOUS | char   eps   debug  what   sh       MACROS  EDIT  flops |   ',&
+'   |MISCELLANEOUS | eps    debug  flops sh     MACROS   EDIT   CHARS        |   ',&
 '   |______________._________________________________________________________|   ',&
 '================================================================================',&
 'SAMPLE                                                                          ',&
@@ -10375,7 +10366,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      or other program which invoked MAT88. From inside an                      ',&
 '      "exec", causes return to the invoking "exec", or to the                   ',&
 '      terminal.                                                                 ',&
-'                                                                                ',&
 '================================================================================',&
 'FILE ACCESS                                                                     ',&
 '                                                                                ',&
@@ -10503,13 +10493,13 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '           display(0:10,16 ) // display values as hexadecimal values            ',&
 '           display(0:10,2 )  // display values as binary numbers                ',&
 '                                                                                ',&
-'      If no base is specified and all the                                       ',&
-'      elements of X are integers between 0 and 255, then X is                   ',&
-'      interpreted as MAT88 text and printed accordingly.                        ',&
+'      If no base is specified and all the elements of X are integers            ',&
+'      between 0 and 255, then X is interpreted as MAT88 text and printed        ',&
+'      accordingly.                                                              ',&
 '                                                                                ',&
 '         <>display(''the analysis is complete'')                                ',&
 '           the analysis is complete                                             ',&
-'         display(0:255) // print the default MAT88 character set                ',&
+'         display(32:126) // print the printable default MAT88 characters        ',&
 '                                                                                ',&
 '      Otherwise or if the base is one, + , - and blank are printed for          ',&
 '      positive, negative and zero elements.                                     ',&
@@ -10519,7 +10509,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      Imaginary parts are ignored.                                              ',&
 '                                                                                ',&
 '      Note that "display(X,B)" is the same as "display(base(X,B))" except       ',&
-'      it forces "display" to display numeric values.                            ',&
+'      for base 1 except it forces "display" to display numeric values.          ',&
 '                                                                                ',&
 '      "display" has an alias of "disp".                                         ',&
 '                                                                                ',&
@@ -10561,35 +10551,73 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'MISCELLANEOUS                                                                   ',&
 '                                                                                ',&
-'char  "char(K)" requests an input line containing a single                      ',&
-'      character to replace MAT88 character number K in the                      ',&
-'      following table. For example, "char(45)" replaces backslash.              ',&
-'      "char(-K)" replaces the alternate character number K. By default          ',&
-'      the character set is:                                                     ',&
+'CHAR  special issues regarding strings                                          ',&
 '                                                                                ',&
+'   MAT88 has a limited facility for handling text. Any string of                ',&
+'   characters delineated by quotes (with two quotes used to allow one           ',&
+'   quote within the string) is saved as a vector of integer values that         ',&
+'   are the ADE (Ascii Decimal Equivalent) value of the character.               ',&
+'   For example                                                                  ',&
+'                                                                                ',&
+'      ''2*A + 3''        //  is the same as  < 50 42 65 32 43 32 51 >.          ',&
+'      display(32:126)  //  display the basic visible ASCII characters           ',&
+'                                                                                ',&
+'   Currently, upon input certain alternate characters are folded into           ',&
+'   others so that if you input any of the characters {}|$@"[] they will         ',&
+'   be converted to other characters.                                            ',&
 '                K  character alternate name                                     ',&
-'              0 - 9   0 - 9    0 - 9   digits                                   ',&
-'             10 - 35  A - Z    A - Z   letters                                  ',&
 '               36                      blank                                    ',&
 '               37       (        {     lparen                                   ',&
 '               38       )        }     rparen                                   ',&
-'               39       ;        ;     semi                                     ',&
 '               40       :        |     colon                                    ',&
-'               41       +        +     plus                                     ',&
-'               42       -        -     minus                                    ',&
-'               43       *        *     star                                     ',&
-'               44       /        /     slash                                    ',&
 '               45       \        $     backslash                                ',&
-'               46       =        =     equal                                    ',&
 '               47       .        @     dot                                      ',&
-'               48       ,        ,     comma                                    ',&
 '               49       ''        "     quote                                   ',&
 '               50       <        [     less                                     ',&
 '               51       >        ]     great                                    ',&
-'             52 - 77  a - z    a - z   letters                                  ',&
 '                                                                                ',&
-'      unused: `~!#%^&_?                                                         ',&
+'   unused: `~!#%^&_?                                                            ',&
 '                                                                                ',&
+'   So if you wanted to home the cursor and clear the screen on an               ',&
+'   ANSI-compatible terminal and entered                                         ',&
+'                                                                                ',&
+'       display(<27,''[H'',27,''[2J''>)                                          ',&
+'                                                                                ',&
+'   It would not work as the [ character got mapped to <. You would              ',&
+'   instead enter                                                                ',&
+'                                                                                ',&
+'       display([27,91,''H'',27,91,''2J''])                                      ',&
+'                                                                                ',&
+'   More usefully, if you define the string                                      ',&
+'                                                                                ',&
+'       clr=''display([27,91,''''H'''',27,91,''''2J''''])''                      ',&
+'                                                                                ',&
+'   Then entering                                                                ',&
+'                                                                                ',&
+'       >clr                                                                     ',&
+'                                                                                ',&
+'   will clear the screen on ANSI terminals and emulators.                       ',&
+'                                                                                ',&
+'DECIMAL ADE TABLE                                                               ',&
+'      The ASCII Decimal Equivalents                                             ',&
+'      *-------*-------*-------*-------*-------*-------*-------*-------*         ',&
+'      | 00 nul| 01 soh| 02 stx| 03 etx| 04 eot| 05 enq| 06 ack| 07 bel|         ',&
+'      | 08 bs | 09 ht | 10 nl | 11 vt | 12 np | 13 cr | 14 so | 15 si |         ',&
+'      | 16 dle| 17 dc1| 18 dc2| 19 dc3| 20 dc4| 21 nak| 22 syn| 23 etb|         ',&
+'      | 24 can| 25 em | 26 sub| 27 esc| 28 fs | 29 gs | 30 rs | 31 us |         ',&
+'      | 32 sp | 33  ! | 34  " | 35  # | 36  $ | 37  % | 38  & | 39  '' |        ',&
+'      | 40  ( | 41  ) | 42  * | 43  + | 44  , | 45  - | 46  . | 47  / |         ',&
+'      | 48  0 | 49  1 | 50  2 | 51  3 | 52  4 | 53  5 | 54  6 | 55  7 |         ',&
+'      | 56  8 | 57  9 | 58  : | 59  ; | 60  < | 61  = | 62  > | 63  ? |         ',&
+'      | 64  @ | 65  A | 66  B | 67  C | 68  D | 69  E | 70  F | 71  G |         ',&
+'      | 72  H | 73  I | 74  J | 75  K | 76  L | 77  M | 78  N | 79  O |         ',&
+'      | 80  P | 81  Q | 82  R | 83  S | 84  T | 85  U | 86  V | 87  W |         ',&
+'      | 88  X | 89  Y | 90  Z | 91  [ | 92  \ | 93  ] | 94  ^ | 95  _ |         ',&
+'      | 96  ` | 97  a | 98  b | 99  c |100  d |101  e |102  f |103  g |         ',&
+'      |104  h |105  i |106  j |107  k |108  l |109  m |110  n |111  o |         ',&
+'      |112  p |113  q |114  r |115  s |116  t |117  u |118  v |119  w |         ',&
+'      |120  x |121  y |122  z |123  { |124  | |125  } |126  ~ |127 del|         ',&
+'      *-------*-------*-------*-------*-------*-------*-------*-------*         ',&
 'EDIT                                                                            ',&
 '      A command line consisting of two exclamations("!!") will cause a          ',&
 '      small line-based editor to be called (very similar to the CDC NOS         ',&
