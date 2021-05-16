@@ -90,6 +90,7 @@ logical           :: logs=.false.
       call test_general_avg () 
       call test_general_expr()     ! basic expressions
       call test_general_dots()     ! basic expressions
+      call test_general_pascal()   ! basic expressions
    call test_general_char ()       ! basic string manipulations
 !       ! call test_{ ()
 !       ! call test_} ()
@@ -1309,6 +1310,66 @@ subroutine test_general_dots()
    & 'if sum(abs(tally)) = 0,display("general dots PASSED"),else,display("general dots FAILED");tally'])
    !!logs=.false.
 end subroutine test_general_dots
+!-----------------------------------------------------------------------------------------------------------------------------------
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_general_pascal()
+   !!logs=.true.
+   if(logs)call mat88( 'diary("test_general_pascal.log");')
+   call mat88( [ character(len=256) :: &
+   & "display(ones(80,1)'*61);display('general expression tests');                              ", &
+   & 'tally=[0];                                                                                ', &
+   & '                                                                                          ', &
+   & '// In mathematics, particularly matrix theory and combinatorics, the Pascal               ', &
+   & '// matrix is an infinite matrix containing the binomial coefficients                      ', &
+   & '// as its elements. There are three ways to achieve this: as either an                    ', &
+   & '// upper-triangular matrix, a lower-triangular matrix, or a symmetric                     ', &
+   & '// matrix. The 5 × 5 truncations of these are shown below.                                ', &
+   & '                                                                                          ', &
+   & '// Lower triangular:                                                                      ', &
+   & 'L5 = <                                                                                    ', &
+   & ' 1 0 0 0 0;                                                                               ', &
+   & ' 1 1 0 0 0;                                                                               ', &
+   & ' 1 2 1 0 0;                                                                               ', &
+   & ' 1 3 3 1 0;                                                                               ', &
+   & ' 1 4 6 4 1; >                                                                             ', &
+   & '// Symmetric:                                                                             ', &
+   & 'S5 = <                                                                                    ', &
+   & '  1 1  1  1  1;                                                                           ', &
+   & '  1 2  3  4  5;                                                                           ', &
+   & '  1 3  6 10 15;                                                                           ', &
+   & '  1 4 10 20 35;                                                                           ', &
+   & '  1 5 15 35 70; >                                                                         ', &
+   & '// Upper triangular:                                                                      ', &
+   & 'U5 = <                                                                                    ', &
+   & '  1 1 1 1 1;                                                                              ', &
+   & '  0 1 2 3 4;                                                                              ', &
+   & '  0 0 1 3 6;                                                                              ', &
+   & '  0 0 0 1 4;                                                                              ', &
+   & '  0 0 0 0 1; >                                                                            ', &
+   & '                                                                                          ', &
+   & '// These matrices have the pleasing relationship Sn = LnUn. From this it is               ', &
+   & '// easily seen that all three matrices have determinant 1, as the determinant             ', &
+   & '// of a triangular matrix is simply the product of its diagonal elements,                 ', &
+   & '// which are all 1 for both Ln and Un. In other words, matrices Sn, Ln,                   ', &
+   & '// and Un are unimodular, with Ln and Un having trace n.                                  ', &
+   & '                                                                                          ', &
+   & 'L=[1]                                                                                     ', &
+   & '     //Generate next Lower triangular Pascal matrix:                                      ', &
+   & '     for I=1:4,...                                                                        ', &
+   & '        [k,k] = size(L);...                                                               ', &
+   & '        k = k + 1;...                                                                     ', &
+   & '        L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];...                                        ', &
+   & '        L,...                                                                             ', &
+   & '     end                                                                                  ', &
+   & '                                                                                          ', &
+   & 'L5-L                                                                                      ', &
+   & '                                                                                          ', &
+   & 'if sum(abs(L5-L)) =0, tally=[tally, 0],display("pascal L5 passed"), else, tally=[tally, -1],display("pascal L5 FAILED"); ', &
+   & '                                                                                          ', &
+   & 'if sum(abs(tally)) = 0,display("general pascal PASSED"),else,display("general pascal FAILED");tally'])
+   !!logs=.false.
+end subroutine test_general_pascal
 !-----------------------------------------------------------------------------------------------------------------------------------
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
