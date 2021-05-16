@@ -9,28 +9,26 @@ logical           :: logs=.false.
    !!logs=.true.
    !!call mat88(20000,echo=.true.)
 
-   call test_abs ()     ! abs   abs(X) is the absolute value, or complex modulus, of the
+      call test_abs ()     ! abs   abs(X) is the absolute value, or complex modulus, of the
    call test_ans ()     ! ans   Variable created automatically when expressions are not
-   call test_atan ()    ! atan  atan(X) is the arctangent of X . See HIGH .
+      call test_atan ()    ! atan  atan(X) is the arctangent of X . See HIGH .
    call test_base ()    ! base  base(X,B) is a vector containing the base B representation
-   call test_char ()    ! char  "char(K)" requests an input line containing a single
    call test_chol ()    ! chol  Cholesky factorization. "chol(X)" uses only the diagonal
    call test_chop ()    ! chop  Truncate arithmetic. "chop(P)" causes P places to be chopped
    call test_clear ()   ! clear  Erases all variables, except "eps", "flop", "eye" and "rand".
    call test_cond ()    ! cond  Condition number in 2-norm. "cond(X)" is the ratio of the
    call test_conjg ()   ! conjg  "conjg(X)" is the complex conjugate of X .
-   call test_cos ()     ! cos   cos(X) is the cosine of X . See HIGH .
+      call test_cos ()     ! cos   cos(X) is the cosine of X . See HIGH .
    call test_debug ()   ! debug  "debu(1)" turns on verbose low-level debugging for the developer,
    call test_det ()     ! det   "det(X)" is the determinant of the square matrix X .
    call test_diag ()    ! diag  If V is a row or column vector with N components,
    call test_diary ()   ! diary  "diary('file')" causes a copy of all subsequent terminal input and
    call test_display () ! display  "display(X)" prints X in a compact format.
-   call test_doc ()     ! doc   does nothing at the moment
    call test_delete ()  ! delete delete named file
    call test_eig ()     ! eig   Eigenvalues and eigenvectors.
    call test_else ()    ! else  Used with "if".
    call test_end ()     ! end   Terminates the scope of "for", "while" and "if" statements.
-   call test_eps ()     ! eps   Floating point relative accuracy. A permanent variable
+      call test_eps ()     ! eps   Floating point relative accuracy. A permanent variable
    call test_exec ()    ! exec  "exec('file',k)" obtains subsequent MAT88 input from an
    call test_exit ()    ! exit  Causes termination of a "for" or "while" loop.
    call test_exp ()     ! exp   exp(X) is the exponential of X , e to the X . See HIGH.
@@ -38,27 +36,26 @@ logical           :: logs=.false.
    call test_flops ()   ! flops  Count of floating point operations.
    call test_for ()     ! for   Repeat statements a specific number of times.
    call test_help ()    ! help  topic|SECTION_NAME
-   call test_hess ()    ! hess  Hessenberg form. The Hessenberg form of a matrix is zero
-   call test_if ()      ! if    Conditionally execute statements
+      call test_hess ()    ! hess  Hessenberg form. The Hessenberg form of a matrix is zero
+      call test_if ()      ! if    Conditionally execute statements
    call test_imag ()    ! imag  "imag(X)" is the imaginary part of X .
-   call test_invh ()    ! invh  Inverse Hilbert matrix. "invh(N)" is the inverse of a N_by_N
+      call test_invh ()    ! invh  Inverse Hilbert matrix. "invh(N)" is the inverse of a N_by_N
    call test_inv ()     ! inv   "inv(X)" is the inverse of the square matrix X . A warning
-   call test_kron ()    ! kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It
-   call test_lala ()    ! lala  A placeholder for a new command.
+      call test_kron ()    ! kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It
    call test_lines ()   ! lines  An internal count is kept of the number of lines of output
-   call test_load ()    ! load  "load('file')" retrieves all the variables from the file .
+      call test_load ()    ! load  "load('file')" retrieves all the variables from the file .
    call test_log ()     ! log   log(X) is the natural logarithm of X. See HIGH.
    call test_long ()    ! long   See "short" also.
    call test_lu ()      ! lu    Factors from Gaussian elimination. <L,U> = LU(X) stores a
-   call test_magic ()   ! magic  Magic square. "magic(N)" is an N by N matrix constructed
-   call test_norm ()    ! norm  For matrices..
-   call test_ones ()    ! ones  All ones. "ones(N)" is an N by N matrix of ones. "ones(M,N)"
+      call test_magic ()   ! magic  Magic square. "magic(N)" is an N by N matrix constructed
+      call test_norm ()    ! norm  For matrices..
+      call test_ones ()    ! ones  All ones. "ones(N)" is an N by N matrix of ones. "ones(M,N)"
    call test_orth ()    ! orth  Orthogonalization. "Q = orth(X)" is a matrix with
    call test_pinv ()    ! pinv  Pseudoinverse.
    call test_plot ()    ! plot  "plot(X,Y)" produces a plot of the elements of Y against
    call test_poly ()    ! poly  Characteristic polynomial.
    call test_print ()   ! print  "print('file',X)" prints X on the file using the current
-   call test_prod ()    ! prod  "prod(X)" is the product of all the elements of X .
+      call test_prod ()    ! prod  "prod(X)" is the product of all the elements of X .
    call test_qr ()      ! qr    Orthogonal-triangular decomposition.  "<Q,R> = qr(X)" produces an
    call test_quit ()    ! quit  From the terminal, causes return to the operating system
    call test_rand ()    ! rand  Random numbers and matrices. "rand(N)" is an N by N matrix
@@ -67,28 +64,33 @@ logical           :: logs=.false.
    call test_rcond ()   ! rcond  "rcond(X)" is an estimate for the reciprocal of the
    call test_real ()    ! real  "real(X)" is the real part of X.
    call test_roots ()   ! roots  Find polynomial roots. "roots(C)" computes the roots of the
-   call test_round ()   ! round  "round(X)" rounds the elements of X to the nearest integers.
+      call test_round ()   ! round  "round(X)" rounds the elements of X to the nearest integers.
    call test_rref ()    ! rref  "rref(A)" is the reduced row echelon form of the rectangular
-   call test_save ()    ! save  "save('file')" stores all the current variables in a file.
+      call test_save ()    ! save  "save('file')" stores all the current variables in a file.
    call test_schur ()   ! schur  Schur decomposition. "<U,T> = schur(X)" produces an upper
    call test_semi ()    ! semi  "semi" toggles the action of semicolons at the end of lines.
    call test_short ()   ! short  See "long" also.
    call test_sh ()      ! sh    Starts the command shell interactively, using the command defined by
    call test_sin ()     ! sin   sin(X) is the sine of X. See HIGH.
-   call test_size ()    ! size  If X is an M by N matrix, then size(X) is <M, N> .
+      call test_size ()    ! size  If X is an M by N matrix, then size(X) is <M, N> .
    call test_sqrt ()    ! sqrt  sqrt(X) is the square root of X. See HIGH. Complex
-   call test_sum ()     ! sum   "sum(X)" is the sum of all the elements of X.
+      call test_sum ()     ! sum   "sum(X)" is the sum of all the elements of X.
    call test_svd ()     ! svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
    call test_tril ()    ! tril  Lower triangle. "tril(X)" is the lower triangular part of X.
    call test_triu ()    ! triu  Upper triangle. "triu(X)" is the upper triangular part of X.
    call test_user ()    ! user  Allows personal Fortran subroutines to be linked into
-   call test_what ()    ! what  does nothing for now
    call test_while ()   ! while  Repeat statements an indefinite number of times.
    call test_who ()     ! who   Lists current variables.
-   call test_zeros ()   ! zeros
-   call test_general_avg () 
-   call test_general_expr()     ! basic expressions
-   call test_general_dots()     ! basic expressions
+
+   call test_doc ()     ! doc   does nothing at the moment
+   call test_what ()    ! what  does nothing for now
+   call test_lala ()    ! lala  A placeholder for a new command.
+
+      call test_zeros ()   ! zeros
+      call test_general_avg () 
+      call test_general_expr()     ! basic expressions
+      call test_general_dots()     ! basic expressions
+   call test_general_char ()       ! basic string manipulations
 !       ! call test_{ ()
 !       ! call test_} ()
 !       ! call test_) () (     ( ) or { } are used to indicate precedence in arithmetic expressions
@@ -341,7 +343,6 @@ subroutine test_if ()
 end subroutine test_if
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_norm ()
-   logs=.true.
    call mat88( "display(ones(80,1)'*61);help norm;display(ones(80,1)'*95)")
    if(logs)call mat88( 'diary("norm.log");')
    call mat88( [ character(len=256) :: &
@@ -381,7 +382,6 @@ subroutine test_norm ()
      &"display(T,1)                                                                                                              ",&
      &"//==============================================================================                                          ",&
      &""])
-   logs=.false.
 end subroutine test_norm
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_save ()
@@ -510,6 +510,27 @@ subroutine test_prod ()
      & ''])
 end subroutine test_prod
 !-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_eps ()
+   !!logs=.true.
+   if(logs)call mat88( 'diary("eps.log");')
+   call mat88( [ character(len=256) :: &
+     & " display(ones(80,1)'*'=');help eps;display(ones(80,1)'*'_')              ", &
+     & 'tally=[0];                                                               ', &
+     & ' // find the eps for this programming environment by brute force         ', &
+     & ' myeps = 1;                                                              ', &
+     & ' while 1 + myeps > 1, myeps = myeps/2;                                   ', &
+     & ' myeps = 2*myeps                                                         ', &
+     & '// compare it to the eps used by MAT88                                   ', &
+     & 'if myeps=eps, ...                                                        ', &
+     & '   tally=[tally,0];display("eps matches expected value"); ...            ', &
+     & 'else, ...                                                                ', &
+     & '   tally=[tally,1];display("eps is NOT the expected value"), ...         ', &
+     & 'end;                                                                     ', &
+     & 'if sum(tally)=0,display("eps PASSED");else,display("eps FAILED");tally   ', &
+     & ''])
+     !!logs=.false.
+end subroutine test_eps
+!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_ans ()
    call mat88( "display(ones(80,1)'*61)")
    call mat88( 'help ans')
@@ -534,19 +555,6 @@ subroutine test_base ()
      & 'if sum(tally)=0,display("base PASSED");else,display("base FAILED");tally ', &
      & ''])
 end subroutine test_base
-!---------------------------------------------------------------------------------------------------------------------------------
-subroutine test_char ()
-   call mat88( "display(ones(80,1)'*61)")
-   call mat88( 'help char')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("char PASSED");else,display("char FAILED");tally ', &
-     & ''])
-end subroutine test_char
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_chol ()
    call mat88( "display(ones(80,1)'*61)")
@@ -737,19 +745,6 @@ subroutine test_end ()
      & 'if sum(tally)=0,display("END PASSED");else,display("END FAILED");tally ', &
      & ''])
 end subroutine test_end
-!-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_eps ()
-   call mat88( "display(ones(80,1)'*61)")
-   call mat88( 'help eps')
-   call mat88( 'tally=[0];')
-   call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     & '                                                                         ', &
-     !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
-     & 'if sum(tally)=0,display("eps PASSED");else,display("eps FAILED");tally ', &
-     & ''])
-end subroutine test_eps
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_exec ()
    call mat88( "display(ones(80,1)'*61)")
@@ -1283,6 +1278,21 @@ subroutine test_who ()
      & 'if sum(tally)=0,display("who PASSED");else,display("who FAILED");tally ', &
      & ''])
 end subroutine test_who
+!-----------------------------------------------------------------------------------------------------------------------------------
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_general_char ()
+   call mat88( [ character(len=256) :: &
+     & "display(ones(80,1)'*'='); // display a line of equals across display     ", &
+     & 'tally=[0];                                                               ', &
+     & 'display(0:126) // display printable ASCII characters                     ', &
+     & '// on an ANSI terminal or terminal emulator                              ', &
+     & 'clr="display([27,91,""H"",27,91,""2J""])" // home cursor and clear screen', &
+     & '>clr                                                                     ', &
+     & 'if "ABCabc"=[65 66 67 97 98 99],tally=[tally,0];display("ABCabc PASSED");else,tally=[tally,1];display("ABCabc FAILED"); ', &
+     & 'if sum(tally)=0,display("general char PASSED");else,display("general char FAILED");tally ', &
+     & ''])
+end subroutine test_general_char
 !-----------------------------------------------------------------------------------------------------------------------------------
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------

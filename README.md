@@ -1,7 +1,7 @@
 # M_matrix
 
-This module allows you to interact with a Fortran program using
-matlab-like commands. This allows you to add code to your Fortran
+This module allows you to interact with a Fortran program using Matlab
+or Octave-like commands. This allows you to add code to your Fortran
 program that you can use to optionally inspect data during development
 and debugging and to create configuration and data files that resemble
 Fortran syntax. It is a WIP (Work In Progress) but is already useful.
@@ -16,6 +16,20 @@ useful let me know.
 Perhaps it could be useful for creating a testing framework for Linear
 Algebra libraries and other routines in the growing Fortran stdlib effort
 or `fpm` packages as well.
+
+Any feedback would be appreciated. How important is it to be compatible
+with Matlab or Octave or Fortran? Does this appear useful for creating
+configuration files, input files, inspecting data in existing programs,
+transferring data between programs or providing for unit testing and
+macro timing and debugging?
+
+I do not plan on extending this to allow for creating functions at this
+point, which would be required to turn it into a more powerful program,
+but do plan on making it easy to extend with custom math-based procedures
+and using modern Fortran features to make it more maintainable.
+
+My primary interest is in making it into a tool for interacting with
+Fortran programs.
 
 Installation requires fpm(1):
 
