@@ -1923,12 +1923,12 @@ character(len=GG_LINELEN) :: string_buf
       allocate(character(len=0)    :: answers(0) )
       ! sort out what to do with an array of input later, for now concatenating into one string
       if (m.lt.1 .or. G_RHS.eq.0)then
-         call journal('sc','<ERROR>GETENV:NEEDS AN ARGUMENT:ROWS=',m,' ARG_COUNT=',G_RHS)
+         call journal('sc','<ERROR>getenv:needs an argument:rows=',m,' arg_count=',G_RHS)
          G_ERR=999
          return
       endif
       if (G_RHS.gt.1)then
-         call journal('sc','<ERROR>GETENV:TOO MANY ARGUMENTS:ARG_COUNT=',G_RHS)
+         call journal('sc','<ERROR>getenv:too many arguments:arg_count=',G_RHS)
          G_ERR=999
          return
       endif
@@ -1936,11 +1936,11 @@ character(len=GG_LINELEN) :: string_buf
       ll=location
       do j=1,m
          id=blank
-         id(1:n)=int(G_STACK_REALS(ll:ll+N-1))
+         id(1:n)=int(G_STACK_REALS(ll:ll+n-1))
          varname=''
          do i=1,n
             if(id(i).le.0)exit   ! ??? why exit. What is the special meaning?
-            if(id(i).le.G_CHARSET_SIZE)then
+            if(id(i).lt.G_CHARSET_SIZE.and.id(i).ge.0)then
                varname(i:i)=achar(id(i))
             else
                call journal('sc',' function name contains unacceptable characters:',id(i))
@@ -1949,7 +1949,8 @@ character(len=GG_LINELEN) :: string_buf
          enddo
          ll=ll+n
          env_value=system_getenv(varname)
-         answers=[character(len=max(len(answers),len_trim(env_value))) :: answers,env_value]
+         ! do not leave it undefined or any variable on LHS will not be defined so make sure at least 1
+         answers=[character(len=max(len(answers),len_trim(env_value),1)) :: answers,env_value]
       enddo
 
       m=size(answers,dim=1)
@@ -1966,7 +1967,7 @@ character(len=GG_LINELEN) :: string_buf
            G_STACK_IMAGS(ll) = 0.0d0             ! all of these functions set imaginary values to zero
            nn=iachar(answers(m)(j:j))
            if(nn.gt.0)then
-              G_STACK_REALS(ll) = real(nn-1)
+              G_STACK_REALS(ll) = real(nn)
            else
               call journal('sc','bad character')
               G_STACK_REALS(ll) = 0.0d0
@@ -9630,6 +9631,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   |______________._________________________________________________________|   ',&
 '   |OUTPUT options| lines  long  short  diary  display  plot                |   ',&
 '   |______________._________________________________________________________|   ',&
+'   |ENVIRONMENT   | getenv                                                  |   ',&
+'   |______________._________________________________________________________|   ',&
 '   |DOCUMENTATION | help   manual topics NEWS                               |   ',&
 '   |______________._________________________________________________________|   ',&
 '   |MISCELLANEOUS | eps    debug  flops sh     MACROS   EDIT   CHARS        |   ',&
@@ -10531,6 +10534,14 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         plot( t.*cos(t), t.*sin(t) )                                           ',&
 '         opts='' -m -1 -title test plot -d pdf''                                ',&
 '         plot( t.*cos(t), t.*sin(t),opts)                                       ',&
+'================================================================================',&
+'ENVIRONMENT                                                                     ',&
+'                                                                                ',&
+'getenv   get environment variable or return a space                             ',&
+'                                                                                ',&
+'            // read commands from a file if an environment variable is set.     ',&
+'            MATRC=getenv(''MATRC'');                                            ',&
+'            if MATRC <> " ", exec(''MATRC'');                                   ',&
 '================================================================================',&
 'PERFORMANCE INFORMATION                                                         ',&
 '                                                                                ',&

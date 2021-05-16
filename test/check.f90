@@ -661,22 +661,28 @@ end subroutine test_diag
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_diary ()
    call mat88( "display(ones(80,1)'*61)")
-   call mat88( 'help diary')
-   call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
-     & '                                                                         ', &
-     & '                                                                         ', &
+     & 'help diary                                                                 ', &
+     & 'tally=[0];                                                                 ', &
      & 'if sum(tally)=0,display("diary PASSED");else,display("diary FAILED");tally ', &
      & ''])
 end subroutine test_diary
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_display ()
-   call mat88( "display(ones(80,1)'*61)")
-   call mat88( 'help display')
-   call mat88( 'tally=[0];')
    call mat88( [ character(len=256) :: &
+     & 'display([27,91,"H",27,91,"2J"]) // clear and home cursor on ANSI device  ', &
+     & "display(ones(80,1)'*61)         // make a line                           ", &
+     & 'help display                                                             ', &
+     & "display(ones(80,1)'*95)         // make a line                           ", &
+     & 'tally=[0];                                                               ', &
      & '                                                                         ', &
-     & '                                                                         ', &
+     & 'display(<                       // multiple lines, all the same length   ', &
+     & '"#--------------#";                                                      ', &
+     & '"|              |";                                                      ', &
+     & '"|    WARNING   |";                                                      ', &
+     & '"|              |";                                                      ', &
+     & '"#--------------#";                                                      ', &
+     & '>);                                                                      ', &
      & '                                                                         ', &
      !& 'if a+b=zeros(a), tally=[tally,0];display("a-b is zero       ");else,tally=[tally,1];display("a-b is NOT zero");      ', &
      & 'if sum(tally)=0,display("display PASSED");else,display("display FAILED");tally ', &

@@ -6,9 +6,21 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
-**2021-05-14**  John S. Urban  <https://github.com/urbanjost>
+**2021-05-16**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: DIFF:
+  +  changed to using the full ASCII character set
+
+### :green_circle: ADD:
+
+  +  added getenv('varname') to allow branching based on environment
+     variables
+
+### :green_circle: FIX:
+
+<!-- ======================================================================== -->
+---
+**2021-05-14**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
 
@@ -114,4 +126,3 @@ help document is now built-in
    - [ ] demo program
    - [ ] unit test
 -->
-
