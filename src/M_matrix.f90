@@ -216,9 +216,9 @@ implicit none
 !private
 public mat88
 public get_array_from_mat88
+public put_array_into_mat88
 !!public :: name_exists, get, geti, getr, getc, geti ! maybe a kind type or second parameter and returned value is of same type(?)
 !!! scalar and array?
-public mat88_put
 
 ! for other routines
 public mat_flop
@@ -333,8 +333,9 @@ integer                     :: G_TOP_OF_SAVED, G_BOTTOM_OF_SCRATCH_IN_USE
 !                                                --->| URAND  | |  0.00  |
 !                                                     --------   --------
 !
-!   The top portion of the stack is used for temporary variables and the bottom portion for saved variables. The figure shows the
-!   situation after the line
+!   The top portion of the stack is used for temporary variables and the
+!   bottom portion for saved variables. The figure shows the situation
+!   after the line
 !
 !      A = [11,12; 21,22],  x = [3.14, sqrt(-1)]'
 !
@@ -7368,14 +7369,9 @@ integer                                  :: i,j,k,location,m,n
    IERR=0
    G_ERR=0
    ! convert character name to mat88 character set
+   id=ichar(' ')
    call mat_str2buf(varname,id,len(varname))
-   do j=1,GG_MAX_NAME_LENGTH
-      do k = 1, G_CHARSET_SIZE                            ! make sure this letter is in set of MAT88 characters and get its MAT88 number
-         if (id(j).eq.k) then
-            id(j)=k-1
-         endif
-      enddo
-   enddo
+   ! ??? make sure this letter is in set of MAT88 characters and get its MAT88 number
    call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_STACK_IDS for messages(?)
 
    do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
@@ -7447,14 +7443,16 @@ end subroutine get_array_from_mat88
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-SUBROUTINE mat88_put(inputarray,varname,JOB,IERR) !JSU
+!!subroutine put_array_into_mat88(varname,inputarrayreal,imaginputarray,img,ierr)
+!! ??? separate routines to get location to store in and then get directly
+!! ??? make support for complex values as well
 
-! ident_41="@(#)M_matrix:: mat88_put(3f): put a variable name and its data onto MAT88 stack"
+subroutine put_array_into_mat88(varname,inputarray,ierr)
+
+! ident_41="@(#)M_matrix:: _put_array_into_mat88(3f): put a variable name and its data onto MAT88 stack"
 
 character(len=*),intent(in) :: varname                ! the name of inputarray.
 doubleprecision,intent(in)  :: inputarray(:,:)        ! inputarray is an M by N matrix
-integer,intent(in)          :: job                    !     JOB =  1  put real inputarray from MAT88,
-                                                      !         = 11  put imag part of inputarray into MAT88.
 integer,intent(out)         :: ierr                   ! return with nonzero ierr after MAT88 error message.
 
 integer                     :: img
@@ -7464,107 +7462,55 @@ integer                     :: i,j,k,location
 integer                     :: m,n                    ! m, n = dimensions
 integer                     :: size_of_a
 
+   img=0
    ierr=0
-
-   ! convert character name to mat88 character set
-   call mat_str2buf(varname,id,len(varname))
-   do j=1,GG_MAX_NAME_LENGTH
-      do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters
-         if (id(j).eq.k ) then
-            id(j)=k-1
-         endif
-      enddo
-   enddo
-
-      !location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      !M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      !N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      !   JOB = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
-
    if(G_BOTTOM_OF_SCRATCH_IN_USE.ne.0)then
       location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) ! location of bottom of used scratch space
    else
+     call journal('sc','<WARNING>G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE)
+     G_BOTTOM_OF_SCRATCH_IN_USE= G_BOTTOM_OF_SCRATCH_IN_USE + 1
      location=1
    endif
-
+   space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
+   !! assume input arrays can be one or two dimension but mat88 stores everything as a vector and store m and n
    m=size(inputarray,dim=1)
    n=size(inputarray,dim=2)
-   size_of_a=size(inputarray)
-   space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
-   if (size_of_a .GT. space_left ) then
-      m = 0
-      n = 0
+   write(*,*)'GOT HERE A:SIZE is ',m,n
+   img=0
+   if (m*n .gt. space_left) then
+      m=0
+      n=0
       call journal('sc','<ERROR>*mat88_put* insufficient space to save data to MAT88')
+      ierr=-1
+      G_ERR=99999
+   elseif(m*n.eq.0)then ! check for zero-size input array
+      ierr=-2
+      call journal('sc','<ERROR>*mat88_put* cannot save empty arrays to MAT88')
+      G_ERR=99999
       return
-   elseif(size_of_a.eq.0)then
-      return
-   endif
-
-   !if(all(imag(inputarray).eq.0)then
-   !      img=0  ! all imaginary values are 0
-   !else
-   !      img=1
-   !endif
-
-   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=m ! copy to global values
-   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=n
-
-   location = G_STACK_ID_LOC(G_TOP_OF_SAVED) + 1
-
-   do i = 1, m
-      do j = 1, n
-         G_STACK_REALS(location)=inputarray(i,j)              ! real
-         if (img .ne. 0) then
-            G_STACK_IMAGS(location)=inputarray(i,j)           ! imaginary
-         endif
-         location=location+1
-      enddo
-   enddo
-
-   size_of_a = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-   if (size_of_a .ne. 0)then
-      !!------
-      !!if (img .eq. 0) call mat_rset(size_of_a,0.0d0,G_STACK_IMAGS(location),1)
-      if (img .eq. 0) G_STACK_IMAGS(location:location+size_of_a-1:1)=0.0d0 ! reset array to zero
-      !!------
-      do i = 1, GG_MAX_NAME_LENGTH
-         j = 0
-         do
-            j = j+1
-            if (id(i).ne.J .and. j.le.blank) cycle
-            exit
+   else
+      !! efficiently set imaginary values to zero >> if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
+      do i=1,m  !! use new fortran routine to convert to a vector, or RESHAPE
+         do j=1,n
+            G_STACK_REALS(location)=inputarray(i,j)
+            if(img .ne. 0) then
+               !! G_STACK_IMAGS(location)=imaginputarray(i,j)
+            endif
+            location=location+1
          enddo
-         id(i) = j-1
       enddo
-      G_SYM = semi
-      G_RHS = 0
-      call mat_stack_put(ID)
-      G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
    endif
-
+   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=m
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=n
+   G_SYM = semi   !! ??? why
+   G_RHS = 0      !! ??? why
+   call mat_str2buf(varname,id,GG_MAX_NAME_LENGTH)                        ! convert character string to an ID
+   !! ???? check if varname is an acceptable name
+   call mat_stack_put(id)
+   G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
-
-contains
-
-subroutine printit()
-character(len=GG_MAX_NAME_LENGTH) :: name
-integer          :: location
-   write(*,*)repeat('=',80)
-   write(*,*)'varname=',varname
-   write(*,*)'ID=',ID(:)
-   write(*,*)'G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
-   write(*,*)'G_ERR=',G_ERR
-   if(G_ERR.lt.1.and.G_BOTTOM_OF_SCRATCH_IN_USE.gt.0)then
-      write(*,*)'G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,*)'G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,*)'G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      location=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,'(*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(location:location+(M*N-1))
-      write(*,'(*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(location:location+(M*N-1))
-   endif
-end subroutine printit
-
-end subroutine mat88_put
+   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
+end subroutine put_array_into_mat88
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
