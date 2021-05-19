@@ -4,9 +4,15 @@
 ! power function. what is double star (DSTAR)?
 ! assumptions that character 0 to 9 are the digits of same value
 ! name, isnum, and maybe zero and eol should all be negative or > 2256
+!
+! calling program should be able to query if data exists and how many values
+!  size_mat88
+!  exists_mat88
+!  inquire_mat88('NAME',exist=L,size=A)
 
 module M_matrix
 use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
+use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
 use M_strings, only : value_to_string, lower, v2s, s2v
 use M_journal, only : journal
 use M_help, only    : help_command
@@ -215,10 +221,10 @@ use M_history, only : redo
 implicit none
 !private
 public mat88
-public get_array_from_mat88
-public put_array_into_mat88
-!!public :: name_exists, get, geti, getr, getc, geti ! maybe a kind type or second parameter and returned value is of same type(?)
-!!! scalar and array?
+public get_from_mat88     ! ??? maybe a function too with a second parameter and returned value is of same type(?)
+public put_into_mat88
+!!public :: exists
+!!public :: size_mat88
 
 ! for other routines
 public mat_flop
@@ -362,6 +368,53 @@ integer                     :: G_TOP_OF_SAVED, G_BOTTOM_OF_SCRATCH_IN_USE
 !   a relatively small portion of the memory, remain in place, while
 !   the subroutines which process them are loaded a few at a time.
 !==================================================================================================================================!
+interface put_into_mat88
+   module procedure store_array_into_mat88
+   module procedure store_vector_into_mat88
+   module procedure store_scalar_into_mat88
+end interface put_into_mat88
+
+interface get_from_mat88
+   module procedure get_array_from_mat88_dpcmplx
+   module procedure get_array_from_mat88_cmplx
+   module procedure get_array_from_mat88_real32
+   module procedure get_array_from_mat88_real64
+   module procedure get_array_from_mat88_real128
+   module procedure get_array_from_mat88_int8
+   module procedure get_array_from_mat88_int16
+   module procedure get_array_from_mat88_int32
+   module procedure get_array_from_mat88_int64
+   module procedure get_array_from_mat88_logical
+   !module procedure get_array_from_mat88_character !???? hmmm, does not meet current mat88 model
+
+   module procedure get_vector_from_mat88_dpcmplx
+   module procedure get_vector_from_mat88_cmplx
+   module procedure get_vector_from_mat88_real32
+   module procedure get_vector_from_mat88_real64
+   module procedure get_vector_from_mat88_real128
+   module procedure get_vector_from_mat88_int8
+   module procedure get_vector_from_mat88_int16
+   module procedure get_vector_from_mat88_int32
+   module procedure get_vector_from_mat88_int64
+   module procedure get_vector_from_mat88_logical
+!!   module procedure get_vector_from_mat88_character
+
+!!   module procedure get_scalar_from_mat88_dpcmplx
+!!   module procedure get_scalar_from_mat88_cmplx
+!!   module procedure get_scalar_from_mat88_real32
+!!   module procedure get_scalar_from_mat88_real64
+!!   module procedure get_scalar_from_mat88_real128
+!!   module procedure get_scalar_from_mat88_int8
+!!   module procedure get_scalar_from_mat88_int16
+!!   module procedure get_scalar_from_mat88_int32
+!!   module procedure get_scalar_from_mat88_int64
+!!   module procedure get_scalar_from_mat88_logical
+!!   module procedure get_scalar_from_mat88_character
+
+   !??? module procedure get_array_class_from_mat88
+   !??? module procedure get_vector_class_from_mat88
+   !??? module procedure get_scalar_class_from_mat88
+end interface get_from_mat88
 
 interface mat88
    module procedure mat88_init
@@ -518,11 +571,21 @@ contains
 !!    which may be programmed, either through a macro language or through
 !!    execution of script files.
 !!
-!!    MAT88(3f) is reentrant and recursive. Functions supported include (but
-!!    are not by any means limited to) sin, cos, tan, arcfunctions, upper
-!!    triangular, lower triangular, determinants, matrix multiplication,
-!!    identity, Hilbert matrices, eigenvalues and eigenvectors, matrix
-!!    roots and products, inversion and so on and so forth.
+!!    MAT88(3f) Functions supported include (but are not by any means limited
+!!    to) sin, cos, tan, arcfunctions, upper triangular, lower triangular,
+!!    determinants, matrix multiplication, identity, Hilbert matrices,
+!!    eigenvalues and eigenvectors, matrix roots and products, inversion
+!!    and so on and so forth.
+!!
+!!    MAT88() can be used
+!!       + as a stand-alone utility for working with mat88() files and
+!!         for basic computations.
+!!       + embedded in a Fortran program, passing variables back and forth
+!!         between the calling program and the utility.
+!!       + to read configuration and data files that contain expressions
+!!         and conditionally selected values.
+!!       + for interactively inspecting data generated by the calling program.
+!!       + for creating unit tests that allow for further interactive examination.
 !!
 !!    The HELP command describes using the interpreter.
 !!
@@ -535,11 +598,11 @@ contains
 !!    INIT and CMD cannot be combined on a single call.
 !!
 !!    The first call may be an initialization declaring the number of
-!!    doubleprecision values to allocate for the combined scratch and
-!!    variable storage area. This is a required initial command. It may be
-!!    repeated. A size of zero will deallocate any allocated storage (after
-!!    which the routine cannot be called with commands until reallocated by
-!!    another call to mat88()).
+!!    doubleprecision complex values to allocate for the combined scratch
+!!    and variable storage area. This form may be repeated and reinitializes
+!!    the utility at each call. A size of zero will deallocate any allocated
+!!    storage (after which the routine cannot be called with commands until
+!!    reallocated by another call to mat88()).
 !!
 !!    If no parameters are supplied interactive mode is entered.
 !!
@@ -1495,9 +1558,24 @@ end subroutine mat_str2buf
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
+function str2ade(string) result(vec)
+
+! ident_7="@(#)M_matrix::mat_str2buf(3fp): convert CHARACTER TO ADE array vector"
+
+character(len=*),intent(in)  :: string
+integer,allocatable          :: vec(:)
+integer                      :: i
+   allocate(vec(len(string)))
+   do i=1,len(string)
+      vec(i)=ichar(string(i:i))
+   enddo
+end function str2ade
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
 function ade2str(buf) result(string)
 
-! ident_7="@(#)M_matrix::mat_str2buf(3fp): convert ADE array to CHARACTER"
+! ident_8="@(#)M_matrix::mat_str2buf(3fp): convert ADE array to CHARACTER"
 
 character(len=:),allocatable :: string
 integer,intent(in)           :: buf(:)
@@ -1516,7 +1594,7 @@ end function ade2str
 !==================================================================================================================================!
 subroutine mat_buf2str(string,buf,lrecl)
 
-! ident_8="@(#)M_matrix::mat_buf2string(3fp): convert hollerith to string"
+! ident_9="@(#)M_matrix::mat_buf2string(3fp): convert hollerith to string"
 
 integer,intent(in)     :: lrecl
 integer,intent(in)     :: buf(:)
@@ -1537,7 +1615,7 @@ end subroutine mat_buf2str
 !==================================================================================================================================!
 subroutine ints2str(ints,string,ierr)
 
-! ident_9="@(#)M_matrix::ints2str(3f) convert mat88 integers to a character variable"
+! ident_10="@(#)M_matrix::ints2str(3f) convert mat88 integers to a character variable"
 
 ! temporary procedure while writing ASCII-based upgrade
 
@@ -1565,7 +1643,7 @@ end subroutine ints2str
 !==================================================================================================================================!
 subroutine mat_matfn6()
 !
-! ident_10="@(#)M_matrix::mat_matfn6(3f):evaluate utility functions"
+! ident_11="@(#)M_matrix::mat_matfn6(3f):evaluate utility functions"
 !
 integer :: i, j, k
 integer :: ia
@@ -1997,7 +2075,7 @@ end subroutine mat_matfn6
 !==================================================================================================================================!
 subroutine mat_funs(id)
 
-! ident_11="@(#)M_matrix::ml_funcs(3fp):scan function list and set G_FUN and G_FIN"
+! ident_12="@(#)M_matrix::ml_funcs(3fp):scan function list and set G_FUN and G_FIN"
 
 integer,intent(in)                :: id(GG_MAX_NAME_LENGTH)
 integer                           :: selector
@@ -2108,7 +2186,7 @@ end subroutine mat_funs
 !==================================================================================================================================!
 subroutine mat_copyid(x,y)
 
-! ident_12="@(#)M_matrix::mat_copyid(3fp): copy a name to allow an easy way to store a name"
+! ident_13="@(#)M_matrix::mat_copyid(3fp): copy a name to allow an easy way to store a name"
 
 integer,intent(out) :: x(GG_MAX_NAME_LENGTH)
 integer,intent(in)  :: y(GG_MAX_NAME_LENGTH)
@@ -2122,7 +2200,7 @@ end subroutine mat_copyid
 !==================================================================================================================================!
 subroutine mat_getval(s)
 
-! ident_13="@(#)M_matrix::mat_getval(3fp): form numerical value from string of integer characters"
+! ident_14="@(#)M_matrix::mat_getval(3fp): form numerical value from string of integer characters"
 
 doubleprecision,intent(out) :: s
       s = 0.0d0
@@ -2149,7 +2227,7 @@ end subroutine mat_getval
 !==================================================================================================================================!
 subroutine mat_getch()
 
-! ident_14="@(#)M_matrix::mat_getch(3f): get next character from input line into G_CHRA"
+! ident_15="@(#)M_matrix::mat_getch(3f): get next character from input line into G_CHRA"
 
    G_CHRA = G_LIN(G_LINE_POINTER(4))
    if (G_CHRA .ne. G_EOL) G_LINE_POINTER(4) = G_LINE_POINTER(4) + 1
@@ -2221,7 +2299,7 @@ end subroutine mat_wcopy
 !==================================================================================================================================!
 subroutine mat_wdiv(ar,ai,br,bi,cr,ci)
 
-! ident_15="@(#)M_matrix::mat_wdiv(3fp): c = a/b"
+! ident_16="@(#)M_matrix::mat_wdiv(3fp): c = a/b"
 
 doubleprecision :: ar
 doubleprecision :: ai
@@ -2256,7 +2334,7 @@ end subroutine mat_wdiv
 !==================================================================================================================================!
 subroutine mat_wset(n,xr,xi,yr,yi,incy)
 
-! ident_16="@(#)M_matrix::mat_set(3f):"
+! ident_17="@(#)M_matrix::mat_set(3f):"
 
 integer,intent(in)         :: n     ! number of Y values to set
 doubleprecision,intent(in) :: xr    ! constant to assign Y real values to
@@ -2280,7 +2358,7 @@ end subroutine mat_wset
 !==================================================================================================================================!
 subroutine mat_base(x,b,eps,s,n)
 
-! ident_17="@(#)M_matrix::mat_base(3fp): store base b representation of x in s(1:n)"
+! ident_18="@(#)M_matrix::mat_base(3fp): store base b representation of x in s(1:n)"
 
 doubleprecision :: x
 doubleprecision :: b
@@ -2378,7 +2456,7 @@ end subroutine mat_wswap
 !==================================================================================================================================!
 subroutine mat_print(ID,K)
 
-! ident_18="@(#)M_matrix::mat_print(3fp): primary output routine"
+! ident_19="@(#)M_matrix::mat_print(3fp): primary output routine"
 
 integer           :: id(GG_MAX_NAME_LENGTH)
 integer           :: k
@@ -2597,7 +2675,7 @@ end subroutine mat_print
 !==================================================================================================================================!
 subroutine mat_wsqrt(xr,xi,yr,yi)
 
-! ident_19="@(#)M_matrix::mat_wsqrt(3fp): y = sqrt(x) with yr .ge. 0.0 and sign(yi) .eq. sign(xi)"
+! ident_20="@(#)M_matrix::mat_wsqrt(3fp): y = sqrt(x) with yr .ge. 0.0 and sign(yi) .eq. sign(xi)"
 
 doubleprecision,intent(in)  :: xr
 doubleprecision,intent(in)  :: xi
@@ -2621,7 +2699,7 @@ end subroutine mat_wsqrt
 !==================================================================================================================================!
 subroutine mat_wlog(in_real,in_imag,out_real,out_imag)
 
-! ident_20="@(#)M_matrix::mat_wlog(3fp): y = log(x)"
+! ident_21="@(#)M_matrix::mat_wlog(3fp): y = log(x)"
 
 doubleprecision :: in_real, in_imag
 doubleprecision :: out_real, out_imag
@@ -2644,7 +2722,7 @@ end subroutine mat_wlog
 !==================================================================================================================================!
 subroutine mat_formz(lunit,x,y)
 
-! ident_21="@(#)M_matrix::mat_formz: system dependent routine to print with z format"
+! ident_22="@(#)M_matrix::mat_formz: system dependent routine to print with z format"
 
 integer                    :: lunit
 doubleprecision,intent(in) :: x,y
@@ -2665,7 +2743,7 @@ end subroutine mat_formz
 !==================================================================================================================================!
 subroutine mat_prompt(pause)
 
-! ident_22="@(#)M_matrix::mat_prompt(3f): issue interactive prompt with optional pause"
+! ident_23="@(#)M_matrix::mat_prompt(3f): issue interactive prompt with optional pause"
 
 integer,intent(in) :: pause
 character(len=1)   :: dummy
@@ -2758,7 +2836,7 @@ end subroutine mat_wscal
 !==================================================================================================================================!
 subroutine mat_wmul(ar,ai,br,bi,cr,ci)
 
-! ident_23="@(#)M_matrix::mat_wmul(3fp) c = a*b"
+! ident_24="@(#)M_matrix::mat_wmul(3fp) c = a*b"
 
 doubleprecision,intent(in)  :: ar
 doubleprecision,intent(in)  :: ai
@@ -2778,7 +2856,7 @@ end subroutine mat_wmul
 !==================================================================================================================================!
 subroutine mat_stack1(op)
 
-! ident_24="@(#)M_matrix::mat_stack1(3f): Unary Operations"
+! ident_25="@(#)M_matrix::mat_stack1(3f): Unary Operations"
 
 integer           :: op
 integer           :: i
@@ -2823,7 +2901,7 @@ end subroutine mat_stack1
 !==================================================================================================================================!
 subroutine mat_rrot(n,dx,incx,dy,incy,c,s)
 
-! ident_25="@(#)M_matrix::mat_rrot(3f): Applies a plane rotation."
+! ident_26="@(#)M_matrix::mat_rrot(3f): Applies a plane rotation."
 
 integer         :: n
 doubleprecision :: dx(*)
@@ -2857,7 +2935,7 @@ end subroutine mat_rrot
 !==================================================================================================================================!
 subroutine mat_rset(n,dx,dy,incy)
 
-! ident_26="@(#)M_matrix::mat_rset(3f): copies a scalar, dx, to a vector, dy."
+! ident_27="@(#)M_matrix::mat_rset(3f): copies a scalar, dx, to a vector, dy."
 
 integer         :: n
 doubleprecision :: dx,dy(*)
@@ -2879,7 +2957,7 @@ end subroutine mat_rset
 !==================================================================================================================================!
 subroutine mat_print_id(id,argcnt)
 
-! ident_27="@(#)M_matrix::mat_print_id(3fp): print table of variable id names (up to) eight per line"
+! ident_28="@(#)M_matrix::mat_print_id(3fp): print table of variable id names (up to) eight per line"
 
 !     ID     Is array of GG_MAX_NAME_LENGTH character IDs to print
 !     ARGCNT is number of IDs to print
@@ -2929,7 +3007,7 @@ end subroutine mat_print_id
 !==================================================================================================================================!
 subroutine mat_stack_put(id)
 
-! ident_28="@(#)M_matrix::mat_stack_put(3fp): put variables into storage"
+! ident_29="@(#)M_matrix::mat_stack_put(3fp): put variables into storage"
 
 integer             :: id(GG_MAX_NAME_LENGTH)
 integer             :: i
@@ -3824,7 +3902,7 @@ end subroutine mat_comand
 !==================================================================================================================================!
 subroutine sh_command()
 
-! ident_29="@(#)M_matrix::sh_command(3f): start system shell interactively"
+! ident_30="@(#)M_matrix::sh_command(3f): start system shell interactively"
 
 character(len=GG_LINELEN) :: line
 integer                   :: istat
@@ -3842,7 +3920,7 @@ end subroutine sh_command
 !==================================================================================================================================!
 subroutine mat_plot(lplot,x,y,n,p,k)
 
-! ident_30="@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
+! ident_31="@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
 
 integer           :: lplot
 integer           :: n
@@ -3926,7 +4004,7 @@ end subroutine mat_plot
 !==================================================================================================================================!
 subroutine mat_matfn1()
 
-! ident_31="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
+! ident_32="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
 
 doubleprecision   :: dtr(2)
 doubleprecision   :: dti(2)
@@ -4572,7 +4650,7 @@ end subroutine mat_matfn2
 !==================================================================================================================================!
 subroutine mat_matfn3()
 
-! ident_32="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
+! ident_33="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
 
 integer         :: i
 integer         :: j
@@ -4884,7 +4962,7 @@ end subroutine mat_matfn3
 !==================================================================================================================================!
 SUBROUTINE mat_matfn4()
 
-! ident_33="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
+! ident_34="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
 
 integer           :: info
 integer           :: j
@@ -5114,7 +5192,7 @@ END SUBROUTINE mat_matfn4
 !==================================================================================================================================!
 subroutine mat_matfn5()
 
-! ident_34="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
+! ident_35="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
 
 character(len=GG_LINELEN)  :: mline
 character(len=256)         :: errmsg
@@ -5497,7 +5575,7 @@ end subroutine mat_matfn5
 !==================================================================================================================================!
 subroutine mat_stack_get(id)
 
-! ident_35="@(#)M_matrix::mat_stack_get(3fp): get variables from storage"
+! ident_36="@(#)M_matrix::mat_stack_get(3fp): get variables from storage"
 
 integer,intent(in)  :: id(GG_MAX_NAME_LENGTH)
 integer             :: i
@@ -5638,7 +5716,7 @@ END SUBROUTINE MAT_STACK_GET
 !==================================================================================================================================!
 subroutine mat_stack2(op)
 
-! ident_36="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
+! ident_37="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
 
 integer           :: op
 doubleprecision   :: sr,si,e1,st,e2
@@ -6344,7 +6422,7 @@ end subroutine mat_clause
 !==================================================================================================================================!
 subroutine mat_rat(x,len,maxd,a,b,d)
 
-! ident_37="@(#)M_matrix::mat_rat(3fp): A/B = continued fraction approximation to X using  len  terms each less than MAXD"
+! ident_38="@(#)M_matrix::mat_rat(3fp): A/B = continued fraction approximation to X using  len  terms each less than MAXD"
 
 integer         :: len,maxd
 doubleprecision :: x,a,b,d(len)
@@ -6872,7 +6950,7 @@ end subroutine mat_term
 !==================================================================================================================================!
 subroutine mat_savlod(lun,id,m,n,img,space_left,xreal,ximag)
 
-! ident_38="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
+! ident_39="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
 
 integer,intent(in)                :: lun                                       ! logical unit number
 integer                           :: id(GG_MAX_NAME_LENGTH)                    ! name, format 32a1
@@ -7148,7 +7226,7 @@ end function mat_wdotci
 !==================================================================================================================================!
 integer function mat_iwamax(n,xr,xi,incx)
 
-! ident_39="@(#)M_matrix::mat_iwamax(3fp):index of norminf(x)"
+! ident_40="@(#)M_matrix::mat_iwamax(3fp):index of norminf(x)"
 
 integer         :: n
 doubleprecision :: xr(*)
@@ -7312,62 +7390,20 @@ end function mat_round
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-function getd2(varname) result(answer)
-character(len=*),intent(in)  :: varname
-doubleprecision, allocatable :: answer(:,:)
-integer                      :: ierr
-   call get_array_from_mat88(answer,varname,type=0,ierr=ierr)
-end function getd2
-!===================================================================================================================================
-!x!function getc2(varname) result(answer)
-!x!character(len=*),intent(in)          :: varname
-!x!complex(kind=dp),allocatable         :: answer(:,:)
-!x!doubleprecision(kind=dp),allocatable :: AR(:,:), AI(:,:)
-!x!integer                              :: ierr
-!x!   call get_array_from_mat88(AR,varname,type=0,ierr=ierr)
-!x!   call get_array_from_mat88(AI,varname,type=1,ierr=ierr)
-!x!   answer=cmplx(AR,AI)
-!x!end function getc2
-!===================================================================================================================================
-function geti2(varname) result(answer)
-character(len=*),intent(in) :: varname
-integer, allocatable        :: answer(:,:)
-   answer=int(getd2('varname'))
-end function geti2
-!===================================================================================================================================
-function getr2(varname) result(answer)
-character(len=*),intent(in) :: varname
-real, allocatable           :: answer(:,:)
-   answer=int(getd2('varname'))
-end function getr2
-!===================================================================================================================================
-function gets2(varname) result(answer)
-character(len=*),intent(in)  :: varname
-integer, allocatable         :: A(:,:)
-character(len=:),allocatable :: answer(:)
-integer                      :: i
-   A=int(geti2('varname'))
-   allocate( character(len=size(A,dim=1)) :: answer(size(A,dim=2)) )
-   do i=1,size(A,dim=2)
-      call mat_buf2str(answer(i),A(i,:),len(answer))
-   enddo
-end function gets2
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
-!===================================================================================================================================
-subroutine get_array_from_mat88(A,varname,type,IERR)
+subroutine get_double_from_mat88(varname,A,type,IERR)
 
-! ident_40="@(#)M_matrix::get_array_from_mat88(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
+! ident_41="@(#)M_matrix::get_double_from_mat88(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
 
 character(len=*),intent(in)              :: varname    ! the name of A.
 integer,intent(in)                       :: type       ! type =  0  get REAL A from MAT88, type  = 1  get IMAGINARY A into MAT88,
 integer,INTENT(OUT)                      :: ierr       ! return with nonzero IERR after MAT88 error message.
 doubleprecision,allocatable,intent(out)  :: a(:,:)     ! A is an M by N matrix
-
 integer                                  :: id(GG_MAX_NAME_LENGTH)
 integer                                  :: i,j,k,location,m,n
-   IERR=0
-   G_ERR=0
+
+   if(G_BIGMEM.LT.0) call mat88_init(200000) ! if not initialized initialize
+   ierr=0
+
    ! convert character name to mat88 character set
    id=ichar(' ')
    call mat_str2buf(varname,id,len(varname))
@@ -7380,7 +7416,7 @@ integer                                  :: i,j,k,location,m,n
 
    ! if matched the name inserted above did not find it.
    if ( (k .ge. GG_MAX_NUMBER_OF_NAMES-1 .and. G_RHS .gt. 0) .or. (k .eq. G_TOP_OF_SAVED-1) ) then
-      call journal('sc','<ERROR>get_array_from_mat88: unknown variable name',varname)
+      call journal('sc','<ERROR>get_double_from_mat88: unknown variable name',varname)
       IERR=4
       if(allocated(a))deallocate(a)
       allocate(a(0,0))
@@ -7411,106 +7447,491 @@ integer                                  :: i,j,k,location,m,n
          enddo
       endif
 
-      if(G_DEBUG_LEVEL.ne.0)then
-         call printit()
-      endif
-
    endif
 
-contains
-
-subroutine printit()
-character(len=GG_MAX_NAME_LENGTH) :: name
-integer          :: location
-   write(*,*)repeat('=',80)
-   write(*,*)'*get_array_from_mat88'
-   write(*,*)'   varname=',varname
-   write(*,*)'   ID=',ID(:)
-   write(*,*)'   G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
-   write(*,*)'   G_ERR=',G_ERR
-   if(G_ERR.lt.0.and.G_BOTTOM_OF_SCRATCH_IN_USE.gt.0)then
-      write(*,*)'   G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,*)'   G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE),M
-      write(*,*)'   G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=',G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE),N
-      location=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-      write(*,'(3x,*(g0.4,1x))')'REAL VALUES=     ',G_STACK_REALS(location:location+(M*N-1))
-      write(*,'(3x,*(g0.4,1x))')'IMAGINARY VALUES=',G_STACK_IMAGS(location:location+(M*N-1))
-   endif
-   write(*,*)repeat('=',80)
-end subroutine printit
-
-end subroutine get_array_from_mat88
+end subroutine get_double_from_mat88
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-!!subroutine put_array_into_mat88(varname,inputarrayreal,imaginputarray,img,ierr)
-!! ??? separate routines to get location to store in and then get directly
-!! ??? make support for complex values as well
+subroutine store_double_into_mat88(varname,realxx,imagxx,ierr)
 
-subroutine put_array_into_mat88(varname,inputarray,ierr)
+! ident_42="@(#)M_matrix:: _store_double_into_mat88(3f): put a variable name and its data onto MAT88 stack"
 
-! ident_41="@(#)M_matrix:: _put_array_into_mat88(3f): put a variable name and its data onto MAT88 stack"
+character(len=*),intent(in)          :: varname                ! the name of realxx.
+doubleprecision,intent(in)           :: realxx(:,:)            ! inputarray is an M by N matrix
+doubleprecision,intent(in),optional  :: imagxx(:,:)            ! inputarray is an M by N matrix
+integer,intent(out)                  :: ierr                   ! return with nonzero ierr after MAT88 error message.
 
-character(len=*),intent(in) :: varname                ! the name of inputarray.
-doubleprecision,intent(in)  :: inputarray(:,:)        ! inputarray is an M by N matrix
-integer,intent(out)         :: ierr                   ! return with nonzero ierr after MAT88 error message.
+integer                              :: img
+integer                              :: space_left
+integer                              :: id(GG_MAX_NAME_LENGTH) ! ID = name, in numeric format
+integer                              :: i,j,k,location
+integer                              :: m,n                    ! m, n = dimensions
+integer                              :: size_of_a
 
-integer                     :: img
-integer                     :: space_left
-integer                     :: id(GG_MAX_NAME_LENGTH) ! ID = name, in numeric format
-integer                     :: i,j,k,location
-integer                     :: m,n                    ! m, n = dimensions
-integer                     :: size_of_a
+   if(G_BIGMEM.LT.0) call mat88_init(200000) ! if not initialized initialize
 
-   img=0
    ierr=0
+   if(present(imagxx))then
+      img=1
+      if(size(realxx,dim=1).ne.size(imagxx,dim=1).or.size(realxx,dim=2).ne.size(imagxx,dim=2))then
+         call journal('sc','<ERROR>*mat88_put* real and imaginary parts have different sizes')
+         ierr=-1
+         return
+      endif
+   else
+      img=0
+   endif
+
    if(G_BOTTOM_OF_SCRATCH_IN_USE.ne.0)then
       location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) ! location of bottom of used scratch space
    else
-     call journal('sc','<WARNING>G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE)
+     !call journal('sc','<WARNING>G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE)
      G_BOTTOM_OF_SCRATCH_IN_USE= G_BOTTOM_OF_SCRATCH_IN_USE + 1
      location=1
    endif
    space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
    !! assume input arrays can be one or two dimension but mat88 stores everything as a vector and store m and n
-   m=size(inputarray,dim=1)
-   n=size(inputarray,dim=2)
-   write(*,*)'GOT HERE A:SIZE is ',m,n
-   img=0
+   m=size(realxx,dim=1)
+   n=size(realxx,dim=2)
    if (m*n .gt. space_left) then
-      m=0
-      n=0
       call journal('sc','<ERROR>*mat88_put* insufficient space to save data to MAT88')
-      ierr=-1
-      G_ERR=99999
-   elseif(m*n.eq.0)then ! check for zero-size input array
       ierr=-2
+      return
+   elseif(m*n.eq.0)then ! check for zero-size input array
       call journal('sc','<ERROR>*mat88_put* cannot save empty arrays to MAT88')
-      G_ERR=99999
+      ierr=-3
       return
    else
-      !! efficiently set imaginary values to zero >> if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
-      do i=1,m  !! use new fortran routine to convert to a vector, or RESHAPE
-         do j=1,n
-            G_STACK_REALS(location)=inputarray(i,j)
-            if(img .ne. 0) then
-               !! G_STACK_IMAGS(location)=imaginputarray(i,j)
-            endif
-            location=location+1
-         enddo
-      enddo
+      if (img .eq. 0)then
+         call mat_rset(m*n,0.0d0,G_STACK_IMAGS(location),1) ! set imaginary values to zero
+      else
+         G_STACK_IMAGS(location:location+m*n-1)=pack(imagxx,.true.)
+      endif
+      G_STACK_REALS(location:location+m*n-1)=pack(realxx,.true.)
    endif
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=m
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=n
    G_SYM = semi   !! ??? why
    G_RHS = 0      !! ??? why
    call mat_str2buf(varname,id,GG_MAX_NAME_LENGTH)                        ! convert character string to an ID
+   !! ???? if(G_ERR.ne.0)
    !! ???? check if varname is an acceptable name
    call mat_stack_put(id)
+   !! ???? if(G_ERR.ne.0)
    G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
-end subroutine put_array_into_mat88
+end subroutine store_double_into_mat88
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+subroutine store_array_into_mat88(varname,anything,ierr)
+character(len=*),intent(in)  :: varname
+class(*)                     :: anything(:,:)
+integer,intent(out)          :: ierr
+logical,parameter            :: T=.true.
+integer                      :: i
+   select type(anything)
+!!    type is (character(len=*));
+!!       call store_double_into_mat88(varname,
+!!       reshape(real(str2ade(anything),kind=dp),[1,len(anything)])
+!!       ,ierr=ierr)
+!!       call store_double_into_mat88(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)
+    type is (complex);              call store_double_into_mat88(varname,real(anything,kind=dp), &
+                                                                       & real(aimag(anything),kind=dp),ierr=ierr)
+    type is (complex(kind=dp));     call store_double_into_mat88(varname,real(anything),aimag(anything),ierr=ierr)
+    type is (integer(kind=int8));   call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
+    type is (integer(kind=int16));  call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
+    type is (integer(kind=int32));  call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
+    type is (integer(kind=int64));  call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
+    type is (real(kind=real32));    call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
+    type is (real(kind=real64));    call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
+    type is (real(kind=real128));   call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
+    ! arbitrarily, 0 is false and not 0 is true, although I prefer the opposite
+    type is (logical);              call store_double_into_mat88(varname,merge(0.1d0,0.0d0,anything),ierr=ierr)
+    class default
+      stop 'crud. store_array_into_mat88(1) does not know about this type'
+   end select
+end subroutine store_array_into_mat88
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+subroutine store_scalar_into_mat88(varname,anything,ierr)
+character(len=*),intent(in)  :: varname
+class(*)                     :: anything
+integer,intent(out)          :: ierr
+logical,parameter            :: T=.true.
+   select type(anything)
+    type is (character(len=*))
+       call store_double_into_mat88(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)
+    type is (complex)
+       call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]), &
+                                          & reshape([real(aimag(anything),kind=dp)],[1,1]), ierr=ierr)
+    type is (complex(kind=dp))
+             call store_double_into_mat88(varname,reshape([real(anything)],[1,1]), reshape([aimag(anything)],[1,1]), ierr=ierr)
+    type is (integer(kind=int8));  call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (integer(kind=int16)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (integer(kind=int32)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (integer(kind=int64)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (real(kind=real32));   call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (real(kind=real64));   call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (real(kind=real128));  call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    ! arbitrarily, 0 is false and not 0 is true, although I prefer the opposite
+    type is (logical);             call store_double_into_mat88(varname,reshape([merge(1.0d0,0.0d0,anything)],[1,1]),ierr=ierr)
+    class default
+      stop 'crud. store_scalar_into_mat88(1) does not know about this type'
+   end select
+end subroutine store_scalar_into_mat88
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+subroutine store_vector_into_mat88(varname,anything,ierr)
+character(len=*),intent(in)  :: varname
+class(*)                     :: anything(:)
+integer,intent(out)          :: ierr
+logical,parameter            :: T=.true.
+integer                      :: i
+   select type(anything)
+    type is (character(len=*));
+       associate ( &
+                   & letters  => [( real(str2ade(anything(i)),kind=dp),i=1,size(anything,dim=1))] , &
+                   & r=> size(anything), &
+                   & c=> len(anything) &
+                 )
+          call store_double_into_mat88(varname,reshape(letters,[r,c],order=[2,1]),ierr=ierr)
+       end associate
+    type is (complex)
+       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]), &
+                                          & reshape(real(aimag(anything),kind=dp),[1,size(anything)]), ierr=ierr)
+    type is (complex(kind=dp))
+       call store_double_into_mat88(varname,reshape(real(anything),[1,size(anything)]), &
+                                          & reshape(aimag(anything),[1,size(anything)]), ierr=ierr)
+    type is (integer(kind=int8))
+       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+    type is (integer(kind=int16))
+       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+    type is (integer(kind=int32))
+       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+    type is (integer(kind=int64))
+       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+    type is (real(kind=real32))
+       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+    type is (real(kind=real64))
+       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+    type is (real(kind=real128))
+       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+    type is (logical)
+       call store_double_into_mat88(varname,reshape(merge(0.1d0,0.0d0,anything),[1,size(anything)]),ierr=ierr)
+    class default
+      stop 'crud. store_vector_into_mat88(1) does not know about this type'
+      ierr=-20
+   end select
+end subroutine store_vector_into_mat88
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+subroutine get_array_from_mat88_int8(varname,out,ierr)
+character(len=*),intent(in)                :: varname
+integer(kind=int8),allocatable,intent(out) :: out(:,:)
+doubleprecision,allocatable                :: double(:,:)
+integer,intent(out)                        :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=nint(double,kind=int8)
+end subroutine get_array_from_mat88_int8
+!===================================================================================================================================
+subroutine get_array_from_mat88_int16(varname,out,ierr)
+character(len=*),intent(in)                 :: varname
+integer(kind=int16),allocatable,intent(out) :: out(:,:)
+doubleprecision,allocatable                 :: double(:,:)
+integer,intent(out)                         :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=nint(double,kind=int16)
+end subroutine get_array_from_mat88_int16
+!===================================================================================================================================
+subroutine get_array_from_mat88_int32(varname,out,ierr)
+character(len=*),intent(in)                 :: varname
+integer(kind=int32),allocatable,intent(out) :: out(:,:)
+doubleprecision,allocatable                 :: double(:,:)
+integer,intent(out)                         :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=nint(double,kind=int32)
+end subroutine get_array_from_mat88_int32
+!===================================================================================================================================
+subroutine get_array_from_mat88_int64(varname,out,ierr)
+character(len=*),intent(in)                 :: varname
+integer(kind=int64),allocatable,intent(out) :: out(:,:)
+doubleprecision,allocatable                 :: double(:,:)
+integer,intent(out)                         :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=real(double,kind=int64)
+end subroutine get_array_from_mat88_int64
+!===================================================================================================================================
+subroutine get_array_from_mat88_real32(varname,out,ierr)
+character(len=*),intent(in)               :: varname
+real(kind=real32),allocatable,intent(out) :: out(:,:)
+doubleprecision,allocatable               :: double(:,:)
+integer,intent(out)                       :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=real(double,kind=real32)
+end subroutine get_array_from_mat88_real32
+!===================================================================================================================================
+subroutine get_array_from_mat88_real64(varname,out,ierr)
+character(len=*),intent(in)               :: varname
+real(kind=real64),allocatable,intent(out) :: out(:,:)
+doubleprecision,allocatable               :: double(:,:)
+integer,intent(out)                       :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=real(double,kind=real64)
+end subroutine get_array_from_mat88_real64
+!===================================================================================================================================
+subroutine get_array_from_mat88_real128(varname,out,ierr)
+character(len=*),intent(in)                 :: varname
+real(kind=real128),allocatable,intent(out)  :: out(:,:)
+doubleprecision,allocatable                 :: double(:,:)
+integer,intent(out)                         :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=real(double,kind=real128)
+end subroutine get_array_from_mat88_real128
+!===================================================================================================================================
+subroutine get_array_from_mat88_logical(varname,out,ierr)
+character(len=*),intent(in)      :: varname
+logical,allocatable,intent(out)  :: out(:,:)
+doubleprecision,allocatable      :: double(:,:)
+integer,intent(out)              :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=merge(.false.,.true.,nint(double).eq.0)
+end subroutine get_array_from_mat88_logical
+!===================================================================================================================================
+subroutine get_array_from_mat88_cmplx(varname,out,ierr)
+character(len=*),intent(in)      :: varname
+complex,allocatable,intent(out)  :: out(:,:)
+doubleprecision,allocatable      :: double(:,:), doublei(:,:)
+integer,intent(out)              :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   if(ierr.ne.0)return
+   out=cmplx(double,doublei,kind=sp)
+end subroutine get_array_from_mat88_cmplx
+!===================================================================================================================================
+subroutine get_array_from_mat88_dpcmplx(varname,out,ierr)
+character(len=*),intent(in)               :: varname
+complex(kind=dp),allocatable,intent(out)  :: out(:,:)
+doubleprecision,allocatable               :: double(:,:), doublei(:,:)
+integer,intent(out)                       :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   if(ierr.ne.0)return
+   out=cmplx(double,doublei,kind=sp)
+end subroutine get_array_from_mat88_dpcmplx
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+subroutine get_vector_from_mat88_int8(varname,out,ierr)
+character(len=*),intent(in)                :: varname
+integer(kind=int8),allocatable,intent(out) :: out(:)
+doubleprecision,allocatable                :: double(:,:)
+integer,intent(out)                        :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=nint(pack(double,.true.),kind=int8)
+end subroutine get_vector_from_mat88_int8
+!===================================================================================================================================
+subroutine get_vector_from_mat88_int16(varname,out,ierr)
+character(len=*),intent(in)                 :: varname
+integer(kind=int16),allocatable,intent(out) :: out(:)
+doubleprecision,allocatable                 :: double(:,:)
+integer,intent(out)                         :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=nint(pack(double,.true.),kind=int16)
+end subroutine get_vector_from_mat88_int16
+!===================================================================================================================================
+subroutine get_vector_from_mat88_int32(varname,out,ierr)
+character(len=*),intent(in)                 :: varname
+integer(kind=int32),allocatable,intent(out) :: out(:)
+doubleprecision,allocatable                 :: double(:,:)
+integer,intent(out)                         :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=nint(pack(double,.true.),kind=int32)
+end subroutine get_vector_from_mat88_int32
+!===================================================================================================================================
+subroutine get_vector_from_mat88_int64(varname,out,ierr)
+character(len=*),intent(in)                 :: varname
+integer(kind=int64),allocatable,intent(out) :: out(:)
+doubleprecision,allocatable                 :: double(:,:)
+integer,intent(out)                         :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=real(pack(double,.true.),kind=int64)
+end subroutine get_vector_from_mat88_int64
+!===================================================================================================================================
+subroutine get_vector_from_mat88_real32(varname,out,ierr)
+character(len=*),intent(in)               :: varname
+real(kind=real32),allocatable,intent(out) :: out(:)
+doubleprecision,allocatable               :: double(:,:)
+integer,intent(out)                       :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=real(pack(double,.true.),kind=real32)
+end subroutine get_vector_from_mat88_real32
+!===================================================================================================================================
+subroutine get_vector_from_mat88_real64(varname,out,ierr)
+character(len=*),intent(in)               :: varname
+real(kind=real64),allocatable,intent(out) :: out(:)
+doubleprecision,allocatable               :: double(:,:)
+integer,intent(out)                       :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=real(pack(double,.true.),kind=real64)
+end subroutine get_vector_from_mat88_real64
+!===================================================================================================================================
+subroutine get_vector_from_mat88_real128(varname,out,ierr)
+character(len=*),intent(in)                 :: varname
+real(kind=real128),allocatable,intent(out)  :: out(:)
+doubleprecision,allocatable                 :: double(:,:)
+integer,intent(out)                         :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=real(pack(double,.true.),kind=real128)
+end subroutine get_vector_from_mat88_real128
+!===================================================================================================================================
+subroutine get_vector_from_mat88_logical(varname,out,ierr)
+character(len=*),intent(in)      :: varname
+logical,allocatable,intent(out)  :: out(:)
+doubleprecision,allocatable      :: double(:,:)
+integer,intent(out)              :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=merge(.false.,.true.,pack(nint(double),.true.).eq.0)
+end subroutine get_vector_from_mat88_logical
+!===================================================================================================================================
+subroutine get_vector_from_mat88_cmplx(varname,out,ierr)
+character(len=*),intent(in)      :: varname
+complex,allocatable,intent(out)  :: out(:)
+doubleprecision,allocatable      :: double(:,:), doublei(:,:)
+integer,intent(out)              :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   if(ierr.ne.0)return
+   out=pack(cmplx(double,doublei,kind=sp),.true.)
+end subroutine get_vector_from_mat88_cmplx
+!===================================================================================================================================
+subroutine get_vector_from_mat88_dpcmplx(varname,out,ierr)
+character(len=*),intent(in)               :: varname
+complex(kind=dp),allocatable,intent(out)  :: out(:)
+doubleprecision,allocatable               :: double(:,:), doublei(:,:)
+integer,intent(out)                       :: ierr
+   if(allocated(out))deallocate(out)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   if(ierr.ne.0)return
+   out=pack(cmplx(double,doublei,kind=dp),.true.)
+end subroutine get_vector_from_mat88_dpcmplx
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+subroutine get_scalar_class_from_mat88(varname,anything,ierr)
+character(len=*),intent(in)       :: varname
+class(*),intent(out)              :: anything
+doubleprecision,allocatable       :: double(:,:), doublei(:,:)
+integer,intent(out)               :: ierr
+logical,parameter                 :: T=.true.
+integer                           :: sz
+! character return values work better if allocatable so they have their own procedure
+
+   sz=0
+   if(allocated(double))deallocate(double)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+
+   select type(anything)
+    type is (complex)
+       call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+       ! so far mat88 cannot have an array of zero size so assume array(1,1) exists
+       anything=cmplx(double(1,1),doublei(1,1),kind=sp)
+       sz=size(double)
+
+    type is (complex(kind=dp))
+       call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+       anything=cmplx(double(1,1), doublei(1,1))
+       sz=size(double)
+    type is (integer(kind=int8));  anything=int(double(1,1),kind=int8)     ;sz=size(double)
+    type is (integer(kind=int16)); anything=int(double(1,1),kind=int16)    ;sz=size(double)
+    type is (integer(kind=int32)); anything=int(double(1,1),kind=int32)    ;sz=size(double)
+    type is (integer(kind=int64)); anything=int(double(1,1),kind=int64)    ;sz=size(double)
+    type is (real(kind=real32));   anything=real(double(1,1),kind=real32)  ;sz=size(double)
+    type is (real(kind=real64));   anything=real(double(1,1),kind=real64)  ;sz=size(double)
+    type is (real(kind=real128));  anything=real(double(1,1),kind=real128) ;sz=size(double)
+    type is (logical);             anything=nint(double(1,1)).ne.0         ;sz=size(double)
+    class default
+      stop 'crud. get_scalar_class_from_mat88(1) does not know about this type'
+      ierr=-20
+   end select
+   if(sz.ne.1)write(*,*)'*get_scalar_class_from_mat88* Warning: variable was larger than one value, element (1:1) returned'
+end subroutine get_scalar_class_from_mat88
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+subroutine get_vector_class_from_mat88(varname,anything,ierr)
+character(len=*),intent(in)      :: varname
+class(*),allocatable,intent(out) :: anything(:)
+doubleprecision,allocatable      :: double(:,:), doublei(:,:)
+integer,intent(out)              :: ierr
+logical,parameter                :: T=.true.
+
+   if(allocated(double))deallocate(double)
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+
+   select type(anything)
+    type is (complex)
+       call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+       anything=pack(cmplx(double,doublei,kind=sp),T)
+    type is (complex(kind=dp))
+       call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+       anything=pack(cmplx(double,doublei,kind=dp),T)
+    type is (integer(kind=int8))  ; anything=pack(int(double,kind=int8),T)
+    type is (integer(kind=int16)) ; anything=pack(int(double,kind=int16),T)
+    type is (integer(kind=int32)) ; anything=pack(int(double,kind=int32),T)
+    type is (integer(kind=int64)) ; anything=pack(int(double,kind=int64),T)
+    type is (real(kind=real32))   ; anything=pack(real(double,kind=real32),T)
+    type is (real(kind=real64))   ; anything=pack(real(double,kind=real64),T)
+    type is (real(kind=real128))  ; anything=pack(real(double,kind=real128),T)
+    type is (logical)             ; anything=merge(.false.,.true.,pack(nint(double),T).eq.0)
+    class default
+      stop 'crud. get_vector_class_from_mat88(1) does not know about this type'
+      ierr=-20
+   end select
+end subroutine get_vector_class_from_mat88
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
@@ -7518,7 +7939,7 @@ function too_much_memory(expression)
 integer,intent(in) :: expression
 logical            :: too_much_memory
 
-! ident_42="@(#)too much memory required"
+! ident_43="@(#)too much memory required"
 
    G_ERR=expression
    if(G_ERR.gt.0)then
@@ -7534,7 +7955,7 @@ end function too_much_memory
 !===================================================================================================================================
 function system_getenv(name,default) result(value)
 
-! ident_43="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
+! ident_44="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
 
 character(len=*),intent(in)          :: name
 character(len=*),intent(in),optional :: default
@@ -7608,7 +8029,7 @@ end subroutine mat_wpofa
 !==================================================================================================================================!
 subroutine mat_watan(xr,xi,yr,yi)
 
-! ident_44="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
+! ident_45="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
 
 doubleprecision :: xr
 doubleprecision :: xi
@@ -7635,7 +8056,7 @@ end subroutine mat_watan
 !==================================================================================================================================!
 subroutine mat_rrotg(da,db,c,s)
 
-! ident_45="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
+! ident_46="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
 
 doubleprecision :: da
 doubleprecision :: db
@@ -7664,7 +8085,7 @@ end subroutine mat_rrotg
 !==================================================================================================================================!
 subroutine mat_wsign(xr,xi,yr,yi,zr,zi)
 
-! ident_46="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
+! ident_47="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
 
 doubleprecision :: xr
 doubleprecision :: xi
@@ -10641,7 +11062,7 @@ end subroutine mat_help_text
 !==================================================================================================================================!
 subroutine mat_inverse_hilbert(a,lda,n)
 
-! ident_47="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
+! ident_48="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
 !
 ! References:
 ! Forsythe, G. E. and C. B. Moler. Computer Solution of Linear Algebraic Systems. Englewood Cliffs, NJ: Prentice-Hall, 1967.
@@ -10677,7 +11098,7 @@ end subroutine mat_inverse_hilbert
 !==================================================================================================================================!
 subroutine mat_magic(a,lda,n)
 !
-! ident_48="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
+! ident_49="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
 
 !        Algorithms taken from
 !        Mathematical Recreations and Essays, 12th Ed.,

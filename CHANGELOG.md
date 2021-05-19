@@ -6,6 +6,19 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
+**2021-05-19**  John S. Urban  <https://github.com/urbanjost>
+
+### :green_circle: DIFF:
+
+### :green_circle: ADD:
+  +  put_into_mat88() is functional, allowing most intrinsic types from 
+     scalar to vector to MxN matrix to be passed from the calling program
+     onto the mat88 stack.
+
+### :green_circle: FIX:
+
+<!-- ======================================================================== -->
+---
 **2021-05-16**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: DIFF:
