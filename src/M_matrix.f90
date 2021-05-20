@@ -397,23 +397,21 @@ interface get_from_mat88
    module procedure get_vector_from_mat88_int32
    module procedure get_vector_from_mat88_int64
    module procedure get_vector_from_mat88_logical
-!!   module procedure get_vector_from_mat88_character
+   module procedure get_vector_from_mat88_character
 
-!!   module procedure get_scalar_from_mat88_dpcmplx
-!!   module procedure get_scalar_from_mat88_cmplx
-!!   module procedure get_scalar_from_mat88_real32
-!!   module procedure get_scalar_from_mat88_real64
-!!   module procedure get_scalar_from_mat88_real128
-!!   module procedure get_scalar_from_mat88_int8
-!!   module procedure get_scalar_from_mat88_int16
-!!   module procedure get_scalar_from_mat88_int32
-!!   module procedure get_scalar_from_mat88_int64
-!!   module procedure get_scalar_from_mat88_logical
-!!   module procedure get_scalar_from_mat88_character
+   !!module procedure get_vector_mxn_from_mat88_int8
+   module procedure get_scalar_from_mat88_dpcmplx
+   module procedure get_scalar_from_mat88_cmplx
+   module procedure get_scalar_from_mat88_real32
+   module procedure get_scalar_from_mat88_real64
+   module procedure get_scalar_from_mat88_real128
+   module procedure get_scalar_from_mat88_int8
+   module procedure get_scalar_from_mat88_int16
+   module procedure get_scalar_from_mat88_int32
+   module procedure get_scalar_from_mat88_int64
+   module procedure get_scalar_from_mat88_logical
+   module procedure get_scalar_from_mat88_character
 
-   !??? module procedure get_array_class_from_mat88
-   !??? module procedure get_vector_class_from_mat88
-   !??? module procedure get_scalar_class_from_mat88
 end interface get_from_mat88
 
 interface mat88
@@ -1567,7 +1565,7 @@ integer,allocatable          :: vec(:)
 integer                      :: i
    allocate(vec(len(string)))
    do i=1,len(string)
-      vec(i)=ichar(string(i:i))
+      vec(i)=iachar(string(i:i))
    enddo
 end function str2ade
 !==================================================================================================================================!
@@ -7405,7 +7403,7 @@ integer                                  :: i,j,k,location,m,n
    ierr=0
 
    ! convert character name to mat88 character set
-   id=ichar(' ')
+   id=iachar(' ')
    call mat_str2buf(varname,id,len(varname))
    ! ??? make sure this letter is in set of MAT88 characters and get its MAT88 number
    call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_STACK_IDS for messages(?)
@@ -7435,8 +7433,8 @@ integer                                  :: i,j,k,location,m,n
          if(allocated(a))deallocate(a)
          allocate(a(m,n))
          location=G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-         do i=1,m
-            do j=1,n
+         do j=1,n
+            do i=1,m
                if(type.eq.0)then
                   a(i,j)=G_STACK_REALS(location)       ! type =  0  GET REAL A FROM MAT88,
                else
@@ -7450,6 +7448,16 @@ integer                                  :: i,j,k,location,m,n
    endif
 
 end subroutine get_double_from_mat88
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+function rowpack(arr) result(vec)
+doubleprecision,intent(in)  :: arr(:,:)
+doubleprecision,allocatable :: vec(:)
+integer                     :: i
+if(allocated(vec))deallocate(vec)
+vec=[(arr(:,i),i=1,size(arr,dim=2))]
+end function rowpack
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
@@ -7506,9 +7514,9 @@ integer                              :: size_of_a
       if (img .eq. 0)then
          call mat_rset(m*n,0.0d0,G_STACK_IMAGS(location),1) ! set imaginary values to zero
       else
-         G_STACK_IMAGS(location:location+m*n-1)=pack(imagxx,.true.)
+         G_STACK_IMAGS(location:location+m*n-1)=rowpack(imagxx)
       endif
-      G_STACK_REALS(location:location+m*n-1)=pack(realxx,.true.)
+      G_STACK_REALS(location:location+m*n-1)=rowpack(realxx)
    endif
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=m
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=n
@@ -7557,35 +7565,6 @@ end subroutine store_array_into_mat88
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine store_scalar_into_mat88(varname,anything,ierr)
-character(len=*),intent(in)  :: varname
-class(*)                     :: anything
-integer,intent(out)          :: ierr
-logical,parameter            :: T=.true.
-   select type(anything)
-    type is (character(len=*))
-       call store_double_into_mat88(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)
-    type is (complex)
-       call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]), &
-                                          & reshape([real(aimag(anything),kind=dp)],[1,1]), ierr=ierr)
-    type is (complex(kind=dp))
-             call store_double_into_mat88(varname,reshape([real(anything)],[1,1]), reshape([aimag(anything)],[1,1]), ierr=ierr)
-    type is (integer(kind=int8));  call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (integer(kind=int16)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (integer(kind=int32)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (integer(kind=int64)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (real(kind=real32));   call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (real(kind=real64));   call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (real(kind=real128));  call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    ! arbitrarily, 0 is false and not 0 is true, although I prefer the opposite
-    type is (logical);             call store_double_into_mat88(varname,reshape([merge(1.0d0,0.0d0,anything)],[1,1]),ierr=ierr)
-    class default
-      stop 'crud. store_scalar_into_mat88(1) does not know about this type'
-   end select
-end subroutine store_scalar_into_mat88
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
-!===================================================================================================================================
 subroutine store_vector_into_mat88(varname,anything,ierr)
 character(len=*),intent(in)  :: varname
 class(*)                     :: anything(:)
@@ -7628,6 +7607,35 @@ integer                      :: i
       ierr=-20
    end select
 end subroutine store_vector_into_mat88
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+subroutine store_scalar_into_mat88(varname,anything,ierr)
+character(len=*),intent(in)  :: varname
+class(*)                     :: anything
+integer,intent(out)          :: ierr
+logical,parameter            :: T=.true.
+   select type(anything)
+    type is (character(len=*))
+       call store_double_into_mat88(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)
+    type is (complex)
+       call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]), &
+                                          & reshape([real(aimag(anything),kind=dp)],[1,1]), ierr=ierr)
+    type is (complex(kind=dp))
+             call store_double_into_mat88(varname,reshape([real(anything)],[1,1]), reshape([aimag(anything)],[1,1]), ierr=ierr)
+    type is (integer(kind=int8));  call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (integer(kind=int16)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (integer(kind=int32)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (integer(kind=int64)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (real(kind=real32));   call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (real(kind=real64));   call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (real(kind=real128));  call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    ! arbitrarily, 0 is false and not 0 is true, although I prefer the opposite
+    type is (logical);             call store_double_into_mat88(varname,reshape([merge(1.0d0,0.0d0,anything)],[1,1]),ierr=ierr)
+    class default
+      stop 'crud. store_scalar_into_mat88(1) does not know about this type'
+   end select
+end subroutine store_scalar_into_mat88
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
@@ -7697,6 +7705,16 @@ integer,intent(out)                       :: ierr
    out=real(double,kind=real64)
 end subroutine get_array_from_mat88_real64
 !===================================================================================================================================
+subroutine get_array_mnx_from_mat88_real64(varname,out,ierr)
+character(len=*),intent(in)               :: varname
+real(kind=real64),intent(out)             :: out(:,:)
+doubleprecision,allocatable               :: double(:,:)
+integer,intent(out)                       :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   out=real(double,kind=real64)
+end subroutine get_array_mnx_from_mat88_real64
+!===================================================================================================================================
 subroutine get_array_from_mat88_real128(varname,out,ierr)
 character(len=*),intent(in)                 :: varname
 real(kind=real128),allocatable,intent(out)  :: out(:,:)
@@ -7745,6 +7763,25 @@ end subroutine get_array_from_mat88_dpcmplx
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
+subroutine get_vector_from_mat88_character(varname,out,ierr)
+character(len=*),intent(in)              :: varname
+character(len=:),allocatable,intent(out) :: out(:)
+doubleprecision,allocatable              :: double(:,:)
+integer,intent(out)                      :: ierr
+integer                                  :: i,j
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   if(allocated(out))deallocate(out)
+   allocate(character(len=size(double,dim=2)) :: out(size(double,dim=1)))
+   do i=1,size(double,dim=1)
+      do j=1,size(double,dim=2)
+         out(i)(j:j)=achar(nint(double(i,j)))
+      enddo
+   enddo
+end subroutine get_vector_from_mat88_character
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
 subroutine get_vector_from_mat88_int8(varname,out,ierr)
 character(len=*),intent(in)                :: varname
 integer(kind=int8),allocatable,intent(out) :: out(:)
@@ -7753,7 +7790,7 @@ integer,intent(out)                        :: ierr
    if(allocated(out))deallocate(out)
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-   out=nint(pack(double,.true.),kind=int8)
+   out=nint(rowpack(double),kind=int8)
 end subroutine get_vector_from_mat88_int8
 !===================================================================================================================================
 subroutine get_vector_from_mat88_int16(varname,out,ierr)
@@ -7764,7 +7801,7 @@ integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-   out=nint(pack(double,.true.),kind=int16)
+   out=nint(rowpack(double),kind=int16)
 end subroutine get_vector_from_mat88_int16
 !===================================================================================================================================
 subroutine get_vector_from_mat88_int32(varname,out,ierr)
@@ -7775,7 +7812,7 @@ integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-   out=nint(pack(double,.true.),kind=int32)
+   out=nint(rowpack(double),kind=int32)
 end subroutine get_vector_from_mat88_int32
 !===================================================================================================================================
 subroutine get_vector_from_mat88_int64(varname,out,ierr)
@@ -7786,7 +7823,7 @@ integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-   out=real(pack(double,.true.),kind=int64)
+   out=real(rowpack(double),kind=int64)
 end subroutine get_vector_from_mat88_int64
 !===================================================================================================================================
 subroutine get_vector_from_mat88_real32(varname,out,ierr)
@@ -7797,7 +7834,7 @@ integer,intent(out)                       :: ierr
    if(allocated(out))deallocate(out)
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-   out=real(pack(double,.true.),kind=real32)
+   out=real(rowpack(double),kind=real32)
 end subroutine get_vector_from_mat88_real32
 !===================================================================================================================================
 subroutine get_vector_from_mat88_real64(varname,out,ierr)
@@ -7808,7 +7845,7 @@ integer,intent(out)                       :: ierr
    if(allocated(out))deallocate(out)
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-   out=real(pack(double,.true.),kind=real64)
+   out=real(rowpack(double),kind=real64)
 end subroutine get_vector_from_mat88_real64
 !===================================================================================================================================
 subroutine get_vector_from_mat88_real128(varname,out,ierr)
@@ -7819,7 +7856,7 @@ integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-   out=real(pack(double,.true.),kind=real128)
+   out=real(rowpack(double),kind=real128)
 end subroutine get_vector_from_mat88_real128
 !===================================================================================================================================
 subroutine get_vector_from_mat88_logical(varname,out,ierr)
@@ -7830,7 +7867,7 @@ integer,intent(out)              :: ierr
    if(allocated(out))deallocate(out)
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-   out=merge(.false.,.true.,pack(nint(double),.true.).eq.0)
+   out=merge(.false.,.true.,nint(rowpack(double)).eq.0)
 end subroutine get_vector_from_mat88_logical
 !===================================================================================================================================
 subroutine get_vector_from_mat88_cmplx(varname,out,ierr)
@@ -7842,7 +7879,7 @@ integer,intent(out)              :: ierr
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
    if(ierr.ne.0)return
-   out=pack(cmplx(double,doublei,kind=sp),.true.)
+   out=cmplx(rowpack(double),rowpack(doublei),kind=sp)
 end subroutine get_vector_from_mat88_cmplx
 !===================================================================================================================================
 subroutine get_vector_from_mat88_dpcmplx(varname,out,ierr)
@@ -7854,84 +7891,141 @@ integer,intent(out)                       :: ierr
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
    if(ierr.ne.0)return
-   out=pack(cmplx(double,doublei,kind=dp),.true.)
+   out=cmplx(rowpack(double),rowpack(doublei),kind=dp)
 end subroutine get_vector_from_mat88_dpcmplx
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine get_scalar_class_from_mat88(varname,anything,ierr)
-character(len=*),intent(in)       :: varname
-class(*),intent(out)              :: anything
-doubleprecision,allocatable       :: double(:,:), doublei(:,:)
-integer,intent(out)               :: ierr
-logical,parameter                 :: T=.true.
-integer                           :: sz
-! character return values work better if allocatable so they have their own procedure
-
-   sz=0
-   if(allocated(double))deallocate(double)
+subroutine get_scalar_from_mat88_character(varname,out,ierr)
+character(len=*),intent(in)              :: varname
+character(len=:),allocatable,intent(out) :: out
+doubleprecision,allocatable              :: double(:,:)
+integer,intent(out)                      :: ierr
+integer                                  :: i,j,k
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-
-   select type(anything)
-    type is (complex)
-       call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
-       ! so far mat88 cannot have an array of zero size so assume array(1,1) exists
-       anything=cmplx(double(1,1),doublei(1,1),kind=sp)
-       sz=size(double)
-
-    type is (complex(kind=dp))
-       call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
-       anything=cmplx(double(1,1), doublei(1,1))
-       sz=size(double)
-    type is (integer(kind=int8));  anything=int(double(1,1),kind=int8)     ;sz=size(double)
-    type is (integer(kind=int16)); anything=int(double(1,1),kind=int16)    ;sz=size(double)
-    type is (integer(kind=int32)); anything=int(double(1,1),kind=int32)    ;sz=size(double)
-    type is (integer(kind=int64)); anything=int(double(1,1),kind=int64)    ;sz=size(double)
-    type is (real(kind=real32));   anything=real(double(1,1),kind=real32)  ;sz=size(double)
-    type is (real(kind=real64));   anything=real(double(1,1),kind=real64)  ;sz=size(double)
-    type is (real(kind=real128));  anything=real(double(1,1),kind=real128) ;sz=size(double)
-    type is (logical);             anything=nint(double(1,1)).ne.0         ;sz=size(double)
-    class default
-      stop 'crud. get_scalar_class_from_mat88(1) does not know about this type'
-      ierr=-20
-   end select
-   if(sz.ne.1)write(*,*)'*get_scalar_class_from_mat88* Warning: variable was larger than one value, element (1:1) returned'
-end subroutine get_scalar_class_from_mat88
+   if(allocated(out))deallocate(out)
+   allocate(character(len=size(double)) :: out)
+   k=0
+   do i=1,size(double,dim=1)
+      do j=1,size(double,dim=2)
+         k=k+1
+         out(k:k)=achar(nint(double(i,j)))
+      enddo
+   enddo
+end subroutine get_scalar_from_mat88_character
 !===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
-!===================================================================================================================================
-subroutine get_vector_class_from_mat88(varname,anything,ierr)
-character(len=*),intent(in)      :: varname
-class(*),allocatable,intent(out) :: anything(:)
-doubleprecision,allocatable      :: double(:,:), doublei(:,:)
-integer,intent(out)              :: ierr
-logical,parameter                :: T=.true.
-
-   if(allocated(double))deallocate(double)
+subroutine get_scalar_from_mat88_int8(varname,out,ierr)
+character(len=*),intent(in)    :: varname
+integer(kind=int8),intent(out) :: out
+doubleprecision,allocatable    :: double(:,:)
+integer,intent(out)            :: ierr
    call get_double_from_mat88(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
-
-   select type(anything)
-    type is (complex)
-       call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
-       anything=pack(cmplx(double,doublei,kind=sp),T)
-    type is (complex(kind=dp))
-       call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
-       anything=pack(cmplx(double,doublei,kind=dp),T)
-    type is (integer(kind=int8))  ; anything=pack(int(double,kind=int8),T)
-    type is (integer(kind=int16)) ; anything=pack(int(double,kind=int16),T)
-    type is (integer(kind=int32)) ; anything=pack(int(double,kind=int32),T)
-    type is (integer(kind=int64)) ; anything=pack(int(double,kind=int64),T)
-    type is (real(kind=real32))   ; anything=pack(real(double,kind=real32),T)
-    type is (real(kind=real64))   ; anything=pack(real(double,kind=real64),T)
-    type is (real(kind=real128))  ; anything=pack(real(double,kind=real128),T)
-    type is (logical)             ; anything=merge(.false.,.true.,pack(nint(double),T).eq.0)
-    class default
-      stop 'crud. get_vector_class_from_mat88(1) does not know about this type'
-      ierr=-20
-   end select
-end subroutine get_vector_class_from_mat88
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=nint(double(1,1),kind=int8)
+end subroutine get_scalar_from_mat88_int8
+!===================================================================================================================================
+subroutine get_scalar_from_mat88_int16(varname,out,ierr)
+character(len=*),intent(in)     :: varname
+integer(kind=int16),intent(out) :: out
+doubleprecision,allocatable     :: double(:,:)
+integer,intent(out)             :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=nint(double(1,1),kind=int16)
+end subroutine get_scalar_from_mat88_int16
+!===================================================================================================================================
+subroutine get_scalar_from_mat88_int32(varname,out,ierr)
+character(len=*),intent(in)     :: varname
+integer(kind=int32),intent(out) :: out
+doubleprecision,allocatable     :: double(:,:)
+integer,intent(out)             :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=nint(double(1,1),kind=int32)
+end subroutine get_scalar_from_mat88_int32
+!===================================================================================================================================
+subroutine get_scalar_from_mat88_int64(varname,out,ierr)
+character(len=*),intent(in)     :: varname
+integer(kind=int64),intent(out) :: out
+doubleprecision,allocatable     :: double(:,:)
+integer,intent(out)             :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=real(double(1,1),kind=int64)
+end subroutine get_scalar_from_mat88_int64
+!===================================================================================================================================
+subroutine get_scalar_from_mat88_real32(varname,out,ierr)
+character(len=*),intent(in)   :: varname
+real(kind=real32),intent(out) :: out
+doubleprecision,allocatable   :: double(:,:)
+integer,intent(out)           :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=real(double(1,1),kind=real32)
+end subroutine get_scalar_from_mat88_real32
+!===================================================================================================================================
+subroutine get_scalar_from_mat88_real64(varname,out,ierr)
+character(len=*),intent(in)   :: varname
+real(kind=real64),intent(out) :: out
+doubleprecision,allocatable   :: double(:,:)
+integer,intent(out)           :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=real(double(1,1),kind=real64)
+end subroutine get_scalar_from_mat88_real64
+!===================================================================================================================================
+subroutine get_scalar_from_mat88_real128(varname,out,ierr)
+character(len=*),intent(in)    :: varname
+real(kind=real128),intent(out) :: out
+doubleprecision,allocatable    :: double(:,:)
+integer,intent(out)            :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=real(double(1,1),kind=real128)
+end subroutine get_scalar_from_mat88_real128
+!===================================================================================================================================
+subroutine get_scalar_from_mat88_logical(varname,out,ierr)
+character(len=*),intent(in)   :: varname
+logical,intent(out)           :: out
+doubleprecision,allocatable   :: double(:,:)
+integer,intent(out)           :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=merge(.false.,.true.,nint(double(1,1)).eq.0)
+end subroutine get_scalar_from_mat88_logical
+!===================================================================================================================================
+subroutine get_scalar_from_mat88_cmplx(varname,out,ierr)
+character(len=*),intent(in)   :: varname
+complex,intent(out)           :: out
+doubleprecision,allocatable   :: double(:,:), doublei(:,:)
+integer,intent(out)           :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   if(ierr.ne.0)return
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=cmplx(double(1,1),doublei(1,1),kind=sp)
+end subroutine get_scalar_from_mat88_cmplx
+!===================================================================================================================================
+subroutine get_scalar_from_mat88_dpcmplx(varname,out,ierr)
+character(len=*),intent(in)   :: varname
+complex(kind=dp),intent(out)  :: out
+doubleprecision,allocatable   :: double(:,:), doublei(:,:)
+integer,intent(out)           :: ierr
+   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   if(ierr.ne.0)return
+   if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
+   out=cmplx(double(1,1),doublei(1,1),kind=dp)
+end subroutine get_scalar_from_mat88_dpcmplx
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================

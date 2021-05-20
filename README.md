@@ -51,6 +51,9 @@ the fpm.toml project file.
 ```
 
 ---
+[CHANGELOG](CHANGELOG.md)
+---
+---
 
 ## NAME
    MAT88(3f) - [M_matrix] initialize and/or pass commands to a "matrix laboratory" interpreter
@@ -633,6 +636,3 @@ the fpm.toml project file.
                    1024.          0.          0.          0.         -4.
                      >
 ```
----
-[HISTORY](CHANGELOG.md)
----

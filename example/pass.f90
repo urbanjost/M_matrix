@@ -7,6 +7,8 @@ doubleprecision               :: arr(lda,lda)
 real                          :: vec(lda)
 integer                       :: ivec(lda)
 integer                       :: whole
+character(len=:),allocatable  :: string
+character(len=:),allocatable  :: strings(:)
 doubleprecision,allocatable   :: dble_array(:,:)
 doubleprecision,allocatable   :: dble_vector(:)
 doubleprecision,allocatable   :: scalar
@@ -43,6 +45,9 @@ doubleprecision,allocatable   :: scalar
           enddo
        enddo
 
+       write(*,*)'THE ORIGINAL ARR ARRAY IN THE USER PROGRAM'
+       dble_array=arr;call checkit
+
        ! The matrix ARR is sent to the mat88() stack 
        call put_into_mat88('ARR',arr,ierr)
 
@@ -54,8 +59,8 @@ doubleprecision,allocatable   :: scalar
        ! The call to mat88() will transpose our matrix, put the result
        ! X on the stack and go back to our program.
        call mat88([character(len=80) :: &
-       & "X=ARR'", &
-       & "ARR,R,C,I,IVEC,VEC,display(string),display(strings)'", &
+       & "X=ARR';", &
+       & "// ARR,R,C,I,IVEC,VEC,display(string),display(strings)'", &
        & 'who', &
        & ''])
 
@@ -76,8 +81,15 @@ doubleprecision,allocatable   :: scalar
 
        call get_from_mat88('c',dble_array,ierr); call checkit()
        call get_from_mat88('unknown',dble_array,ierr); call checkit()
-       call get_from_mat88('X',dble_array,ierr); call checkit()
-       !call get_from_mat88('c',whole,ierr); call checkit()
+       write(*,*)'ARR retrieved'
+       call get_from_mat88('ARR',dble_array,ierr=ierr); call checkit()
+       !NO: NOT FIXED SIZE:call get_from_mat88('ARR',ARR,err=ierr); call checkit()
+       write(*,*)'X retrieved'
+       call get_from_mat88('X',dble_array,ierr=ierr); call checkit()
+       call get_from_mat88('c',whole,ierr); write(*,*)'as a scalar',whole
+       call get_from_mat88('string',string,ierr); write(*,*)string
+       call get_from_mat88('strings',strings,ierr); write(*,'(a)')strings
+       call get_from_mat88('strings',strings,ierr); write(*,*)'strings(2)=',strings(2)
 
        ! The next call to mat88() will again place you in interactive mode in mat88().
        ! Entering "return" will return back to the main program.
@@ -87,14 +99,14 @@ doubleprecision,allocatable   :: scalar
 contains
 
 subroutine checkit()
+integer                       :: m,n
    if (ierr .ne. 0)then
       write(*,*)'<ERROR> retrieving variable, ERR=',ierr
    else
       m=size(dble_array,dim=1)
       n=size(dble_array,dim=2)
-      write(*,*)'BACK IN THE CALLING PROGRAM. THE VALUES ARE'
-      write(*,*)'<INFO>',new_line('A'),(( int(dble_array(i,j)),i=1,m),new_line('A'),j=1,n ),&
-      & ' SIZE=',size(dble_array),'ROWS=',m,'COLS=',n,'IERR=',ierr
+      write(*,'(*(g0))')'BACK IN THE CALLING PROGRAM. THE VALUES ARE:SIZE:',size(dble_array),':ROWS:',m,':COLS:',n,':IERR:',ierr
+      write(*,'(*(g0,1x))')'<INFO>',new_line('A'),(int(dble_array(j,:)),new_line('A'),j=1,m)
    endif
 end subroutine checkit
 
