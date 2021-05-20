@@ -11,9 +11,13 @@ new features, changes, and relevant notifications.
 ### :green_circle: DIFF:
 
 ### :green_circle: ADD:
-  +  put_into_mat88() is functional, allowing most intrinsic types from 
-     scalar to vector to MxN matrix to be passed from the calling program
-     onto the mat88 stack.
+  +  put_into_mat88() and get_into_mat88() are functional, allowing most
+     intrinsic types from
+     scalar to vector to MxN matrix to be passed to and from the calling
+     program onto the mat88 stack.
+
+     Currently, returned arrays must be declared allocatable in the calling
+     program, as mat88() can change the size of the arrays.
 
 ### :green_circle: FIX:
 
