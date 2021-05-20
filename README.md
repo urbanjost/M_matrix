@@ -50,108 +50,15 @@ the fpm.toml project file.
         M_matrix        = { git = "https://github.com/urbanjost/M_matrix.git" }
 ```
 
+##DOCUMENTATION
+
+ - An [index](https://urbanjost.github.io/M_strings/man3.html) to HTML versions
+   of the manpages included in the distribution.
 ---
 [CHANGELOG](CHANGELOG.md)
 ---
 ---
 
-## NAME
-   MAT88(3f) - [M_matrix] initialize and/or pass commands to a "matrix laboratory" interpreter
-
-## SYNOPSIS
-       subroutine MAT88(init,cmd)
-
-          integer,intent(in)          :: init
-          character(len=*),intent(in) :: cmd
-
-## DESCRIPTION
-   MAT88(3f) is modeled on MATLAB(3f) (MATrix LABoratory), a FORTRAN
-   package developed by Argonne National Laboratories for in-house use.
-   It provides comprehensive vector and tensor operations in a package
-   which may be programmed, either through a macro language or through
-   execution of script files.
-
-   Matlab is reentrant and recursive. Functions supported include (but
-   are not by any means limited to) sin, cos, tan, arcfunctions, upper
-   triangular, lower triangular, determinants, matrix multiplication,
-   identity, Hilbert matrices, eigenvalues and eigenvectors, matrix
-   roots and products, inversion and so on and so forth.
-
-   The HELP command describes using the interpreter.
-
-## OPTIONS
-       INIT   flag indicating purpose of call
-
-           +  0  initial entry with reads from stdin
-           + -1  for silent initialization (ignores CMD)
-           +  1  perform CMD, and enter command mode, subsequently
-                 reading commands from stdin.
-           +  2  return after doing CMD
-
-       CMD    MAT88 command to perform
-
-## EXAMPLE
-       Sample program
-```fortran
-     program demo_MAT88
-     use M_matrix, only : mat88
-     call MAT88(0,' ')
-     end program demo_MAT88
-     !-------------------------------------------------------------
-     SUBROUTINE mat88_user(A,M,N,S,T)  ! sample mat88_user routine
-     ! Allows personal  Fortran  subroutines  to  be  linked  into
-     ! MAT88. The subroutine should have the heading
-     !
-     !               SUBROUTINE mat88_user(A,M,N,S,T)
-     !               DOUBLEPRECISION A(M,N),S,T
-     !
-     ! The MAT88 statement Y = USER(X,s,t) results in a call to
-     ! the subroutine with a copy of the matrix X stored in the
-     ! argument A, its column and row dimensions in M and N,
-     ! and the scalar parameters S and T stored in S and T.
-     ! If S and T are omitted, they are set to 0.0. After
-     ! the return, A is stored in Y. The dimensions M and
-     ! N may be reset within the subroutine. The statement Y =
-     ! USER(K) results in a call with M = 1, N = 1 and A(1,1) =
-     ! FLOAT(K). After the subroutine has been written, it must
-     ! be compiled and linked to the MAT88 object code within the
-     ! local operating system.
-     !
-     integer M,N
-     DOUBLEPRECISION A(M,N),S,T
-     !
-     if(s.eq.0.and.t.eq.0)then
-        ! print statistics for matrix, for example
-        write(*,*)'m=',m
-        write(*,*)'n=',n
-        write(*,*)'s=',s
-        write(*,*)'t=',t
-
-        DO i10 = 1, M
-           write(*,*)(a(i10,i20),i20=1,n)
-        enddo
-     else  ! a(i,j)=a(i,j)*s+t  in a linear fashion
-        DO i30 = 1, M
-           DO i40 = 1, N
-              a(i30,i40)=a(i30,i40)*S+T
-           enddo
-        enddo
-     endif
-     END SUBROUTINE mat88_user
-```
-
-       Example 2:
-
-```fortran
-     program bigmat
-     use M_matrix, only : mat88
-     ! pass strings to MAT88 but do not enter interactive mode
-     call mat88(-1,' ')                    ! initialize
-     call mat88( 2,'a=<1 2 3 4; 5 6 7 8>')
-     call mat88( 2,'save("file1")')
-     call mat88( 2,'help INTRO')
-     end
-```
 ### Example input files:
 
 #### avg

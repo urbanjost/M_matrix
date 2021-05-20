@@ -6,9 +6,19 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
-**2021-05-19**  John S. Urban  <https://github.com/urbanjost>
+**2021-05-20**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: DIFF:
+
+### :green_circle: ADD:
+  +  added ifexists_mat88() for determining if a variable name is in use in
+     mat88.
+
+### :green_circle: FIX:
+
+<!-- ======================================================================== -->
+---
+**2021-05-19**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
   +  put_into_mat88() and get_into_mat88() are functional, allowing most
@@ -18,8 +28,6 @@ new features, changes, and relevant notifications.
 
      Currently, returned arrays must be declared allocatable in the calling
      program, as mat88() can change the size of the arrays.
-
-### :green_circle: FIX:
 
 <!-- ======================================================================== -->
 ---

@@ -1,5 +1,5 @@
 program try_matz
-use M_matrix, only : mat88, get_from_mat88, put_into_mat88
+use M_matrix, only : mat88, get_from_mat88, put_into_mat88, ifexists_mat88
 implicit none
 integer,parameter             :: lda=10
 integer                       :: m,n, i,j, ierr
@@ -19,7 +19,15 @@ doubleprecision,allocatable   :: scalar
    call mat88( [character(len=80) :: &
     & 'a=magic(4);', &
     & 'c=3**3;', &
+    & 'FRED=3**3;', &
     & '']) 
+    write(*,*)'a',ifexists_mat88('a')
+    write(*,*)'b',ifexists_mat88('b')
+    write(*,*)'c',ifexists_mat88('c')
+    write(*,*)'d',ifexists_mat88('d')
+    write(*,*)'reallylongname_reallylongname_really_long_name_really_longname', &
+    & ifexists_mat88('reallylongname_reallylongname_really_long_name_really_longname')
+    write(*,*)'///',ifexists_mat88('///')
 
    RUN: block
        ! put some values from the program into mat88

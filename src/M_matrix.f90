@@ -9,6 +9,10 @@
 !  size_mat88
 !  exists_mat88
 !  inquire_mat88('NAME',exist=L,size=A)
+!
+!  do git on fixed-size array and warn if not same size in mat88 instead of just allocatables
+!
+!  put all pure math routines into M_LA or equivalent
 
 module M_matrix
 use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
@@ -223,7 +227,7 @@ implicit none
 public mat88
 public get_from_mat88     ! ??? maybe a function too with a second parameter and returned value is of same type(?)
 public put_into_mat88
-!!public :: exists
+public :: ifexists_mat88
 !!public :: size_mat88
 
 ! for other routines
@@ -552,6 +556,7 @@ contains
 !!##NAME
 !!    MAT88(3f) - [M_matrix] initialize and/or pass commands to matrix
 !!    laboratory interpreter
+!!    LICENSE(MIT)
 !!##SYNOPSIS
 !!
 !!
@@ -3072,7 +3077,7 @@ integer             :: nt
    k = GG_MAX_NUMBER_OF_NAMES+1
 05 continue
    k = k-1
-   if (.not.mat_eqid(G_STACK_IDS(1,k),id)) goto 05
+   if (.not.mat_eqid(G_STACK_IDS(1:,k),id)) goto 05
    if (k .eq. G_TOP_OF_SAVED-1) goto 30
    lk = G_STACK_ID_LOC(k)
    mk = G_STACK_ROWS(k)
@@ -5601,7 +5606,7 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
    call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)    ! copy ID to next blank entry in G_STACK_IDS in case it is not there(?)
 
    do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
-      if (mat_eqid(G_STACK_IDS(1,k), id))exit             ! if found name exit loop
+      if (mat_eqid(G_STACK_IDS(1:,k), id))exit             ! if found name exit loop
    enddo
    ! if (?)
    ! or if matched the name inserted above did not find it.
@@ -6374,7 +6379,7 @@ integer            :: n
 !     *call* PARSE
    return
 55 continue
-   IF (mat_eqid(G_IDS(1,G_PT),while)) goto 35
+   IF (mat_eqid(G_IDS(1:,G_PT),while)) goto 35
    G_PT = G_PT-1
    if (mat_eqid(G_SYN,else)) goto 80
    return
@@ -7018,6 +7023,7 @@ doubleprecision function mat_urand(iy)
 !>
 !!##NAME
 !!    mat_urand(3f) - [] uniform random number generator
+!!    LICENSE(MIT)
 !!
 !!##SYNOPSIS
 !!
@@ -7256,6 +7262,7 @@ doubleprecision function mat_flop(x)
 !>
 !!##NAME
 !!    mat_flop(3fp) - [M_matrix] count and possibly chop each floating point operation
+!!    LICENSE(MIT)
 !!
 !!##SYNOPSIS
 !!
@@ -7388,9 +7395,73 @@ end function mat_round
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
+!>
+!!##NAME
+!!    ifexists_mat88(3f) - [M_matrix] test if variable name exists in mat88()
+!!    LICENSE(MIT)
+!!##SYNOPSIS
+!!
+!!
+!!    logical function ifexists(varname)
+!!
+!!       character(len=*),intent(in) :: varname
+!!##DESCRIPTION
+!!     Determine if a variable name currently exists in mat88().
+!!
+!!##RETURNS
+!!      ifexists_mat88  .true. if varname exists in mat88, else .false.
+!!##EXAMPLE
+!!
+!!   sample program:
+!!
+!!      program demo_ifexists_mat88
+!!      use M_matrix, only : ifexists_mat88
+!!      implicit none
+!!         write(*,*)'eps ',ifexists_mat88('eps')
+!!         write(*,*)'unknown ',ifexists_mat88('unknown')
+!!      end program demo_ifexists_mat88
+!!
+!!   Results:
+!!
+!!     eps  T
+!!     unknown  F
+function ifexists_mat88(varname)
+
+! ident_41="@(#)M_matrix::ifexists_mat88(3f) :: access MAT88 variable stack and see if a variable name exists"
+
+character(len=*),intent(in)        :: varname
+integer                            :: id(GG_MAX_NAME_LENGTH)
+logical                            :: ifexists_mat88
+integer                            :: k
+
+   ifexists_mat88=.true.
+   if(G_BIGMEM.LT.0) call mat88_init(200000) ! if not initialized initialize
+   if( .not.mat_is_name(varname))then
+      call journal('sc',varname,'is not a valid variable name')
+      ifexists_mat88=.false.
+   endif
+
+   ! convert character name to mat88 character set
+   id=iachar(' ')
+   call mat_str2buf(varname,id,len(varname))
+   call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_STACK_IDS for messages(?)
+
+   do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
+      if (mat_eqid(G_STACK_IDS(1:,k), id))exit            ! if found name exit loop
+   enddo
+
+   ! if matched the name inserted above did not find it.
+   if ( (k .ge. GG_MAX_NUMBER_OF_NAMES-1) .or.  (k .eq. G_TOP_OF_SAVED-1)) then
+      ifexists_mat88=.false.                              ! unknown variable name
+   endif
+
+end function ifexists_mat88
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
 subroutine get_double_from_mat88(varname,A,type,IERR)
 
-! ident_41="@(#)M_matrix::get_double_from_mat88(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
+! ident_42="@(#)M_matrix::get_double_from_mat88(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
 
 character(len=*),intent(in)              :: varname    ! the name of A.
 integer,intent(in)                       :: type       ! type =  0  get REAL A from MAT88, type  = 1  get IMAGINARY A into MAT88,
@@ -7409,7 +7480,7 @@ integer                                  :: i,j,k,location,m,n
    call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_STACK_IDS for messages(?)
 
    do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
-      if (mat_eqid(G_STACK_IDS(1,k), id))exit             ! if found name exit loop
+      if (mat_eqid(G_STACK_IDS(1:,k), id))exit             ! if found name exit loop
    enddo
 
    ! if matched the name inserted above did not find it.
@@ -7463,7 +7534,7 @@ end function rowpack
 !===================================================================================================================================
 subroutine store_double_into_mat88(varname,realxx,imagxx,ierr)
 
-! ident_42="@(#)M_matrix:: _store_double_into_mat88(3f): put a variable name and its data onto MAT88 stack"
+! ident_43="@(#)M_matrix:: _store_double_into_mat88(3f): put a variable name and its data onto MAT88 stack"
 
 character(len=*),intent(in)          :: varname                ! the name of realxx.
 doubleprecision,intent(in)           :: realxx(:,:)            ! inputarray is an M by N matrix
@@ -8033,7 +8104,7 @@ function too_much_memory(expression)
 integer,intent(in) :: expression
 logical            :: too_much_memory
 
-! ident_43="@(#)too much memory required"
+! ident_44="@(#)too much memory required"
 
    G_ERR=expression
    if(G_ERR.gt.0)then
@@ -8049,7 +8120,7 @@ end function too_much_memory
 !===================================================================================================================================
 function system_getenv(name,default) result(value)
 
-! ident_44="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
+! ident_45="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
 
 character(len=*),intent(in)          :: name
 character(len=*),intent(in),optional :: default
@@ -8123,7 +8194,7 @@ end subroutine mat_wpofa
 !==================================================================================================================================!
 subroutine mat_watan(xr,xi,yr,yi)
 
-! ident_45="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
+! ident_46="@(#)M_matrix::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
 
 doubleprecision :: xr
 doubleprecision :: xi
@@ -8150,7 +8221,7 @@ end subroutine mat_watan
 !==================================================================================================================================!
 subroutine mat_rrotg(da,db,c,s)
 
-! ident_46="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
+! ident_47="@(#)M_matrix::mat_rrotg(3fp): construct Givens plane rotation."
 
 doubleprecision :: da
 doubleprecision :: db
@@ -8179,7 +8250,7 @@ end subroutine mat_rrotg
 !==================================================================================================================================!
 subroutine mat_wsign(xr,xi,yr,yi,zr,zi)
 
-! ident_47="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
+! ident_48="@(#)M_matrix::mat_wsign(3fp): if y .ne. 0, z = x*y/abs(y)"
 
 doubleprecision :: xr
 doubleprecision :: xi
@@ -8193,6 +8264,29 @@ doubleprecision :: t
    zi = xi
    if (t .ne. 0.0d0) call mat_wmul(yr/t,yi/t,zr,zi,zr,zi)
 end subroutine mat_wsign
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+function mat_is_name(line) result (lout)
+! determine if a string is a valid Fortran name ignoring trailing spaces
+! (but not leading spaces)
+character(len=*),parameter   :: int='0123456789'
+character(len=*),parameter   :: lower='abcdefghijklmnopqrstuvwxyz'
+character(len=*),parameter   :: upper='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+character(len=*),parameter   :: allowed=upper//lower//int//'_'
+character(len=*),intent(in)  :: line
+character(len=:),allocatable :: name
+logical                      :: lout
+        name=trim(line)
+        if(len(name).ne.0)then
+            lout = .true.                                  &
+             & .and. verify(name(1:1), lower//upper) == 0  &
+             & .and. verify(name,allowed) == 0             &
+             & .and. len(name) <= 33
+        else
+            lout = .false.
+        endif
+end function mat_is_name
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -11156,7 +11250,7 @@ end subroutine mat_help_text
 !==================================================================================================================================!
 subroutine mat_inverse_hilbert(a,lda,n)
 
-! ident_48="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
+! ident_49="@(#)M_matrix::ml_hilbr(3fp): generate doubleprecision inverse hilbert matrix"
 !
 ! References:
 ! Forsythe, G. E. and C. B. Moler. Computer Solution of Linear Algebraic Systems. Englewood Cliffs, NJ: Prentice-Hall, 1967.
@@ -11192,7 +11286,7 @@ end subroutine mat_inverse_hilbert
 !==================================================================================================================================!
 subroutine mat_magic(a,lda,n)
 !
-! ident_49="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
+! ident_50="@(#)M_matrix::mat_magic(3fp): Algorithms for magic squares"
 
 !        Algorithms taken from
 !        Mathematical Recreations and Essays, 12th Ed.,
