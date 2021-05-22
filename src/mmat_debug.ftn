@@ -7,8 +7,8 @@ use M_history, only : redo
 !>
 !!##SYNTAX DIAGRAMS (9)
 !!
-!!    A formal description of the language acceptable to MAT88, as well as
-!!    a flow chart of the mat88 program, is provided by the syntax diagrams
+!!    A formal description of the language acceptable to LAFF, as well as
+!!    a flow chart of the laff program, is provided by the syntax diagrams
 !!    or syntax graphs of wirth [6]. There are eleven non-terminal symbols
 !!    in the language:
 !!
@@ -207,11 +207,11 @@ use M_history, only : redo
 !!    Subsequent changes per John S. Urban: see change log and git(1) history
 implicit none
 !private
-public mat88
-public get_array_from_mat88
+public laff
+public get_array_from_laff
 !!public :: name_exists, get, geti, getr, getc, geti ! maybe a kind type or second parameter and returned value is of same type(?)
 !!! scalar and array?
-public mat88_put
+public laff_put
 
 ! for other routines
 public mat_flop
@@ -346,7 +346,7 @@ integer                     :: G_TOP_OF_SAVED, G_BOTTOM_OF_SCRATCH_IN_USE
 !   the bottom, a message indicating memory has been exceeded is
 !   printed, but the current variables are not affected.
 !
-!   This modular structure makes it possible to implement MAT88
+!   This modular structure makes it possible to implement LAFF
 !   on a system with a limited amount of memory. The object code for
 !   the MATFN's and the LINPACK-EISPACK subroutines is rarely needed.
 !   Although it is not standard, many Fortran operating systems
@@ -417,23 +417,23 @@ integer                  :: G_ALT_CHARSET(G_CHARSET_SIZE)  ! G_DEFINE_ALT_CHARSE
 
 character(len=:),allocatable :: G_HELP_TEXT(:)
 
-interface mat88
-   module procedure mat88_init
-   module procedure mat88_cmd
-   module procedure mat88_cmds
-end interface mat88
+interface laff
+   module procedure laff_init
+   module procedure laff_cmd
+   module procedure laff_cmds
+end interface laff
 contains
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 !>
 !!##NAME
-!!    MAT88(3f) - [M_matrix] initialize and/or pass commands to matrix
+!!    LAFF(3f) - [M_matrix] initialize and/or pass commands to matrix
 !!    laboratory interpreter
 !!##SYNOPSIS
 !!
 !!
-!!   subroutine MAT88(init,cmd)
+!!   subroutine LAFF(init,cmd)
 !!
 !!    integer,intent(in),optional :: init
 !!    character(len=*),intent(in),optional :: cmd
@@ -441,13 +441,13 @@ contains
 !!    character(len=*),intent(in),optional :: cmd(:)
 !!
 !!##DESCRIPTION
-!!    MAT88(3f) is modeled on MATLAB(3f) (MATrix LABoratory), a FORTRAN
+!!    LAFF(3f) is modeled on MATLAB(3f) (MATrix LABoratory), a FORTRAN
 !!    package developed by Argonne National Laboratories for in-house use.
 !!    It provides comprehensive vector and tensor operations in a package
 !!    which may be programmed, either through a macro language or through
 !!    execution of script files.
 !!
-!!    MAT88(3f) is reentrant and recursive. Functions supported include (but
+!!    LAFF(3f) is reentrant and recursive. Functions supported include (but
 !!    are not by any means limited to) sin, cos, tan, arcfunctions, upper
 !!    triangular, lower triangular, determinants, matrix multiplication,
 !!    identity, Hilbert matrices, eigenvalues and eigenvectors, matrix
@@ -457,9 +457,9 @@ contains
 !!
 !!##OPTIONS
 !!    INIT    indicate size of scratch space to allocate and (re)initialize
-!!            MAT88.
+!!            LAFF.
 !!
-!!    CMD     MAT88 command(s) to perform. May be CHARACTER scalar or vector
+!!    CMD     LAFF command(s) to perform. May be CHARACTER scalar or vector
 !!
 !!    INIT and CMD cannot be combined on a single call.
 !!
@@ -468,7 +468,7 @@ contains
 !!    variable storage area. This is a required initial command. It may be
 !!    repeated. A size of zero will deallocate any allocated storage (after
 !!    which the routine cannot be called with commands until reallocated by
-!!    another call to mat88()).
+!!    another call to laff()).
 !!
 !!    If no parameters are supplied interactive mode is entered.
 !!
@@ -480,36 +480,36 @@ contains
 !!
 !!   Sample program
 !!
-!!       program demo_MAT88
-!!       use M_matrix, only : mat88
+!!       program demo_LAFF
+!!       use M_matrix, only : laff
 !!
 !!          write(*,'(a)')'optionally initialize scratch area size'
-!!          call MAT88(20000)
+!!          call LAFF(20000)
 !!
 !!          write(*,'(a)')'do some commands'
-!!          call MAT88([character(len=80) :: &
+!!          call LAFF([character(len=80) :: &
 !!          & 'semi;                         ',&
 !!          & 'a=magic(4),b=-a               ',&
 !!          & 'a+b;a;b                       ',&
 !!          & 'display("That is all Folks!") '])
 !!
 !!          write(*,'(a)')'do a single command'
-!!          call MAT88('who')
+!!          call LAFF('who')
 !!
 !!          write(*,'(a)')'enter interactive mode'
-!!          call MAT88()
+!!          call LAFF()
 !!
 !!          write(*,'(a)')'ending program'
-!!       end program demo_MAT88
+!!       end program demo_LAFF
 !!
 !!   Example 2:
 !!
 !!    program bigmat
-!!    use M_matrix, only : mat88
-!!       ! pass strings to MAT88 but do not enter interactive mode
-!!       call mat88(20000)                  ! initialize silently
-!!       call mat88( 'a=[1 2 3 4; 5 6 7 8]')
-!!       call mat88( [character(len=80) :: &
+!!    use M_matrix, only : laff
+!!       ! pass strings to LAFF but do not enter interactive mode
+!!       call laff(20000)                  ! initialize silently
+!!       call laff( 'a=[1 2 3 4; 5 6 7 8]')
+!!       call laff( [character(len=80) :: &
 !!        & 'semi;lines(9999)                                      ',&
 !!        & '// create a magic square and add 100 to all the values',&
 !!        & 'A=magic(4),<X,Y>=size(A)                              ',&
@@ -526,20 +526,20 @@ contains
 !!   Sample program with custom user function
 !!
 !!       program sample_user
-!!       use M_matrix, only : mat88
-!!          call MAT88(20000)
-!!          call MAT88(' ')
+!!       use M_matrix, only : laff
+!!          call LAFF(20000)
+!!          call LAFF(' ')
 !!       end program
 !!
 !!       !-------------------------------------------------------------
-!!       SUBROUTINE mat88_user(A,M,N,S,T)  ! sample mat88_user routine
+!!       SUBROUTINE laff_user(A,M,N,S,T)  ! sample laff_user routine
 !!       ! Allows personal  Fortran  subroutines  to  be  linked  into
-!!       ! MAT88. The subroutine should have the heading
+!!       ! LAFF. The subroutine should have the heading
 !!       !
-!!       !               SUBROUTINE mat88_user(A,M,N,S,T)
+!!       !               SUBROUTINE laff_user(A,M,N,S,T)
 !!       !               DOUBLEPRECISION A(M,N),S,T
 !!       !
-!!       ! The MAT88 statement Y = USER(X,s,t) results in a call to
+!!       ! The LAFF statement Y = USER(X,s,t) results in a call to
 !!       ! the subroutine with a copy of the matrix X stored in the
 !!       ! argument A, its column and row dimensions in M and N,
 !!       ! and the scalar parameters S and T stored in S and T.
@@ -548,7 +548,7 @@ contains
 !!       ! N may be reset within the subroutine. The statement Y =
 !!       ! USER(K) results in a call with M = 1, N = 1 and A(1,1) =
 !!       ! FLOAT(K). After the subroutine has been written, it must
-!!       ! be compiled and linked to the MAT88 object code within the
+!!       ! be compiled and linked to the LAFF object code within the
 !!       ! local operating system.
 !!       !
 !!       integer M,N
@@ -571,7 +571,7 @@ contains
 !!             enddo
 !!          enddo
 !!       endif
-!!       END SUBROUTINE mat88_user
+!!       END SUBROUTINE laff_user
 !!
 !!       ! end program sample_user
 !!
@@ -1034,9 +1034,9 @@ contains
 !!            205.     0.      0.      1.      1.
 !!            024.     0.      0.      0.     -4.
 !!           ]
-subroutine MAT88_init(init,echo,markdown)
+subroutine LAFF_init(init,echo,markdown)
 
-! ident_1="@(#)M_matrix::mat88(3f): initialize and/or pass commands to matrix laboratory interpreter"
+! ident_1="@(#)M_matrix::laff(3f): initialize and/or pass commands to matrix laboratory interpreter"
 
 integer,intent(in)          :: init
 logical,intent(in),optional :: echo
@@ -1117,23 +1117,23 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [27,10,23,13,36,GG_PAD
    G_PT = G_PTZ
    G_ERR = 0
 
-end subroutine MAT88_init
+end subroutine LAFF_init
 !==================================================================================================================================
-subroutine MAT88_cmd(input_string,echo,markdown)
+subroutine LAFF_cmd(input_string,echo,markdown)
 
-! ident_2="@(#)M_matrix::mat88(3f): run a single command in matrix laboratory interpreter and return to calling program"
+! ident_2="@(#)M_matrix::laff(3f): run a single command in matrix laboratory interpreter and return to calling program"
 
 character(len=*),intent(in) :: input_string
 logical,intent(in),optional :: echo
 logical,intent(in),optional :: markdown
 
-   call mat88_cmds( [input_string],echo=echo,markdown=markdown)
+   call laff_cmds( [input_string],echo=echo,markdown=markdown)
 
-end subroutine MAT88_cmd
+end subroutine LAFF_cmd
 !==================================================================================================================================
-subroutine MAT88_cmds(pseudo_file,echo,markdown)
+subroutine LAFF_cmds(pseudo_file,echo,markdown)
 
-! ident_3="@(#)M_matrix::mat88(3f): run an array of commands in matrix laboratory interpreter and return to calling program"
+! ident_3="@(#)M_matrix::laff(3f): run an array of commands in matrix laboratory interpreter and return to calling program"
 
 character(len=*),intent(in),optional :: pseudo_file(:)
 logical,intent(in),optional          :: echo
@@ -1143,7 +1143,7 @@ logical,intent(in),optional          :: markdown
    if(present(markdown)) G_MARKDOWN=markdown
 
    if(G_BIGMEM.LT.0)then
-      call mat88_init(200000)
+      call laff_init(200000)
    else
       G_PROMPT=.true.
    endif
@@ -1168,7 +1168,7 @@ logical,intent(in),optional          :: markdown
       end select
    enddo PARSE_LINE
 
-end subroutine MAT88_cmds
+end subroutine LAFF_cmds
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -1451,7 +1451,7 @@ end subroutine mat_buf2str
 !==================================================================================================================================!
 subroutine ints2str(ints,string,ierr)
 
-! ident_8="@(#)M_matrix::ints2str(3f) convert mat88 integers to a character variable"
+! ident_8="@(#)M_matrix::ints2str(3f) convert laff integers to a character variable"
 
 ! temporary procedure while writing ASCII-based upgrade
 
@@ -1633,7 +1633,7 @@ character(len=GG_LINELEN) :: string_buf
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
    case(5) ! COMMAND::USER
-      ! The MAT88 statement "Y = user(X,s,t)" results in a call to the
+      ! The LAFF statement "Y = user(X,s,t)" results in a call to the
       ! subroutine with a copy of the matrix X stored in the argument A,
       ! its column and row dimensions in M and N, and the scalar parameters
       ! s and t stored in S and T. If s and t are omitted, they are set
@@ -1658,7 +1658,7 @@ character(len=GG_LINELEN) :: string_buf
       m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 
-      call mat88_user(G_STACK_REALS(location),m,n,s,t)
+      call laff_user(G_STACK_REALS(location),m,n,s,t)
       call mat_rset(M*N,0.0D0,G_STACK_IMAGS(location),1)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
@@ -3135,14 +3135,14 @@ end subroutine MAT_STACK_PUT
 !!##THE PARSER-INTERPRETER (10)
 !!
 !!    The structure of the parser-interpreter is similar to that of Wirth's
-!!    compiler [6] for his simple language, PL/0 , except that MAT88 is
+!!    compiler [6] for his simple language, PL/0 , except that LAFF is
 !!    programmed in Fortran, which does not have explicit recursion. The
 !!    interrelation of the primary subroutines is shown in the following
 !!    diagram.
 !!
 !!          MAIN
 !!            |
-!!          MAT88     |--CLAUSE
+!!          LAFF     |--CLAUSE
 !!            |       |    |
 !!          PARSE-----|--EXPR----TERM----FACTOR
 !!                    |    |       |       |
@@ -3579,7 +3579,7 @@ character(len=:),allocatable :: symbol
          goto 01
       end select
 !.......................................................................
-!     call mat_matfns by returning to MAT88
+!     call mat_matfns by returning to LAFF
    95 continue
       if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_PARSE:95:')
       if(G_BOTTOM_OF_SCRATCH_IN_USE.lt.1)then
@@ -3605,7 +3605,7 @@ integer                      :: ierr
 ! a list of names this procedure matches to use for some preliminary tests
 character(len=10),parameter :: cmd(*)=[ character(len=10) :: &
  & 'clear', 'else', 'end  ', 'exit', 'for', 'help', 'if   ', 'long    ', 'quit', 'semi', &
- & 'short', 'what', 'while', 'who ', 'sh',  'lala', 'shell', 'continue' &
+ & 'short', 'what', 'while', 'who ', 'sh',  'laff', 'shell', 'continue' &
  & ]
 
 FINISHED: block
@@ -3716,7 +3716,7 @@ FINISHED: block
       G_FUN = 99
       exit FINISHED
 !===================================================================================================================================
-   case('lala')
+   case('laff')
       call journal('QUIT SINGING AND GET BACK TO WORK.')
 !===================================================================================================================================
    case('shell')
@@ -5994,7 +5994,7 @@ integer                   :: ios
       endif
 !.......................................................................
       do j = 1, n
-         do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
+         do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of LAFF characters and get its LAFF number
            if (G_BUF(j).eq.G_CHARSET(k) .or. G_BUF(j).eq.G_ALT_CHARSET(k)) goto 30
          enddo
          call journal('sc','Unknown character at column ',j) ! this is not a known character
@@ -7223,7 +7223,7 @@ function getd2(varname) result(answer)
 character(len=*),intent(in)  :: varname
 doubleprecision, allocatable :: answer(:,:)
 integer                      :: ierr
-   call get_array_from_mat88(answer,varname,type=0,ierr=ierr)
+   call get_array_from_laff(answer,varname,type=0,ierr=ierr)
 end function getd2
 !===================================================================================================================================
 !x!function getc2(varname) result(answer)
@@ -7231,8 +7231,8 @@ end function getd2
 !x!complex(kind=dp),allocatable         :: answer(:,:)
 !x!doubleprecision(kind=dp),allocatable :: AR(:,:), AI(:,:)
 !x!integer                              :: ierr
-!x!   call get_array_from_mat88(AR,varname,type=0,ierr=ierr)
-!x!   call get_array_from_mat88(AI,varname,type=1,ierr=ierr)
+!x!   call get_array_from_laff(AR,varname,type=0,ierr=ierr)
+!x!   call get_array_from_laff(AI,varname,type=1,ierr=ierr)
 !x!   answer=cmplx(AR,AI)
 !x!end function getc2
 !===================================================================================================================================
@@ -7262,23 +7262,23 @@ end function gets2
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine get_array_from_mat88(A,varname,type,IERR)
+subroutine get_array_from_laff(A,varname,type,IERR)
 
-! ident_40="@(#)M_matrix::get_array_from_mat88(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
+! ident_40="@(#)M_matrix::get_array_from_laff(3f) :: access LAFF variable stack and get a variable by name and its data from the stack"
 
 character(len=*),intent(in)              :: varname    ! the name of A.
-integer,intent(in)                       :: type       ! type =  0  get REAL A from MAT88, type  = 1  get IMAGINARY A into MAT88,
-integer,INTENT(OUT)                      :: ierr       ! return with nonzero IERR after MAT88 error message.
+integer,intent(in)                       :: type       ! type =  0  get REAL A from LAFF, type  = 1  get IMAGINARY A into LAFF,
+integer,INTENT(OUT)                      :: ierr       ! return with nonzero IERR after LAFF error message.
 doubleprecision,allocatable,intent(out)  :: a(:,:)     ! A is an M by N matrix
 
 integer                                  :: id(GG_MAX_NAME_LENGTH)
 integer                                  :: i,j,k,location,m,n
    IERR=0
    G_ERR=0
-   ! convert character name to mat88 character set
+   ! convert character name to laff character set
    call mat_str2buf(varname,id,len(varname))
    do j=1,GG_MAX_NAME_LENGTH
-      do k = 1, G_CHARSET_SIZE                            ! make sure this letter is in set of MAT88 characters and get its MAT88 number
+      do k = 1, G_CHARSET_SIZE                            ! make sure this letter is in set of LAFF characters and get its LAFF number
          if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
             id(j)=k-1
          endif
@@ -7292,7 +7292,7 @@ integer                                  :: i,j,k,location,m,n
 
    ! if matched the name inserted above did not find it.
    if ( (k .ge. GG_MAX_NUMBER_OF_NAMES-1 .and. G_RHS .gt. 0) .or. (k .eq. G_TOP_OF_SAVED-1) ) then
-      call journal('sc','<ERROR>get_array_from_mat88: unknown variable name',varname)
+      call journal('sc','<ERROR>get_array_from_laff: unknown variable name',varname)
       IERR=4
       if(allocated(a))deallocate(a)
       allocate(a(0,0))
@@ -7314,9 +7314,9 @@ integer                                  :: i,j,k,location,m,n
          do i=1,m
             do j=1,n
                if(type.eq.0)then
-                  a(i,j)=G_STACK_REALS(location)       ! type =  0  GET REAL A FROM MAT88,
+                  a(i,j)=G_STACK_REALS(location)       ! type =  0  GET REAL A FROM LAFF,
                else
-                  a(i,j)=G_STACK_IMAGS(location)       ! type =  1  GET IMAGINARY A FROM MAT88,
+                  a(i,j)=G_STACK_IMAGS(location)       ! type =  1  GET IMAGINARY A FROM LAFF,
                endif
                location=location+1
             enddo
@@ -7335,7 +7335,7 @@ subroutine printit()
 character(len=GG_MAX_NAME_LENGTH) :: name
 integer          :: location
    write(*,*)repeat('=',80)
-   write(*,*)'*get_array_from_mat88'
+   write(*,*)'*get_array_from_laff'
    write(*,*)'   varname=',varname
    write(*,*)'   ID=',ID(:)
    write(*,*)'   G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE
@@ -7351,19 +7351,19 @@ integer          :: location
    write(*,*)repeat('=',80)
 end subroutine printit
 
-end subroutine get_array_from_mat88
+end subroutine get_array_from_laff
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-SUBROUTINE mat88_put(inputarray,varname,JOB,IERR) !JSU
+SUBROUTINE laff_put(inputarray,varname,JOB,IERR) !JSU
 
-! ident_41="@(#)M_matrix:: mat88_put(3f): put a variable name and its data onto MAT88 stack"
+! ident_41="@(#)M_matrix:: laff_put(3f): put a variable name and its data onto LAFF stack"
 
 character(len=*),intent(in) :: varname                ! the name of inputarray.
 doubleprecision,intent(in)  :: inputarray(:,:)        ! inputarray is an M by N matrix
-integer,intent(in)          :: job                    !     JOB =  1  put real inputarray from MAT88,
-                                                      !         = 11  put imag part of inputarray into MAT88.
-integer,intent(out)         :: ierr                   ! return with nonzero ierr after MAT88 error message.
+integer,intent(in)          :: job                    !     JOB =  1  put real inputarray from LAFF,
+                                                      !         = 11  put imag part of inputarray into LAFF.
+integer,intent(out)         :: ierr                   ! return with nonzero ierr after LAFF error message.
 
 integer                     :: img
 integer                     :: space_left
@@ -7374,10 +7374,10 @@ integer                     :: size_of_a
 
    ierr=0
 
-   ! convert character name to mat88 character set
+   ! convert character name to laff character set
    call mat_str2buf(varname,id,len(varname))
    do j=1,GG_MAX_NAME_LENGTH
-      do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters
+      do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of LAFF characters
          if (id(j).eq.G_CHARSET(k) .or. id(j).eq.G_ALT_CHARSET(k)) then
             id(j)=k-1
          endif
@@ -7404,7 +7404,7 @@ integer                     :: size_of_a
    if (size_of_a .GT. space_left ) then
       m = 0
       n = 0
-      call journal('sc','<ERROR>*mat88_put* insufficient space to save data to MAT88')
+      call journal('sc','<ERROR>*laff_put* insufficient space to save data to LAFF')
       return
    elseif(size_of_a.eq.0)then
       return
@@ -7475,7 +7475,7 @@ integer          :: location
    endif
 end subroutine printit
 
-end subroutine mat88_put
+end subroutine laff_put
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
@@ -7649,7 +7649,7 @@ end subroutine mat_wsign
 subroutine mat_help_text()
 G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
-'MAT88 USERS'' GUIDE                                                             ',&
+'LAFF USERS'' GUIDE                                                             ',&
 '                                                                                ',&
 '                            May, 1981                                           ',&
 '                            Dec, 2018                                           ',&
@@ -7661,7 +7661,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                 Department of Computer Science                                 ',&
 '                    University of New Mexico                                    ',&
 '                                                                                ',&
-'   <ABSTRACT> MAT88 is an interactive computer procedure that serves            ',&
+'   <ABSTRACT> LAFF is an interactive computer procedure that serves            ',&
 '   as a convenient "laboratory" for computations involving matrices. It         ',&
 '   provides easy access to matrix software developed by the LINPACK and         ',&
 '   EISPACK projects.                                                            ',&
@@ -7669,7 +7669,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                            CONTENTS                                            ',&
 '                                                                                ',&
 '          -  Elementary operations                                              ',&
-'          -  MAT88 functions                                                    ',&
+'          -  LAFF functions                                                    ',&
 '          -  Rows, columns and submatrices                                      ',&
 '          -  "for", "while" and "if"                                            ',&
 '          -  Commands, text, files and macros                                   ',&
@@ -7686,11 +7686,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   nonsymmetric eigenvalue problems, to fairly sophisticated matrix             ',&
 '   tools such as the singular value decomposition.                              ',&
 '                                                                                ',&
-'   MAT88 is well suited for classroom use.  It should be useful in              ',&
+'   LAFF is well suited for classroom use.  It should be useful in              ',&
 '   introductory courses in applied linear algebra, as well as more              ',&
 '   advanced courses in numerical analysis, matrix theory, statistics and        ',&
 '   applications of matrices to other disciplines. In nonacademic settings,      ',&
-'   MAT88 can serve as a "desk calculator" for the quick solution of             ',&
+'   LAFF can serve as a "desk calculator" for the quick solution of             ',&
 '   small problems involving matrices.                                           ',&
 '                                                                                ',&
 '   The program is written in Fortran and is designed to be readily              ',&
@@ -7699,17 +7699,17 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   modest. There are less than 7000 lines of Fortran source code,               ',&
 '   including the LINPACK and EISPACK subroutines used.                          ',&
 '                                                                                ',&
-'   The size of the matrices that can be handled in MAT88 depends upon           ',&
+'   The size of the matrices that can be handled in LAFF depends upon           ',&
 '   the amount of storage that is set aside when the system is compiled          ',&
 '   on a particular machine.  Since most of the algorithms used access           ',&
 '   memory in a sequential fashion, a large amount of allocated storage          ',&
 '   causes little or no difficulties even when virtual memory is used.           ',&
 '                                                                                ',&
-'   In some ways, MAT88 resembles SPEAKEASY [4] and, to a lesser extent,         ',&
+'   In some ways, LAFF resembles SPEAKEASY [4] and, to a lesser extent,         ',&
 '   APL. All are interactive terminal languages that ordinarily accept           ',&
 '   single-line commands or statements, process them immediately, and print      ',&
 '   the results. All have arrays or matrices as principal data types. But        ',&
-'   for MAT88, the matrix is the only data type (although scalars, vectors       ',&
+'   for LAFF, the matrix is the only data type (although scalars, vectors       ',&
 '   and text are special cases), the underlying system is portable and           ',&
 '   requires fewer resources, and the supporting subroutines are more            ',&
 '   powerful and in some cases, have better numerical properties.                ',&
@@ -7720,42 +7720,42 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   part on Algol procedures published by Wilkinson, Reinsch and their           ',&
 '   colleagues [5]. LINPACK is a package of 40 Fortran subroutines (in           ',&
 '   each of four data types) for solving and analyzing simultaneous linear       ',&
-'   equations and related matrix problems. Since MAT88 is not primarily          ',&
+'   equations and related matrix problems. Since LAFF is not primarily          ',&
 '   concerned with either execution time efficiency or storage savings,          ',&
 '   it ignores most of the special matrix properties that LINPACK and            ',&
 '   EISPACK subroutines use to advantage. Consequently, only 8 subroutines       ',&
 '   from LINPACK and 5 from EISPACK are actually involved.                       ',&
 '                                                                                ',&
-'   In more advanced applications, MAT88 can be used in conjunction with         ',&
-'   other programs in several ways. It is possible to define new MAT88           ',&
+'   In more advanced applications, LAFF can be used in conjunction with         ',&
+'   other programs in several ways. It is possible to define new LAFF           ',&
 '   functions and add them to the system. With most operating systems,           ',&
 '   it is possible to use the local file system to pass matrices between         ',&
-'   MAT88 and other programs. MAT88 command and statement input can be           ',&
+'   LAFF and other programs. LAFF command and statement input can be           ',&
 '   obtained from a local file instead of from the terminal. The most            ',&
-'   power and flexibility is obtained by using MAT88 as a subroutine             ',&
+'   power and flexibility is obtained by using LAFF as a subroutine             ',&
 '   which is called by other programs.                                           ',&
 '                                                                                ',&
-'   This document first gives an overview of MAT88 from the user''s              ',&
+'   This document first gives an overview of LAFF from the user''s              ',&
 '   point of view. Several extended examples involving data fitting,             ',&
 '   partial differential equations, eigenvalue sensitivity and other             ',&
 '   topics are included.  The system was designed and programmed using           ',&
 '   techniques described by Wirth [6], implemented in nonrecursive,              ',&
 '   portable Fortran. There is a brief discussion of some of the matrix          ',&
 '   algorithms and of their numerical properties. A final section describes      ',&
-'   how MAT88 can be used with other programs. The appendix includes the         ',&
+'   how LAFF can be used with other programs. The appendix includes the         ',&
 '   HELP documentation available on-line.                                        ',&
 '                                                                                ',&
 '================================================================================',&
 'ELEMENTARY OPERATIONS                                                           ',&
 '                                                                                ',&
-'   MAT88 works with essentially only one kind of object, a rectangular          ',&
+'   LAFF works with essentially only one kind of object, a rectangular          ',&
 '   matrix with complex elements. If the imaginary parts of the elements         ',&
 '   are all zero, they are not printed, but they still occupy storage. In        ',&
 '   some situations, special meaning is attached to 1 by 1 matrices,             ',&
 '   that is scalars, and to 1 by n and m by 1 matrices, that is row and          ',&
 '   column vectors.                                                              ',&
 '                                                                                ',&
-'   Matrices can be introduced into MAT88 in four different                      ',&
+'   Matrices can be introduced into LAFF in four different                      ',&
 '   ways:                                                                        ',&
 '                                                                                ',&
 '           --  Explicit list of elements,                                       ',&
@@ -7778,7 +7778,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '          7.    8.   9.                                                         ',&
 '                                                                                ',&
 '   The matrix A will be saved for later use. The individual elements            ',&
-'   are separated by commas or blanks and can be any MAT88 expressions,          ',&
+'   are separated by commas or blanks and can be any LAFF expressions,          ',&
 '   for example                                                                  ',&
 '                                                                                ',&
 '      x = < -1.3, 4/5, 4*atan(1) >                                              ',&
@@ -7809,7 +7809,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      7 8 9                                                                     ',&
 '      >;                                                                        ',&
 '                                                                                ',&
-'   then the MAT88 statement exec(''xyz'') reads the matrix and assigns it       ',&
+'   then the LAFF statement exec(''xyz'') reads the matrix and assigns it       ',&
 '   to A .                                                                       ',&
 '                                                                                ',&
 '   The "for" statement allows the generation of matrices whose elements         ',&
@@ -7880,7 +7880,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Note that both upper and lower case letters are allowed for input            ',&
 '   (on those systems which have both).                                          ',&
 '                                                                                ',&
-'   There are two "matrix division" symbols in MAT88, \ and / .                  ',&
+'   There are two "matrix division" symbols in LAFF, \ and / .                  ',&
 '   (If your terminal does not have a backslash, use $ instead, or               ',&
 '   see "char".) If A and B are matrices, then A\B and B/A correspond            ',&
 '   formally to left and right multiplication of B by the inverse of             ',&
@@ -8004,7 +8004,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      X = eye/A                                                                 ',&
 '                                                                                ',&
-'   is one of several ways in MAT88 to invert a matrix.                          ',&
+'   is one of several ways in LAFF to invert a matrix.                          ',&
 '                                                                                ',&
 '   "flop" provides a measure of the number of floating point operations,        ',&
 '   or "flops", required for each calculation by reporting the CPU time          ',&
@@ -8033,7 +8033,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'FUNCTIONS                                                                       ',&
 '                                                                                ',&
-'   Much of MAT88''s computational power comes from the various                  ',&
+'   Much of LAFF''s computational power comes from the various                  ',&
 '   matrix functions available. The current list includes:                       ',&
 '                                                                                ',&
 '      inv(A)          - Inverse.                                                ',&
@@ -8099,7 +8099,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   simply computes the eigenvalues and stores them in "ans".                    ',&
 '                                                                                ',&
-'   Future versions of MAT88 will probably include additional functions,         ',&
+'   Future versions of LAFF will probably include additional functions,         ',&
 '   since they can easily be added to the system.                                ',&
 '                                                                                ',&
 '================================================================================',&
@@ -8117,7 +8117,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   adds c times the k-th row of A to the i-th row.                              ',&
 '                                                                                ',&
-'   The colon is used in several other ways in MAT88, but all of the uses        ',&
+'   The colon is used in several other ways in LAFF, but all of the uses        ',&
 '   are based on the following definition.                                       ',&
 '                                                                                ',&
 '      j:k    is the same as  <j, j+1, ..., k>                                   ',&
@@ -8215,7 +8215,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'COMMANDS TEXTFILES AND MACROS                                                   ',&
 '                                                                                ',&
-'   MAT88 has several commands which control the output format and the           ',&
+'   LAFF has several commands which control the output format and the           ',&
 '   overall execution of the system.                                             ',&
 '                                                                                ',&
 '   The "help" command allows on-line access to short portions of text           ',&
@@ -8238,7 +8238,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   The "quit" and "exit" commands cause return to the underlying operating      ',&
 '   system through the Fortran RETURN statement.                                 ',&
 '                                                                                ',&
-'   MAT88 has a limited facility for handling text. Any string of                ',&
+'   LAFF has a limited facility for handling text. Any string of                ',&
 '   characters delineated by quotes (with two quotes used to allow one           ',&
 '   quote within the string) is saved as a vector of integer values with         ',&
 '   ''1'' = 1, ''A'' = 10, '' '' = 36, etc. (The complete list is in the appendix',&
@@ -8252,15 +8252,15 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      norm(A,''inf'')    computes the infinity norm of A .                      ',&
 '      display(T)       prints the text stored in T .                            ',&
-'      exec(''file'')     obtains MAT88 input from an external file.             ',&
+'      exec(''file'')     obtains LAFF input from an external file.             ',&
 '      save(''file'')     stores all the current variables in a file.            ',&
 '      load(''file'')     retrieves all the variables from a file.               ',&
 '      print(''file'',X)  prints X on a file.                                    ',&
-'      diary(''file'')    makes a copy of the complete MAT88 session.            ',&
+'      diary(''file'')    makes a copy of the complete LAFF session.            ',&
 '                                                                                ',&
 '   The text can also be used in a limited string substitution                   ',&
 '   macro facility. If a variable, say T, contains the source text               ',&
-'   for a MAT88 statement or expression, then the construction                   ',&
+'   for a LAFF statement or expression, then the construction                   ',&
 '                                                                                ',&
 '      > T <                                                                     ',&
 '                                                                                ',&
@@ -8279,12 +8279,12 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Some other examples are given under MACROS in the appendix. This             ',&
 '   facility is useful for fairly short statements and expressions.              ',&
-'   More complicated MAT88 "programs" should use the "exec" facility.            ',&
+'   More complicated LAFF "programs" should use the "exec" facility.            ',&
 '                                                                                ',&
 '================================================================================',&
 'NUMERICAL ALGORITHMS                                                            ',&
 '                                                                                ',&
-'   The algorithms underlying the basic MAT88 functions are described in         ',&
+'   The algorithms underlying the basic LAFF functions are described in         ',&
 '   the LINPACK and EISPACK guides [1-3]. The following list gives the           ',&
 '   subroutines used by these functions.                                         ',&
 '                                                                                ',&
@@ -8338,7 +8338,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '         det(z*eye-A) = C(1)*z**n + ... + C(n)*z + C(n+1) .                     ',&
 '                                                                                ',&
-'   The algorithm can be expressed compactly using MAT88:                        ',&
+'   The algorithm can be expressed compactly using LAFF:                        ',&
 '                                                                                ',&
 '         Z = eig(A);                                                            ',&
 '         C = 0*ones(n+1,1);  C(1) = 1;                                          ',&
@@ -8416,11 +8416,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   "rref", the reduced row echelon form, is of some interest in                 ',&
 '   theoretical linear algebra, although it has little computational             ',&
-'   value. It is included in MAT88 for pedagogical reasons. The algorithm        ',&
+'   value. It is included in LAFF for pedagogical reasons. The algorithm        ',&
 '   is essentially Gauss-Jordan elimination with detection of negligible         ',&
 '   columns applied to rectangular matrices.                                     ',&
 '                                                                                ',&
-'   There are three separate places in MAT88 where the rank of a matrix          ',&
+'   There are three separate places in LAFF where the rank of a matrix          ',&
 '   is implicitly computed: in rref(A), in A\B for non-square A, and             ',&
 '   in the pseudoinverse pinv(A). Three different algorithms with three          ',&
 '   different criteria for negligibility are used and so it is possible          ',&
@@ -8450,7 +8450,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   described by Moler and Morrison [10]. It is a cubically convergent           ',&
 '   algorithm which starts with a and b , rather than with their squares,        ',&
 '   and thereby avoids destructive arithmetic underflows and overflows. In       ',&
-'   MAT88, the algorithm is used for complex modulus, Euclidean vector           ',&
+'   LAFF, the algorithm is used for complex modulus, Euclidean vector           ',&
 '   norm, plane rotations, and the shift calculation in the eigenvalue           ',&
 '   and singular value iterations.                                               ',&
 '                                                                                ',&
@@ -8473,7 +8473,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   together with one floating point addition and the associated                 ',&
 '   indexing and storage reference operations.                                   ',&
 '                                                                                ',&
-'   MAT88 will print the CPU time required for a particular                      ',&
+'   LAFF will print the CPU time required for a particular                      ',&
 '   statement when the statement is terminated by an extra comma. For            ',&
 '   example, the line                                                            ',&
 '                                                                                ',&
@@ -8502,7 +8502,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '             1.1000                                                             ',&
 '                                                                                ',&
 '   "flop(2)" is the cumulative total of all the flops used since                ',&
-'   the beginning of the MAT88 session. The statement                            ',&
+'   the beginning of the LAFF session. The statement                            ',&
 '                                                                                ',&
 '         flop = <0 0>                                                           ',&
 '                                                                                ',&
@@ -8547,7 +8547,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   The following Fortran subprograms illustrate more details of                 ',&
 '   "flop" and "chop". The first subprogram is a simplified example of a         ',&
-'   system-dependent function used within MAT88 itself. The common variable      ',&
+'   system-dependent function used within LAFF itself. The common variable      ',&
 '   G_FLOP_COUNTER is essentially the first component of the variable            ',&
 '   FLOP. The common variable CHP is initially zero, but it is set to p          ',&
 '   by the statement "chop(p)". To shorten the DATA statement, we assume         ',&
@@ -8568,7 +8568,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         END REAL FUNCTION FLOP                                                 ',&
 '                                                                                ',&
 '   The following subroutine illustrates a typical use of the                    ',&
-'   previous function within MAT88. It is a simplified version of                ',&
+'   previous function within LAFF. It is a simplified version of                ',&
 '   the Basic Linear Algebra Subprogram that adds a scalar multiple              ',&
 '   of one vector to another. We assume here that the vectors are                ',&
 '   stored with a memory increment of one.                                       ',&
@@ -8592,7 +8592,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   between n and 2*n flops if the vectors have nonzero imaginary                ',&
 '   components.                                                                  ',&
 '                                                                                ',&
-'   The permanent MAT88 variable "eps" is reset by the statement                 ',&
+'   The permanent LAFF variable "eps" is reset by the statement                 ',&
 '   CHOP(p). Its new value is usually the smallest inverse power of              ',&
 '   two that satisfies the Fortran logical test                                  ',&
 '                                                                                ',&
@@ -8607,7 +8607,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Our first extended example involves predicting the population of the         ',&
 '   United States in 1980 using extrapolation of various fits to the             ',&
 '   census data from 1900 through 1970. There are eight observations,            ',&
-'   so we begin with the MAT88 statement                                         ',&
+'   so we begin with the LAFF statement                                         ',&
 '                                                                                ',&
 '      n = 8                                                                     ',&
 '                                                                                ',&
@@ -8954,7 +8954,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '              sigma =  sum  (-1)   c                                            ',&
 '                       j=1          j                                           ',&
 '                                                                                ',&
-'   To use MAT88 for this problem, the following "program" is first stored       ',&
+'   To use LAFF for this problem, the following "program" is first stored       ',&
 '   in the local computer file system, say under the name "PDE".                 ',&
 '                                                                                ',&
 '      //Conductivity example.                                                   ',&
@@ -8998,7 +8998,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      //output total operation count                                            ',&
 '         ops = flop(2)                                                          ',&
 '                                                                                ',&
-'   The program can be used within MAT88 by setting the three parameters         ',&
+'   The program can be used within LAFF by setting the three parameters         ',&
 '   and then accessing the file. For example,                                    ',&
 '                                                                                ',&
 '      rho = .9;                                                                 ',&
@@ -9296,7 +9296,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'COMMUNICATING WITH OTHER PROGRAMS                                               ',&
 '                                                                                ',&
-'   There are four different ways MAT88 can be used in                           ',&
+'   There are four different ways LAFF can be used in                           ',&
 '   conjunction with other programs:                                             ',&
 '                                                                                ',&
 '         -- user,                                                               ',&
@@ -9312,10 +9312,10 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         A                                                                      ',&
 '         X = inv(A)                                                             ',&
 '                                                                                ',&
-'   The example A could be introduced into MAT88 by writing                      ',&
+'   The example A could be introduced into LAFF by writing                      ',&
 '   the following Fortran subroutine.                                            ',&
 '                                                                                ',&
-'            SUBROUTINE mat88_user(A,M,N,S,T)                                    ',&
+'            SUBROUTINE laff_user(A,M,N,S,T)                                    ',&
 '            DOUBLEPRECISION A(*),S,T                                            ',&
 '            N = int(A(1))                                                       ',&
 '            M = N                                                               ',&
@@ -9327,8 +9327,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            enddo                                                               ',&
 '            END SUBROUTINE USER                                                 ',&
 '                                                                                ',&
-'   This subroutine should be compiled and linked into MAT88 in                  ',&
-'   place of the original version of USER. Then the MAT88                        ',&
+'   This subroutine should be compiled and linked into LAFF in                  ',&
+'   place of the original version of USER. Then the LAFF                        ',&
 '   statements                                                                   ',&
 '                                                                                ',&
 '         n = 6                                                                  ',&
@@ -9342,7 +9342,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '         for i = 1:n, for j = 1:n, a(i,j) = abs(i-j);                           ',&
 '                                                                                ',&
-'   Then the MAT88 statements                                                    ',&
+'   Then the LAFF statements                                                    ',&
 '                                                                                ',&
 '         n = 6                                                                  ',&
 '         exec(''EXAMPLE'',0)                                                    ',&
@@ -9377,9 +9377,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   The FORMAT number 102 may also be system dependent. This                     ',&
 '   particular one is appropriate for hexadecimal computers with an 8            ',&
 '   byte double precision floating point word. Check, or modify,                 ',&
-'   MAT88 subroutine SAVLOD.                                                     ',&
+'   LAFF subroutine SAVLOD.                                                     ',&
 '                                                                                ',&
-'   After this program is executed, enter MAT88 and give the                     ',&
+'   After this program is executed, enter LAFF and give the                     ',&
 '   following statements:                                                        ',&
 '                                                                                ',&
 '         load(''A'')                                                            ',&
@@ -9403,31 +9403,31 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            ...                                                                 ',&
 '            ...                                                                 ',&
 '                                                                                ',&
-'   The most elaborate mechanism involves using MAT88 as a subroutine            ',&
-'   within another program. Communication with the MAT88 stack is                ',&
-'   accomplished using subroutine MATZ which is distributed with MAT88,          ',&
-'   but which is not used by MAT88 itself. The preamble of MATZ is:              ',&
+'   The most elaborate mechanism involves using LAFF as a subroutine            ',&
+'   within another program. Communication with the LAFF stack is                ',&
+'   accomplished using subroutine MATZ which is distributed with LAFF,          ',&
+'   but which is not used by LAFF itself. The preamble of MATZ is:              ',&
 '                                                                                ',&
 '         SUBROUTINE MATZ(A,LDA,M,N,ID,JOB,IERR)                                 ',&
 '         INTEGER LDA,M,N,JOB,IERR                                               ',&
 '         character(len=*) :: id                                                 ',&
 '         DOUBLEPRECISION A(LDA,N)                                               ',&
 '                                                                                ',&
-'         ! ACCESS MAT88 VARIABLE STACK                                          ',&
+'         ! ACCESS LAFF VARIABLE STACK                                          ',&
 '         ! A IS AN M BY N MATRIX, STORED IN AN ARRAY WITH                       ',&
 '         !     LEADING DIMENSION LDA.                                           ',&
 '         ! ID IS THE NAME OF A. ID IS UP TO FOUR CHARACTERS.                    ',&
-'         ! JOB =  0  GET REAL A FROM MAT88,                                     ',&
-'         !     =  1  PUT REAL A INTO MAT88,                                     ',&
-'         !     = 10  GET IMAG PART OF A FROM MAT88,                             ',&
-'         !     = 11  PUT IMAG PART OF A INTO MAT88.                             ',&
-'         ! RETURN WITH NONZERO IERR AFTER MAT88 ERROR MESSAGE.                  ',&
+'         ! JOB =  0  GET REAL A FROM LAFF,                                     ',&
+'         !     =  1  PUT REAL A INTO LAFF,                                     ',&
+'         !     = 10  GET IMAG PART OF A FROM LAFF,                             ',&
+'         !     = 11  PUT IMAG PART OF A INTO LAFF.                             ',&
+'         ! RETURN WITH NONZERO IERR AFTER LAFF ERROR MESSAGE.                  ',&
 '         !                                                                      ',&
-'         ! USES MAT88 ROUTINES STACKG, STACKP AND ERROR                         ',&
+'         ! USES LAFF ROUTINES STACKG, STACKP AND ERROR                         ',&
 '                                                                                ',&
-'        The preamble of subroutine MAT88 is:                                    ',&
+'        The preamble of subroutine LAFF is:                                    ',&
 '                                                                                ',&
-'         SUBROUTINE MAT88(INIT)                                                 ',&
+'         SUBROUTINE LAFF(INIT)                                                 ',&
 '         ! INIT = 0 FOR FIRST ENTRY, NONZERO FOR SUBSEQUENT ENTRIES             ',&
 '                                                                                ',&
 '        To do our example, write the following program:                         ',&
@@ -9443,20 +9443,20 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            enddo                                                               ',&
 '            call MATZ(A,LDA,N,N,''A'',1,IERR)                                   ',&
 '            IF (IERR .NE. 0) GO TO ...                                          ',&
-'            call MAT88(1,'''')                                                  ',&
+'            call LAFF(1,'''')                                                  ',&
 '            call MATZ(X,LDA,N,N,''X'',0,IERR)                                   ',&
 '            IF (IERR .NE. 0) GO TO ...                                          ',&
 '            ...                                                                 ',&
 '            ...                                                                 ',&
 '                                                                                ',&
-'   When this program is executed, the call to MAT88(0) produces the             ',&
-'   MAT88 greeting, then waits for input. The command                            ',&
+'   When this program is executed, the call to LAFF(0) produces the             ',&
+'   LAFF greeting, then waits for input. The command                            ',&
 '                                                                                ',&
 '            quit                                                                ',&
 '                                                                                ',&
 '   sends control back to our example program. The matrix A is                   ',&
 '   generated by the program and sent to the stack by the first call             ',&
-'   to MATZ. The call to MAT88(1) produces the MAT88(1) prompt. Then             ',&
+'   to MATZ. The call to LAFF(1) produces the LAFF(1) prompt. Then             ',&
 '   the statements                                                               ',&
 '                                                                                ',&
 '            X = inv(A)                                                          ',&
@@ -9471,7 +9471,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'ACKNOWLEDGEMENT                                                                 ',&
 '                                                                                ',&
-'   Most of the work on MAT88 has been carried out at the University             ',&
+'   Most of the work on LAFF has been carried out at the University             ',&
 '   of New Mexico, where it is being supported by the National Science           ',&
 '   Foundation. Additional work has been done during visits to Stanford          ',&
 '   Linear Accelerator Center, Argonne National Laboratory and Los Alamos        ',&
@@ -9557,7 +9557,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       help \ , help eig                                                        ',&
 '       exec(''demo'',7)                                                         ',&
 '                                                                                ',&
-'      For more information, generate the MAT88 Users'' Guide                    ',&
+'      For more information, generate the LAFF Users'' Guide                    ',&
 '      using                                                                     ',&
 '                                                                                ',&
 '        help manual                                                             ',&
@@ -9589,7 +9589,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      Alternatively, To place all the documenation in a file, use               ',&
 '      "help manual" and enter "w help.txt" at the "continue .." prompt.         ',&
 'NEWS                                                                            ',&
-'      MAT88 is intended to be used primarily by families of FORTRAN             ',&
+'      LAFF is intended to be used primarily by families of FORTRAN             ',&
 '      programs that wish to add a consistent interactive "calculator"           ',&
 '      mode for interactively inspecting and modifying data.                     ',&
 '                                                                                ',&
@@ -9748,7 +9748,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      end of line. Any following text is ignored.                               ',&
 '                                                                                ',&
 '''     Transpose. X'' is the complex conjugate transpose of X .                 ',&
-'      Quote. ''ANY TEXT'' is a vector whose components are the MAT88            ',&
+'      Quote. ''ANY TEXT'' is a vector whose components are the LAFF            ',&
 '      internal codes for the characters. A quote within the text is             ',&
 '      indicated by two quotes. See "display" and "FILE" .                       ',&
 '                                                                                ',&
@@ -9803,7 +9803,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'MACROS                                                                          ',&
 '                                                                                ',&
 '       The macro facility involves text and inward pointing angle               ',&
-'       brackets. If "STRING" is the source text for any MAT88                   ',&
+'       brackets. If "STRING" is the source text for any LAFF                   ',&
 '       expression or statement, then                                            ',&
 '                                                                                ',&
 '             t = ''STRING'';                                                    ',&
@@ -9953,7 +9953,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            T = diag(ones(n-1,1),1);  T = T + T'';  I = eye(T);                 ',&
 '            A = T.*.I + I.*.T - 4*eye;                                          ',&
 '                                                                                ',&
-'      Just in case they might be useful, MAT88 includes                         ',&
+'      Just in case they might be useful, LAFF includes                         ',&
 '      constructions called Kronecker tensor quotients, denoted by               ',&
 '      X ./. Y and X .\. Y . They are obtained by replacing the                  ',&
 '      element-wise multiplications in X .*. Y with divisions.                   ',&
@@ -10055,7 +10055,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      "rand(''uniform'')" switches back to the uniform distribution.            ',&
 '      "rand(''seed'')" returns the current value of the seed for the            ',&
 '      generator. "rand(''seed'',n)" sets the seed to n.                         ',&
-'      "rand(''seed'',0)" resets the seed to 0, its value when MAT88             ',&
+'      "rand(''seed'',0)" resets the seed to 0, its value when LAFF             ',&
 '      is first entered.                                                         ',&
 '                                                                                ',&
 'rank  Rank. "K = rank(X)" is the number of singular values of X                 ',&
@@ -10155,12 +10155,12 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      0 is below the main diagonal.                                             ',&
 '                                                                                ',&
 'user  Allows personal Fortran subroutines to be linked into                     ',&
-'      MAT88. The subroutine should have the heading                             ',&
+'      LAFF. The subroutine should have the heading                             ',&
 '                                                                                ',&
 '         SUBROUTINE USER(A,M,N,S,T)                                             ',&
 '         REAL or DOUBLEPRECISION A(M,N),S,T                                     ',&
 '                                                                                ',&
-'      The MAT88 statement "Y = user(X,s,t)" results in a call to the            ',&
+'      The LAFF statement "Y = user(X,s,t)" results in a call to the            ',&
 '      subroutine with a copy of the matrix X stored in the argument A,          ',&
 '      its column and row dimensions in M and N, and the scalar parameters       ',&
 '      s and t stored in S and T. If s and t are omitted, they are set           ',&
@@ -10168,7 +10168,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      N may be reset within the subroutine. The statement Y = "user(K)"         ',&
 '      results in a call with M = 1, N = 1 and A(1,1) = "float(K)". After        ',&
 '      the subroutine has been written, it must be compiled and linked           ',&
-'      to the MAT88 object code within the local operating system.               ',&
+'      to the LAFF object code within the local operating system.               ',&
 '                                                                                ',&
 'zeros                                                                           ',&
 '      Returns a matrix of all zeros.                                            ',&
@@ -10197,7 +10197,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      will lead to only the final printing of A.                                ',&
 '      Similar considerations apply to "while".                                  ',&
 '                                                                                ',&
-'      See "exit" (terminates execution of loops or of MAT88 itself).            ',&
+'      See "exit" (terminates execution of loops or of LAFF itself).            ',&
 '                                                                                ',&
 'if    Conditionally execute statements                                          ',&
 '                                                                                ',&
@@ -10271,11 +10271,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '        E                                                                       ',&
 '                                                                                ',&
 'exit  Causes termination of a "for" or "while" loop.                            ',&
-'      If not in a loop, terminates execution of MAT88.                          ',&
+'      If not in a loop, terminates execution of LAFF.                          ',&
 '      Also see "quit".                                                          ',&
 '                                                                                ',&
 'quit  From the terminal, causes return to the operating system                  ',&
-'      or other program which invoked MAT88. From inside an                      ',&
+'      or other program which invoked LAFF. From inside an                      ',&
 '      "exec", causes return to the invoking "exec", or to the                   ',&
 '      terminal.                                                                 ',&
 '                                                                                ',&
@@ -10286,7 +10286,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      functions access files.  The ''file'' parameter takes different           ',&
 '      forms for different operating systems. On most systems, ''file''          ',&
 '      may be a string of up to 1024 characters in quotes. For example,          ',&
-'      "save(''A'')" or "exec(''MAT88/demo.exec'')" . The string will be used    ',&
+'      "save(''A'')" or "exec(''LAFF/demo.exec'')" . The string will be used    ',&
 '      as the name of a file in the local operating system.                      ',&
 '                                                                                ',&
 '      Check your local installation for details.  The filename must be          ',&
@@ -10297,7 +10297,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'delete                                                                          ',&
 '       "delete(''filename'')" deletes the given file.                           ',&
 '                                                                                ',&
-'exec  "exec(''file'',k)" obtains subsequent MAT88 input from an                 ',&
+'exec  "exec(''file'',k)" obtains subsequent LAFF input from an                 ',&
 '      external file. The printing of input is controlled by the                 ',&
 '      optional parameter k .                                                    ',&
 '                                                                                ',&
@@ -10306,11 +10306,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         If k = 0 , there is no echo, prompt or pause. This is the              ',&
 '                    default if the exec command is followed by a semicolon.     ',&
 '         If k = 1 , the input is echoed.                                        ',&
-'         If k = 2 , the MAT88 prompt <> is printed.                             ',&
+'         If k = 2 , the LAFF prompt <> is printed.                             ',&
 '         If k = 3 , there will be echos and prompts, but no pauses.             ',&
 '                    This is the the default if the exec command is not          ',&
 '                    followed by a semicolon.                                    ',&
-'         If k = 4 , MAT88 pauses before each prompt and waits for a             ',&
+'         If k = 4 , LAFF pauses before each prompt and waits for a             ',&
 '                    null line to continue.                                      ',&
 '         If k = 7 , there will be echos, prompts and pauses. This is            ',&
 '                    useful for demonstrations on video terminals.               ',&
@@ -10356,7 +10356,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      The formats used are system dependent. The following are                  ',&
 '      typical. See SUBROUTINE mat_savlod(3f) in your local implementation       ',&
-'      of MAT88.                                                                 ',&
+'      of LAFF.                                                                 ',&
 '                                                                                ',&
 '        101 FORMAT(A32,3I4)                                                     ',&
 '        102 FORMAT(4Z18)                                                        ',&
@@ -10408,11 +10408,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      If no base is specified and all the                                       ',&
 '      elements of X are integers between 0 and 86, then X is                    ',&
-'      interpreted as MAT88 text and printed accordingly.                        ',&
+'      interpreted as LAFF text and printed accordingly.                        ',&
 '                                                                                ',&
 '         <>display(''the analysis is complete'')                                ',&
 '           the analysis is complete                                             ',&
-'         display(0:86) // print the default MAT88 character set                 ',&
+'         display(0:86) // print the default LAFF character set                 ',&
 '                                                                                ',&
 '      Otherwise, + , - and blank are printed for positive,                      ',&
 '      negative and zero elements.                                               ',&
@@ -10465,7 +10465,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'MISCELLANEOUS                                                                   ',&
 '                                                                                ',&
 'char  "char(K)" requests an input line containing a single                      ',&
-'      character to replace MAT88 character number K in the                      ',&
+'      character to replace LAFF character number K in the                      ',&
 '      following table. For example, "char(45)" replaces backslash.              ',&
 '      "char(-K)" replaces the alternate character number K. By default          ',&
 '      the character set is:                                                     ',&
@@ -10497,7 +10497,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      A command line consisting of two exclamations("!!") will cause a          ',&
 '      small line-based editor to be called (very similar to the CDC NOS         ',&
 '      editor "xedit") with a copy of the previous input lines. When the         ',&
-'      editor returns control to MAT88, it will execute the edited command       ',&
+'      editor returns control to LAFF, it will execute the edited command       ',&
 '      (by default).                                                             ',&
 '                                                                                ',&
 '      In editor mode the command to be edited is shifted over one and the       ',&
@@ -10543,7 +10543,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      values may be assigned. "eps" is used as a default tolerance by "pinv"    ',&
 '      and "rank".                                                               ',&
 '                                                                                ',&
-'lala  A placeholder for a new command.                                          ',&
+'laff  A placeholder for a new command.                                          ',&
 '                                                                                ',&
 'debug  "debu(1)" turns on verbose low-level debugging for the developer,        ',&
 '       "debu(0)" turns it back off.                                             ',&
@@ -13514,7 +13514,7 @@ END SUBROUTINE ML_WQRSL
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 program bigmat
-use M_matrix, only  : mat88
+use M_matrix, only  : laff
 use M_CLI2, only : set_args, lget, sget, iget, expressions=>unnamed          ! add command-line parser module
 implicit none
 character(len=:),allocatable :: help_text(:)
@@ -13527,11 +13527,11 @@ logical                      :: markdown
    call set_args('mat --markdown F -noecho F',help_text,version_text )
    echo=.not.lget('noecho')
    if(size(expressions).eq.0)then
-      call mat88(echo=echo)                           ! CALL MAT88 interactively with default scratch space
+      call laff(echo=echo)                           ! CALL LAFF interactively with default scratch space
    else
-      call mat88(200000,echo=echo)                    ! CALL MAT88 to initialize it and set scratch space size
+      call laff(200000,echo=echo)                    ! CALL LAFF to initialize it and set scratch space size
       do i=1,size(expressions)
-         call mat88(expressions(i))                   ! CALL MAT88
+         call laff(expressions(i))                   ! CALL LAFF
       enddo
    endif
    stop
@@ -13577,9 +13577,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   An explanation of Example 1:                                                 ',&
 '                                                                                ',&
-'    // For this session the <> character is the MAT88 prompt.                   ',&
+'    // For this session the <> character is the LAFF prompt.                   ',&
 '     <> A=<1 2 3;5 4 6;7 8 9>            <---  you enter this                   ',&
-'     A     =                             <---  MAT88 response                   ',&
+'     A     =                             <---  LAFF response                   ',&
 '         1.    2.    3.                                                         ',&
 '         5.    4.    6.                                                         ',&
 '         7.    8.    9.                                                         ',&
@@ -13591,22 +13591,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '     <> A*b             <--- you enter "multiply A and b"                       ',&
 '                                                                                ',&
-'     ANS   =            <--- MAT88 response                                     ',&
+'     ANS   =            <--- LAFF response                                     ',&
 '        38.                                                                     ',&
 '        91.                                                                     ',&
 '       146.                                                                     ',&
 '                                                                                ',&
 '     <> b*A             <---you enter "multiply b and A"                        ',&
-'        /--ERROR                         <--- MAT88 response                    ',&
+'        /--ERROR                         <--- LAFF response                    ',&
 '     INCOMPATIBLE FOR MULTIPLICATION                                            ',&
 '                                                                                ',&
 '     <> det(A)         <--- Take the determinant of A                           ',&
 '                                                                                ',&
-'     ANS   =           <---MAT88 response                                       ',&
+'     ANS   =           <---LAFF response                                       ',&
 '                                                                                ',&
 '        18.                                                                     ',&
 '                                                                                ',&
-'     <> quit           <--- you quit MAT88                                      ',&
+'     <> quit           <--- you quit LAFF                                      ',&
 '                                                                                ',&
 '     total flops        34                                                      ',&
 '     ADIOS                                                                      ',&
@@ -13641,14 +13641,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Use the HELP command for further information.                                ',&
 '   For example, to enter HELP on the entire manual,                             ',&
 '   display directions for using HELP and                                        ',&
-'   place a User manual in the file "mat88.txt",                                 ',&
+'   place a User manual in the file "laff.txt",                                 ',&
 '   enter                                                                        ',&
 '                                                                                ',&
 '    mat                                                                         ',&
 '    <>help manual                                                               ',&
 '    continue ...                                                                ',&
 '    h // show directions for using "help"                                       ',&
-'    w mat88.txt                                                                 ',&
+'    w laff.txt                                                                 ',&
 '    continue ...                                                                ',&
 '    q                                                                           ',&
 '    quit                                                                        ',&
@@ -13695,9 +13695,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!
 !!    An explanation of Example 1:
 !!
-!!     // For this session the <> character is the MAT88 prompt.
+!!     // For this session the <> character is the LAFF prompt.
 !!      <> A=<1 2 3;5 4 6;7 8 9>            <---  you enter this
-!!      A     =                             <---  MAT88 response
+!!      A     =                             <---  LAFF response
 !!          1.    2.    3.
 !!          5.    4.    6.
 !!          7.    8.    9.
@@ -13709,22 +13709,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!
 !!      <> A*b             <--- you enter "multiply A and b"
 !!
-!!      ANS   =            <--- MAT88 response
+!!      ANS   =            <--- LAFF response
 !!         38.
 !!         91.
 !!        146.
 !!
 !!      <> b*A             <---you enter "multiply b and A"
-!!         /--ERROR                         <--- MAT88 response
+!!         /--ERROR                         <--- LAFF response
 !!      INCOMPATIBLE FOR MULTIPLICATION
 !!
 !!      <> det(A)         <--- Take the determinant of A
 !!
-!!      ANS   =           <---MAT88 response
+!!      ANS   =           <---LAFF response
 !!
 !!         18.
 !!
-!!      <> quit           <--- you quit MAT88
+!!      <> quit           <--- you quit LAFF
 !!
 !!      total flops        34
 !!      ADIOS
@@ -13759,14 +13759,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!    Use the HELP command for further information.
 !!    For example, to enter HELP on the entire manual,
 !!    display directions for using HELP and
-!!    place a User manual in the file "mat88.txt",
+!!    place a User manual in the file "laff.txt",
 !!    enter
 !!
 !!     mat
 !!     <>help manual
 !!     continue ...
 !!     h // show directions for using "help"
-!!     w mat88.txt
+!!     w laff.txt
 !!     continue ...
 !!     q
 !!     quit

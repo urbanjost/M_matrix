@@ -1,0 +1,2 @@
+// n=1 uses too much memory
+for n=2:14,exec('RHO')

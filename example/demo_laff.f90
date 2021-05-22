@@ -1,21 +1,21 @@
-             program demo_MAT88
-             use M_matrix, only : mat88
+             program demo_LAFF
+             use M_matrix, only : laff
 
                 write(*,'(a)')'optionally initialize scratch area size'
-                call MAT88(20000)
+                call LAFF(20000)
 
                 write(*,'(a)')'do some commands'
-                call MAT88([character(len=80) :: &
+                call LAFF([character(len=80) :: &
                 & 'semi;                         ',&
                 & 'a=magic(4),b=-a               ',&
                 & 'a+b;a;b                       ',&
                 & 'display("That is all Folks!") '])
 
                 write(*,'(a)')'do a single command'
-                call MAT88('who')
+                call LAFF('who')
 
                 write(*,'(a)')'enter interactive mode'
-                call MAT88()
+                call LAFF()
 
                 write(*,'(a)')'ending program'
-       end program demo_MAT88
+       end program demo_LAFF

@@ -9,10 +9,13 @@ new features, changes, and relevant notifications.
 **2021-05-20**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: DIFF:
+  +  renamed "mat88" to "laff".
 
 ### :green_circle: ADD:
-  +  added ifexists_mat88() for determining if a variable name is in use in
-     mat88.
+  +  added ifexists_laff() for determining if a variable name is in use in laff(3).
+  +  LAFF_PATH environment variable can be used to define a colon-delimited list of
+     directories to search for exec(1) files. Names are search for as specified and
+     with the ".la" suffix.
 
 ### :green_circle: FIX:
 
@@ -21,13 +24,13 @@ new features, changes, and relevant notifications.
 **2021-05-19**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
-  +  put_into_mat88() and get_into_mat88() are functional, allowing most
+  +  put_into_NAMELIST() and get_into_NAMELIST() are functional, allowing most
      intrinsic types from
      scalar to vector to MxN matrix to be passed to and from the calling
-     program onto the mat88 stack.
+     program onto the NAMELIST stack.
 
      Currently, returned arrays must be declared allocatable in the calling
-     program, as mat88() can change the size of the arrays.
+     program, as NAMELIST() can change the size of the arrays.
 
 <!-- ======================================================================== -->
 ---
@@ -64,7 +67,7 @@ new features, changes, and relevant notifications.
 
   +  all printable characters are allowed in display()
   +  underscores are allowed in variable and function names
-  +  character arrays of commands may be passed to mat88()
+  +  character arrays of commands may be passed to NAMELIST()
   +  began a set of unit tests
   +  add zeros() function to complement ones()
 
@@ -132,7 +135,7 @@ with exec().
 
 Made case-sensitive
 
-Can now take directives from string on MAT88() routine call
+Can now take directives from string on LAFF() routine call
 
 Allowing longer filenames
 

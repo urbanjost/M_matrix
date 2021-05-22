@@ -1,7 +1,0 @@
-// compare hilbert function to calculated array
-clean
-N=50
-for i=1:N, for j=1:N, B(i,j)=1/(i+j-1); // make Hilbert array B
-C=inv(B);      // invert B
-A=hilbert(N);  // directly make inverted hilbert array A
-sum(A-C)       // ideally A and C should be the same so this should be zero

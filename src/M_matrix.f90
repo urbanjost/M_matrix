@@ -1,19 +1,3 @@
-! char function
-! folding of characters
-! range of values for display
-! power function. what is double star (DSTAR)?
-! assumptions that character 0 to 9 are the digits of same value
-! name, isnum, and maybe zero and eol should all be negative or > 2256
-!
-! calling program should be able to query if data exists and how many values
-!  size_mat88
-!  exists_mat88
-!  inquire_mat88('NAME',exist=L,size=A)
-!
-!  do git on fixed-size array and warn if not same size in mat88 instead of just allocatables
-!
-!  put all pure math routines into M_LA or equivalent
-
 module M_matrix
 use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
 use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
@@ -21,11 +5,13 @@ use M_strings, only : value_to_string, lower, v2s, s2v
 use M_journal, only : journal
 use M_help, only    : help_command
 use M_history, only : redo
+use M_list, only    : insert, locate, replace, remove
+use M_io, only      : lookfor
 !>
 !!##SYNTAX DIAGRAMS (9)
 !!
-!!    A formal description of the language acceptable to MAT88, as well as
-!!    a flow chart of the mat88 program, is provided by the syntax diagrams
+!!    A formal description of the language acceptable to LAFF, as well as
+!!    a flow chart of the laff program, is provided by the syntax diagrams
 !!    or syntax graphs of wirth [6]. There are eleven non-terminal symbols
 !!    in the language:
 !!
@@ -224,11 +210,12 @@ use M_history, only : redo
 !!    Subsequent changes per John S. Urban: see change log and git(1) history
 implicit none
 !private
-public mat88
-public get_from_mat88     ! ??? maybe a function too with a second parameter and returned value is of same type(?)
-public put_into_mat88
-public :: ifexists_mat88
-!!public :: size_mat88
+
+public laff
+public get_from_laff     ! ??? maybe a function too with a second parameter and returned value is of same type(?)
+public put_into_laff
+public :: ifexists_laff
+!!public :: size_laff
 
 ! for other routines
 public mat_flop
@@ -242,13 +229,11 @@ integer,parameter,private:: sp=kind(1.0),dp=kind(1.0d0)
 ! program limits
 integer,parameter        :: GG_LINELEN=1024
 integer,parameter        :: GG_MAX_NUMBER_OF_NAMES=480
-integer,save             :: G_BIGMEM=-1                 !
 integer,parameter        :: GG_MAX_NAME_LENGTH=32       ! <WARNING> just began changing this to a constant
 
 !==================================================================================================================================!
 character(len=GG_LINELEN),allocatable,save :: G_PSEUDO_FILE(:) ! allow for input to be passed from program instead of from file
 logical                  :: G_PROMPT              ! companion for G_PSEUDO_FILE
-logical,save             :: G_MARKDOWN=.false.    ! only process lines from ```mat* to ```
 logical,save             :: G_ECHO=.false.        ! echo input lines
 
 integer,parameter        :: G_EOL=99999           ! make > 2256
@@ -295,53 +280,64 @@ integer                  :: G_LINE_POINTER(6) ! [1] first character to process i
                                               ! [5]
                                               ! [6]
 !==================================================================================================================================!
+integer,save                   :: GM_BIGMEM=-1                           ! allocated size of data storage
+doubleprecision,allocatable    :: GM_REALS(:), GM_IMAGS(:)               ! set to size of GM_BIGMEM
 
-integer                     :: G_STACK_IDS(GG_MAX_NAME_LENGTH, GG_MAX_NUMBER_OF_NAMES)
-integer                     :: G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES)
-integer                     :: G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES)
-integer                     :: G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES)
-doubleprecision,allocatable :: G_STACK_REALS(:), G_STACK_IMAGS(:)   ! set to size of G_BIGMEM
+integer                        :: G_STACK_IDS(GG_MAX_NAME_LENGTH, GG_MAX_NUMBER_OF_NAMES)
+integer                        :: G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES)
+integer                        :: G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES)
+integer                        :: G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES)
+
+character(len=:),allocatable   :: keywords(:)
+integer,allocatable            :: locs(:)
+integer,allocatable            :: rows(:)
+integer,allocatable            :: cols(:)
+
+character(len=:),allocatable   :: scr_keywords(:)
+integer,allocatable            :: scr_locs(:)
+integer,allocatable            :: scr_rows(:)
+integer,allocatable            :: scr_cols(:)
 
 integer                     :: G_TOP_OF_SAVED, G_BOTTOM_OF_SCRATCH_IN_USE
 
-!   Two large real arrays, G_STACK_REALS and G_STACK_IMAGS (for real and imaginary parts), are used to store all
+!   Two large real arrays, GM_REALS and GM_IMAGS (for real and imaginary parts), are used to store all
 !   the matrices. Four integer arrays (G_STACK_IDS, G_STACK_ROWS, G_STACK_COLS, G_STACK_ID_LOC) are used to store the names,
 !   the row and column dimensions, and the pointers into the real stacks. The following diagram illustrates this storage scheme.
 !
-!    TOP        IDSTK     MSTK NSTK LSTK               STKR      STKI
-!     --      -- -- -- --   --   --   --              --------   --------
-!    |  |--->|  |  |  |  | |  | |  | |  |----------->|        | |        |
-!     --      -- -- -- --   --   --   --              --------   --------
-!            |  |  |  |  | |  | |  | |  |            |        | |        |
-!             -- -- -- --   --   --   --              --------   --------
-!                  .         .    .    .                  .          .
-!                  .         .    .    .                  .          .
-!                  .         .    .    .                  .          .
-!             -- -- -- --   --   --   --              --------   --------
-!    BOT     |  |  |  |  | |  | |  | |  |            |        | |        |
-!     --      -- -- -- --   --   --   --              --------   --------
-!    |  |--->| X|  |  |  | | 2| | 1| |  |----------->|  3.14  | |  0.00  |
-!     --      -- -- -- --   --   --   --              --------   --------
-!            | A|  |  |  | | 2| | 2| |  |---------   |  0.00  | |  1.00  |
-!             -- -- -- --   --   --   --          \   --------   --------
-!            | E| P| S|  | | 1| | 1| |  |-------   ->| 11.00  | |  0.00  |
-!             -- -- -- --   --   --   --        \     --------   --------
-!            | F| L| O| P| | 1| | 2| |  |------  \   | 21.00  | |  0.00  |
-!             -- -- -- --   --   --   --       \  \   --------   --------
-!            | E| Y| E|  | |-1| |-1| |  |---    \ |  | 12.00  | |  0.00  |
-!             -- -- -- --   --   --   --    \   | |   --------   --------
-!            | R| A| N| D| | 1| | 1| |  |-   \  | |  | 22.00  | |  0.00  |
-!             -- -- -- --   --   --   --  \  |  \ \   --------   --------
-!                                         |  \   \ ->| 1.E-15 | |  0.00  |
-!                                         \   \   \   --------   --------
-!                                          \   \   ->|  0.00  | |  0.00  |
-!                                           \   \     --------   --------
-!                                            \   \   |  0.00  | |  0.00  |
-!                                             \   \   --------   --------
-!                                              \   ->|  1.00  | |  0.00  |
-!                                               \     --------   --------
-!                                                --->| URAND  | |  0.00  |
-!                                                     --------   --------
+!                    TOP        IDSTK     MSTK NSTK LSTK              GM_REALS    GM_IMAGS
+!                     --      -- -- -- --   --   --   --              --------   --------    <<== G_BOTTOM_OF_SCRATCH_IN_USE
+!                    |  |--->|  |  |  |  | |  | |  | |  |----------->|        | |        |
+!                     --      -- -- -- --   --   --   --              --------   --------
+!                            |  |  |  |  | |  | |  | |  |            |        | |        |
+!                             -- -- -- --   --   --   --              --------   --------
+!                                  .         .    .    .                  .          .
+!                                  .         .    .    .                  .          .
+!                                  .         .    .    .                  .          .
+!                             -- -- -- --   --   --   --              --------   --------
+!                    BOT     |  |  |  |  | |  | |  | |  |            |        | |        |
+!                     --      -- -- -- --   --   --   --              --------   --------
+!                    |  |--->| X|  |  |  | | 2| | 1| |  |----------->|  3.14  | |  0.00  |  <<== G_TOP_OF_SAVED
+!                     --      -- -- -- --   --   --   --              --------   --------
+!                            | A|  |  |  | | 2| | 2| |  |---------   |  0.00  | |  1.00  |
+!                             -- -- -- --   --   --   --          \   --------   --------
+!                            | E| P| S|  | | 1| | 1| |  |-------   ->| 11.00  | |  0.00  |
+!                             -- -- -- --   --   --   --        \     --------   --------
+!                            | F| L| O| P| | 1| | 2| |  |------  \   | 21.00  | |  0.00  |
+!                             -- -- -- --   --   --   --       \  \   --------   --------
+!                            | E| Y| E|  | |-1| |-1| |  |---    \ |  | 12.00  | |  0.00  |
+!                             -- -- -- --   --   --   --    \   | |   --------   --------
+!   GG_MAX_NUMBER_OF_NAMES-> | R| A| N| D| | 1| | 1| |  |-   \  | |  | 22.00  | |  0.00  |
+!                             -- -- -- --   --   --   --  \  |  \ \   --------   --------
+!                                                         |  \   \ ->| 1.E-15 | |  0.00  |
+!                                                         \   \   \   --------   --------
+!                                                          \   \   ->|  0.00  | |  0.00  |
+!                                                           \   \     --------   --------
+!                                                            \   \   |  0.00  | |  0.00  |
+!                                                             \   \   --------   --------
+!                                                              \   ->|  1.00  | |  0.00  |
+!                                                               \     --------   --------
+!                                                                --->| URAND  | |  0.00  |  GM_BIGMEM
+!                                                                     --------   --------
 !
 !   The top portion of the stack is used for temporary variables and the
 !   bottom portion for saved variables. The figure shows the situation
@@ -363,66 +359,61 @@ integer                     :: G_TOP_OF_SAVED, G_BOTTOM_OF_SCRATCH_IN_USE
 !   the bottom, a message indicating memory has been exceeded is
 !   printed, but the current variables are not affected.
 !
-!   This modular structure makes it possible to implement MAT88
-!   on a system with a limited amount of memory. The object code for
-!   the MATFN's and the LINPACK-EISPACK subroutines is rarely needed.
-!   Although it is not standard, many Fortran operating systems
-!   provide some overlay mechanism so that this code is brought into
-!   the main memory only when required. The variables, which occupy
-!   a relatively small portion of the memory, remain in place, while
-!   the subroutines which process them are loaded a few at a time.
+!   This modular structure makes it possible to implement LAFF
+!   on a system with a limited amount of memory, as this can easily be
+!   implemented with a direct-access file as well.
 !==================================================================================================================================!
-interface put_into_mat88
-   module procedure store_array_into_mat88
-   module procedure store_vector_into_mat88
-   module procedure store_scalar_into_mat88
-end interface put_into_mat88
+interface put_into_laff
+   module procedure store_array_into_laff
+   module procedure store_vector_into_laff
+   module procedure store_scalar_into_laff
+end interface put_into_laff
 
-interface get_from_mat88
-   module procedure get_array_from_mat88_dpcmplx
-   module procedure get_array_from_mat88_cmplx
-   module procedure get_array_from_mat88_real32
-   module procedure get_array_from_mat88_real64
-   module procedure get_array_from_mat88_real128
-   module procedure get_array_from_mat88_int8
-   module procedure get_array_from_mat88_int16
-   module procedure get_array_from_mat88_int32
-   module procedure get_array_from_mat88_int64
-   module procedure get_array_from_mat88_logical
-   !module procedure get_array_from_mat88_character !???? hmmm, does not meet current mat88 model
+interface get_from_laff
+   module procedure get_array_from_laff_dpcmplx
+   module procedure get_array_from_laff_cmplx
+   module procedure get_array_from_laff_real32
+   module procedure get_array_from_laff_real64
+   module procedure get_array_from_laff_real128
+   module procedure get_array_from_laff_int8
+   module procedure get_array_from_laff_int16
+   module procedure get_array_from_laff_int32
+   module procedure get_array_from_laff_int64
+   module procedure get_array_from_laff_logical
+   !module procedure get_array_from_laff_character !???? hmmm, does not meet current laff model
 
-   module procedure get_vector_from_mat88_dpcmplx
-   module procedure get_vector_from_mat88_cmplx
-   module procedure get_vector_from_mat88_real32
-   module procedure get_vector_from_mat88_real64
-   module procedure get_vector_from_mat88_real128
-   module procedure get_vector_from_mat88_int8
-   module procedure get_vector_from_mat88_int16
-   module procedure get_vector_from_mat88_int32
-   module procedure get_vector_from_mat88_int64
-   module procedure get_vector_from_mat88_logical
-   module procedure get_vector_from_mat88_character
+   module procedure get_vector_from_laff_dpcmplx
+   module procedure get_vector_from_laff_cmplx
+   module procedure get_vector_from_laff_real32
+   module procedure get_vector_from_laff_real64
+   module procedure get_vector_from_laff_real128
+   module procedure get_vector_from_laff_int8
+   module procedure get_vector_from_laff_int16
+   module procedure get_vector_from_laff_int32
+   module procedure get_vector_from_laff_int64
+   module procedure get_vector_from_laff_logical
+   module procedure get_vector_from_laff_character
 
-   !!module procedure get_vector_mxn_from_mat88_int8
-   module procedure get_scalar_from_mat88_dpcmplx
-   module procedure get_scalar_from_mat88_cmplx
-   module procedure get_scalar_from_mat88_real32
-   module procedure get_scalar_from_mat88_real64
-   module procedure get_scalar_from_mat88_real128
-   module procedure get_scalar_from_mat88_int8
-   module procedure get_scalar_from_mat88_int16
-   module procedure get_scalar_from_mat88_int32
-   module procedure get_scalar_from_mat88_int64
-   module procedure get_scalar_from_mat88_logical
-   module procedure get_scalar_from_mat88_character
+   !!module procedure get_vector_mxn_from_laff_int8
+   module procedure get_scalar_from_laff_dpcmplx
+   module procedure get_scalar_from_laff_cmplx
+   module procedure get_scalar_from_laff_real32
+   module procedure get_scalar_from_laff_real64
+   module procedure get_scalar_from_laff_real128
+   module procedure get_scalar_from_laff_int8
+   module procedure get_scalar_from_laff_int16
+   module procedure get_scalar_from_laff_int32
+   module procedure get_scalar_from_laff_int64
+   module procedure get_scalar_from_laff_logical
+   module procedure get_scalar_from_laff_character
 
-end interface get_from_mat88
+end interface get_from_laff
 
-interface mat88
-   module procedure mat88_init
-   module procedure mat88_cmd
-   module procedure mat88_cmds
-end interface mat88
+interface laff
+   module procedure laff_init
+   module procedure laff_cmd
+   module procedure laff_cmds
+end interface laff
 
 character(len=:),allocatable :: G_HELP_TEXT(:)
 
@@ -554,13 +545,13 @@ contains
 !==================================================================================================================================!
 !>
 !!##NAME
-!!    MAT88(3f) - [M_matrix] initialize and/or pass commands to matrix
+!!    LAFF(3f) - [M_matrix] initialize and/or pass commands to matrix
 !!    laboratory interpreter
 !!    LICENSE(MIT)
 !!##SYNOPSIS
 !!
 !!
-!!   subroutine MAT88(init,cmd)
+!!   subroutine LAFF(init,cmd)
 !!
 !!    integer,intent(in),optional :: init
 !!    character(len=*),intent(in),optional :: cmd
@@ -568,20 +559,20 @@ contains
 !!    character(len=*),intent(in),optional :: cmd(:)
 !!
 !!##DESCRIPTION
-!!    MAT88(3f) is modeled on MATLAB(3f) (MATrix LABoratory), a FORTRAN
+!!    LAFF(3f) is modeled on MATLAB(3f) (MATrix LABoratory), a FORTRAN
 !!    package developed by Argonne National Laboratories for in-house use.
 !!    It provides comprehensive vector and tensor operations in a package
 !!    which may be programmed, either through a macro language or through
 !!    execution of script files.
 !!
-!!    MAT88(3f) Functions supported include (but are not by any means limited
+!!    LAFF(3f) Functions supported include (but are not by any means limited
 !!    to) sin, cos, tan, arcfunctions, upper triangular, lower triangular,
 !!    determinants, matrix multiplication, identity, Hilbert matrices,
 !!    eigenvalues and eigenvectors, matrix roots and products, inversion
 !!    and so on and so forth.
 !!
-!!    MAT88() can be used
-!!       + as a stand-alone utility for working with mat88() files and
+!!    LAFF() can be used
+!!       + as a stand-alone utility for working with laff() files and
 !!         for basic computations.
 !!       + embedded in a Fortran program, passing variables back and forth
 !!         between the calling program and the utility.
@@ -594,9 +585,9 @@ contains
 !!
 !!##OPTIONS
 !!    INIT    indicate size of scratch space to allocate and (re)initialize
-!!            MAT88.
+!!            LAFF.
 !!
-!!    CMD     MAT88 command(s) to perform. May be CHARACTER scalar or vector
+!!    CMD     LAFF command(s) to perform. May be CHARACTER scalar or vector
 !!
 !!    INIT and CMD cannot be combined on a single call.
 !!
@@ -605,7 +596,7 @@ contains
 !!    and variable storage area. This form may be repeated and reinitializes
 !!    the utility at each call. A size of zero will deallocate any allocated
 !!    storage (after which the routine cannot be called with commands until
-!!    reallocated by another call to mat88()).
+!!    reallocated by another call to laff()).
 !!
 !!    If no parameters are supplied interactive mode is entered.
 !!
@@ -617,36 +608,36 @@ contains
 !!
 !!   Sample program
 !!
-!!       program demo_MAT88
-!!       use M_matrix, only : mat88
+!!       program demo_LAFF
+!!       use M_matrix, only : laff
 !!
 !!          write(*,'(a)')'optionally initialize scratch area size'
-!!          call MAT88(20000)
+!!          call LAFF(20000)
 !!
 !!          write(*,'(a)')'do some commands'
-!!          call MAT88([character(len=80) :: &
+!!          call LAFF([character(len=80) :: &
 !!          & 'semi;                         ',&
 !!          & 'a=magic(4),b=-a               ',&
 !!          & 'a+b;a;b                       ',&
 !!          & 'display("That is all Folks!") '])
 !!
 !!          write(*,'(a)')'do a single command'
-!!          call MAT88('who')
+!!          call LAFF('who')
 !!
 !!          write(*,'(a)')'enter interactive mode'
-!!          call MAT88()
+!!          call LAFF()
 !!
 !!          write(*,'(a)')'ending program'
-!!       end program demo_MAT88
+!!       end program demo_LAFF
 !!
 !!   Example 2:
 !!
 !!    program bigmat
-!!    use M_matrix, only : mat88
-!!       ! pass strings to MAT88 but do not enter interactive mode
-!!       call mat88(20000)                  ! initialize silently
-!!       call mat88( 'a=[1 2 3 4; 5 6 7 8]')
-!!       call mat88( [character(len=80) :: &
+!!    use M_matrix, only : laff
+!!       ! pass strings to LAFF but do not enter interactive mode
+!!       call laff(20000)                  ! initialize silently
+!!       call laff( 'a=[1 2 3 4; 5 6 7 8]')
+!!       call laff( [character(len=80) :: &
 !!        & 'semi;lines(999999)                                    ',&
 !!        & '// create a magic square and add 100 to all the values',&
 !!        & 'A=magic(4),<X,Y>=size(A)                              ',&
@@ -663,20 +654,20 @@ contains
 !!   Sample program with custom user function
 !!
 !!       program sample_user
-!!       use M_matrix, only : mat88
-!!          call MAT88(20000)
-!!          call MAT88(' ')
+!!       use M_matrix, only : laff
+!!          call LAFF(20000)
+!!          call LAFF(' ')
 !!       end program
 !!
 !!       !-------------------------------------------------------------
-!!       SUBROUTINE mat88_user(A,M,N,S,T)  ! sample mat88_user routine
+!!       SUBROUTINE laff_user(A,M,N,S,T)  ! sample laff_user routine
 !!       ! Allows personal  Fortran  subroutines  to  be  linked  into
-!!       ! MAT88. The subroutine should have the heading
+!!       ! LAFF. The subroutine should have the heading
 !!       !
-!!       !               SUBROUTINE mat88_user(A,M,N,S,T)
+!!       !               SUBROUTINE laff_user(A,M,N,S,T)
 !!       !               DOUBLEPRECISION A(M,N),S,T
 !!       !
-!!       ! The MAT88 statement Y = USER(X,s,t) results in a call to
+!!       ! The LAFF statement Y = USER(X,s,t) results in a call to
 !!       ! the subroutine with a copy of the matrix X stored in the
 !!       ! argument A, its column and row dimensions in M and N,
 !!       ! and the scalar parameters S and T stored in S and T.
@@ -685,7 +676,7 @@ contains
 !!       ! N may be reset within the subroutine. The statement Y =
 !!       ! USER(K) results in a call with M = 1, N = 1 and A(1,1) =
 !!       ! FLOAT(K). After the subroutine has been written, it must
-!!       ! be compiled and linked to the MAT88 object code within the
+!!       ! be compiled and linked to the LAFF object code within the
 !!       ! local operating system.
 !!       !
 !!       integer M,N
@@ -708,7 +699,7 @@ contains
 !!             enddo
 !!          enddo
 !!       endif
-!!       END SUBROUTINE mat88_user
+!!       END SUBROUTINE laff_user
 !!
 !!       ! end program sample_user
 !!
@@ -1171,13 +1162,12 @@ contains
 !!            205.     0.      0.      1.      1.
 !!            024.     0.      0.      0.     -4.
 !!           ]
-subroutine MAT88_init(init,echo,markdown)
+subroutine LAFF_init(init,echo)
 
-! ident_1="@(#)M_matrix::mat88(3f): initialize and/or pass commands to matrix laboratory interpreter"
+! ident_1="@(#)M_matrix::laff(3f): initialize and/or pass commands to matrix laboratory interpreter"
 
 integer,intent(in)          :: init
 logical,intent(in),optional :: echo
-logical,intent(in),optional :: markdown
 doubleprecision             :: s,t
 integer,parameter           :: EPS(GG_MAX_NAME_LENGTH)=   [iachar(['e','p','s',' ',' ']),GG_PAD(6:)]
 integer,parameter           :: FLOPS(GG_MAX_NAME_LENGTH)= [iachar(['f','l','o','p','s']),GG_PAD(6:)]
@@ -1185,7 +1175,6 @@ integer,parameter           :: EYE(GG_MAX_NAME_LENGTH)=   [iachar(['e','y','e','
 integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','d',' ']),GG_PAD(6:)]
 
    if(present(echo)) G_ECHO=echo
-   if(present(markdown)) G_MARKDOWN=markdown
 
    G_PROMPT=.true.
    G_ERR=0
@@ -1193,11 +1182,11 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','
    if(allocated(G_PSEUDO_FILE))deallocate(G_PSEUDO_FILE)
    allocate(G_PSEUDO_FILE(0))
 
-   G_BIGMEM=INIT
-   if(G_BIGMEM.lt.0)G_BIGMEM=200000
-   if(allocated(G_STACK_REALS) )deallocate(G_STACK_REALS)
-   if(allocated(G_STACK_IMAGS) )deallocate(G_STACK_IMAGS)
-   allocate(G_STACK_REALS(G_BIGMEM),G_STACK_IMAGS(G_BIGMEM))              ! set to size of G_BIGMEM
+   GM_BIGMEM=INIT
+   if(GM_BIGMEM.lt.0)GM_BIGMEM=200000
+   if(allocated(GM_REALS) )deallocate(GM_REALS)
+   if(allocated(GM_IMAGS) )deallocate(GM_IMAGS)
+   allocate(GM_REALS(GM_BIGMEM),GM_IMAGS(GM_BIGMEM))          ! set to size of GM_BIGMEM
 
    G_INPUT_LUN = STDIN                                                    ! unit number for terminal input
    call mat_files(G_INPUT_LUN,G_BUF)
@@ -1212,12 +1201,16 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','
 
    G_TOP_OF_SAVED = GG_MAX_NUMBER_OF_NAMES-3  ! move up to allow room for the built-in values eps, flops, eye, rand
 
-   call mat_wset(5,0.0D0,0.0d0,G_STACK_REALS(G_BIGMEM-4),G_STACK_IMAGS(G_BIGMEM-4),1)
+   call mat_wset(5,0.0D0,0.0d0,GM_REALS(GM_BIGMEM-4),GM_IMAGS(GM_BIGMEM-4),1)
 
-   call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-3),EPS)
-   G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-3) = G_BIGMEM-4
-   G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-3) = 1
-   G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-3) = 1
+   call update('eps',1,1,GM_BIGMEM-4)
+      !=============================================================
+      call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-3),EPS)
+      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-3) = GM_BIGMEM-4
+      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-3) = 1
+      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-3) = 1
+      !=============================================================
+
    ! interesting way to calculate the epsilon value of a machine
    s = 1.0d0
    SET_ST: do
@@ -1226,23 +1219,33 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','
       if (t .LE. 1.0d0) exit
    enddo SET_ST
 
-   G_STACK_REALS(G_BIGMEM-4) = 2.0d0*s
+   GM_REALS(GM_BIGMEM-4) = 2.0d0*s
 
-   call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-2),flops)
-   G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-2) = G_BIGMEM-3
-   G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-2) = 1
-   G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-2) = 2
+   call update('flops',1,2,GM_BIGMEM-3)
+      !=============================================================
+      call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-2),flops)
+      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-2) = GM_BIGMEM-3
+      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-2) = 1
+      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-2) = 2
+      !=============================================================
 
-   call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-1), eye)
-   G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-1) = G_BIGMEM-1
-   G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-1) = -1
-   G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-1) = -1
-   G_STACK_REALS(G_BIGMEM-1) = 1.0D0
+   call update('eye',-1,-1,GM_BIGMEM-1)
+      !=============================================================
+      call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-1), eye)
+      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-1) = GM_BIGMEM-1
+      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-1) = -1
+      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-1) = -1
+      !=============================================================
 
-   call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES), rand)
-   G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES) = G_BIGMEM
-   G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES) = 1
-   G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES) = 1
+   GM_REALS(GM_BIGMEM-1) = 1.0D0
+
+   call update('rand',1,1,GM_BIGMEM)
+      !=============================================================
+      call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES), rand)
+      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES) = GM_BIGMEM
+      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES) = 1
+      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES) = 1
+      !=============================================================
 
    G_FMT = 1
    G_FLOP_COUNTER(1) = 0
@@ -1251,33 +1254,30 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','
    G_PTZ = 0
    G_PT = G_PTZ
 
-end subroutine MAT88_init
+end subroutine LAFF_init
 !==================================================================================================================================
-subroutine MAT88_cmd(input_string,echo,markdown)
+subroutine LAFF_cmd(input_string,echo)
 
-! ident_2="@(#)M_matrix::mat88(3f): run a single command in matrix laboratory interpreter and return to calling program"
+! ident_2="@(#)M_matrix::laff(3f): run a single command in matrix laboratory interpreter and return to calling program"
 
 character(len=*),intent(in) :: input_string
 logical,intent(in),optional :: echo
-logical,intent(in),optional :: markdown
 
-   call mat88_cmds( [input_string],echo=echo,markdown=markdown)
+   call laff_cmds( [input_string],echo=echo)
 
-end subroutine MAT88_cmd
+end subroutine LAFF_cmd
 !==================================================================================================================================
-subroutine MAT88_cmds(pseudo_file,echo,markdown)
+subroutine LAFF_cmds(pseudo_file,echo)
 
-! ident_3="@(#)M_matrix::mat88(3f): run an array of commands in matrix laboratory interpreter and return to calling program"
+! ident_3="@(#)M_matrix::laff(3f): run an array of commands in matrix laboratory interpreter and return to calling program"
 
 character(len=*),intent(in),optional :: pseudo_file(:)
 logical,intent(in),optional          :: echo
-logical,intent(in),optional          :: markdown
 
    if(present(echo)) G_ECHO=echo
-   if(present(markdown)) G_MARKDOWN=markdown
 
-   if(G_BIGMEM.LT.0)then
-      call mat88_init(200000)
+   if(GM_BIGMEM.LT.0)then
+      call laff_init(200000)
    else
       G_PROMPT=.true.
    endif
@@ -1302,7 +1302,7 @@ logical,intent(in),optional          :: markdown
       end select
    enddo PARSE_LINE
 
-end subroutine MAT88_cmds
+end subroutine LAFF_cmds
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -1337,10 +1337,10 @@ character(len=255)   :: msg
     case(15); msg='Improper assignment to submatrix'
     case(16); msg='Improper command'
     case(17)
-      lb = G_BIGMEM - G_STACK_ID_LOC(G_TOP_OF_SAVED) + 1
+      lb = GM_BIGMEM - G_STACK_ID_LOC(G_TOP_OF_SAVED) + 1
       lt = g_err + G_STACK_ID_LOC(G_TOP_OF_SAVED)
       call journal(' Too much memory required')
-      write(msg,'(1X,I7,'' Variables,'',I7,'' Temporaries,'',I7,'' Available.'')') lb,lt,G_BIGMEM
+      write(msg,'(1X,I7,'' Variables,'',I7,'' Temporaries,'',I7,'' Available.'')') lb,lt,GM_BIGMEM
     case(18); msg='Too many names'
     case(19); msg='Matrix is singular to working precision'
     case(20); msg='Matrix must be square'
@@ -1396,14 +1396,6 @@ integer                      :: ios
       status_local='UNKNOWN'
    endif
 
-   !  Amiga dependent stuff squeezes the NAME from one CHAR per word to one per byte
-   if (G_DEBUG_LEVEL .eq. 1) then
-      call journal('sc','*MLFILES* LUNIT=', LUNIT)
-      name(1:10)='*MLFILES* INAME='
-      call mat_buf2str(name(11:),iname,GG_LINELEN)
-      call journal(name)
-   endif
-
    G_FILE_OPEN_ERROR=.false.
    select case(lunit)
     case(0)      ! error catcher
@@ -1445,7 +1437,6 @@ integer      :: sign
 integer      :: chcnt
 integer      :: ss
 integer      :: i
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_GETSYM:START:')
 !.......................................................................
    INFINITE : do
       if (G_CHRA .ne. blank) exit INFINITE
@@ -1455,7 +1446,6 @@ integer      :: i
    G_LINE_POINTER(2) = G_LINE_POINTER(3)
    G_LINE_POINTER(3) = G_LINE_POINTER(4)
    if ( verify(achar(G_CHRA),digit) == 0) then
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_GETSYM:A DIGIT:',achar(G_CHRA))
       call mat_getval(syv)
       if (G_CHRA .ne. dot) goto 60
       call mat_getch() ! get next character
@@ -1506,7 +1496,7 @@ integer      :: i
       if (sign .ne. minus) syv = syv*10.0d0**s
       if (sign .eq. minus) syv = syv/10.0d0**s
    endif
-   G_STACK_IMAGS(G_BIGMEM) = mat_flop(syv)
+   GM_IMAGS(GM_BIGMEM) = mat_flop(syv)
    G_SYM = isnum
    goto 90
 
@@ -1517,26 +1507,10 @@ integer      :: i
       goto 90
    endif
 
-   if (G_DEBUG_LEVEL .eq. 1) then
-
-      if (G_sym.ge.0 .and. G_sym.lt.G_CHARSET_SIZE) then
-         call journal('sc','MAT_GETSYM:G_SYM=',G_SYM,achar(G_sym))
-      endif
-
-      if (G_sym .ge. G_CHARSET_SIZE) call journal('sc','MAT_GETSYM:eol:')
-
-      if (G_sym .eq. isname) call mat_print_id(G_SYN,1)
-
-      if (G_sym .eq. isnum) call journal('sc','MAT_GETSYM:SYV:',syv)
-   endif
-
 end subroutine mat_getsym
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-! integer,parameter  ::  hollerith_blank=iachar(' ')+538976304-48
-! integer,parameter  ::  hollerith_equal=iachar('=')+538976304-48
-
 subroutine mat_str2buf(string,buf,lrecl)
 
 ! ident_6="@(#)M_matrix::mat_str2buf(3fp): convert string to hollerith"
@@ -1548,10 +1522,6 @@ integer,intent(in)          :: lrecl
 integer,intent(out)         :: buf(:)
 integer                     :: i
 
-!   buf=iachar(' ')+538976304-48
-!   do i=1,min(lrecl,len_trim(string),size(buf))
-!      buf(i)=iachar(string(i:i))+538976304-48
-!   enddo
    buf=iachar(' ')
    do i=1,min(lrecl,len_trim(string),size(buf))
       buf(i)=iachar(string(i:i))
@@ -1606,9 +1576,6 @@ integer                :: i
 integer                :: ilen
    string(:)=' '
    ilen=len(string)
-!   do i=1,min(lrecl,ilen,size(buf))
-!      string(i:i)=achar(buf(i)-538976304+48)
-!   enddo
    do i=1,min(lrecl,ilen,size(buf))
       string(i:i)=achar(buf(i))
    enddo
@@ -1618,7 +1585,7 @@ end subroutine mat_buf2str
 !==================================================================================================================================!
 subroutine ints2str(ints,string,ierr)
 
-! ident_10="@(#)M_matrix::ints2str(3f) convert mat88 integers to a character variable"
+! ident_10="@(#)M_matrix::ints2str(3f) convert laff integers to a character variable"
 
 ! temporary procedure while writing ASCII-based upgrade
 
@@ -1675,8 +1642,6 @@ character(len=80) :: message
 character(len=GG_LINELEN) :: string_buf
 !
 
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','*MATFN6* ',G_FIN)
-
    location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -1688,10 +1653,10 @@ character(len=GG_LINELEN) :: string_buf
    FUN6: select case(G_FIN)
 !===================================================================================================================================
    case(1) ! COMMAND::MAGIC
-      N = MAX(int(G_STACK_REALS(location)),0)
+      N = MAX(int(GM_REALS(location)),0)
       IF (N .EQ. 2) N = 0
-      IF (N .GT. 0) call mat_magic(G_STACK_REALS(location),N,N)
-      call mat_rset(N*N,0.0D0,G_STACK_IMAGS(location),1)
+      IF (N .GT. 0) call mat_magic(GM_REALS(location),N,N)
+      call mat_rset(N*N,0.0D0,GM_IMAGS(location),1)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
 !===================================================================================================================================
@@ -1710,29 +1675,29 @@ character(len=GG_LINELEN) :: string_buf
       if(too_much_memory(LB + M*N - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
 
 !     MOVE A AND B ABOVE RESULT
-      call mat_wcopy(MA*NA+M*N,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(LA),G_STACK_IMAGS(LA),1)
+      call mat_wcopy(MA*NA+M*N,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(LA),GM_IMAGS(LA),1)
       DO JA = 1, NA
         DO J = 1, N
           LJ = LB + (J-1)*M
           DO IA = 1, MA
 !           GET J-TH COLUMN OF B
-            call mat_wcopy(M,G_STACK_REALS(LJ),G_STACK_IMAGS(LJ),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+            call mat_wcopy(M,GM_REALS(LJ),GM_IMAGS(LJ),1,GM_REALS(location),GM_IMAGS(location),1)
 !           ADDRESS OF A(IA,JA)
             LS = LA + IA-1 + (JA-1)*MA
             DO I = 1, M
 !             A(IA,JA) OP B(I,J)
               IF (G_FIN .EQ. 11) &
-              call mat_wmul( G_STACK_REALS(LS), G_STACK_IMAGS(LS), &
-                             G_STACK_REALS(location),  G_STACK_IMAGS(location),  &
-                             G_STACK_REALS(location),  G_STACK_IMAGS(location))
+              call mat_wmul( GM_REALS(LS), GM_IMAGS(LS), &
+                             GM_REALS(location),  GM_IMAGS(location),  &
+                             GM_REALS(location),  GM_IMAGS(location))
               IF (G_FIN .EQ. 12) &
-              call mat_wdiv( G_STACK_REALS(LS), G_STACK_IMAGS(LS), &
-                             G_STACK_REALS(location),  G_STACK_IMAGS(location),  &
-                             G_STACK_REALS(location),  G_STACK_IMAGS(location))
+              call mat_wdiv( GM_REALS(LS), GM_IMAGS(LS), &
+                             GM_REALS(location),  GM_IMAGS(location),  &
+                             GM_REALS(location),  GM_IMAGS(location))
               IF (G_FIN .EQ. 13)  &
-              call mat_wdiv( G_STACK_REALS(location),  G_STACK_IMAGS(location),  &
-                             G_STACK_REALS(LS), G_STACK_IMAGS(LS), &
-                             G_STACK_REALS(location),  G_STACK_IMAGS(location))
+              call mat_wdiv( GM_REALS(location),  GM_IMAGS(location),  &
+                             GM_REALS(LS), GM_IMAGS(LS), &
+                             GM_REALS(location),  GM_IMAGS(location))
               IF (G_ERR .GT. 0) return
               location = location + 1
             ENDDO
@@ -1752,7 +1717,7 @@ character(len=GG_LINELEN) :: string_buf
       enddo
       eps0 = 2.0d0*eps0
 
-      G_FLOP_COUNTER(2) = int(G_STACK_REALS(location))
+      G_FLOP_COUNTER(2) = int(GM_REALS(location))
       if (G_SYM .ne. SEMI) then
          write(message,'(''CHOP '',I2,'' PLACES.'')') G_FLOP_COUNTER(2)
          call journal(message)
@@ -1766,8 +1731,8 @@ character(len=GG_LINELEN) :: string_buf
       enddo
       eps = 2.0d0*eps
 
-      t = G_STACK_REALS(G_BIGMEM-4)
-      if (t.lt.eps .or. t.eq.eps0) G_STACK_REALS(G_BIGMEM-4) = eps
+      t = GM_REALS(GM_BIGMEM-4)
+      if (t.lt.eps .or. t.eq.eps0) GM_REALS(GM_BIGMEM-4) = eps
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
    case(3) ! COMMAND::SUM
@@ -1776,11 +1741,11 @@ character(len=GG_LINELEN) :: string_buf
       mn = m*n
       do i = 1, mn
          ls = location+i-1
-         sr = mat_flop(SR+G_STACK_REALS(LS))
-         si = mat_flop(SI+G_STACK_IMAGS(LS))
+         sr = mat_flop(SR+GM_REALS(LS))
+         si = mat_flop(SI+GM_IMAGS(LS))
       enddo
-      G_STACK_REALS(location) = sr
-      G_STACK_IMAGS(location) = si
+      GM_REALS(location) = sr
+      GM_IMAGS(location) = si
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
@@ -1790,15 +1755,15 @@ character(len=GG_LINELEN) :: string_buf
       MN = M*N
       DO I = 1, MN
          LS = location+I-1
-         call mat_wmul(G_STACK_REALS(LS),G_STACK_IMAGS(LS),SR,SI,SR,SI)
+         call mat_wmul(GM_REALS(LS),GM_IMAGS(LS),SR,SI,SR,SI)
       enddo
-      G_STACK_REALS(location) = SR
-      G_STACK_IMAGS(location) = SI
+      GM_REALS(location) = SR
+      GM_IMAGS(location) = SI
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
    case(5) ! COMMAND::USER
-      ! The MAT88 statement "Y = user(X,s,t)" results in a call to the
+      ! The LAFF statement "Y = user(X,s,t)" results in a call to the
       ! subroutine with a copy of the matrix X stored in the argument A,
       ! its column and row dimensions in M and N, and the scalar parameters
       ! s and t stored in S and T. If s and t are omitted, they are set
@@ -1807,13 +1772,13 @@ character(len=GG_LINELEN) :: string_buf
       ! results in a call with M = 1, N = 1 and A(1,1) = "float(K)".
 
       if(G_RHS.gt.2)then
-         t = G_STACK_REALS(location)
+         t = GM_REALS(location)
       else
          t = 0.0D0
       endif
 
       if(G_RHS.eq.2)then
-         s = G_STACK_REALS(location)
+         s = GM_REALS(location)
       else
          s = 0.0D0
       endif
@@ -1823,17 +1788,17 @@ character(len=GG_LINELEN) :: string_buf
       m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 
-      call mat88_user(G_STACK_REALS(location),m,n,s,t)
-      call mat_rset(M*N,0.0D0,G_STACK_IMAGS(location),1)
+      call laff_user(GM_REALS(location),m,n,s,t)
+      call mat_rset(M*N,0.0D0,GM_IMAGS(location),1)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
 !===================================================================================================================================
    case(10) ! COMMAND::SIZE
       ! store the two output values onto stack
-      G_STACK_REALS(location) = M
-      G_STACK_IMAGS(location) = 0.0D0
-      G_STACK_REALS(location+1) = N
-      G_STACK_IMAGS(location+1) = 0.0D0
+      GM_REALS(location) = M
+      GM_IMAGS(location) = 0.0D0
+      GM_REALS(location+1) = N
+      GM_IMAGS(location+1) = 0.0D0
       if(G_LHS.eq.1)then
          ! output is a 1x2 array so store values indicating the size of the new stack value
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
@@ -1854,7 +1819,7 @@ character(len=GG_LINELEN) :: string_buf
                  ! COMMAND::TRIU=15
       k = 0
       if (G_RHS .eq. 2) then
-         k = int(G_STACK_REALS(location))
+         k = int(GM_REALS(location))
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
          location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -1872,7 +1837,7 @@ character(len=GG_LINELEN) :: string_buf
                         ll = m - j + k
                         ls = ld + 1
                end select
-               if (ll .gt. 0) call mat_wset(ll, 0.0d0, 0.0d0, G_STACK_REALS(ls), G_STACK_IMAGS(ls), 1)
+               if (ll .gt. 0) call mat_wset(ll, 0.0d0, 0.0d0, GM_REALS(ls), GM_IMAGS(ls), 1)
             enddo
       elseif (m .eq. 1 .or. n .eq. 1) then
          n = max(m,n)+iabs(k)
@@ -1890,10 +1855,10 @@ character(len=GG_LINELEN) :: string_buf
                if (k.ge.0) ls = location+i-1
                if (k.lt.0) ls = location+j-1
                ll = location+i-1+(j-1)*n
-               if (j-i .eq. k) sr = G_STACK_REALS(ls)
-               if (j-i .eq. k) si = G_STACK_IMAGS(ls)
-               G_STACK_REALS(LL) = sr
-               G_STACK_IMAGS(LL) = si
+               if (j-i .eq. k) sr = GM_REALS(ls)
+               if (j-i .eq. k) si = GM_IMAGS(ls)
+               GM_REALS(LL) = sr
+               GM_IMAGS(LL) = si
             enddo
          enddo
       else
@@ -1906,8 +1871,8 @@ character(len=GG_LINELEN) :: string_buf
             if (k.ge.0) ls = location+(i-1)+(i+k-1)*m
             if (k.lt.0) ls = location+(i-k-1)+(i-1)*m
             ll = location+i-1
-            G_STACK_REALS(ll) = G_STACK_REALS(ls)
-            G_STACK_IMAGS(ll) = G_STACK_IMAGS(ls)
+            GM_REALS(ll) = GM_REALS(ls)
+            GM_IMAGS(ll) = GM_IMAGS(ls)
          enddo
       endif
       exit FUN6
@@ -1919,7 +1884,7 @@ character(len=GG_LINELEN) :: string_buf
       if (.not.(m.gt.1 .or. G_RHS.eq.0)) then
 
          if (G_RHS .eq. 2) then
-            nn = int(G_STACK_REALS(location))
+            nn = int(GM_REALS(location))
             G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
             location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
             n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -1929,7 +1894,7 @@ character(len=GG_LINELEN) :: string_buf
             id=blank
             do i = 1, min(GG_MAX_NAME_LENGTH,n)  ! in case it is one of these words store it in the ID array to test if it matches
                ls = location+i-1
-               id(i) = int(G_STACK_REALS(ls))
+               id(i) = int(GM_REALS(ls))
             enddo
             if(mat_eqid(id,unifor).or.mat_eqid(id,normal))then ! SWITCH UNIFORM AND NORMAL(if a matrix just happens to match, a bug)
                G_CURRENT_RANDOM_TYPE = id(1) - unifor(1)        ! set random type to generate by seeing if first letter is a "u"
@@ -1937,7 +1902,7 @@ character(len=GG_LINELEN) :: string_buf
                exit FUN6
             elseif (mat_eqid(id,seed)) then                     ! if a matrix just happens to match "seed" , a bug)
                if (G_RHS .eq. 2) G_CURRENT_RANDOM_SEED = nn
-               G_STACK_REALS(location) = G_CURRENT_RANDOM_SEED
+               GM_REALS(location) = G_CURRENT_RANDOM_SEED
                G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
                if (G_RHS .eq. 2) G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
                G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
@@ -1946,7 +1911,7 @@ character(len=GG_LINELEN) :: string_buf
          endif
 
          if (n .le. 1) then
-            m = max(int(G_STACK_REALS(location)),0)
+            m = max(int(GM_REALS(location)),0)
             if (G_RHS .eq. 2) n = max(nn,0)
             if (G_RHS .ne. 2) n = m
 
@@ -1964,18 +1929,18 @@ character(len=GG_LINELEN) :: string_buf
 
            ll = location+i-1+(j-1)*m             ! location to place value
 
-           G_STACK_IMAGS(ll) = 0.0d0      ! all of these functions set imaginary values to zero
+           GM_IMAGS(ll) = 0.0d0      ! all of these functions set imaginary values to zero
 
            select case(G_FIN)
            case( 6 ) !::EYE
               if(i.eq.j)then               ! on the diagonal
-                 G_STACK_REALS(ll) = 1.0d0
+                 GM_REALS(ll) = 1.0d0
               else
-                 G_STACK_REALS(ll) = 0.0d0
+                 GM_REALS(ll) = 0.0d0
               endif
            case( 7 ) !::RAND
               IF(G_CURRENT_RANDOM_TYPE.EQ.0) then
-                 G_STACK_REALS(ll)=mat_flop(mat_urand(G_CURRENT_RANDOM_SEED))
+                 GM_REALS(ll)=mat_flop(mat_urand(G_CURRENT_RANDOM_SEED))
               else
                  do
                     sr = 2.0d0*mat_urand(G_CURRENT_RANDOM_SEED)-1.0d0
@@ -1984,12 +1949,12 @@ character(len=GG_LINELEN) :: string_buf
                     if (t .le. 1.0d0) exit
                  enddo
 
-                 G_STACK_REALS(ll) = mat_flop(sr*dsqrt((-(2.0d0*dlog(t)))/t))
+                 GM_REALS(ll) = mat_flop(sr*dsqrt((-(2.0d0*dlog(t)))/t))
               endif
            case( 8 ) !::ONES
-              G_STACK_REALS(ll) = 1.0d0
+              GM_REALS(ll) = 1.0d0
            case( 16) !::ZEROS
-              G_STACK_REALS(ll) = 0.0d0
+              GM_REALS(ll) = 0.0d0
            case default
               call journal('should not get here: internal error')
            end select
@@ -2018,7 +1983,7 @@ character(len=GG_LINELEN) :: string_buf
       ll=location
       do j=1,m
          id=blank
-         id(1:n)=int(G_STACK_REALS(ll:ll+n-1))
+         id(1:n)=int(GM_REALS(ll:ll+n-1))
          varname=''
          do i=1,n
             if(id(i).le.0)exit   ! ??? why exit. What is the special meaning?
@@ -2042,17 +2007,17 @@ character(len=GG_LINELEN) :: string_buf
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       if (m*n .eq. 0) exit FUN6
 
-      ! so starting at G_STACK_REALS(location) convert the characters to numbers and store the M x N number of characters
+      ! so starting at GM_REALS(location) convert the characters to numbers and store the M x N number of characters
       do j = 1, n
          do i = 1, m
            ll = location+i-1+(j-1)*m             ! location to place value
-           G_STACK_IMAGS(ll) = 0.0d0             ! all of these functions set imaginary values to zero
+           GM_IMAGS(ll) = 0.0d0             ! all of these functions set imaginary values to zero
            nn=iachar(answers(m)(j:j))
            if(nn.gt.0)then
-              G_STACK_REALS(ll) = real(nn)
+              GM_REALS(ll) = real(nn)
            else
               call journal('sc','bad character')
-              G_STACK_REALS(ll) = 0.0d0
+              GM_REALS(ll) = 0.0d0
            endif
          enddo
       enddo
@@ -2064,8 +2029,8 @@ character(len=GG_LINELEN) :: string_buf
       integer :: time_values(8)
       ! store the two output values onto stack
       call date_and_time(values=time_values)
-      G_STACK_REALS(location:location+8-1) = dble(time_values)
-      G_STACK_IMAGS(location:location+8-1) = 0.0D0
+      GM_REALS(location:location+8-1) = dble(time_values)
+      GM_IMAGS(location:location+8-1) = 0.0D0
       ! output is a 1x8 array so store values indicating the size of the new stack value
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 8
@@ -2086,7 +2051,6 @@ character(len=GG_MAX_NAME_LENGTH) :: name
 integer                           :: i
 
    name=' '
-   if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_FUNS:START:',ade2str(id))
    do i=1,size(id)
       if(id(i).le.0)exit
       if(id(i).le.G_CHARSET_SIZE)then
@@ -2181,8 +2145,8 @@ integer                           :: i
    G_FIN = mod(selector,100) ! which case to select in called procedure
    G_FUN = selector/100      ! which routine to call (SUBROUTINE MAT_MATFN[1-6])
 
-   if (G_rhs.eq.0 .and. selector.eq.606) G_FIN = 0
-   if (G_rhs.eq.0 .and. selector.eq.607) G_FIN = 0
+   if (G_RHS.eq.0 .and. selector.eq.606) G_FIN = 0
+   if (G_RHS.eq.0 .and. selector.eq.607) G_FIN = 0
 end subroutine mat_funs
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2509,8 +2473,8 @@ integer           :: itype
    itype=-9999
    do i = 1, mn
       ls = location+i-1
-      tr = G_STACK_REALS(ls)
-      ti = G_STACK_IMAGS(ls)
+      tr = GM_REALS(ls)
+      ti = GM_IMAGS(ls)
       s = dmax1(s,dabs(tr),dabs(ti))
       if (mat_round(tr) .ne. tr) typ = max(2,typ)
       if (ti .ne. 0.0d0) typ = 3
@@ -2593,10 +2557,10 @@ integer           :: itype
          jm = j2-j1+1
          do j = 1, jm
             ls = location+i-1+(j+j1-2)*m
-            pr(j) = G_STACK_REALS(ls)/s
-            pi(j) = dabs(G_STACK_IMAGS(ls)/s)
+            pr(j) = GM_REALS(ls)/s
+            pi(j) = dabs(GM_IMAGS(ls)/s)
             sig(j) = plus
-            if (G_STACK_IMAGS(ls) .lt. 0.0d0) sig(j) = minus
+            if (GM_IMAGS(ls) .lt. 0.0d0) sig(j) = minus
          enddo
 
          select case(F)
@@ -2641,7 +2605,7 @@ integer           :: itype
             istep=3
             itype= 888
          case(-1)
-            call mat_formz(G_OUTPUT_LUN,G_STACK_REALS(ls),G_STACK_IMAGS(ls))
+            call mat_formz(G_OUTPUT_LUN,GM_REALS(ls),GM_IMAGS(ls))
             istep=-1
             itype=-1
          case default
@@ -2871,20 +2835,19 @@ integer           :: m
 integer           :: mn
 integer           :: n
 
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','mat_stack1 ',op)
    location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    mn = m*n
    if (mn .eq. 0) then
    elseif (op .ne. quote) then                                 ! unary minus
-      call mat_wrscal(MN,-1.0D0,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_wrscal(MN,-1.0D0,GM_REALS(location),GM_IMAGS(location),1)
    else                                                        ! transpose
       ll = location + mn
 
       if(too_much_memory( ll+mn - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
 
-      call mat_wcopy(MN,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),1)
+      call mat_wcopy(MN,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(ll),GM_IMAGS(ll),1)
       M = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
@@ -2893,8 +2856,8 @@ integer           :: n
          do j = 1, n
             ls = location+mn+(j-1)+(i-1)*n
             ll = location+(i-1)+(j-1)*m
-            G_STACK_REALS(ll) = G_STACK_REALS(ls)
-            G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ls)
+            GM_REALS(ll) = GM_REALS(ls)
+            GM_IMAGS(ll) = -GM_IMAGS(ls)
          enddo
       enddo
    endif
@@ -3040,14 +3003,11 @@ integer             :: n
 integer             :: nk
 integer             :: nt
 
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_STACK_PUT:',ade2str(id))
-
    if (G_BOTTOM_OF_SCRATCH_IN_USE .le. 0) then
       call mat_err(1)  ! Improper multiple assignment
       return
    endif
 
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_STACK_PUT:CALL MAT_FUNS:',ade2str(id))
    call mat_funs(id)
    if (G_FIN .ne. 0) then
       call mat_err(25) ! Can not use function name as variable
@@ -3072,19 +3032,27 @@ integer             :: nt
    mt = 0
    nt = 0
    !
+   !=============================================================
    ! DOES VARIABLE ALREADY EXIST
+
    call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1),id)
    k = GG_MAX_NUMBER_OF_NAMES+1
+
 05 continue
    k = k-1
    if (.not.mat_eqid(G_STACK_IDS(1:,k),id)) goto 05
+
    if (k .eq. G_TOP_OF_SAVED-1) goto 30
+   !=============================================================
+   !=============================================================
+   ! variable exists
    lk = G_STACK_ID_LOC(k)
    mk = G_STACK_ROWS(k)
    nk = G_STACK_COLS(k)
+   !=============================================================
    mnk = mk*nk
-   if (G_rhs .ne. 0) then
-      if (G_rhs .gt. 2) then
+   if (G_RHS .ne. 0) then
+      if (G_RHS .gt. 2) then
          call mat_err(15) ! Improper assignment to submatrix
          return
       endif
@@ -3094,10 +3062,10 @@ integer             :: nt
 
       if(too_much_memory( lt + mnk - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call mat_wcopy(mnk,G_STACK_REALS(lk),G_STACK_IMAGS(lk),1,G_STACK_REALS(lt),G_STACK_IMAGS(lt),1)
+      call mat_wcopy(mnk,GM_REALS(lk),GM_IMAGS(lk),1,GM_REALS(lt),GM_IMAGS(lt),1)
    endif
    ! does it fit
-   if (G_rhs.eq.0 .and. mn.eq.mnk) goto 40
+   if (G_RHS.eq.0 .and. mn.eq.mnk) goto 40
    if (k .ge. GG_MAX_NUMBER_OF_NAMES-3) then
       call mat_err(13) ! Improper assignment to PERMANENT VARIABLE
       return
@@ -3107,7 +3075,7 @@ integer             :: nt
    if (k .eq. G_TOP_OF_SAVED) goto 25
    ls = G_STACK_ID_LOC(G_TOP_OF_SAVED)
    ll = ls + mnk
-   call mat_wcopy(lk-ls,G_STACK_REALS(ls),G_STACK_IMAGS(ls),-1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),-1)
+   call mat_wcopy(lk-ls,GM_REALS(ls),GM_IMAGS(ls),-1,GM_REALS(ll),GM_IMAGS(ll),-1)
    km1 = k-1
    do ib = G_TOP_OF_SAVED, km1
       i = G_TOP_OF_SAVED+km1-ib
@@ -3124,14 +3092,14 @@ integer             :: nt
 !  CREATE NEW VARIABLE
 30 continue
    if (mn .eq. 0) goto 99
-   if (G_TOP_OF_SAVED-2 .le. G_BOTTOM_OF_SCRATCH_IN_USE) then
-      call mat_err(18) ! Too many names
-      return
-   endif
+   !-if (G_TOP_OF_SAVED-2 .le. G_BOTTOM_OF_SCRATCH_IN_USE) then
+   !-   call mat_err(18) ! Too many names
+   !-   return
+   !-endif
    k = G_TOP_OF_SAVED-1
    call mat_copyid(G_STACK_IDS(1,k), id)
-   if (G_rhs .eq. 1) goto 50
-   if (G_rhs .eq. 2) goto 55
+   if (G_RHS .eq. 1) goto 50
+   if (G_RHS .eq. 2) goto 55
 !
 !  STORE
 40 continue
@@ -3139,7 +3107,7 @@ integer             :: nt
    G_STACK_ROWS(k) = m
    G_STACK_COLS(k) = n
    lk = G_STACK_ID_LOC(k)
-   call mat_wcopy(mn,G_STACK_REALS(location),G_STACK_IMAGS(location),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
+   call mat_wcopy(mn,GM_REALS(location),GM_IMAGS(location),-1,GM_REALS(lk),GM_IMAGS(lk),-1)
    goto 90
 !===================================================================================================================================
 !
@@ -3187,7 +3155,7 @@ integer             :: nt
       return
    endif
    lk = G_STACK_ID_LOC(k)
-   call mat_wcopy(mn,G_STACK_REALS(location),G_STACK_IMAGS(location),-1,G_STACK_REALS(lk),G_STACK_IMAGS(lk),-1)
+   call mat_wcopy(mn,GM_REALS(location),GM_IMAGS(location),-1,GM_REALS(lk),GM_IMAGS(lk),-1)
    goto 90
 !===================================================================================================================================
 60 continue
@@ -3199,16 +3167,16 @@ integer             :: nt
    if (m1 .lt. 0) goto 62
    do i = 1, mn1
       ls = l1+i-1
-      mk = max(mk,int(G_STACK_REALS(ls)))
-      ll = min(ll,int(G_STACK_REALS(ls)))
+      mk = max(mk,int(GM_REALS(ls)))
+      ll = min(ll,int(GM_REALS(ls)))
    enddo
 62 continue
    mk = max(mk,m)
    if (m2 .lt. 0) goto 64
    do i = 1, mn2
       ls = l2+i-1
-      nk = max(nk,int(G_STACK_REALS(ls)))
-      ll = min(ll,int(G_STACK_REALS(ls)))
+      nk = max(nk,int(GM_REALS(ls)))
+      ll = min(ll,int(GM_REALS(ls)))
    enddo
 64 continue
    nk = max(nk,n)
@@ -3224,24 +3192,24 @@ integer             :: nt
    G_STACK_ID_LOC(k) = lk
    G_STACK_ROWS(k) = mk
    G_STACK_COLS(k) = nk
-   call mat_wset(mnk,0.0d0,0.0d0,G_STACK_REALS(lk),G_STACK_IMAGS(lk),1)
+   call mat_wset(mnk,0.0d0,0.0d0,GM_REALS(lk),GM_IMAGS(lk),1)
    if (nt .lt. 1) goto 67
    do j = 1, nt
       ls = lt+(j-1)*mt
       ll = lk+(j-1)*mk
-      call mat_wcopy(mt,G_STACK_REALS(ls),G_STACK_IMAGS(ls),-1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),-1)
+      call mat_wcopy(mt,GM_REALS(ls),GM_IMAGS(ls),-1,GM_REALS(ll),GM_IMAGS(ll),-1)
    enddo
 67 continue
    do j = 1, n
       do i = 1, m
          li = l1+i-1
-         if (m1 .gt. 0) li = l1 + int(G_STACK_REALS(li)) - 1
+         if (m1 .gt. 0) li = l1 + int(GM_REALS(li)) - 1
          lj = l2+j-1
-         if (m2 .gt. 0) lj = l2 + int(G_STACK_REALS(lj)) - 1
+         if (m2 .gt. 0) lj = l2 + int(GM_REALS(lj)) - 1
          ll = lk+li-l1+(lj-l2)*mk
          ls = location+i-1+(j-1)*m
-         G_STACK_REALS(ll) = G_STACK_REALS(ls)
-         G_STACK_IMAGS(ll) = G_STACK_IMAGS(ls)
+         GM_REALS(ll) = GM_REALS(ls)
+         GM_IMAGS(ll) = GM_IMAGS(ls)
       enddo
    enddo
    goto 90
@@ -3252,7 +3220,7 @@ integer             :: nt
    if (G_SYM.eq.semi .and. G_LINECOUNT(3).eq.1) call mat_print(id,k) ! if a semi-colon and "semi" mode off print
    if (k .eq. G_TOP_OF_SAVED-1) G_TOP_OF_SAVED = G_TOP_OF_SAVED-1
 99 continue
-   if (m .ne. 0) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1 - G_rhs
+   if (m .ne. 0) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1 - G_RHS
    if (m .eq. 0) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
 end subroutine MAT_STACK_PUT
 !==================================================================================================================================!
@@ -3262,14 +3230,14 @@ end subroutine MAT_STACK_PUT
 !!##THE PARSER-INTERPRETER (10)
 !!
 !!    The structure of the parser-interpreter is similar to that of Wirth's
-!!    compiler [6] for his simple language, PL/0 , except that MAT88 is
+!!    compiler [6] for his simple language, PL/0 , except that LAFF is
 !!    programmed in Fortran, which does not have explicit recursion. The
 !!    interrelation of the primary subroutines is shown in the following
 !!    diagram.
 !!
 !!          MAIN
 !!            |
-!!          MAT88     |--CLAUSE
+!!          LAFF     |--CLAUSE
 !!            |       |    |
 !!          PARSE-----|--EXPR----TERM----FACTOR
 !!                    |    |       |       |
@@ -3316,7 +3284,7 @@ end subroutine MAT_STACK_PUT
 !!                    |--MATFN5--|
 !!                               |--SAVLOD
 !!
-!!    Subroutine PARSE controls the interpretation of each statement. It
+!!    Subroutine MAT_PARSE controls the interpretation of each statement. It
 !!    calls subroutines that process the various syntactic quantities such
 !!    as command, expression, term and factor. A fairly simple program
 !!    stack mechanism allows these subroutines to recursively "call"
@@ -3347,14 +3315,10 @@ integer            :: ls
 integer            :: n
 character(len=:),allocatable :: symbol
 !
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:START')
    01 continue
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:01:')
       r = 0
       if (G_ERR .gt. 0) G_PTZ = 0
       if (G_ERR.le.0 .and. G_PT.gt.G_PTZ) r = G_RSTK(G_PT)
-
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:G_PT=',G_PT,'R=',r,'G_PTZ=',G_PTZ,'G_ERR=',G_ERR)
 
       if (r.eq.15) goto 93
       if (r.eq.16 .or. r.eq.17) goto 94
@@ -3365,28 +3329,19 @@ character(len=:),allocatable :: symbol
       G_LINECOUNT(3) = 0
       G_LINECOUNT(4) = 2
       G_LINE_POINTER(1) = 1
-   10 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:10:')
+   10 continue  ! get a new line if the current line has ended
       if (G_SYM.eq.G_EOL.and.mod(G_LINECOUNT(4)/2,2).eq.1) call mat_prompt(G_LINECOUNT(4)/4)
       if (G_SYM .eq. G_EOL) call mat_getlin()
       G_ERR = 0
       G_PT = G_PTZ
 
-   15 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:15:')
+   15 continue   ! (continue) processing current line
       excnt = 0
-      if (G_DEBUG_LEVEL .eq. 1) then
-         call journal('sc','MAT_PARSE:STATE:GPT=', G_PT,'G_BOTTOM_OF_SCRATCH_IN_USE=',G_BOTTOM_OF_SCRATCH_IN_USE)
-      endif
       G_LHS = 1
       call mat_copyid(id,ans) ! copy ans to id
-      if(G_DEBUG_LEVEL .eq. 1 )call journal('sc','MAT_PARSE:CALL_MAT_GETSYM:ID=',ade2str(id))
       call mat_getsym()
 
-      if (G_SYM.eq.colon .and. G_CHRA.eq.G_EOL) G_DEBUG_LEVEL = 1-G_DEBUG_LEVEL  ! : command toggles G_DEBUG_LEVEL. Not documented
-
       if (G_SYM .eq. colon) then
-         if(G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:CALL_MAT_GETSYM:COLON')
          call mat_getsym()
       endif
 
@@ -3394,7 +3349,6 @@ character(len=:),allocatable :: symbol
 
       if (G_SYM .eq. isname) then
          ! lhs begins with name
-         if(G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:LHS BEGINS WITH NAME:')
          call ints2str(G_SYN,symbol,ierr)              ! convert ID to a character variable
          call mat_comand(symbol)
          IF (G_ERR .GT. 0) goto 01
@@ -3430,7 +3384,6 @@ character(len=:),allocatable :: symbol
 !.......................................................................
 !     lhs is name(...)
    32 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:32:LHS IS NAME:')
       call mat_getsym()
       excnt = excnt+1
       G_PT = G_PT+1
@@ -3441,7 +3394,6 @@ character(len=:),allocatable :: symbol
       goto 92
 !.......................................................................
    35 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:35:')
       call mat_copyid(id,G_IDS(1,G_PT))
       excnt = G_PSTK(G_PT)
       G_PT = G_PT-1
@@ -3465,12 +3417,10 @@ character(len=:),allocatable :: symbol
 !.......................................................................
 !     multiple lhs
    40 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:40:MULTIPLE LHS:')
       G_LINE_POINTER(5) = G_LINE_POINTER(4)
       pts = G_PT
       call mat_getsym()
    41 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:41:')
       if (G_SYM .ne. isname)then
          goto 43
       endif
@@ -3489,7 +3439,6 @@ character(len=:),allocatable :: symbol
       goto 41
 !.......................................................................
    43 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:43:')
       G_LINE_POINTER(4) = G_LINE_POINTER(5)
       G_PT = pts
       G_LHS = 1
@@ -3500,11 +3449,7 @@ character(len=:),allocatable :: symbol
 !.......................................................................
 !     macros string
    45 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:45:')
       call mat_getsym()
-      if (G_DEBUG_LEVEL .eq. 1) then
-         call journal('sc','MACROS', G_PT, G_BOTTOM_OF_SCRATCH_IN_USE)
-      endif
       if (G_SYM.eq.less .and. G_CHRA.eq.G_EOL) then
          call mat_err(28) ! Empty macro
          goto 01
@@ -3515,7 +3460,6 @@ character(len=:),allocatable :: symbol
       goto 92
 !.......................................................................
    46 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:46:')
       G_PT = G_PT-1
       if (G_SYM.ne.less .and. G_SYM.ne.G_EOL) then
          call mat_err(37) ! Improper MACROS
@@ -3533,7 +3477,7 @@ character(len=:),allocatable :: symbol
       n = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       do j = 1, n
          ls = location + j-1
-         G_LIN(k) = int(G_STACK_REALS(ls))
+         G_LIN(k) = int(GM_REALS(ls))
          if (G_LIN(k).lt.0 .or. G_LIN(k).ge.G_CHARSET_SIZE) then
             call mat_err(37) ! improper MACROS
             return
@@ -3558,11 +3502,7 @@ character(len=:),allocatable :: symbol
       goto 15
 !.......................................................................
    49 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:49:')
       G_PT = G_PT-1
-      if (G_DEBUG_LEVEL .eq. 1)then
-         call journal('sc','MACEND',G_PT,G_BOTTOM_OF_SCRATCH_IN_USE)
-      endif
       k = G_LINE_POINTER(1) - 4
       G_LINE_POINTER(1) = G_LIN(K+1)
       G_LINE_POINTER(4) = G_LIN(K+2)
@@ -3573,7 +3513,6 @@ character(len=:),allocatable :: symbol
 !.......................................................................
 !     lhs finished, start rhs
    50 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:50:LHS FINISHED START RHS')
       if (G_SYM .eq. equal) call mat_getsym()
       G_PT = G_PT+1
       call mat_copyid(G_IDS(1,G_PT),id)
@@ -3584,7 +3523,6 @@ character(len=:),allocatable :: symbol
 !.......................................................................
 !     store results
    60 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:60:STORE RESULTS')
       G_RHS = G_PSTK(G_PT)
       call MAT_STACK_PUT(G_IDS(1,G_PT))
       if (G_ERR .gt. 0) goto 01
@@ -3595,10 +3533,9 @@ character(len=:),allocatable :: symbol
 !.......................................................................
 !     update and possibly print operation counts
    70 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:70:UPDATE FLOPS')
       k = G_FLOP_COUNTER(1)
-      if (K .ne. 0) G_STACK_REALS(G_BIGMEM-3) = dble(k)
-      G_STACK_REALS(G_BIGMEM-2) = G_STACK_REALS(G_BIGMEM-2) + dble(K)
+      if (K .ne. 0) GM_REALS(GM_BIGMEM-3) = dble(k)
+      GM_REALS(GM_BIGMEM-2) = GM_REALS(GM_BIGMEM-2) + dble(K)
       G_FLOP_COUNTER(1) = 0
       if (.not.(G_CHRA.eq.comma .or. (G_SYM.eq.comma .and. G_CHRA.eq.G_EOL)))goto 80
       call mat_getsym()
@@ -3615,15 +3552,11 @@ character(len=:),allocatable :: symbol
 !.......................................................................
 !     finish statement
    80 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:80:FINISH STATEMENT')
       G_FIN = 0
       p = 0
       r = 0
       if (G_PT .gt. 0) p = G_PSTK(G_PT)
       if (G_PT .gt. 0) r = G_RSTK(G_PT)
-      if (G_DEBUG_LEVEL .eq. 1)then
-         call journal('sc','FINISH',G_PT,G_PTZ,p,r,G_LINE_POINTER(1))
-      endif
       if (G_SYM.eq.comma .or. G_SYM.eq.semi) goto 15
       if (r.eq.21 .and. p.eq.G_LINE_POINTER(1)) goto 49
       if (G_PT .gt. G_PTZ) goto 91
@@ -3632,7 +3565,6 @@ character(len=:),allocatable :: symbol
 !     simulate recursion
 !.......................................................................
    91 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:91:')
       call mat_clause()
       if (G_ERR .gt. 0) goto 01
       if (G_PT .le. G_PTZ) goto 15
@@ -3648,7 +3580,6 @@ character(len=:),allocatable :: symbol
       end select
 !.......................................................................
    92 CONTINUE
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:92:EXPRESSION')
       call mat_expr()
       if (G_ERR .gt. 0) goto 01
       r = G_RSTK(G_PT)
@@ -3673,7 +3604,6 @@ character(len=:),allocatable :: symbol
       end select
 !.......................................................................
    93 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:93:')
       call mat_term()
       if (G_ERR .gt. 0) goto 01
       r = G_RSTK(G_PT)
@@ -3688,7 +3618,6 @@ character(len=:),allocatable :: symbol
       end select
 !.......................................................................
    94 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:94:')
       call mat_factor()
       if (G_ERR .gt. 0) goto 01
       r = G_RSTK(G_PT)
@@ -3704,9 +3633,8 @@ character(len=:),allocatable :: symbol
          goto 01
       end select
 !.......................................................................
-!     call mat_matfns by returning to MAT88
+!     call mat_matfns by returning to LAFF
    95 continue
-      if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_PARSE:95:')
       if(G_BOTTOM_OF_SCRATCH_IN_USE.lt.1)then
          !call journal('sc','*mat_parse* stack emptied',G_BOTTOM_OF_SCRATCH_IN_USE)
       else
@@ -3732,10 +3660,9 @@ character(len=10),parameter :: cmd(*)=[ character(len=10) :: &
  & 'clear', 'else',  'end',      'exit',  'for',  &
  & 'help',  'if',    'long',     'quit',  'semi', &
  & 'short', 'what',  'while',    'who',   'sh',   &
- & 'lala',  'shell', 'continue', 'return'         &
+ & 'laff',  'shell', 'continue', 'return'         &
  & ]
 
-if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_COMAND:START:ID:',id)
 FINISHED: block
    G_FUN = 0
 
@@ -3802,7 +3729,7 @@ FINISHED: block
          G_FIN = -16
          exit COMAND
       endif
-      K = int(G_STACK_REALS(G_BIGMEM-2))
+      K = int(GM_REALS(GM_BIGMEM-2))
       call journal('sc',' total flops ',k)
 
       select case( int(mat_urand(G_CURRENT_RANDOM_SEED)*9) )    ! for serendipity's sake randomly pick a sign-off
@@ -3840,7 +3767,7 @@ FINISHED: block
       G_FUN = 99
       exit FINISHED
 !===================================================================================================================================
-   case('lala')
+   case('laff')
       call journal('QUIT SINGING AND GET BACK TO WORK.')
 !===================================================================================================================================
    case('shell')
@@ -3863,8 +3790,11 @@ FINISHED: block
    case('who')
       call journal(' Your current variables are...')
       call mat_print_id(G_STACK_IDS(1,G_TOP_OF_SAVED),GG_MAX_NUMBER_OF_NAMES-G_TOP_OF_SAVED+1)
-      l = G_BIGMEM-G_STACK_ID_LOC(G_TOP_OF_SAVED)+1
-      call journal('sc','using',l,'out of',G_BIGMEM,'elements')
+      !x!do i=1,size(keywords)
+      !x!   write(*,*)keywords(i),rows(i),cols(i),locs(i)
+      !x!enddo
+      l = GM_BIGMEM-G_STACK_ID_LOC(G_TOP_OF_SAVED)+1
+      call journal('sc','using',l,'out of',GM_BIGMEM,'elements')
 !===================================================================================================================================
    case('what')
 !===================================================================================================================================
@@ -4040,8 +3970,6 @@ integer           :: n
 integer           :: n2
 integer           :: nn
 !
-   IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN1* ', G_FIN)
-!
    location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -4065,7 +3993,7 @@ integer           :: nn
 
          if(too_much_memory( l3+n2 - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-         call ml_wgeco(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+         call ml_wgeco(GM_REALS(l2),GM_IMAGS(l2),m2,n2,G_BUF,rcond,GM_REALS(l3),GM_IMAGS(l3))
          if (rcond .eq. 0.0d0) then
             call mat_err(19)
             return
@@ -4087,39 +4015,36 @@ integer           :: nn
             do j = 1, n
                ls = location+i-1+(j-1)*m
                ll = l3+j-1
-               G_STACK_REALS(ll) = G_STACK_REALS(ls)
-               G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ls)
+               GM_REALS(ll) = GM_REALS(ls)
+               GM_IMAGS(ll) = -GM_IMAGS(ls)
             enddo
-            call ml_wgesl(G_STACK_REALS(l2),G_STACK_IMAGS(l2),m2,n2,G_BUF,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
+            call ml_wgesl(GM_REALS(l2),GM_IMAGS(l2),m2,n2,G_BUF,GM_REALS(l3),GM_IMAGS(l3),1)
             do j = 1, n
                ll = location+i-1+(j-1)*m
                ls = l3+j-1
-               G_STACK_REALS(ll) = G_STACK_REALS(ls)
-               G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ls)
+               GM_REALS(ll) = GM_REALS(ls)
+               GM_IMAGS(ll) = -GM_IMAGS(ls)
             enddo
          enddo
          if (G_FUN .ne. 21) goto 99
    !
    !     CHECK FOR IMAGINARY ROUNDOFF IN MATRIX FUNCTIONS
-         sr(1) = mat_wasum(n*n,G_STACK_REALS(location),G_STACK_REALS(location),1)
-         si(1) = mat_wasum(n*n,G_STACK_IMAGS(location),G_STACK_IMAGS(location),1)
-         eps = G_STACK_REALS(G_BIGMEM-4)
+         sr(1) = mat_wasum(n*n,GM_REALS(location),GM_REALS(location),1)
+         si(1) = mat_wasum(n*n,GM_IMAGS(location),GM_IMAGS(location),1)
+         eps = GM_REALS(GM_BIGMEM-4)
          t = eps*sr(1)
-         if (G_DEBUG_LEVEL .eq. 18)then
-            WRITE(G_OUTPUT_LUN,'('' SR,SI,EPS,T'',1P4D13.4)') SR(1),SI(1),EPS,T ! debug 18
-         endif
-         if (si(1) .le. eps*sr(1)) call mat_rset(n*n,0.0d0,G_STACK_IMAGS(location),1)
+         if (si(1) .le. eps*sr(1)) call mat_rset(n*n,0.0d0,GM_IMAGS(location),1)
          goto 99
    !
       endif
 
-      sr(1) = G_STACK_REALS(location)
-      si(1) = G_STACK_IMAGS(location)
+      sr(1) = GM_REALS(location)
+      si(1) = GM_IMAGS(location)
       n = n2
       m = n
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-      call mat_wcopy(n*n,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_wcopy(n*n,GM_REALS(l2),GM_IMAGS(l2),1,GM_REALS(location),GM_IMAGS(location),1)
 !===================================================================================================================================
     case(-2) ! MATRIX LEFT DIVISION A BACKSLASH A2
       l2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
@@ -4134,7 +4059,7 @@ integer           :: nn
 
          if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-         call ml_wgeco(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+         call ml_wgeco(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,rcond,GM_REALS(l3),GM_IMAGS(l3))
          if (rcond .eq. 0.0d0) then
             call mat_err(19)
             return
@@ -4152,14 +4077,14 @@ integer           :: nn
          endif
          do j = 1, n2
             lj = l2+(j-1)*m2
-            call ml_wgesl(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,G_STACK_REALS(lj),G_STACK_IMAGS(lj),0)
+            call ml_wgesl(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,GM_REALS(lj),GM_IMAGS(lj),0)
          enddo
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n2
-         call mat_wcopy(m2*n2,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+         call mat_wcopy(m2*n2,GM_REALS(l2),GM_IMAGS(l2),1,GM_REALS(location),GM_IMAGS(location),1)
          goto 99
       endif
-      sr(1) = G_STACK_REALS(l2)
-      si(1) = G_STACK_IMAGS(l2)
+      sr(1) = GM_REALS(l2)
+      si(1) = GM_IMAGS(l2)
 !===================================================================================================================================
    end select
 !===================================================================================================================================
@@ -4170,26 +4095,24 @@ integer           :: nn
          call mat_err(20)
          return
       endif
-      if (G_DEBUG_LEVEL .ne. 17) then
-         do j = 1, n
-            do i = 1, n
-               ls = location+i-1+(j-1)*n
-               t0 = G_STACK_REALS(ls)
-               t1 = mat_flop(1.0d0/(dble(i+j-1)))
-               if (t0 .ne. t1) goto 32
-            enddo
+      do j = 1, n
+         do i = 1, n
+            ls = location+i-1+(j-1)*n
+            t0 = GM_REALS(ls)
+            t1 = mat_flop(1.0d0/(dble(i+j-1)))
+            if (t0 .ne. t1) goto 32
          enddo
-         call mat_inverse_hilbert(G_STACK_REALS(location),n,n)
-         call mat_rset(n*n,0.0d0,G_STACK_IMAGS(location),1)
-         if (G_FIN .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(location),G_STACK_IMAGS(location),1)
-         goto 99
-      endif
+      enddo
+      call mat_inverse_hilbert(GM_REALS(location),n,n)
+      call mat_rset(n*n,0.0d0,GM_IMAGS(location),1)
+      if (G_FIN .lt. 0) call mat_wscal(n*n,sr(1),si(1),GM_REALS(location),GM_IMAGS(location),1)
+      goto 99
 32    continue
       l3 = location + n*n
 
       if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call ml_wgeco(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
+      call ml_wgeco(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,rcond,GM_REALS(l3),GM_IMAGS(l3))
       if (rcond .eq. 0.0d0) then
          call mat_err(19)
          return
@@ -4201,17 +4124,17 @@ integer           :: nn
          write(mline,'(''results may be inaccurate. rcond='',1pd13.4)') rcond
          call journal(mline)
       endif
-      call ml_wgedi(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,dtr,dti,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1)
-      if (G_FIN .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call ml_wgedi(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,dtr,dti,GM_REALS(l3),GM_IMAGS(l3),1)
+      if (G_FIN .lt. 0) call mat_wscal(n*n,sr(1),si(1),GM_REALS(location),GM_IMAGS(location),1)
 !===================================================================================================================================
     case (2) ! COMMAND::DET
       if (m .ne. n) then
          call mat_err(20)
          return
       endif
-      call ml_wgefa(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,info)
+      call ml_wgefa(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,info)
       !SUBROUTINE ML_WGEDI(ar,ai,LDA,N,ipvt,detr,deti,workr,worki,JOB)
-      call ml_wgedi(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,dtr,dti,sr(1),si(1),10)
+      call ml_wgedi(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,dtr,dti,sr(1),si(1),10)
       k = int(dtr(2))
       ka = iabs(k)+2
       t = 1.0d0
@@ -4219,8 +4142,8 @@ integer           :: nn
          t = t/10.0d0
          if (t .ne. 0.0d0) goto 42
       enddo
-      G_STACK_REALS(location) = dtr(1)*10.d0**k
-      G_STACK_IMAGS(location) = dti(1)*10.d0**k
+      GM_REALS(location) = dtr(1)*10.d0**k
+      GM_IMAGS(location) = dti(1)*10.d0**k
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       goto 99
@@ -4232,10 +4155,10 @@ integer           :: nn
          write(mline,44) dtr(1),dti(1),k
          call journal(mline)
       endif
-      G_STACK_REALS(location) = dtr(1)
-      G_STACK_IMAGS(location) = dti(1)
-      G_STACK_REALS(location+1) = dtr(2)
-      G_STACK_IMAGS(location+1) = 0.0d0
+      GM_REALS(location) = dtr(1)
+      GM_IMAGS(location) = dti(1)
+      GM_REALS(location+1) = dtr(2)
+      GM_IMAGS(location+1) = 0.0d0
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 2
 43    format(' det =  ',f7.4,7h * 10**,i4)
@@ -4250,14 +4173,14 @@ integer           :: nn
 
       if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call ml_wgeco(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,rcond,G_STACK_REALS(l3),G_STACK_IMAGS(l3))
-      G_STACK_REALS(location) = rcond
-      G_STACK_IMAGS(location) = 0.0d0
+      call ml_wgeco(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,rcond,GM_REALS(l3),GM_IMAGS(l3))
+      GM_REALS(location) = rcond
+      GM_IMAGS(location) = 0.0d0
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       if (G_lhs .ne. 1)then
          location = location + 1
-         call mat_wcopy(n,G_STACK_REALS(l3),G_STACK_IMAGS(l3),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+         call mat_wcopy(n,GM_REALS(l3),GM_IMAGS(l3),1,GM_REALS(location),GM_IMAGS(location),1)
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
          G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
@@ -4269,7 +4192,7 @@ integer           :: nn
          call mat_err(20)
          return
       endif
-      call ml_wgefa(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_BUF,info)
+      call ml_wgefa(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,info)
       if (G_lhs .ne. 2) goto 99
       nn = n*n
       if (G_BOTTOM_OF_SCRATCH_IN_USE+1 .ge. G_TOP_OF_SAVED) then
@@ -4288,49 +4211,49 @@ integer           :: nn
          do i = 1, n
             ll = location+i-1+(k-1)*n
             lu = ll + nn
-            if (i .le. k) G_STACK_REALS(lu) = G_STACK_REALS(ll)
-            if (i .le. k) G_STACK_IMAGS(lu) = G_STACK_IMAGS(ll)
-            if (i .gt. k) G_STACK_REALS(lu) = 0.0d0
-            if (i .gt. k) G_STACK_IMAGS(lu) = 0.0d0
-            if (i .lt. k) G_STACK_REALS(ll) = 0.0d0
-            if (i .lt. k) G_STACK_IMAGS(ll) = 0.0d0
-            if (i .eq. k) G_STACK_REALS(ll) = 1.0d0
-            if (i .eq. k) G_STACK_IMAGS(ll) = 0.0d0
-            if (i .gt. k) G_STACK_REALS(ll) = -G_STACK_REALS(ll)
-            if (i .gt. k) G_STACK_IMAGS(ll) = -G_STACK_IMAGS(ll)
+            if (i .le. k) GM_REALS(lu) = GM_REALS(ll)
+            if (i .le. k) GM_IMAGS(lu) = GM_IMAGS(ll)
+            if (i .gt. k) GM_REALS(lu) = 0.0d0
+            if (i .gt. k) GM_IMAGS(lu) = 0.0d0
+            if (i .lt. k) GM_REALS(ll) = 0.0d0
+            if (i .lt. k) GM_IMAGS(ll) = 0.0d0
+            if (i .eq. k) GM_REALS(ll) = 1.0d0
+            if (i .eq. k) GM_IMAGS(ll) = 0.0d0
+            if (i .gt. k) GM_REALS(ll) = -GM_REALS(ll)
+            if (i .gt. k) GM_IMAGS(ll) = -GM_IMAGS(ll)
          enddo
          i = G_BUF(k)
          if (i .eq. k) cycle
          li = location+i-1+(k-1)*n
          lk = location+k-1+(k-1)*n
-         call mat_wswap(n-k+1,G_STACK_REALS(li),G_STACK_IMAGS(li),n,G_STACK_REALS(lk),G_STACK_IMAGS(lk),n)
+         call mat_wswap(n-k+1,GM_REALS(li),GM_IMAGS(li),n,GM_REALS(lk),GM_IMAGS(lk),n)
       enddo
 !===================================================================================================================================
     case(5) ! COMMAND::inverse_hilbert
-      n = int(G_STACK_REALS(location))
+      n = int(GM_REALS(location))
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-      call mat_inverse_hilbert(G_STACK_REALS(location),n,n)
-      call mat_rset(n*n,0.0d0,G_STACK_IMAGS(location),1)
-      if (G_FIN .lt. 0) call mat_wscal(n*n,sr(1),si(1),G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_inverse_hilbert(GM_REALS(location),n,n)
+      call mat_rset(n*n,0.0d0,GM_IMAGS(location),1)
+      if (G_FIN .lt. 0) call mat_wscal(n*n,sr(1),si(1),GM_REALS(location),GM_IMAGS(location),1)
 !===================================================================================================================================
     case(6) ! COMMAND::CHOLESKY
       if (m .ne. n) then
          call mat_err(20)
          return
       endif
-      call mat_wpofa(G_STACK_REALS(location),G_STACK_IMAGS(location),m,n,G_err)
+      call mat_wpofa(GM_REALS(location),GM_IMAGS(location),m,n,G_err)
       if (G_err .ne. 0) then
          call mat_err(29)
          return
       endif
       do j = 1, n
          ll = location+j+(j-1)*m
-         call mat_wset(m-j,0.0d0,0.0d0,G_STACK_REALS(ll),G_STACK_IMAGS(ll),1)
+         call mat_wset(m-j,0.0d0,0.0d0,GM_REALS(ll),GM_IMAGS(ll),1)
       enddo
 !===================================================================================================================================
     case(7) ! COMMAND::RREF
-      if (G_rhs .ge. 2)then
+      if (G_RHS .ge. 2)then
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
          location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          if (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .ne. m) then
@@ -4339,7 +4262,7 @@ integer           :: nn
          endif
          n = n + G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
       endif
-      call mat_rref(G_STACK_REALS(location),G_STACK_IMAGS(location),m,m,n,G_STACK_REALS(G_BIGMEM-4))
+      call mat_rref(GM_REALS(location),GM_IMAGS(location),m,m,n,GM_REALS(GM_BIGMEM-4))
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
 !===================================================================================================================================
    end select
@@ -4373,8 +4296,6 @@ integer          :: nn
       doubleprecision tr(1),ti(1),sr,si,powr,powi
       logical herm,schur,vect,hess
 !
-      if (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN2* ', G_FIN)
-!
 !     functions/G_FIN
 !     **   SIN  COS ATAN  EXP  SQRT LOG
 !      0    1    2    3    4    5    6
@@ -4384,8 +4305,8 @@ integer          :: nn
 !     21   22   23   24   25
       if (G_FIN .ne. 0) goto 05
          location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
-         powr = G_STACK_REALS(location)
-         powi = G_STACK_IMAGS(location)
+         powr = GM_REALS(location)
+         powi = GM_IMAGS(location)
    05 continue
       location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -4418,7 +4339,7 @@ integer          :: nn
 
       if(too_much_memory( LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call mat_wcopy(NN,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
+      call mat_wcopy(NN,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(L2),GM_IMAGS(L2),1)
 !
 !     CHECK IF HERMITIAN
       HERM=.FALSE.
@@ -4426,44 +4347,44 @@ integer          :: nn
          DO I = 1, J
             LS = location+I-1+(J-1)*N
             LL = location+(I-1)*N+J-1
-            HERM = G_STACK_REALS(LL).EQ.G_STACK_REALS(LS) .AND. G_STACK_IMAGS(LL).EQ.-G_STACK_IMAGS(LS)
+            HERM = GM_REALS(LL).EQ.GM_REALS(LS) .AND. GM_IMAGS(LL).EQ.-GM_IMAGS(LS)
             IF (.NOT. HERM) goto 30
          enddo
       enddo
 !
 !     HERMITIAN EIGENVALUE PROBLEM
-      call mat_wset(NN,0.0D0,0.0D0,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
-      call mat_wset(N,1.0D0,0.0D0,G_STACK_REALS(location),G_STACK_IMAGS(location),N+1)
-      call mat_wset(N,0.0D0,0.0D0,G_STACK_IMAGS(LD),G_STACK_IMAGS(LE),1)
+      call mat_wset(NN,0.0D0,0.0D0,GM_REALS(location),GM_IMAGS(location),1)
+      call mat_wset(N,1.0D0,0.0D0,GM_REALS(location),GM_IMAGS(location),N+1)
+      call mat_wset(N,0.0D0,0.0D0,GM_IMAGS(LD),GM_IMAGS(LE),1)
       job = 0
       IF (VECT) JOB = 1
       call ML_HTRIDI(N,N, &
-      G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
-      G_STACK_REALS(LD),G_STACK_REALS(LE), &
-      G_STACK_REALS(LE),G_STACK_REALS(LW))
-      IF(.NOT.HESS)call ML_IMTQL2(N,N,G_STACK_REALS(LD),G_STACK_REALS(LE),G_STACK_REALS(location),G_ERR,JOB)
+      GM_REALS(L2),GM_IMAGS(L2), &
+      GM_REALS(LD),GM_REALS(LE), &
+      GM_REALS(LE),GM_REALS(LW))
+      IF(.NOT.HESS)call ML_IMTQL2(N,N,GM_REALS(LD),GM_REALS(LE),GM_REALS(location),G_ERR,JOB)
       IF (G_ERR .GT. 0) then
          call mat_err(24)
          return
       endif
-      IF (JOB .NE. 0) call ML_HTRIBK(N,N,G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
-                                         G_STACK_REALS(LW),N,G_STACK_REALS(location), &
-                                         G_STACK_IMAGS(location))
+      IF (JOB .NE. 0) call ML_HTRIBK(N,N,GM_REALS(L2),GM_IMAGS(L2), &
+                                         GM_REALS(LW),N,GM_REALS(location), &
+                                         GM_IMAGS(location))
       goto 31
 !
 !     NON-HERMITIAN EIGENVALUE PROBLEM
    30 continue
-      call ML_CORTH(N,N,1,N,G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
-                            G_STACK_REALS(LW),G_STACK_IMAGS(LW))
+      call ML_CORTH(N,N,1,N,GM_REALS(L2),GM_IMAGS(L2), &
+                            GM_REALS(LW),GM_IMAGS(LW))
       IF (.NOT.VECT .AND. HESS) goto 31
       JOB = 0
       IF (VECT) JOB = 2
       IF (VECT .AND. SCHUR) JOB = 1
       IF (HESS) JOB = 3
-      call ML_COMQR3(N,N,1,N,G_STACK_REALS(LW),G_STACK_IMAGS(LW), &
-                             G_STACK_REALS(L2),G_STACK_IMAGS(L2),  &
-                             G_STACK_REALS(LD),G_STACK_IMAGS(LD), &
-                             G_STACK_REALS(location),G_STACK_IMAGS(location), &
+      call ML_COMQR3(N,N,1,N,GM_REALS(LW),GM_IMAGS(LW), &
+                             GM_REALS(L2),GM_IMAGS(L2),  &
+                             GM_REALS(LD),GM_IMAGS(LD), &
+                             GM_REALS(location),GM_IMAGS(location), &
                              G_ERR,JOB)
       IF (G_ERR .GT. 0) then
          call mat_err(24)
@@ -4490,22 +4411,22 @@ integer          :: nn
          IF (SCHUR .AND. (.NOT.HERM)) LJ = LJ+J
          IF (HESS .AND. (.NOT.HERM)) LJ = LJ+J+1
          LL = L2+J*N-LJ
-         call mat_wset(LL,0.0D0,0.0D0,G_STACK_REALS(LJ),G_STACK_IMAGS(LJ),1)
+         call mat_wset(LL,0.0D0,0.0D0,GM_REALS(LJ),GM_IMAGS(LJ),1)
       enddo
-      IF (.NOT.HESS .OR. HERM) call mat_wcopy(N,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),N+1)
+      IF (.NOT.HESS .OR. HERM) call mat_wcopy(N,GM_REALS(LD),GM_IMAGS(LD),1,GM_REALS(L2),GM_IMAGS(L2),N+1)
       LL = L2+1
-      IF (HESS .AND. HERM)call mat_wcopy(N-1,G_STACK_REALS(LE+1),G_STACK_IMAGS(LE+1),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),N+1)
+      IF (HESS .AND. HERM)call mat_wcopy(N-1,GM_REALS(LE+1),GM_IMAGS(LE+1),1,GM_REALS(LL),GM_IMAGS(LL),N+1)
       LL = L2+N
-      IF (HESS .AND. HERM)call mat_wcopy(N-1,G_STACK_REALS(LE+1),G_STACK_IMAGS(LE+1),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),N+1)
+      IF (HESS .AND. HERM)call mat_wcopy(N-1,GM_REALS(LE+1),GM_IMAGS(LE+1),1,GM_REALS(LL),GM_IMAGS(LL),N+1)
       IF (G_FIN .LT. 10) goto 42
       IF (VECT .OR. .NOT.(SCHUR.OR.HESS)) goto 99
-      call mat_wcopy(NN,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_wcopy(NN,GM_REALS(L2),GM_IMAGS(L2),1,GM_REALS(location),GM_IMAGS(location),1)
       goto 99
 !
 !     VECTOR OF EIGENVALUES
    37 continue
       IF (G_FIN .EQ. 14) goto 52
-      call mat_wcopy(N,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_wcopy(N,GM_REALS(LD),GM_IMAGS(LD),1,GM_REALS(location),GM_IMAGS(location),1)
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       goto 99
 !===================================================================================================================================
@@ -4521,8 +4442,8 @@ integer          :: nn
    44 continue
       DO J = 1, N
         LS = L2+(J-1)*INC
-        SR = G_STACK_REALS(LS)
-        SI = G_STACK_IMAGS(LS)
+        SR = GM_REALS(LS)
+        SI = GM_IMAGS(LS)
         TI = 0.0D0
         IF (G_FIN .eq. 0) then
           call mat_wlog(SR,SI,SR,SI)
@@ -4561,19 +4482,19 @@ integer          :: nn
         end select
 
         IF (G_ERR .GT. 0) return
-        G_STACK_REALS(LS) = mat_flop(TR(1))
-        G_STACK_IMAGS(LS) = 0.0D0
-        IF (TI(1) .NE. 0.0D0) G_STACK_IMAGS(LS) = mat_flop(TI(1))
+        GM_REALS(LS) = mat_flop(TR(1))
+        GM_IMAGS(LS) = 0.0D0
+        IF (TI(1) .NE. 0.0D0) GM_IMAGS(LS) = mat_flop(TI(1))
       enddo
       IF (INC .EQ. 1) goto 99
       DO J = 1, N
         LS = L2+(J-1)*INC
-        SR = G_STACK_REALS(LS)
-        SI = G_STACK_IMAGS(LS)
+        SR = GM_REALS(LS)
+        SI = GM_IMAGS(LS)
         LS = location+(J-1)*N
         LL = L2+(J-1)*N
-        call mat_wcopy(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
-        call mat_wscal(N,SR,SI,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1)
+        call mat_wcopy(N,GM_REALS(LS),GM_IMAGS(LS),1,GM_REALS(LL),GM_IMAGS(LL),1)
+        call mat_wscal(N,SR,SI,GM_REALS(LS),GM_IMAGS(LS),1)
       enddo
 !     SIGNAL MATFN1 TO DIVIDE BY EIGENVECTORS
       G_FUN = 21
@@ -4586,18 +4507,18 @@ integer          :: nn
    50 continue
       N = MAX(M,N)
       LD = location+N+1
-      call mat_wcopy(N,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1)
+      call mat_wcopy(N,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(LD),GM_IMAGS(LD),1)
       goto 52
 !===================================================================================================================================
 !     FORM CHARACTERISTIC POLYNOMIAL
    52 continue
-      call mat_wset(N+1,0.0D0,0.0D0,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
-      G_STACK_REALS(location) = 1.0D0
+      call mat_wset(N+1,0.0D0,0.0D0,GM_REALS(location),GM_IMAGS(location),1)
+      GM_REALS(location) = 1.0D0
       DO J = 1, N
-         call matX_waxpy(J,-G_STACK_REALS(LD),-G_STACK_IMAGS(LD), &
-                            G_STACK_REALS(location),G_STACK_IMAGS(location), &
+         call matX_waxpy(J,-GM_REALS(LD),-GM_IMAGS(LD), &
+                            GM_REALS(location),GM_IMAGS(location), &
                             -1,  &
-                            G_STACK_REALS(location+1),G_STACK_IMAGS(location+1), &
+                            GM_REALS(location+1),GM_IMAGS(location+1), &
                             -1)
          LD = LD+1
       enddo
@@ -4608,13 +4529,13 @@ integer          :: nn
 !     ROOTS
    60 continue
       LL = location+M*N
-      G_STACK_REALS(LL) = -1.0D0
-      G_STACK_IMAGS(LL) = 0.0D0
+      GM_REALS(LL) = -1.0D0
+      GM_IMAGS(LL) = 0.0D0
       K = -1
    61 continue
       K = K+1
       L1 = location+K
-      IF (DABS(G_STACK_REALS(L1))+DABS(G_STACK_IMAGS(L1)) .EQ. 0.0D0) goto 61
+      IF (DABS(GM_REALS(L1))+DABS(GM_IMAGS(L1)) .EQ. 0.0D0) goto 61
       N = MAX(M*N - K-1, 0)
       IF (N .LE. 0) goto 65
       L2 = L1+N+1
@@ -4622,20 +4543,20 @@ integer          :: nn
 
       if(too_much_memory( LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call mat_wset(N*N+N,0.0D0,0.0D0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
+      call mat_wset(N*N+N,0.0D0,0.0D0,GM_REALS(L2),GM_IMAGS(L2),1)
       DO J = 1, N
          LL = L2+J+(J-1)*N
-         G_STACK_REALS(LL) = 1.0D0
+         GM_REALS(LL) = 1.0D0
          LS = L1+J
          LL = L2+(J-1)*N
-         call mat_wdiv(-G_STACK_REALS(LS),-G_STACK_IMAGS(LS), &
-                        G_STACK_REALS(L1),G_STACK_IMAGS(L1),  &
-                        G_STACK_REALS(LL),G_STACK_IMAGS(LL))
+         call mat_wdiv(-GM_REALS(LS),-GM_IMAGS(LS), &
+                        GM_REALS(L1),GM_IMAGS(L1),  &
+                        GM_REALS(LL),GM_IMAGS(LL))
          IF (G_ERR .GT. 0) return
       enddo
-      call ML_COMQR3(N,N,1,N,G_STACK_REALS(LW),G_STACK_IMAGS(LW), &
-                             G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
-                             G_STACK_REALS(location),G_STACK_IMAGS(location), &
+      call ML_COMQR3(N,N,1,N,GM_REALS(LW),GM_IMAGS(LW), &
+                             GM_REALS(L2),GM_IMAGS(L2), &
+                             GM_REALS(location),GM_IMAGS(location), &
                              TR,TI,G_ERR,0)
       IF (G_ERR .GT. 0) then
          call mat_err(24)
@@ -4676,9 +4597,7 @@ integer         :: n
 logical         :: fro,inf
 doubleprecision :: p,s,t(1,1),tol,eps
 !
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','*MATFN3* ', G_FIN)
-!
-   if (G_FIN.eq.1 .and. G_rhs.eq.2) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
+   if (G_FIN.eq.1 .and. G_RHS.eq.2) G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
    location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -4694,23 +4613,23 @@ doubleprecision :: p,s,t(1,1),tol,eps
 
       if(too_much_memory( l2+min(m,n) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-      call ml_wsvdc(G_STACK_REALS(location),G_STACK_IMAGS(location),   &
+      call ml_wsvdc(GM_REALS(location),GM_IMAGS(location),   &
                   & m,m,n,                               &
-                  & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
-                  & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
+                  & GM_REALS(ld),GM_IMAGS(ld), &
+                  & GM_REALS(l1),GM_IMAGS(l1), &
                   & t,t,1,t,t,1,                         &
-                  & G_STACK_REALS(l2),G_STACK_IMAGS(l2), &
+                  & GM_REALS(l2),GM_IMAGS(l2), &
                   & 0,G_err)
       if (G_err .ne. 0) then
          call mat_err(24)
          return
       endif
-      s = G_STACK_REALS(ld)
+      s = GM_REALS(ld)
       ld = ld + min(m,n) - 1
-      t(1,1) = G_STACK_REALS(ld)
+      t(1,1) = GM_REALS(ld)
       if (t(1,1) .ne. 0.0d0) then
-         G_STACK_REALS(location) = mat_flop(s/t(1,1))
-         G_STACK_IMAGS(location) = 0.0d0
+         GM_REALS(location) = mat_flop(s/t(1,1))
+         GM_IMAGS(location) = 0.0d0
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       else
@@ -4723,11 +4642,11 @@ doubleprecision :: p,s,t(1,1),tol,eps
       p = 2.0d0
       inf = .false.
 
-      if (G_rhs .eq. 2)then
-         fro = int(G_STACK_REALS(location)).eq.iachar('f') .and. mn.gt.1
-         inf = int(G_STACK_REALS(location)).eq.iachar('i') .and. mn.gt.1
+      if (G_RHS .eq. 2)then
+         fro = int(GM_REALS(location)).eq.iachar('f') .and. mn.gt.1
+         inf = int(GM_REALS(location)).eq.iachar('i') .and. mn.gt.1
          if (.not. fro) then
-            p = G_STACK_REALS(location)
+            p = GM_REALS(location)
          endif
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
          location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -4747,14 +4666,14 @@ doubleprecision :: p,s,t(1,1),tol,eps
             s = 0.0d0
             do i = 1, m
                li = location+i-1
-               t(1,1) = mat_wasum(n,G_STACK_REALS(LI),G_STACK_IMAGS(li),m)
+               t(1,1) = mat_wasum(n,GM_REALS(LI),GM_IMAGS(li),m)
                s = dmax1(s,t(1,1))
             enddo
          elseif (p .eq. 1.0d0) then
             s = 0.0d0
             do j = 1, n
                lj = location+(j-1)*m
-               t(1,1) = mat_wasum(m,G_STACK_REALS(LJ),G_STACK_IMAGS(lj),1)
+               t(1,1) = mat_wasum(m,GM_REALS(LJ),GM_IMAGS(lj),1)
                s = dmax1(s,t(1,1))
             enddo
          elseif (p .ne. 2.0d0) then
@@ -4769,12 +4688,12 @@ doubleprecision :: p,s,t(1,1),tol,eps
                return
             endif
 
-            call ml_wsvdc(G_STACK_REALS(location),G_STACK_IMAGS(location), &
+            call ml_wsvdc(GM_REALS(location),GM_IMAGS(location), &
                         & m,m,n, &
-                        & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
-                        & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
+                        & GM_REALS(ld),GM_IMAGS(ld), &
+                        & GM_REALS(l1),GM_IMAGS(l1), &
                         & t,t,1,t,t,1, &
-                        & G_STACK_REALS(l2),G_STACK_IMAGS(l2), &
+                        & GM_REALS(l2),GM_IMAGS(l2), &
                         & 0,G_err)
 
             if (G_ERR .ne. 0)then
@@ -4782,22 +4701,22 @@ doubleprecision :: p,s,t(1,1),tol,eps
                return
             endif
 
-            s = G_STACK_REALS(LD)
+            s = GM_REALS(LD)
          endif
 
       elseif (p .eq. 1.0d0)then
-         s = mat_wasum(MN,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+         s = mat_wasum(MN,GM_REALS(location),GM_IMAGS(location),1)
       elseif (p .eq. 2.0d0) then
-         s = mat_wnrm2(MN,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+         s = mat_wnrm2(MN,GM_REALS(location),GM_IMAGS(location),1)
       else
-         i = mat_iwamax(mn,G_STACK_REALS(location),G_STACK_IMAGS(location),1) + location - 1
-         s = dabs(G_STACK_REALS(i)) + dabs(G_STACK_IMAGS(i))
+         i = mat_iwamax(mn,GM_REALS(location),GM_IMAGS(location),1) + location - 1
+         s = dabs(GM_REALS(i)) + dabs(GM_IMAGS(i))
 
          if (.not.(inf .or. s .eq. 0.0d0))then
             t(1,1) = 0.0d0
             do i = 1, mn
                ls = location+i-1
-               t(1,1) = mat_flop(t(1,1) + (mat_pythag(G_STACK_REALS(ls),G_STACK_IMAGS(ls))/s)**p)
+               t(1,1) = mat_flop(t(1,1) + (mat_pythag(GM_REALS(ls),GM_IMAGS(ls))/s)**p)
             enddo
             if (p .ne. 0.0d0) then
                p = 1.0d0/p
@@ -4806,8 +4725,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
          endif
       endif
 
-      G_STACK_REALS(location) = s
-      G_STACK_IMAGS(location) = 0.0d0
+      GM_REALS(location) = s
+      GM_IMAGS(location) = 0.0d0
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
 !===================================================================================================================================
@@ -4825,34 +4744,34 @@ doubleprecision :: p,s,t(1,1),tol,eps
 
          JOB = 11
          IF (G_RHS .EQ. 2) JOB = 21
-         call ml_wsvdc(G_STACK_REALS(location),G_STACK_IMAGS(location), &
+         call ml_wsvdc(GM_REALS(location),GM_IMAGS(location), &
          & m,m,n, &
-         & G_STACK_REALS(ld),G_STACK_IMAGS(ld), &
-         & G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
-         & G_STACK_REALS(lu),G_STACK_IMAGS(lu), &
+         & GM_REALS(ld),GM_IMAGS(ld), &
+         & GM_REALS(l1),GM_IMAGS(l1), &
+         & GM_REALS(lu),GM_IMAGS(lu), &
          & m, &
-         & G_STACK_REALS(lv),G_STACK_IMAGS(lv), &
+         & GM_REALS(lv),GM_IMAGS(lv), &
          & n, &
-         & G_STACK_REALS(l2),G_STACK_IMAGS(l2), &
+         & GM_REALS(l2),GM_IMAGS(l2), &
          & job,G_err)
          DO JB = 1, N
             DO I = 1, K
                J = N+1-JB
                LL = LD+I-1+(J-1)*K
-               IF (I.NE.J) G_STACK_REALS(LL) = 0.0D0
-               G_STACK_IMAGS(LL) = 0.0D0
+               IF (I.NE.J) GM_REALS(LL) = 0.0D0
+               GM_IMAGS(LL) = 0.0D0
                LS = LD+I-1
-               IF (I.EQ.J) G_STACK_REALS(LL) = G_STACK_REALS(LS)
+               IF (I.EQ.J) GM_REALS(LL) = GM_REALS(LS)
                LS = L1+I-1
-               IF (G_ERR.NE.0 .AND. I.EQ.J-1) G_STACK_REALS(LL) = G_STACK_REALS(LS)
+               IF (G_ERR.NE.0 .AND. I.EQ.J-1) GM_REALS(LL) = GM_REALS(LS)
             enddo
          enddo
          IF (G_ERR .NE. 0) call mat_err(24)
          G_ERR = 0
          call mat_wcopy(M*K+K*N+N*N, &
-                      & G_STACK_REALS(LU),G_STACK_IMAGS(LU), &
+                      & GM_REALS(LU),GM_IMAGS(LU), &
                       & 1, &
-                      & G_STACK_REALS(location),G_STACK_IMAGS(location), &
+                      & GM_REALS(location),GM_IMAGS(location), &
                       & 1)
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = K
@@ -4879,15 +4798,15 @@ doubleprecision :: p,s,t(1,1),tol,eps
 
          if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-         call ml_wsvdc(G_STACK_REALS(location),G_STACK_IMAGS(location),m,m,n, &
-         & G_STACK_REALS(ld),G_STACK_IMAGS(ld),G_STACK_REALS(l1),G_STACK_IMAGS(l1), &
-         & t,t,1,t,t,1,G_STACK_REALS(l2),G_STACK_IMAGS(l2),0,G_err)
+         call ml_wsvdc(GM_REALS(location),GM_IMAGS(location),m,m,n, &
+         & GM_REALS(ld),GM_IMAGS(ld),GM_REALS(l1),GM_IMAGS(l1), &
+         & t,t,1,t,t,1,GM_REALS(l2),GM_IMAGS(l2),0,G_err)
          IF (G_ERR .NE. 0) then
             call mat_err(24)
             return
          endif
          K = MIN(M,N)
-         call mat_wcopy(K,G_STACK_REALS(LD),G_STACK_IMAGS(LD),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+         call mat_wcopy(K,GM_REALS(LD),GM_IMAGS(LD),1,GM_REALS(location),GM_IMAGS(location),1)
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = K
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       endif
@@ -4895,7 +4814,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
     case(2,5) ! COMMAND::PINV AND RANK
       TOL = -1.0D0
       IF (G_RHS .EQ. 2) then
-         TOL = G_STACK_REALS(location)
+         TOL = GM_REALS(location)
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
          location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -4913,30 +4832,30 @@ doubleprecision :: p,s,t(1,1),tol,eps
 
       IF (G_FIN .EQ. 2) JOB = 11
       IF (G_FIN .EQ. 5) JOB = 0
-      call ML_WSVDC(G_STACK_REALS(location),G_STACK_IMAGS(location),M,M,N, &
-                  & G_STACK_REALS(LD),G_STACK_IMAGS(LD), &
-                  & G_STACK_REALS(L1),G_STACK_IMAGS(L1), &
-                  & G_STACK_REALS(LU),G_STACK_IMAGS(LU), &
+      call ML_WSVDC(GM_REALS(location),GM_IMAGS(location),M,M,N, &
+                  & GM_REALS(LD),GM_IMAGS(LD), &
+                  & GM_REALS(L1),GM_IMAGS(L1), &
+                  & GM_REALS(LU),GM_IMAGS(LU), &
                   & M, &
-                  & G_STACK_REALS(LV),G_STACK_IMAGS(LV), &
+                  & GM_REALS(LV),GM_IMAGS(LV), &
                   & N, &
-                  & G_STACK_REALS(L2),G_STACK_IMAGS(L2), &
+                  & GM_REALS(L2),GM_IMAGS(L2), &
                   & JOB,G_ERR)
       IF (G_ERR .NE. 0) then
          call mat_err(24)
          return
       endif
-      EPS = G_STACK_REALS(G_BIGMEM-4)
-      IF (TOL .LT. 0.0D0) TOL = mat_flop(dble(MAX(M,N))*EPS*G_STACK_REALS(LD))
+      EPS = GM_REALS(GM_BIGMEM-4)
+      IF (TOL .LT. 0.0D0) TOL = mat_flop(dble(MAX(M,N))*EPS*GM_REALS(LD))
       MN = MIN(M,N)
       K = 0
       DO J = 1, MN
          LS = LD+J-1
-         S = G_STACK_REALS(LS)
+         S = GM_REALS(LS)
          IF (S .LE. TOL) exit
          K = J
          LL = LV+(J-1)*N
-         IF (G_FIN .EQ. 2) call mat_wrscal(N,1.0D0/S,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
+         IF (G_FIN .EQ. 2) call mat_wrscal(N,1.0D0/S,GM_REALS(LL),GM_IMAGS(LL),1)
       enddo
       if (G_FIN .ne. 5) then
          do j = 1, m
@@ -4944,15 +4863,15 @@ doubleprecision :: p,s,t(1,1),tol,eps
                ll = location+i-1+(j-1)*n
                l1 = lv+i-1
                l2 = lu+j-1
-               G_STACK_REALS(ll) = mat_wdotcr(k,G_STACK_REALS(l2),G_STACK_IMAGS(l2),m,G_STACK_REALS(l1),G_STACK_IMAGS(l1),n)
-               G_STACK_IMAGS(ll) = mat_wdotci(k,G_STACK_REALS(l2),G_STACK_IMAGS(l2),m,G_STACK_REALS(l1),G_STACK_IMAGS(l1),n)
+               GM_REALS(ll) = mat_wdotcr(k,GM_REALS(l2),GM_IMAGS(l2),m,GM_REALS(l1),GM_IMAGS(l1),n)
+               GM_IMAGS(ll) = mat_wdotci(k,GM_REALS(l2),GM_IMAGS(l2),m,GM_REALS(l1),GM_IMAGS(l1),n)
             enddo
          enddo
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       else
-         G_STACK_REALS(location) = dble(k)
-         G_STACK_IMAGS(location) = 0.0d0
+         GM_REALS(location) = dble(k)
+         GM_IMAGS(location) = 0.0d0
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       endif
@@ -4988,8 +4907,6 @@ integer           :: n2
 character(len=81) :: message
 DOUBLEPRECISION   :: T(1),TOL,EPS
 !
-      IF (G_DEBUG_LEVEL .EQ. 1) call journal('sc','*MATFN4* ', G_FIN)
-!
       location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       M = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
       N = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -5015,8 +4932,8 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       call mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) return
       LL = L2+M2*N2
-      call mat_wcopy(M*N,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
-      call mat_wcopy(M*N+M2*N2,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_wcopy(M*N,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(LL),GM_IMAGS(LL),1)
+      call mat_wcopy(M*N+M2*N2,GM_REALS(L2),GM_IMAGS(L2),1,GM_REALS(location),GM_IMAGS(location),1)
       G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location+M2*N2
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
@@ -5039,8 +4956,8 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
 
         if(too_much_memory( L2+M*M - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-        call mat_wset(M*M-1,0.0D0,0.0D0,G_STACK_REALS(L2+1),G_STACK_IMAGS(L2+1),1)
-        call mat_wcopy(M,G_STACK_REALS(L2),G_STACK_IMAGS(L2),0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),M+1)
+        call mat_wset(M*M-1,0.0D0,0.0D0,GM_REALS(L2+1),GM_IMAGS(L2+1),1)
+        call mat_wcopy(M,GM_REALS(L2),GM_IMAGS(L2),0,GM_REALS(L2),GM_IMAGS(L2),M+1)
    21 continue
       IF (M2 .NE. M) then
          call mat_err(12)
@@ -5056,26 +4973,26 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
         J = N+1-JB
         LS = L2 + (J-1)*M
         LL = L2 + (J-1)*N
-        call mat_wcopy(M,G_STACK_REALS(LS),G_STACK_IMAGS(LS),-1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),-1)
+        call mat_wcopy(M,GM_REALS(LS),GM_IMAGS(LS),-1,GM_REALS(LL),GM_IMAGS(LL),-1)
       enddo
    23 continue
       DO J = 1, N
         G_BUF(J) = 0
       enddo
-      call ML_WQRDC(G_STACK_REALS(location),G_STACK_IMAGS(location), &
+      call ML_WQRDC(GM_REALS(location),GM_IMAGS(location), &
                   & M,M,N, &
-                  & G_STACK_REALS(L4),G_STACK_IMAGS(L4), &
+                  & GM_REALS(L4),GM_IMAGS(L4), &
                   & G_BUF, &
-                  & G_STACK_REALS(L3),G_STACK_IMAGS(L3), &
+                  & GM_REALS(L3),GM_IMAGS(L3), &
                   & 1)
       K = 0
-      EPS = G_STACK_REALS(G_BIGMEM-4)
-      T(1) = DABS(G_STACK_REALS(location))+DABS(G_STACK_IMAGS(location))
+      EPS = GM_REALS(GM_BIGMEM-4)
+      T(1) = DABS(GM_REALS(location))+DABS(GM_IMAGS(location))
       TOL = mat_flop(dble(MAX(M,N))*EPS*T(1))
       MN = MIN(M,N)
       DO J = 1, MN
         LS = location+J-1+(J-1)*M
-        T(1) = DABS(G_STACK_REALS(LS)) + DABS(G_STACK_IMAGS(LS))
+        T(1) = DABS(GM_REALS(LS)) + DABS(GM_IMAGS(LS))
         IF (T(1) .GT. TOL) K = J
       enddo
       IF (K .LT. MN) then
@@ -5085,16 +5002,16 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       MN = MAX(M,N)
       DO J = 1, N2
         LS = L2+(J-1)*MN
-        call ML_WQRSL(G_STACK_REALS(location),G_STACK_IMAGS(location), &
+        call ML_WQRSL(GM_REALS(location),GM_IMAGS(location), &
                         & M,M,K, &
-                        & G_STACK_REALS(L4),G_STACK_IMAGS(L4), &
-                        & G_STACK_REALS(LS),G_STACK_IMAGS(LS), &
+                        & GM_REALS(L4),GM_IMAGS(L4), &
+                        & GM_REALS(LS),GM_IMAGS(LS), &
                         & T,T, &
-                        & G_STACK_REALS(LS),G_STACK_IMAGS(LS), &
-                        & G_STACK_REALS(LS),G_STACK_IMAGS(LS), &
+                        & GM_REALS(LS),GM_IMAGS(LS), &
+                        & GM_REALS(LS),GM_IMAGS(LS), &
                         & T,T,T,T,100,INFO)
         LL = LS+K
-        call mat_wset(N-K,0.0D0,0.0D0,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
+        call mat_wset(N-K,0.0D0,0.0D0,GM_REALS(LL),GM_IMAGS(LL),1)
       enddo
       DO J = 1, N
         G_BUF(J) = -G_BUF(J)
@@ -5107,7 +5024,7 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
           IF (K .EQ. J) cycle
           LS = L2+J-1
           LL = L2+K-1
-          call mat_wswap(N2,G_STACK_REALS(LS),G_STACK_IMAGS(LS),MN,G_STACK_REALS(LL),G_STACK_IMAGS(LL),MN)
+          call mat_wswap(N2,GM_REALS(LS),GM_IMAGS(LS),MN,GM_REALS(LL),GM_IMAGS(LL),MN)
           G_BUF(K) = -G_BUF(K)
           K = G_BUF(K)
           goto 33
@@ -5115,7 +5032,7 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       DO J = 1, N2
         LS = L2+(J-1)*MN
         LL = location+(J-1)*N
-        call mat_wcopy(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1,G_STACK_REALS(LL),G_STACK_IMAGS(LL),1)
+        call mat_wcopy(N,GM_REALS(LS),GM_IMAGS(LS),1,GM_REALS(LL),GM_IMAGS(LL),1)
       enddo
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N2
@@ -5135,33 +5052,33 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       if(too_much_memory( l4+mm - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
       if (ls.ne.location) then
-         call mat_wcopy(m*n,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(ls),G_STACK_IMAGS(ls),1)
+         call mat_wcopy(m*n,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(ls),GM_IMAGS(ls),1)
       endif
       job = 1
       if (G_LHS.lt.3) job = 0
       do j = 1, n
         G_BUF(j) = 0
       enddo
-      call ml_wqrdc(G_STACK_REALS(ls),G_STACK_IMAGS(ls), &
+      call ml_wqrdc(GM_REALS(ls),GM_IMAGS(ls), &
        & m,m,n, &
-       & G_STACK_REALS(l4),G_STACK_IMAGS(l4), &
+       & GM_REALS(l4),GM_IMAGS(l4), &
        & G_BUF, &
-       & G_STACK_REALS(le),G_STACK_IMAGS(le), &
+       & GM_REALS(le),GM_IMAGS(le), &
        & job)
       if (G_LHS.eq.1 .and. G_FIN.eq.1) goto 99
-      call mat_wset(m*m,0.0d0,0.0d0,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
-      call mat_wset(m,1.0d0,0.0d0,G_STACK_REALS(location),G_STACK_IMAGS(location),m+1)
+      call mat_wset(m*m,0.0d0,0.0d0,GM_REALS(location),GM_IMAGS(location),1)
+      call mat_wset(m,1.0d0,0.0d0,GM_REALS(location),GM_IMAGS(location),m+1)
       do j = 1, m
         ll = location+(j-1)*m
-        call ml_wqrsl(G_STACK_REALS(ls),G_STACK_IMAGS(ls),m,m,n,G_STACK_REALS(l4),G_STACK_IMAGS(l4),   &
-     &             G_STACK_REALS(ll),G_STACK_IMAGS(ll),G_STACK_REALS(ll),G_STACK_IMAGS(ll),t,t,        &
+        call ml_wqrsl(GM_REALS(ls),GM_IMAGS(ls),m,m,n,GM_REALS(l4),GM_IMAGS(l4),   &
+     &             GM_REALS(ll),GM_IMAGS(ll),GM_REALS(ll),GM_IMAGS(ll),t,t,        &
      &             t,t,t,t,t,t,10000,info)
       enddo
       if (G_FIN .eq. 2) goto 99
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
       do j = 1, n
         ll = ls+j+(j-1)*m
-        call mat_wset(m-j,0.0d0,0.0d0,G_STACK_REALS(ll),G_STACK_IMAGS(ll),1)
+        call mat_wset(m-j,0.0d0,0.0d0,GM_REALS(ll),GM_IMAGS(ll),1)
       enddo
       if (G_BOTTOM_OF_SCRATCH_IN_USE+1 .ge. G_TOP_OF_SAVED) then
          call mat_err(18)
@@ -5172,10 +5089,10 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       if (G_LHS .eq. 2) goto 99
-      call mat_wset(N*N,0.0D0,0.0D0,G_STACK_REALS(le),G_STACK_IMAGS(le),1)
+      call mat_wset(N*N,0.0D0,0.0D0,GM_REALS(le),GM_IMAGS(le),1)
       do j = 1, n
         ll = le+G_BUF(j)-1+(j-1)*n
-        G_STACK_REALS(ll) = 1.0d0
+        GM_REALS(ll) = 1.0d0
       enddo
       if (G_BOTTOM_OF_SCRATCH_IN_USE+1 .ge. G_TOP_OF_SAVED) then
          call mat_err(18)
@@ -5224,7 +5141,6 @@ integer                    :: ly
 integer                    :: mn
 logical                    :: isfound
 !
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','*MATFN5* ',G_FIN)
    location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -5245,7 +5161,7 @@ logical                    :: isfound
          endif
 
          if (G_RHS .ge. 2) then            ! if more than one parameter on exec('filename',flag) get value of FLAG
-            flag = int(G_STACK_REALS(location))
+            flag = int(GM_REALS(location))
             top2 = G_BOTTOM_OF_SCRATCH_IN_USE
             G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
             location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -5253,13 +5169,13 @@ logical                    :: isfound
          endif
 
          ! if a single character and a digit set LUN to that so exec(0) works
-         if (mn.eq.1 .and. G_STACK_REALS(location).LT.10.0d0)then
-            lun = int(G_STACK_REALS(location))
+         if (mn.eq.1 .and. GM_REALS(location).LT.10.0d0)then
+            lun = int(GM_REALS(location))
          else
             lun = -1
             do j = 1, GG_LINELEN
                ls = location+j-1
-               if (j .le. mn) ch = int(G_STACK_REALS(ls))
+               if (j .le. mn) ch = int(GM_REALS(ls))
                if (j .gt. mn) ch = blank
                if (ch.lt.0 .or. ch.ge.g_charset_size) then
                   call mat_err(38)
@@ -5273,6 +5189,8 @@ logical                    :: isfound
       FUN5 : select case(G_FIN)
 !===================================================================================================================================
       case(1)                                               ! command::exec
+      EXEC_CMD : block
+      character(len=:),allocatable :: filename
       if (lun .eq. 0) then                                  ! exec(0)
          G_RIO = G_INPUT_LUN
          G_ERR = 99
@@ -5294,8 +5212,8 @@ logical                    :: isfound
 
          G_RIO = G_RIO + 1
 
-         !!call find_exec_file(G_BUF,isfound)
-
+         filename=find_exec_file(ade2str(G_BUF))
+         call mat_str2buf(filename,G_BUF,GG_LINELEN)    ! convert input line to ADE buffer
          call mat_files(G_RIO,G_BUF,status='old')
 
          if (flag .ge. 4)then
@@ -5305,6 +5223,7 @@ logical                    :: isfound
          G_SYM = G_EOL
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       endif
+      endblock EXEC_CMD
 !===================================================================================================================================
       case(2) ! COMMAND::SAVE
       lunit = 1
@@ -5322,8 +5241,8 @@ logical                    :: isfound
             G_BUF(i) = j
          enddo
          img = 0
-         if (mat_wasum(m*n,G_STACK_IMAGS(location),G_STACK_IMAGS(location),1) .ne. 0.0d0) img = 1
-         if(.not.G_FILE_OPEN_ERROR)call mat_savlod(lunit,G_BUF,m,n,img,0,G_STACK_REALS(location),G_STACK_IMAGS(location))
+         if (mat_wasum(m*n,GM_IMAGS(location),GM_IMAGS(location),1) .ne. 0.0d0) img = 1
+         if(.not.G_FILE_OPEN_ERROR)call mat_savlod(lunit,G_BUF,m,n,img,0,GM_REALS(location),GM_IMAGS(location))
          k = k-1
          if (k .lt. G_TOP_OF_SAVED) exit
       enddo
@@ -5352,7 +5271,6 @@ logical                    :: isfound
 !===================================================================================================================================
       case(3) ! command::load
       call mat_buf2str(mline,G_BUF,GG_LINELEN)
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MATFN5:LOAD:FILE:',mline)
 
       lunit = 2
       call mat_files(LUNIT,G_BUF) ! open the unit
@@ -5367,15 +5285,14 @@ logical                    :: isfound
                 & G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE), &
                 & img, &
                 & space_left, &
-                & G_STACK_REALS(location), &
-                & G_STACK_IMAGS(location))
-            if(G_DEBUG_LEVEL.eq.1)call journal('sc','MATFN5:CALLED MAT_SAVLOD:ID=',ade2str(id))
+                & GM_REALS(location), &
+                & GM_IMAGS(location))
          endif
 
          mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
 
          if (mn .ne. 0)then
-            if (img .eq. 0) call mat_rset(mn,0.0d0,G_STACK_IMAGS(location),1)
+            if (img .eq. 0) call mat_rset(mn,0.0d0,GM_IMAGS(location),1)
 
             !do i = 1, GG_MAX_NAME_LENGTH
             !   do j=1,G_CHARSET_SIZE
@@ -5428,11 +5345,11 @@ logical                    :: isfound
       if (G_FIN.eq.7)goto 65
       if (G_RHS .ge. 2)then
          if (G_RHS .ne. 2) call mat_err(39) ! Incorrect number of arguments
-         if (G_STACK_REALS(location) .lt. 1.0d0)then ! test if base is 0
+         if (GM_REALS(location) .lt. 1.0d0)then ! test if base is 0
             call mat_err(36) ! Argument out of range
             exit FUN5
          endif
-         b = G_STACK_REALS(location)
+         b = GM_REALS(location)
          if(b.gt.1)then
             goto 65
          endif
@@ -5443,19 +5360,19 @@ logical                    :: isfound
       text = .true.
       do i = 1, mn
         ls = location+i-1
-        ch = int(G_STACK_REALS(LS))
+        ch = int(GM_REALS(LS))
         text = text .and. (ch.ge.0) .and. (ch.lt.G_CHARSET_SIZE)
-        text = text .and. (dble(ch).eq.G_STACK_REALS(ls) )
+        text = text .and. (dble(ch).eq.GM_REALS(ls) )
       enddo
       if(b.le.1)text=.false. ! for forcing non-text display when values are in range of text
 
       do i = 1, m
          do j = 1, n
            ls = location+i-1+(j-1)*m
-           if (G_STACK_REALS(ls) .eq. 0.0d0) ch = blank
-           if (G_STACK_REALS(ls) .gt. 0.0d0) ch = plus
-           if (G_STACK_REALS(ls) .lt. 0.0d0) ch = minus
-           if (text) ch = int(G_STACK_REALS(ls))
+           if (GM_REALS(ls) .eq. 0.0d0) ch = blank
+           if (GM_REALS(ls) .gt. 0.0d0) ch = plus
+           if (GM_REALS(ls) .lt. 0.0d0) ch = minus
+           if (text) ch = int(GM_REALS(ls))
            G_BUF(j) = ch
          enddo
          call mat_buf2str(mline,G_BUF,n)
@@ -5467,24 +5384,24 @@ logical                    :: isfound
 !     command::base
    65 CONTINUE
       if (G_RHS .ne. 2) call mat_err(39) ! Incorrect number of arguments
-      if (G_STACK_REALS(location) .le. 1.0d0)then ! test if base is 0
+      if (GM_REALS(location) .le. 1.0d0)then ! test if base is 0
          call mat_err(36) ! Argument out of range
          exit FUN5
       endif
-      b = G_STACK_REALS(location)
+      b = GM_REALS(location)
       l2 = location
       G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
       G_RHS = 1
       location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       m = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      eps = G_STACK_REALS(G_BIGMEM-4)
+      eps = GM_REALS(GM_BIGMEM-4)
       do i = 1, m
          ls = l2+(i-1)*n
          ll = location+i-1
-         call mat_base(G_STACK_REALS(ll),b,eps,G_STACK_REALS(ls),n)
+         call mat_base(GM_REALS(ll),b,eps,GM_REALS(ls),n)
       enddo
-      call mat_rset(m*n,0.0d0,G_STACK_IMAGS(l2),1)
-      call mat_wcopy(m*n,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_rset(m*n,0.0d0,GM_IMAGS(l2),1)
+      call mat_wcopy(m*n,GM_REALS(l2),GM_IMAGS(l2),1,GM_REALS(location),GM_IMAGS(location),1)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
       call mat_stack1(quote)
@@ -5492,12 +5409,12 @@ logical                    :: isfound
 !===================================================================================================================================
       case(8)
 !     command::lines
-      G_LINECOUNT(2) = int(G_STACK_REALS(location))
+      G_LINECOUNT(2) = int(GM_REALS(location))
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       !!! BROKEN BY GOING TO ASCII. ELIMINATE OR CORRECT
       case(9) !     COMMAND::CHAR                   ! does currently not do anything
-      K = IABS(int(G_STACK_REALS(location)))
+      K = IABS(int(GM_REALS(location)))
       IF (M*N.NE.1 .OR. K.GT.G_CHARSET_SIZE-1) then
          call mat_err(36) ! Argument out of range
          exit FUN5
@@ -5510,9 +5427,9 @@ logical                    :: isfound
       N = M*N
       DO I = 1, N
          LL = location+I-1
-         G_STACK_IMAGS(LL) = dble(I)
+         GM_IMAGS(LL) = dble(I)
       enddo
-      call mat_plot(G_OUTPUT_LUN,G_STACK_IMAGS(location),G_STACK_REALS(location),N,TDUM,0)
+      call mat_plot(G_OUTPUT_LUN,GM_IMAGS(location),GM_REALS(location),N,TDUM,0)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       exit FUN5
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -5530,11 +5447,11 @@ logical                    :: isfound
       LX = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
       LY = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+1)
       IF (G_RHS .GT. 3) location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE+2)
-      call mat_plot(G_OUTPUT_LUN,G_STACK_REALS(LX),G_STACK_REALS(LY),N,G_STACK_REALS(location),K)
+      call mat_plot(G_OUTPUT_LUN,GM_REALS(LX),GM_REALS(LY),N,GM_REALS(location),K)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
       case(11) ! COMMAND::RAT
-      if (G_rhs .ne. 2) then
+      if (G_RHS .ne. 2) then
          mn = m*n
          l2 = location
          if (G_lhs .eq. 2) l2 = location + mn
@@ -5546,24 +5463,24 @@ logical                    :: isfound
          G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = l2
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-         call mat_rset(G_lhs*mn,0.0d0,G_STACK_IMAGS(location),1)
+         call mat_rset(G_lhs*mn,0.0d0,GM_IMAGS(location),1)
          do i = 1, mn
-            call mat_rat(G_STACK_REALS(location),lrat,mrat,s,t,G_STACK_REALS(lw))
-            G_STACK_REALS(location) = s
-            G_STACK_REALS(l2) = t
-            if (G_lhs .eq. 1) G_STACK_REALS(location) = mat_flop(s/t)
+            call mat_rat(GM_REALS(location),lrat,mrat,s,t,GM_REALS(lw))
+            GM_REALS(location) = s
+            GM_REALS(l2) = t
+            if (G_lhs .eq. 1) GM_REALS(location) = mat_flop(s/t)
             location = location + 1
             l2 = l2 + 1
          enddo
       else
-         mrat = int(G_STACK_REALS(location))
-         lrat = int(G_STACK_REALS(location-1))
+         mrat = int(GM_REALS(location))
+         lrat = int(GM_REALS(location-1))
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 1
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
       endif
 !===================================================================================================================================
       case(12) !     COMMAND::DEBUG
-      G_DEBUG_LEVEL = int(G_STACK_REALS(location))
+      G_DEBUG_LEVEL = int(GM_REALS(location))
       call journal('sc',' DEBUG ',G_DEBUG_LEVEL)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !===================================================================================================================================
@@ -5599,10 +5516,6 @@ integer             :: mnk
 integer             :: n
 character(len=GG_MAX_NAME_LENGTH)    :: id_name
 
-   if (G_DEBUG_LEVEL .eq. 1)then
-      call journal('sc','*MAT_STACK_GET* ID(1)=',ade2str(id))
-   endif
-
    call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)    ! copy ID to next blank entry in G_STACK_IDS in case it is not there(?)
 
    do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
@@ -5625,13 +5538,13 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       DO I = 1, MN
         LL = location+I-1
         LS = current_location+I-1
-        IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .GT. 0) LS = current_location + int(G_STACK_REALS(LL)) - 1
+        IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .GT. 0) LS = current_location + int(GM_REALS(LL)) - 1
         IF (LS .LT. current_location .OR. LS .GE. current_location+MNK) then
            call mat_err(21)          ! Subscript out of range
            return
         endif
-        G_STACK_REALS(LL) = G_STACK_REALS(LS)
-        G_STACK_IMAGS(LL) = G_STACK_IMAGS(LS)
+        GM_REALS(LL) = GM_REALS(LS)
+        GM_IMAGS(LL) = GM_IMAGS(LS)
       enddo
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
@@ -5654,21 +5567,21 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       DO J = 1, N
          DO I = 1, M
            LI = location+I-1
-           IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .GT. 0) LI = location + int(G_STACK_REALS(LI)) - 1
+           IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) .GT. 0) LI = location + int(GM_REALS(LI)) - 1
            LJ = L2+J-1
-           IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1) .GT. 0) LJ = L2 + int(G_STACK_REALS(LJ)) - 1
+           IF (G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE+1) .GT. 0) LJ = L2 + int(GM_REALS(LJ)) - 1
            LS = current_location + LI-location + (LJ-L2)*MK
            IF (LS.LT.current_location .OR. LS.GE.current_location+MNK) then
               call mat_err(21)
               return
            endif
            LL = L3 + I-1 + (J-1)*M
-           G_STACK_REALS(LL) = G_STACK_REALS(LS)
-           G_STACK_IMAGS(LL) = G_STACK_IMAGS(LS)
+           GM_REALS(LL) = GM_REALS(LS)
+           GM_IMAGS(LL) = GM_IMAGS(LS)
          enddo
       enddo
       MN = M*N
-      call mat_wcopy(MN,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_wcopy(MN,GM_REALS(L3),GM_IMAGS(L3),1,GM_REALS(location),GM_IMAGS(location),1)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N
       goto 99
@@ -5701,11 +5614,11 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
          G_FUN = 6
          return
       endif
-      call mat_wcopy(MN,G_STACK_REALS(current_location),   &
-                        & G_STACK_IMAGS(current_location), &
+      call mat_wcopy(MN,GM_REALS(current_location),   &
+                        & GM_IMAGS(current_location), &
                         & 1,                               &
-                        & G_STACK_REALS(location),         &
-                        & G_STACK_IMAGS(location),         &
+                        & GM_REALS(location),         &
+                        & GM_IMAGS(location),         &
                         & 1)
    endif
 
@@ -5744,9 +5657,6 @@ integer           ::  n2
 integer           ::  nexp
 integer           :: op_select
 
-   if (G_DEBUG_LEVEL .eq. 1) then
-      call journal('sc','MAT_STACK2 ',op)
-   endif
    l2 = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
    m2 = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)
    n2 = G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
@@ -5764,7 +5674,6 @@ integer           :: op_select
    DO_OP: select case(op_select)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (PLUS) ! ADDITION
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:ADDITION')
       if (m .lt. 0) then
          if (m2 .ne. n2) then
             call mat_err(8)
@@ -5774,9 +5683,9 @@ integer           :: op_select
          n = n2
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-         sr = G_STACK_REALS(location)
-         si = G_STACK_IMAGS(location)
-         call mat_wcopy(m*n,G_STACK_REALS(location+1),G_STACK_IMAGS(location+1),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+         sr = GM_REALS(location)
+         si = GM_IMAGS(location)
+         call mat_wcopy(m*n,GM_REALS(location+1),GM_IMAGS(location+1),1,GM_REALS(location),GM_IMAGS(location),1)
          call finish()
          exit DO_OP
       endif
@@ -5785,8 +5694,8 @@ integer           :: op_select
             call mat_err(8)
             exit DO_OP
          endif
-         sr = G_STACK_REALS(l2)
-         si = G_STACK_IMAGS(l2)
+         sr = GM_REALS(l2)
+         si = GM_IMAGS(l2)
          call finish()
          exit DO_OP
       endif
@@ -5798,10 +5707,9 @@ integer           :: op_select
          call mat_err(8)
          exit DO_OP
       endif
-      call matX_waxpy(m*n,1.0d0,0.0d0,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call matX_waxpy(m*n,1.0d0,0.0d0,GM_REALS(l2),GM_IMAGS(l2),1,GM_REALS(location),GM_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (MINUS) ! SUBTRACTION
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:SUBTRACTION')
       if (m .lt. 0) then
          if (m2 .ne. n2)then
             call mat_err(9)
@@ -5811,10 +5719,10 @@ integer           :: op_select
          n = n2
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n
-         sr = G_STACK_REALS(location)
-         si = G_STACK_IMAGS(location)
-         call mat_wcopy(m*n,G_STACK_REALS(location+1),G_STACK_IMAGS(location+1),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
-         call mat_wrscal(m*n,-1.0d0,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+         sr = GM_REALS(location)
+         si = GM_IMAGS(location)
+         call mat_wcopy(m*n,GM_REALS(location+1),GM_IMAGS(location+1),1,GM_REALS(location),GM_IMAGS(location),1)
+         call mat_wrscal(m*n,-1.0d0,GM_REALS(location),GM_IMAGS(location),1)
          call finish()
          exit DO_OP
       endif
@@ -5824,8 +5732,8 @@ integer           :: op_select
             call mat_err(9)
             exit DO_OP
          endif
-         sr = -G_STACK_REALS(l2)
-         si = -G_STACK_IMAGS(l2)
+         sr = -GM_REALS(l2)
+         si = -GM_IMAGS(l2)
          call finish()
          exit DO_OP
       endif
@@ -5837,10 +5745,9 @@ integer           :: op_select
          call mat_err(9)
          exit DO_OP
       endif
-      call matX_waxpy(M*N,-1.0D0,0.0D0,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call matX_waxpy(M*N,-1.0D0,0.0D0,GM_REALS(L2),GM_IMAGS(L2),1,GM_REALS(location),GM_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (STAR) ! MULTIPLICATION
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:MULTIPLICATION')
       if (m2*m2*n2 .eq. 1) goto 10
       if (m*n .eq. 1) goto 11
       if (m2*n2 .eq. 1) goto 10
@@ -5853,39 +5760,37 @@ integer           :: op_select
 
       if(too_much_memory( ll+m*n+m2*n2 - G_STACK_ID_LOC(G_TOP_OF_SAVED)) ) exit do_op
 
-      call mat_wcopy(m*n+m2*n2,G_STACK_REALS(location),G_STACK_IMAGS(location),-1,G_STACK_REALS(ll),G_STACK_IMAGS(ll),-1)
+      call mat_wcopy(m*n+m2*n2,GM_REALS(location),GM_IMAGS(location),-1,GM_REALS(ll),GM_IMAGS(ll),-1)
       do j = 1, n2
          do i = 1, m
             k1 = location + mn + (i-1)
             k2 = l2 + mn + (j-1)*m2
             k = location + (i-1) + (j-1)*m
-            G_STACK_REALS(k) = mat_wdotur(N,G_STACK_REALS(k1),G_STACK_IMAGS(k1),m,G_STACK_REALS(k2),G_STACK_IMAGS(k2),1)
-            G_STACK_IMAGS(k) = mat_wdotui(N,G_STACK_REALS(k1),G_STACK_IMAGS(k1),m,G_STACK_REALS(k2),G_STACK_IMAGS(k2),1)
+            GM_REALS(k) = mat_wdotur(N,GM_REALS(k1),GM_IMAGS(k1),m,GM_REALS(k2),GM_IMAGS(k2),1)
+            GM_IMAGS(k) = mat_wdotui(N,GM_REALS(k1),GM_IMAGS(k1),m,GM_REALS(k2),GM_IMAGS(k2),1)
          enddo
       enddo
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n2
       exit do_op
 !-----------------------------------------------------------------------------------------------------------------------------------
    ! multiplication by scalar
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:MULTIPLICATION BY SCALAR')
    10 continue
-      sr = G_STACK_REALS(l2)
-      si = G_STACK_IMAGS(l2)
+      sr = GM_REALS(l2)
+      si = GM_IMAGS(l2)
       l1 = location
       goto 13
    11 continue
-      sr = G_STACK_REALS(location)
-      si = G_STACK_IMAGS(location)
+      sr = GM_REALS(location)
+      si = GM_IMAGS(location)
       l1 = location+1
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = m2
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = n2
    13 continue
       mn = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
-      call mat_wscal(mn,sr,si,G_STACK_REALS(l1),G_STACK_IMAGS(l1),1)
-      if (l1.ne.location) call mat_wcopy(mn,G_STACK_REALS(l1),G_STACK_IMAGS(l1),1,G_STACK_REALS(location),G_STACK_IMAGS(location),1)
+      call mat_wscal(mn,sr,si,GM_REALS(l1),GM_IMAGS(l1),1)
+      if (l1.ne.location) call mat_wcopy(mn,GM_REALS(l1),GM_IMAGS(l1),1,GM_REALS(location),GM_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (-DSTAR) ! POWER
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:POWER')
       IF (M2*N2 .NE. 1) then
          call mat_err(30)
          exit do_op
@@ -5894,9 +5799,9 @@ integer           :: op_select
          call mat_err(20)
          exit do_op
       endif
-      NEXP = int(G_STACK_REALS(L2))
+      NEXP = int(GM_REALS(L2))
 
-      IF ( (G_STACK_REALS(L2) .NE. dble(NEXP)) .or. (G_STACK_IMAGS(L2) .NE. 0.0D0) .or. (NEXP .LT. 2) )then
+      IF ( (GM_REALS(L2) .NE. dble(NEXP)) .or. (GM_IMAGS(L2) .NE. 0.0D0) .or. (NEXP .LT. 2) )then
          ! NONINTEGER OR NONPOSITIVE POWER, USE EIGENVECTORS
          G_FUN = 2
          G_FIN = 0
@@ -5907,23 +5812,22 @@ integer           :: op_select
 
       if(too_much_memory( L2+MN+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)) ) exit do_op
 
-      call mat_wcopy(MN,G_STACK_REALS(location),G_STACK_IMAGS(location),1,G_STACK_REALS(L2),G_STACK_IMAGS(L2),1)
+      call mat_wcopy(MN,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(L2),GM_IMAGS(L2),1)
       L3 = L2+MN
       DO KEXP = 2, NEXP
          DO J = 1, N
             LS = location+(J-1)*N
-            call mat_wcopy(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),1,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1)
+            call mat_wcopy(N,GM_REALS(LS),GM_IMAGS(LS),1,GM_REALS(L3),GM_IMAGS(L3),1)
             DO I = 1, N
                LS = L2+I-1
                LL = location+I-1+(J-1)*N
-               G_STACK_REALS(LL)=mat_wdotur(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),N,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1)
-               G_STACK_IMAGS(LL)=mat_wdotui(N,G_STACK_REALS(LS),G_STACK_IMAGS(LS),N,G_STACK_REALS(L3),G_STACK_IMAGS(L3),1)
+               GM_REALS(LL)=mat_wdotur(N,GM_REALS(LS),GM_IMAGS(LS),N,GM_REALS(L3),GM_IMAGS(L3),1)
+               GM_IMAGS(LL)=mat_wdotui(N,GM_REALS(LS),GM_IMAGS(LS),N,GM_REALS(L3),GM_IMAGS(L3),1)
             enddo
          enddo
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (SLASH) ! right division
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:RIGHT DIVISION')
       if (m2*n2 .ne. 1) then
          if (m2 .eq. n2) G_FUN = 1
          if (m2 .ne. n2) G_FUN = 4
@@ -5931,17 +5835,16 @@ integer           :: op_select
          G_RHS = 2
          exit DO_OP
       endif
-      sr = G_STACK_REALS(l2)
-      si = G_STACK_IMAGS(l2)
+      sr = GM_REALS(l2)
+      si = GM_IMAGS(l2)
       mn = m*n
       do i = 1, mn
          ll = location+i-1
-         call mat_wdiv(G_STACK_REALS(ll),G_STACK_IMAGS(ll),sr,si,G_STACK_REALS(ll),G_STACK_IMAGS(ll))
+         call mat_wdiv(GM_REALS(ll),GM_IMAGS(ll),sr,si,GM_REALS(ll),GM_IMAGS(ll))
          if (G_ERR .gt. 0) exit
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (BSLASH) ! LEFT DIVISION
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:LEFT DIVISION')
       if (m*n .ne. 1) then
          if (m .eq. n) G_FUN = 1
          if (m .ne. n) G_FUN = 4
@@ -5949,36 +5852,35 @@ integer           :: op_select
          G_RHS = 2
          exit DO_OP
       endif
-      SR = G_STACK_REALS(location)
-      SI = G_STACK_IMAGS(location)
+      SR = GM_REALS(location)
+      SI = GM_IMAGS(location)
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = M2
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = N2
       MN = M2*N2
       DO I = 1, MN
          LL = location+I-1
-         call mat_wdiv(G_STACK_REALS(LL+1),G_STACK_IMAGS(LL+1),SR,SI,G_STACK_REALS(LL),G_STACK_IMAGS(LL))
+         call mat_wdiv(GM_REALS(LL+1),GM_IMAGS(LL+1),SR,SI,GM_REALS(LL),GM_IMAGS(LL))
          IF (G_ERR .GT. 0) exit
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (COLON) ! COLON
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:COLON')
-      E2 = G_STACK_REALS(L2)
+      E2 = GM_REALS(L2)
       ST = 1.0D0
       N = 0
       IF (G_RHS .GE. 3) then
-         ST = G_STACK_REALS(location)
+         ST = GM_REALS(location)
          G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE-1
          location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
          IF (ST .EQ. 0.0D0) goto 63
       endif
 
-      E1 = G_STACK_REALS(location)
+      E1 = GM_REALS(location)
       ! CHECK FOR CLAUSE
       IF (G_RSTK(G_PT) .EQ. 3) then
    !     FOR CLAUSE
-         G_STACK_REALS(location) = E1
-         G_STACK_REALS(location+1) = ST
-         G_STACK_REALS(location+2) = E2
+         GM_REALS(location) = E1
+         GM_REALS(location+1) = ST
+         GM_REALS(location+2) = E2
          G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = -3
          G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = -1
          exit DO_OP
@@ -5987,12 +5889,12 @@ integer           :: op_select
       if(too_much_memory( location + MAX(3,int((E2-E1)/ST)) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) ) exit do_op
 
       do
-         IF (ST .GT. 0.0D0 .AND. G_STACK_REALS(location) .GT. E2) exit
-         IF (ST .LT. 0.0D0 .AND. G_STACK_REALS(location) .LT. E2) exit
+         IF (ST .GT. 0.0D0 .AND. GM_REALS(location) .GT. E2) exit
+         IF (ST .LT. 0.0D0 .AND. GM_REALS(location) .LT. E2) exit
          N = N+1
          location = location+1
-         G_STACK_REALS(location) = E1 + dble(N)*ST
-         G_STACK_IMAGS(location) = 0.0D0
+         GM_REALS(location) = E1 + dble(N)*ST
+         GM_IMAGS(location) = 0.0D0
       enddo
 
    63 continue
@@ -6001,7 +5903,6 @@ integer           :: op_select
       IF (N .EQ. 0) G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (1000:2000-1) ! element-wise operations
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:ELEMENT-WISE OPERATIONS')
       op = op -1000
       if (m.ne.m2 .or. n.ne.n2) then
          call mat_err(10)
@@ -6013,23 +5914,22 @@ integer           :: op_select
          k = l2+i-1
          select case(op)
          case(STAR)
-         call mat_wmul(G_STACK_REALS(J),G_STACK_IMAGS(J), &
-                                        G_STACK_REALS(K),G_STACK_IMAGS(K), &
-                                        G_STACK_REALS(J),G_STACK_IMAGS(J))
+         call mat_wmul(GM_REALS(J),GM_IMAGS(J), &
+                                        GM_REALS(K),GM_IMAGS(K), &
+                                        GM_REALS(J),GM_IMAGS(J))
          case(SLASH)
-         call mat_wdiv(G_STACK_REALS(J),G_STACK_IMAGS(J), &
-                                        G_STACK_REALS(K),G_STACK_IMAGS(K), &
-                                        G_STACK_REALS(J),G_STACK_IMAGS(J))
+         call mat_wdiv(GM_REALS(J),GM_IMAGS(J), &
+                                        GM_REALS(K),GM_IMAGS(K), &
+                                        GM_REALS(J),GM_IMAGS(J))
          case(BSLASH)
-         call mat_wdiv(G_STACK_REALS(K),G_STACK_IMAGS(K), &
-                                        G_STACK_REALS(J),G_STACK_IMAGS(J), &
-                                        G_STACK_REALS(J),G_STACK_IMAGS(J))
+         call mat_wdiv(GM_REALS(K),GM_IMAGS(K), &
+                                        GM_REALS(J),GM_IMAGS(J), &
+                                        GM_REALS(J),GM_IMAGS(J))
          end select
          IF (G_ERR .GT. 0) exit
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (2000:) ! kronecker
-      if(G_DEBUG_LEVEL .eq. 1)call journal('sc','MAT_STACK2:KRONECKER')
       G_FIN = op - 2000 - star + 11
       G_FUN = 6
       G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
@@ -6044,8 +5944,8 @@ contains
 subroutine finish()
    do i = 1, n
       ll = location + (i-1)*(n+1)
-      G_STACK_REALS(ll) = mat_flop(G_STACK_REALS(LL)+sr)
-      G_STACK_IMAGS(ll) = mat_flop(G_STACK_IMAGS(LL)+si)
+      GM_REALS(ll) = mat_flop(GM_REALS(LL)+sr)
+      GM_IMAGS(ll) = mat_flop(GM_IMAGS(LL)+si)
    enddo
 end subroutine finish
 end subroutine mat_stack2
@@ -6132,7 +6032,7 @@ integer                   :: ios
       endif
 !.......................................................................
       do j = 1, n
-         do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of MAT88 characters and get its MAT88 number
+         do k = 1, G_CHARSET_SIZE  ! make sure this letter is in set of LAFF characters and get its LAFF number
            if (G_BUF(j).eq.k ) goto 30
          enddo
          call journal('sc','Unknown character at column ',j) ! this is not a known character
@@ -6230,13 +6130,6 @@ integer            :: n
 
    r = -G_FIN-10
    G_FIN = 0
-   if (G_DEBUG_LEVEL .eq. 1)then
-      if(G_PT.gt.0)then
-         call journal('sc','MAT_CLAUSE:G_PT=',G_PT,'G_RSTK(G_PT)=',G_RSTK(G_PT),'R=',r)
-      else
-         call journal('sc','MAT_CLAUSE:G_PT=',G_PT,'R=',r)
-      endif
-   endif
    if (r.lt.1 .or. r.gt.6) goto 01
    goto (02,30,30,80,99,90),R
 01 continue
@@ -6286,10 +6179,10 @@ integer            :: n
    if (m .ne. -3) goto 12
    lj = location+3
    l2 = lj
-   G_STACK_REALS(lj) = G_STACK_REALS(location) + dble(j-1)*G_STACK_REALS(location+1)
-   G_STACK_IMAGS(lj) = 0.0d0
-   if (G_STACK_REALS(location+1).gt.0.0d0 .and. G_STACK_REALS(lj).gt.G_STACK_REALS(location+2)) goto 20
-   if (G_STACK_REALS(location+1).lt.0.0d0 .and. G_STACK_REALS(lj).lt.G_STACK_REALS(location+2)) goto 20
+   GM_REALS(lj) = GM_REALS(location) + dble(j-1)*GM_REALS(location+1)
+   GM_IMAGS(lj) = 0.0d0
+   if (GM_REALS(location+1).gt.0.0d0 .and. GM_REALS(lj).gt.GM_REALS(location+2)) goto 20
+   if (GM_REALS(location+1).lt.0.0d0 .and. GM_REALS(lj).lt.GM_REALS(location+2)) goto 20
    m = 1
    n = j
 12 continue
@@ -6305,7 +6198,7 @@ integer            :: n
 
    if(too_much_memory( l2+m - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
 
-   call mat_wcopy(m,G_STACK_REALS(lj),G_STACK_IMAGS(lj),1,G_STACK_REALS(l2),G_STACK_IMAGS(l2),1)
+   call mat_wcopy(m,GM_REALS(lj),GM_IMAGS(lj),1,GM_REALS(l2),GM_IMAGS(l2),1)
    G_RHS = 0
    call mat_stack_put(G_IDS(1,G_PT))
    if (G_ERR .gt. 0) return
@@ -6356,9 +6249,9 @@ integer            :: n
    op = mod(G_PSTK(G_PT),256)
    G_PSTK(G_PT) = G_PSTK(G_PT)/256
    location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE-1)
-   e1 = G_STACK_REALS(location)
+   e1 = GM_REALS(location)
    location = G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE)
-   e2 = G_STACK_REALS(location)
+   e2 = GM_REALS(location)
    G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE - 2
    if (mat_eqid(G_SYN,do) .or. mat_eqid(G_SYN,thenn)) G_SYM = semi
    if (G_SYM .EQ. COMMA) G_SYM = SEMI
@@ -6401,10 +6294,6 @@ integer            :: n
 !.......................................................................
 !     EXIT FROM LOOP
 90 continue
-   if (G_DEBUG_LEVEL .eq. 1)then
-      write(mline,'('' EXIT '',10I4)') (G_RSTK(i),i=1,G_PT)
-      call journal(mline)
-   endif
 
    if (G_RSTK(G_PT) .eq. 14) G_PT = G_PT-1
    if (G_PT .le. G_PTZ) return
@@ -6458,10 +6347,7 @@ integer         :: k
    endif
    if (s .lt. 0.0d0) t = -t
    if (s .lt. 0.0d0) s = -s
-   if (G_DEBUG_LEVEL .eq. 27)then
-      write(G_OUTPUT_LUN,50) x,t,s,(d(i),i=1,k) ! debug 27
-50    format(/1x,1pd23.15,0pf8.0,' /',f8.0,4x,6f5.0/(1x,45x,6f5.0))
-   endif
+
    a = t
    b = s
 end subroutine mat_rat
@@ -6476,7 +6362,6 @@ integer           :: kount
 integer           :: ls
 integer           :: op
 
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','EXPR',G_PT,'R=',G_RSTK(G_PT))
    r = G_RSTK(G_pt)
 !===================================================================================================================================
 !        1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 16 18 19 20
@@ -6544,7 +6429,7 @@ integer           :: op
       call mat_err(33)  ! too many colons
       return
    endif
-   G_rhs = kount
+   G_RHS = kount
    if (kount .gt. 1) call mat_stack2(colon)
    if (G_err .gt. 0) return
    return
@@ -6566,8 +6451,6 @@ integer           :: location
 integer           :: ln
 integer           :: ls
 integer           :: n
-
-   if (G_DEBUG_LEVEL .eq. 1) call journal('sc','MAT_FACTOR',G_PT,G_RSTK(G_PT),G_SYM)
 
    r = G_RSTK(G_PT)
    !      1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
@@ -6633,11 +6516,11 @@ integer           :: n
    G_STACK_ID_LOC(G_BOTTOM_OF_SCRATCH_IN_USE) = location
    if (G_SYM .ne. quote) then
       if (G_SYM .eq. less) goto 20
-      ! single number, getsym stored it in G_STACK_IMAGS
+      ! single number, getsym stored it in GM_IMAGS
       G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
       G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 1
-      G_STACK_REALS(location) = G_STACK_IMAGS(G_BIGMEM)
-      G_STACK_IMAGS(location) = 0.0D0
+      GM_REALS(location) = GM_IMAGS(GM_BIGMEM)
+      GM_IMAGS(location) = 0.0D0
       call mat_getsym()
       goto 60
       ! string
@@ -6656,8 +6539,8 @@ integer           :: n
       call mat_err(31) ! Improper string
       return
    endif
-   G_STACK_REALS(LN) = dble(G_CHRA)
-   G_STACK_IMAGS(LN) = 0.0d0
+   GM_REALS(LN) = dble(G_CHRA)
+   GM_IMAGS(LN) = 0.0d0
    n = n+1
    call mat_getch()  ! get next character
    goto 16
@@ -6752,7 +6635,7 @@ integer           :: n
    N = G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)*G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)
    DO J = 1, N
       LS = location + J-1
-      G_LIN(K) = int(G_STACK_REALS(LS))
+      G_LIN(K) = int(GM_REALS(LS))
       if (G_LIN(k).lt.0 .or. G_LIN(k).ge.G_CHARSET_SIZE) then
          call mat_err(37) ! Improper MACROS
          return
@@ -6871,27 +6754,15 @@ integer            :: op
 integer            :: ierr
 integer            :: ilen
 
-   if (G_DEBUG_LEVEL .eq. 1) then
-      if(G_PT.le.0)then
-         call journal('sc','MAT_TERM:START:G_PT=',G_pt)
-      else
-         call journal('sc','MAT_TERM:START:G_PT=',G_pt,'G_RSTK(G_PT)=',G_RSTK(G_PT))
-      endif
-   endif
-
    select case( G_RSTK(G_PT) )
    case(6,7)
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:CASE 6,7:')
       G_PT = G_PT+1
       G_RSTK(G_PT) = 8
       ! *call* factor
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:END:RETURN TO CALL FACTOR:')
       return
    case(8)
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:CASE 8:')
       G_PT = G_PT-1
    case(9)
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:CASE 9:')
       op = G_PSTK(G_PT)
       G_PT = G_PT-1
       call mat_stack2(op)
@@ -6902,27 +6773,22 @@ integer            :: ilen
       if (G_FUN .ne. 0) then
          G_PT = G_PT+1
          G_RSTK(G_PT) = 15
-         if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:END:SOME BINARY OPS DONE IN MATFNS:')
          ! *call* matfn
          return
       endif
    case(15)
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:CASE 15:')
       G_PT = G_PT-1
    case default
       call mat_err(22)
       return
    end select
 
-   if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:CHECK DOUBLE OPERATOR:G_SYM=',achar(G_SYM))
    op = 0
    if (G_SYM .eq. dot) then
       op = dot
       call mat_getsym()
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:DOT OPERATOR:NEXT G_SYM=',achar(G_SYM))
    endif
    if (.not.(G_SYM.eq.star .or. G_SYM.eq.slash .or. G_SYM.eq.bslash)) then
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:NOT DOUBLE OPERATOR:NEXT G_SYM=',achar(G_SYM))
       return
    endif
 
@@ -6932,20 +6798,17 @@ integer            :: ilen
       op = G_SYM + 1000
    endif
 
-   if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:DOUBLE OPERATOR:OP=',op,'G_SYM=',achar(G_SYM))
    call mat_getsym()
 
    if (G_SYM .eq. dot)then
       op = op + 1000  ! now holds three characters
       call mat_getsym()
-      if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:SECOND DOT:OP=',op,'G_SYM=',achar(G_SYM))
    endif
 
    G_PT = G_PT+1
    G_PSTK(G_PT) = op
    G_RSTK(G_PT) = 9
    ! *call* factor
-   if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_TERM:END')
 
 end subroutine mat_term
 !==================================================================================================================================!
@@ -6989,7 +6852,6 @@ character(len=*),parameter        :: f102 ='(4Z18)'                            !
             n=0
          else
             call mat_str2buf(cid,id,GG_MAX_NAME_LENGTH)                        ! convert character string to an ID
-            if(G_DEBUG_LEVEL.eq.1)call journal('sc','MAT_SAVLOAD:LOAD:CID:',cid,':ID:',ade2str(ID))
             if (m*n .gt. space_left) then
                m=0
                n=0
@@ -7397,7 +7259,7 @@ end function mat_round
 !==================================================================================================================================!
 !>
 !!##NAME
-!!    ifexists_mat88(3f) - [M_matrix] test if variable name exists in mat88()
+!!    ifexists_laff(3f) - [M_matrix] test if variable name exists in laff()
 !!    LICENSE(MIT)
 !!##SYNOPSIS
 !!
@@ -7406,42 +7268,42 @@ end function mat_round
 !!
 !!       character(len=*),intent(in) :: varname
 !!##DESCRIPTION
-!!     Determine if a variable name currently exists in mat88().
+!!     Determine if a variable name currently exists in laff().
 !!
 !!##RETURNS
-!!      ifexists_mat88  .true. if varname exists in mat88, else .false.
+!!      ifexists_laff  .true. if varname exists in laff, else .false.
 !!##EXAMPLE
 !!
 !!   sample program:
 !!
-!!      program demo_ifexists_mat88
-!!      use M_matrix, only : ifexists_mat88
+!!      program demo_ifexists_laff
+!!      use M_matrix, only : ifexists_laff
 !!      implicit none
-!!         write(*,*)'eps ',ifexists_mat88('eps')
-!!         write(*,*)'unknown ',ifexists_mat88('unknown')
-!!      end program demo_ifexists_mat88
+!!         write(*,*)'eps ',ifexists_laff('eps')
+!!         write(*,*)'unknown ',ifexists_laff('unknown')
+!!      end program demo_ifexists_laff
 !!
 !!   Results:
 !!
 !!     eps  T
 !!     unknown  F
-function ifexists_mat88(varname)
+function ifexists_laff(varname)
 
-! ident_41="@(#)M_matrix::ifexists_mat88(3f) :: access MAT88 variable stack and see if a variable name exists"
+! ident_41="@(#)M_matrix::ifexists_laff(3f) :: access LAFF variable stack and see if a variable name exists"
 
 character(len=*),intent(in)        :: varname
 integer                            :: id(GG_MAX_NAME_LENGTH)
-logical                            :: ifexists_mat88
+logical                            :: ifexists_laff
 integer                            :: k
 
-   ifexists_mat88=.true.
-   if(G_BIGMEM.LT.0) call mat88_init(200000) ! if not initialized initialize
+   ifexists_laff=.true.
+   if(GM_BIGMEM.LT.0) call laff_init(200000) ! if not initialized initialize
    if( .not.mat_is_name(varname))then
       call journal('sc',varname,'is not a valid variable name')
-      ifexists_mat88=.false.
+      ifexists_laff=.false.
    endif
 
-   ! convert character name to mat88 character set
+   ! convert character name to laff character set
    id=iachar(' ')
    call mat_str2buf(varname,id,len(varname))
    call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_STACK_IDS for messages(?)
@@ -7452,40 +7314,44 @@ integer                            :: k
 
    ! if matched the name inserted above did not find it.
    if ( (k .ge. GG_MAX_NUMBER_OF_NAMES-1) .or.  (k .eq. G_TOP_OF_SAVED-1)) then
-      ifexists_mat88=.false.                              ! unknown variable name
+      ifexists_laff=.false.                              ! unknown variable name
    endif
 
-end function ifexists_mat88
+end function ifexists_laff
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine get_double_from_mat88(varname,A,type,IERR)
+subroutine get_double_from_laff(varname,A,type,IERR)
 
-! ident_42="@(#)M_matrix::get_double_from_mat88(3f) :: access MAT88 variable stack and get a variable by name and its data from the stack"
+! ident_42="@(#)M_matrix::get_double_from_laff(3f) :: access LAFF variable stack and get a variable by name and its data from the stack"
 
 character(len=*),intent(in)              :: varname    ! the name of A.
-integer,intent(in)                       :: type       ! type =  0  get REAL A from MAT88, type  = 1  get IMAGINARY A into MAT88,
-integer,INTENT(OUT)                      :: ierr       ! return with nonzero IERR after MAT88 error message.
+integer,intent(in)                       :: type       ! type =  0  get REAL A from LAFF, type  = 1  get IMAGINARY A into LAFF,
+integer,INTENT(OUT)                      :: ierr       ! return with nonzero IERR after LAFF error message.
 doubleprecision,allocatable,intent(out)  :: a(:,:)     ! A is an M by N matrix
 integer                                  :: id(GG_MAX_NAME_LENGTH)
 integer                                  :: i,j,k,location,m,n
 
-   if(G_BIGMEM.LT.0) call mat88_init(200000) ! if not initialized initialize
+   if(GM_BIGMEM.LT.0) then
+      write(*,*)'GOT HERE A:INITIALIZE'
+      call laff_init(200000) ! if not initialized initialize
+      write(*,*)'GOT HERE B:INITIALIZE'
+   endif
    ierr=0
 
-   ! convert character name to mat88 character set
+   ! convert character name to laff character set
    id=iachar(' ')
    call mat_str2buf(varname,id,len(varname))
-   ! ??? make sure this letter is in set of MAT88 characters and get its MAT88 number
+   ! ??? make sure this letter is in set of LAFF characters and get its LAFF number
    call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_STACK_IDS for messages(?)
 
    do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
-      if (mat_eqid(G_STACK_IDS(1:,k), id))exit             ! if found name exit loop
+      if (mat_eqid(G_STACK_IDS(1:,k), id))exit            ! if found name exit loop
    enddo
 
    ! if matched the name inserted above did not find it.
    if ( (k .ge. GG_MAX_NUMBER_OF_NAMES-1 .and. G_RHS .gt. 0) .or. (k .eq. G_TOP_OF_SAVED-1) ) then
-      call journal('sc','<ERROR>get_double_from_mat88: unknown variable name',varname)
+      call journal('sc','<ERROR>get_double_from_laff: unknown variable name',varname)
       IERR=4
       if(allocated(a))deallocate(a)
       allocate(a(0,0))
@@ -7507,9 +7373,9 @@ integer                                  :: i,j,k,location,m,n
          do j=1,n
             do i=1,m
                if(type.eq.0)then
-                  a(i,j)=G_STACK_REALS(location)       ! type =  0  GET REAL A FROM MAT88,
+                  a(i,j)=GM_REALS(location)       ! type =  0  GET REAL A FROM LAFF,
                else
-                  a(i,j)=G_STACK_IMAGS(location)       ! type =  1  GET IMAGINARY A FROM MAT88,
+                  a(i,j)=GM_IMAGS(location)       ! type =  1  GET IMAGINARY A FROM LAFF,
                endif
                location=location+1
             enddo
@@ -7518,7 +7384,7 @@ integer                                  :: i,j,k,location,m,n
 
    endif
 
-end subroutine get_double_from_mat88
+end subroutine get_double_from_laff
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
@@ -7532,14 +7398,14 @@ end function rowpack
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine store_double_into_mat88(varname,realxx,imagxx,ierr)
+subroutine store_double_into_laff(varname,realxx,imagxx,ierr)
 
-! ident_43="@(#)M_matrix:: _store_double_into_mat88(3f): put a variable name and its data onto MAT88 stack"
+! ident_43="@(#)M_matrix:: _store_double_into_laff(3f): put a variable name and its data onto LAFF stack"
 
 character(len=*),intent(in)          :: varname                ! the name of realxx.
 doubleprecision,intent(in)           :: realxx(:,:)            ! inputarray is an M by N matrix
 doubleprecision,intent(in),optional  :: imagxx(:,:)            ! inputarray is an M by N matrix
-integer,intent(out)                  :: ierr                   ! return with nonzero ierr after MAT88 error message.
+integer,intent(out)                  :: ierr                   ! return with nonzero ierr after LAFF error message.
 
 integer                              :: img
 integer                              :: space_left
@@ -7548,13 +7414,17 @@ integer                              :: i,j,k,location
 integer                              :: m,n                    ! m, n = dimensions
 integer                              :: size_of_a
 
-   if(G_BIGMEM.LT.0) call mat88_init(200000) ! if not initialized initialize
+   if(GM_BIGMEM.LT.0) then
+      write(*,*)'GOT HERE a:INITIALIZE'
+      call laff_init(200000) ! if not initialized initialize
+      write(*,*)'GOT HERE b:INITIALIZE'
+   endif
 
    ierr=0
    if(present(imagxx))then
       img=1
       if(size(realxx,dim=1).ne.size(imagxx,dim=1).or.size(realxx,dim=2).ne.size(imagxx,dim=2))then
-         call journal('sc','<ERROR>*mat88_put* real and imaginary parts have different sizes')
+         call journal('sc','<ERROR>*laff_put* real and imaginary parts have different sizes')
          ierr=-1
          return
       endif
@@ -7570,24 +7440,24 @@ integer                              :: size_of_a
      location=1
    endif
    space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
-   !! assume input arrays can be one or two dimension but mat88 stores everything as a vector and store m and n
+   !! assume input arrays can be one or two dimension but laff stores everything as a vector and store m and n
    m=size(realxx,dim=1)
    n=size(realxx,dim=2)
    if (m*n .gt. space_left) then
-      call journal('sc','<ERROR>*mat88_put* insufficient space to save data to MAT88')
+      call journal('sc','<ERROR>*laff_put* insufficient space to save data to LAFF')
       ierr=-2
       return
    elseif(m*n.eq.0)then ! check for zero-size input array
-      call journal('sc','<ERROR>*mat88_put* cannot save empty arrays to MAT88')
+      call journal('sc','<ERROR>*laff_put* cannot save empty arrays to LAFF')
       ierr=-3
       return
    else
       if (img .eq. 0)then
-         call mat_rset(m*n,0.0d0,G_STACK_IMAGS(location),1) ! set imaginary values to zero
+         call mat_rset(m*n,0.0d0,GM_IMAGS(location),1) ! set imaginary values to zero
       else
-         G_STACK_IMAGS(location:location+m*n-1)=rowpack(imagxx)
+         GM_IMAGS(location:location+m*n-1)=rowpack(imagxx)
       endif
-      G_STACK_REALS(location:location+m*n-1)=rowpack(realxx)
+      GM_REALS(location:location+m*n-1)=rowpack(realxx)
    endif
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE)=m
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE)=n
@@ -7601,11 +7471,11 @@ integer                              :: size_of_a
    G_BOTTOM_OF_SCRATCH_IN_USE = G_BOTTOM_OF_SCRATCH_IN_USE + 1
    G_STACK_ROWS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
    G_STACK_COLS(G_BOTTOM_OF_SCRATCH_IN_USE) = 0
-end subroutine store_double_into_mat88
+end subroutine store_double_into_laff
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine store_array_into_mat88(varname,anything,ierr)
+subroutine store_array_into_laff(varname,anything,ierr)
 character(len=*),intent(in)  :: varname
 class(*)                     :: anything(:,:)
 integer,intent(out)          :: ierr
@@ -7613,30 +7483,30 @@ logical,parameter            :: T=.true.
 integer                      :: i
    select type(anything)
 !!    type is (character(len=*));
-!!       call store_double_into_mat88(varname,
+!!       call store_double_into_laff(varname,
 !!       reshape(real(str2ade(anything),kind=dp),[1,len(anything)])
 !!       ,ierr=ierr)
-!!       call store_double_into_mat88(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)
-    type is (complex);              call store_double_into_mat88(varname,real(anything,kind=dp), &
+!!       call store_double_into_laff(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)
+    type is (complex);              call store_double_into_laff(varname,real(anything,kind=dp), &
                                                                        & real(aimag(anything),kind=dp),ierr=ierr)
-    type is (complex(kind=dp));     call store_double_into_mat88(varname,real(anything),aimag(anything),ierr=ierr)
-    type is (integer(kind=int8));   call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
-    type is (integer(kind=int16));  call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
-    type is (integer(kind=int32));  call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
-    type is (integer(kind=int64));  call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
-    type is (real(kind=real32));    call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
-    type is (real(kind=real64));    call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
-    type is (real(kind=real128));   call store_double_into_mat88(varname,real(anything,kind=dp),ierr=ierr)
+    type is (complex(kind=dp));     call store_double_into_laff(varname,real(anything),aimag(anything),ierr=ierr)
+    type is (integer(kind=int8));   call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+    type is (integer(kind=int16));  call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+    type is (integer(kind=int32));  call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+    type is (integer(kind=int64));  call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+    type is (real(kind=real32));    call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+    type is (real(kind=real64));    call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+    type is (real(kind=real128));   call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
     ! arbitrarily, 0 is false and not 0 is true, although I prefer the opposite
-    type is (logical);              call store_double_into_mat88(varname,merge(0.1d0,0.0d0,anything),ierr=ierr)
+    type is (logical);              call store_double_into_laff(varname,merge(0.1d0,0.0d0,anything),ierr=ierr)
     class default
-      stop 'crud. store_array_into_mat88(1) does not know about this type'
+      stop 'crud. store_array_into_laff(1) does not know about this type'
    end select
-end subroutine store_array_into_mat88
+end subroutine store_array_into_laff
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine store_vector_into_mat88(varname,anything,ierr)
+subroutine store_vector_into_laff(varname,anything,ierr)
 character(len=*),intent(in)  :: varname
 class(*)                     :: anything(:)
 integer,intent(out)          :: ierr
@@ -7649,198 +7519,198 @@ integer                      :: i
                    & r=> size(anything), &
                    & c=> len(anything) &
                  )
-          call store_double_into_mat88(varname,reshape(letters,[r,c],order=[2,1]),ierr=ierr)
+          call store_double_into_laff(varname,reshape(letters,[r,c],order=[2,1]),ierr=ierr)
        end associate
     type is (complex)
-       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]), &
+       call store_double_into_laff(varname,reshape(real(anything,kind=dp),[1,size(anything)]), &
                                           & reshape(real(aimag(anything),kind=dp),[1,size(anything)]), ierr=ierr)
     type is (complex(kind=dp))
-       call store_double_into_mat88(varname,reshape(real(anything),[1,size(anything)]), &
+       call store_double_into_laff(varname,reshape(real(anything),[1,size(anything)]), &
                                           & reshape(aimag(anything),[1,size(anything)]), ierr=ierr)
     type is (integer(kind=int8))
-       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+       call store_double_into_laff(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
     type is (integer(kind=int16))
-       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+       call store_double_into_laff(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
     type is (integer(kind=int32))
-       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+       call store_double_into_laff(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
     type is (integer(kind=int64))
-       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+       call store_double_into_laff(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
     type is (real(kind=real32))
-       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+       call store_double_into_laff(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
     type is (real(kind=real64))
-       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+       call store_double_into_laff(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
     type is (real(kind=real128))
-       call store_double_into_mat88(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
+       call store_double_into_laff(varname,reshape(real(anything,kind=dp),[1,size(anything)]),ierr=ierr)
     type is (logical)
-       call store_double_into_mat88(varname,reshape(merge(0.1d0,0.0d0,anything),[1,size(anything)]),ierr=ierr)
+       call store_double_into_laff(varname,reshape(merge(0.1d0,0.0d0,anything),[1,size(anything)]),ierr=ierr)
     class default
-      stop 'crud. store_vector_into_mat88(1) does not know about this type'
+      stop 'crud. store_vector_into_laff(1) does not know about this type'
       ierr=-20
    end select
-end subroutine store_vector_into_mat88
+end subroutine store_vector_into_laff
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine store_scalar_into_mat88(varname,anything,ierr)
+subroutine store_scalar_into_laff(varname,anything,ierr)
 character(len=*),intent(in)  :: varname
 class(*)                     :: anything
 integer,intent(out)          :: ierr
 logical,parameter            :: T=.true.
    select type(anything)
     type is (character(len=*))
-       call store_double_into_mat88(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)
+       call store_double_into_laff(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)
     type is (complex)
-       call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]), &
+       call store_double_into_laff(varname,reshape([real(anything,kind=dp)],[1,1]), &
                                           & reshape([real(aimag(anything),kind=dp)],[1,1]), ierr=ierr)
     type is (complex(kind=dp))
-             call store_double_into_mat88(varname,reshape([real(anything)],[1,1]), reshape([aimag(anything)],[1,1]), ierr=ierr)
-    type is (integer(kind=int8));  call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (integer(kind=int16)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (integer(kind=int32)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (integer(kind=int64)); call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (real(kind=real32));   call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (real(kind=real64));   call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
-    type is (real(kind=real128));  call store_double_into_mat88(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+             call store_double_into_laff(varname,reshape([real(anything)],[1,1]), reshape([aimag(anything)],[1,1]), ierr=ierr)
+    type is (integer(kind=int8));  call store_double_into_laff(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (integer(kind=int16)); call store_double_into_laff(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (integer(kind=int32)); call store_double_into_laff(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (integer(kind=int64)); call store_double_into_laff(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (real(kind=real32));   call store_double_into_laff(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (real(kind=real64));   call store_double_into_laff(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
+    type is (real(kind=real128));  call store_double_into_laff(varname,reshape([real(anything,kind=dp)],[1,1]),ierr=ierr)
     ! arbitrarily, 0 is false and not 0 is true, although I prefer the opposite
-    type is (logical);             call store_double_into_mat88(varname,reshape([merge(1.0d0,0.0d0,anything)],[1,1]),ierr=ierr)
+    type is (logical);             call store_double_into_laff(varname,reshape([merge(1.0d0,0.0d0,anything)],[1,1]),ierr=ierr)
     class default
-      stop 'crud. store_scalar_into_mat88(1) does not know about this type'
+      stop 'crud. store_scalar_into_laff(1) does not know about this type'
    end select
-end subroutine store_scalar_into_mat88
+end subroutine store_scalar_into_laff
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine get_array_from_mat88_int8(varname,out,ierr)
+subroutine get_array_from_laff_int8(varname,out,ierr)
 character(len=*),intent(in)                :: varname
 integer(kind=int8),allocatable,intent(out) :: out(:,:)
 doubleprecision,allocatable                :: double(:,:)
 integer,intent(out)                        :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=nint(double,kind=int8)
-end subroutine get_array_from_mat88_int8
+end subroutine get_array_from_laff_int8
 !===================================================================================================================================
-subroutine get_array_from_mat88_int16(varname,out,ierr)
+subroutine get_array_from_laff_int16(varname,out,ierr)
 character(len=*),intent(in)                 :: varname
 integer(kind=int16),allocatable,intent(out) :: out(:,:)
 doubleprecision,allocatable                 :: double(:,:)
 integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=nint(double,kind=int16)
-end subroutine get_array_from_mat88_int16
+end subroutine get_array_from_laff_int16
 !===================================================================================================================================
-subroutine get_array_from_mat88_int32(varname,out,ierr)
+subroutine get_array_from_laff_int32(varname,out,ierr)
 character(len=*),intent(in)                 :: varname
 integer(kind=int32),allocatable,intent(out) :: out(:,:)
 doubleprecision,allocatable                 :: double(:,:)
 integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=nint(double,kind=int32)
-end subroutine get_array_from_mat88_int32
+end subroutine get_array_from_laff_int32
 !===================================================================================================================================
-subroutine get_array_from_mat88_int64(varname,out,ierr)
+subroutine get_array_from_laff_int64(varname,out,ierr)
 character(len=*),intent(in)                 :: varname
 integer(kind=int64),allocatable,intent(out) :: out(:,:)
 doubleprecision,allocatable                 :: double(:,:)
 integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=real(double,kind=int64)
-end subroutine get_array_from_mat88_int64
+end subroutine get_array_from_laff_int64
 !===================================================================================================================================
-subroutine get_array_from_mat88_real32(varname,out,ierr)
+subroutine get_array_from_laff_real32(varname,out,ierr)
 character(len=*),intent(in)               :: varname
 real(kind=real32),allocatable,intent(out) :: out(:,:)
 doubleprecision,allocatable               :: double(:,:)
 integer,intent(out)                       :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=real(double,kind=real32)
-end subroutine get_array_from_mat88_real32
+end subroutine get_array_from_laff_real32
 !===================================================================================================================================
-subroutine get_array_from_mat88_real64(varname,out,ierr)
+subroutine get_array_from_laff_real64(varname,out,ierr)
 character(len=*),intent(in)               :: varname
 real(kind=real64),allocatable,intent(out) :: out(:,:)
 doubleprecision,allocatable               :: double(:,:)
 integer,intent(out)                       :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=real(double,kind=real64)
-end subroutine get_array_from_mat88_real64
+end subroutine get_array_from_laff_real64
 !===================================================================================================================================
-subroutine get_array_mnx_from_mat88_real64(varname,out,ierr)
+subroutine get_array_mnx_from_laff_real64(varname,out,ierr)
 character(len=*),intent(in)               :: varname
 real(kind=real64),intent(out)             :: out(:,:)
 doubleprecision,allocatable               :: double(:,:)
 integer,intent(out)                       :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=real(double,kind=real64)
-end subroutine get_array_mnx_from_mat88_real64
+end subroutine get_array_mnx_from_laff_real64
 !===================================================================================================================================
-subroutine get_array_from_mat88_real128(varname,out,ierr)
+subroutine get_array_from_laff_real128(varname,out,ierr)
 character(len=*),intent(in)                 :: varname
 real(kind=real128),allocatable,intent(out)  :: out(:,:)
 doubleprecision,allocatable                 :: double(:,:)
 integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=real(double,kind=real128)
-end subroutine get_array_from_mat88_real128
+end subroutine get_array_from_laff_real128
 !===================================================================================================================================
-subroutine get_array_from_mat88_logical(varname,out,ierr)
+subroutine get_array_from_laff_logical(varname,out,ierr)
 character(len=*),intent(in)      :: varname
 logical,allocatable,intent(out)  :: out(:,:)
 doubleprecision,allocatable      :: double(:,:)
 integer,intent(out)              :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=merge(.false.,.true.,nint(double).eq.0)
-end subroutine get_array_from_mat88_logical
+end subroutine get_array_from_laff_logical
 !===================================================================================================================================
-subroutine get_array_from_mat88_cmplx(varname,out,ierr)
+subroutine get_array_from_laff_cmplx(varname,out,ierr)
 character(len=*),intent(in)      :: varname
 complex,allocatable,intent(out)  :: out(:,:)
 doubleprecision,allocatable      :: double(:,:), doublei(:,:)
 integer,intent(out)              :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
-   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,doublei,type=1,ierr=ierr)
    if(ierr.ne.0)return
    out=cmplx(double,doublei,kind=sp)
-end subroutine get_array_from_mat88_cmplx
+end subroutine get_array_from_laff_cmplx
 !===================================================================================================================================
-subroutine get_array_from_mat88_dpcmplx(varname,out,ierr)
+subroutine get_array_from_laff_dpcmplx(varname,out,ierr)
 character(len=*),intent(in)               :: varname
 complex(kind=dp),allocatable,intent(out)  :: out(:,:)
 doubleprecision,allocatable               :: double(:,:), doublei(:,:)
 integer,intent(out)                       :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
-   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,doublei,type=1,ierr=ierr)
    if(ierr.ne.0)return
    out=cmplx(double,doublei,kind=sp)
-end subroutine get_array_from_mat88_dpcmplx
+end subroutine get_array_from_laff_dpcmplx
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine get_vector_from_mat88_character(varname,out,ierr)
+subroutine get_vector_from_laff_character(varname,out,ierr)
 character(len=*),intent(in)              :: varname
 character(len=:),allocatable,intent(out) :: out(:)
 doubleprecision,allocatable              :: double(:,:)
 integer,intent(out)                      :: ierr
 integer                                  :: i,j
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(allocated(out))deallocate(out)
    allocate(character(len=size(double,dim=2)) :: out(size(double,dim=1)))
@@ -7849,131 +7719,131 @@ integer                                  :: i,j
          out(i)(j:j)=achar(nint(double(i,j)))
       enddo
    enddo
-end subroutine get_vector_from_mat88_character
+end subroutine get_vector_from_laff_character
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine get_vector_from_mat88_int8(varname,out,ierr)
+subroutine get_vector_from_laff_int8(varname,out,ierr)
 character(len=*),intent(in)                :: varname
 integer(kind=int8),allocatable,intent(out) :: out(:)
 doubleprecision,allocatable                :: double(:,:)
 integer,intent(out)                        :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=nint(rowpack(double),kind=int8)
-end subroutine get_vector_from_mat88_int8
+end subroutine get_vector_from_laff_int8
 !===================================================================================================================================
-subroutine get_vector_from_mat88_int16(varname,out,ierr)
+subroutine get_vector_from_laff_int16(varname,out,ierr)
 character(len=*),intent(in)                 :: varname
 integer(kind=int16),allocatable,intent(out) :: out(:)
 doubleprecision,allocatable                 :: double(:,:)
 integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=nint(rowpack(double),kind=int16)
-end subroutine get_vector_from_mat88_int16
+end subroutine get_vector_from_laff_int16
 !===================================================================================================================================
-subroutine get_vector_from_mat88_int32(varname,out,ierr)
+subroutine get_vector_from_laff_int32(varname,out,ierr)
 character(len=*),intent(in)                 :: varname
 integer(kind=int32),allocatable,intent(out) :: out(:)
 doubleprecision,allocatable                 :: double(:,:)
 integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=nint(rowpack(double),kind=int32)
-end subroutine get_vector_from_mat88_int32
+end subroutine get_vector_from_laff_int32
 !===================================================================================================================================
-subroutine get_vector_from_mat88_int64(varname,out,ierr)
+subroutine get_vector_from_laff_int64(varname,out,ierr)
 character(len=*),intent(in)                 :: varname
 integer(kind=int64),allocatable,intent(out) :: out(:)
 doubleprecision,allocatable                 :: double(:,:)
 integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=real(rowpack(double),kind=int64)
-end subroutine get_vector_from_mat88_int64
+end subroutine get_vector_from_laff_int64
 !===================================================================================================================================
-subroutine get_vector_from_mat88_real32(varname,out,ierr)
+subroutine get_vector_from_laff_real32(varname,out,ierr)
 character(len=*),intent(in)               :: varname
 real(kind=real32),allocatable,intent(out) :: out(:)
 doubleprecision,allocatable               :: double(:,:)
 integer,intent(out)                       :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=real(rowpack(double),kind=real32)
-end subroutine get_vector_from_mat88_real32
+end subroutine get_vector_from_laff_real32
 !===================================================================================================================================
-subroutine get_vector_from_mat88_real64(varname,out,ierr)
+subroutine get_vector_from_laff_real64(varname,out,ierr)
 character(len=*),intent(in)               :: varname
 real(kind=real64),allocatable,intent(out) :: out(:)
 doubleprecision,allocatable               :: double(:,:)
 integer,intent(out)                       :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=real(rowpack(double),kind=real64)
-end subroutine get_vector_from_mat88_real64
+end subroutine get_vector_from_laff_real64
 !===================================================================================================================================
-subroutine get_vector_from_mat88_real128(varname,out,ierr)
+subroutine get_vector_from_laff_real128(varname,out,ierr)
 character(len=*),intent(in)                 :: varname
 real(kind=real128),allocatable,intent(out)  :: out(:)
 doubleprecision,allocatable                 :: double(:,:)
 integer,intent(out)                         :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=real(rowpack(double),kind=real128)
-end subroutine get_vector_from_mat88_real128
+end subroutine get_vector_from_laff_real128
 !===================================================================================================================================
-subroutine get_vector_from_mat88_logical(varname,out,ierr)
+subroutine get_vector_from_laff_logical(varname,out,ierr)
 character(len=*),intent(in)      :: varname
 logical,allocatable,intent(out)  :: out(:)
 doubleprecision,allocatable      :: double(:,:)
 integer,intent(out)              :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    out=merge(.false.,.true.,nint(rowpack(double)).eq.0)
-end subroutine get_vector_from_mat88_logical
+end subroutine get_vector_from_laff_logical
 !===================================================================================================================================
-subroutine get_vector_from_mat88_cmplx(varname,out,ierr)
+subroutine get_vector_from_laff_cmplx(varname,out,ierr)
 character(len=*),intent(in)      :: varname
 complex,allocatable,intent(out)  :: out(:)
 doubleprecision,allocatable      :: double(:,:), doublei(:,:)
 integer,intent(out)              :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
-   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,doublei,type=1,ierr=ierr)
    if(ierr.ne.0)return
    out=cmplx(rowpack(double),rowpack(doublei),kind=sp)
-end subroutine get_vector_from_mat88_cmplx
+end subroutine get_vector_from_laff_cmplx
 !===================================================================================================================================
-subroutine get_vector_from_mat88_dpcmplx(varname,out,ierr)
+subroutine get_vector_from_laff_dpcmplx(varname,out,ierr)
 character(len=*),intent(in)               :: varname
 complex(kind=dp),allocatable,intent(out)  :: out(:)
 doubleprecision,allocatable               :: double(:,:), doublei(:,:)
 integer,intent(out)                       :: ierr
    if(allocated(out))deallocate(out)
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
-   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,doublei,type=1,ierr=ierr)
    if(ierr.ne.0)return
    out=cmplx(rowpack(double),rowpack(doublei),kind=dp)
-end subroutine get_vector_from_mat88_dpcmplx
+end subroutine get_vector_from_laff_dpcmplx
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_character(varname,out,ierr)
+subroutine get_scalar_from_laff_character(varname,out,ierr)
 character(len=*),intent(in)              :: varname
 character(len=:),allocatable,intent(out) :: out
 doubleprecision,allocatable              :: double(:,:)
 integer,intent(out)                      :: ierr
 integer                                  :: i,j,k
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(allocated(out))deallocate(out)
    allocate(character(len=size(double)) :: out)
@@ -7984,119 +7854,119 @@ integer                                  :: i,j,k
          out(k:k)=achar(nint(double(i,j)))
       enddo
    enddo
-end subroutine get_scalar_from_mat88_character
+end subroutine get_scalar_from_laff_character
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_int8(varname,out,ierr)
+subroutine get_scalar_from_laff_int8(varname,out,ierr)
 character(len=*),intent(in)    :: varname
 integer(kind=int8),intent(out) :: out
 doubleprecision,allocatable    :: double(:,:)
 integer,intent(out)            :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=nint(double(1,1),kind=int8)
-end subroutine get_scalar_from_mat88_int8
+end subroutine get_scalar_from_laff_int8
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_int16(varname,out,ierr)
+subroutine get_scalar_from_laff_int16(varname,out,ierr)
 character(len=*),intent(in)     :: varname
 integer(kind=int16),intent(out) :: out
 doubleprecision,allocatable     :: double(:,:)
 integer,intent(out)             :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=nint(double(1,1),kind=int16)
-end subroutine get_scalar_from_mat88_int16
+end subroutine get_scalar_from_laff_int16
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_int32(varname,out,ierr)
+subroutine get_scalar_from_laff_int32(varname,out,ierr)
 character(len=*),intent(in)     :: varname
 integer(kind=int32),intent(out) :: out
 doubleprecision,allocatable     :: double(:,:)
 integer,intent(out)             :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=nint(double(1,1),kind=int32)
-end subroutine get_scalar_from_mat88_int32
+end subroutine get_scalar_from_laff_int32
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_int64(varname,out,ierr)
+subroutine get_scalar_from_laff_int64(varname,out,ierr)
 character(len=*),intent(in)     :: varname
 integer(kind=int64),intent(out) :: out
 doubleprecision,allocatable     :: double(:,:)
 integer,intent(out)             :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=real(double(1,1),kind=int64)
-end subroutine get_scalar_from_mat88_int64
+end subroutine get_scalar_from_laff_int64
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_real32(varname,out,ierr)
+subroutine get_scalar_from_laff_real32(varname,out,ierr)
 character(len=*),intent(in)   :: varname
 real(kind=real32),intent(out) :: out
 doubleprecision,allocatable   :: double(:,:)
 integer,intent(out)           :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=real(double(1,1),kind=real32)
-end subroutine get_scalar_from_mat88_real32
+end subroutine get_scalar_from_laff_real32
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_real64(varname,out,ierr)
+subroutine get_scalar_from_laff_real64(varname,out,ierr)
 character(len=*),intent(in)   :: varname
 real(kind=real64),intent(out) :: out
 doubleprecision,allocatable   :: double(:,:)
 integer,intent(out)           :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=real(double(1,1),kind=real64)
-end subroutine get_scalar_from_mat88_real64
+end subroutine get_scalar_from_laff_real64
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_real128(varname,out,ierr)
+subroutine get_scalar_from_laff_real128(varname,out,ierr)
 character(len=*),intent(in)    :: varname
 real(kind=real128),intent(out) :: out
 doubleprecision,allocatable    :: double(:,:)
 integer,intent(out)            :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=real(double(1,1),kind=real128)
-end subroutine get_scalar_from_mat88_real128
+end subroutine get_scalar_from_laff_real128
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_logical(varname,out,ierr)
+subroutine get_scalar_from_laff_logical(varname,out,ierr)
 character(len=*),intent(in)   :: varname
 logical,intent(out)           :: out
 doubleprecision,allocatable   :: double(:,:)
 integer,intent(out)           :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=merge(.false.,.true.,nint(double(1,1)).eq.0)
-end subroutine get_scalar_from_mat88_logical
+end subroutine get_scalar_from_laff_logical
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_cmplx(varname,out,ierr)
+subroutine get_scalar_from_laff_cmplx(varname,out,ierr)
 character(len=*),intent(in)   :: varname
 complex,intent(out)           :: out
 doubleprecision,allocatable   :: double(:,:), doublei(:,:)
 integer,intent(out)           :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
-   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,doublei,type=1,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=cmplx(double(1,1),doublei(1,1),kind=sp)
-end subroutine get_scalar_from_mat88_cmplx
+end subroutine get_scalar_from_laff_cmplx
 !===================================================================================================================================
-subroutine get_scalar_from_mat88_dpcmplx(varname,out,ierr)
+subroutine get_scalar_from_laff_dpcmplx(varname,out,ierr)
 character(len=*),intent(in)   :: varname
 complex(kind=dp),intent(out)  :: out
 doubleprecision,allocatable   :: double(:,:), doublei(:,:)
 integer,intent(out)           :: ierr
-   call get_double_from_mat88(varname,double,type=0,ierr=ierr)
-   call get_double_from_mat88(varname,doublei,type=1,ierr=ierr)
+   call get_double_from_laff(varname,double,type=0,ierr=ierr)
+   call get_double_from_laff(varname,doublei,type=1,ierr=ierr)
    if(ierr.ne.0)return
    if(size(double).ne.1)call journal('sc','warning: returned scalar does not have size 1 but size',size(double))
    out=cmplx(double(1,1),doublei(1,1),kind=dp)
-end subroutine get_scalar_from_mat88_dpcmplx
+end subroutine get_scalar_from_laff_dpcmplx
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
@@ -8290,10 +8160,58 @@ end function mat_is_name
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
+subroutine update(key,valin1,valin2,valin3)
+character(len=*),intent(in)      :: key
+integer,optional                 :: valin1,valin2,valin3
+integer                          :: place
+   if(present(valin1))then
+      ! find where string is or should be
+      call locate(keywords,key,place)
+      ! if string was not found insert it
+      if(place.lt.1)then
+         call insert(keywords,key,iabs(place))
+         call insert(rows,valin1,iabs(place))
+         call insert(cols,valin2,iabs(place))
+         call insert(locs,valin3,iabs(place))
+      else
+         call replace(rows,valin1,place)
+         call replace(cols,valin2,place)
+         call replace(locs,valin3,place)
+      endif
+   else
+      call locate(keywords,key,place)
+      if(place.gt.0)then
+         call remove(keywords,place)
+         call remove(rows,place)
+         call remove(cols,place)
+         call remove(locs,place)
+      endif
+   endif
+end subroutine update
+
+subroutine get(key,valout1,valout2,valout3)
+character(len=*),intent(in)   :: key
+integer                       :: valout1, valout2, valout3
+integer                       :: place
+! find where string is or should be
+   call locate(keywords,key,place)
+   if(place.lt.1)then
+      valout1=-99999
+      valout2=-99999
+      valout3=-99999
+   else
+      valout1=rows(place)
+      valout2=cols(place)
+      valout3=locs(place)
+   endif
+end subroutine get
+!==================================================================================================================================!
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
 subroutine mat_help_text()
 G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
-'MAT88 USERS'' GUIDE                                                             ',&
+'LAFF USERS'' GUIDE                                                              ',&
 '                                                                                ',&
 '                            May, 1981                                           ',&
 '                            Dec, 2018                                           ',&
@@ -8305,7 +8223,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                 Department of Computer Science                                 ',&
 '                    University of New Mexico                                    ',&
 '                                                                                ',&
-'   <ABSTRACT> MAT88 is an interactive computer procedure that serves            ',&
+'   <ABSTRACT> LAFF is an interactive computer procedure that serves             ',&
 '   as a convenient "laboratory" for computations involving matrices. It         ',&
 '   provides easy access to matrix software developed by the LINPACK and         ',&
 '   EISPACK projects.                                                            ',&
@@ -8313,7 +8231,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                            CONTENTS                                            ',&
 '                                                                                ',&
 '          -  Elementary operations                                              ',&
-'          -  MAT88 functions                                                    ',&
+'          -  LAFF functions                                                     ',&
 '          -  Rows, columns and submatrices                                      ',&
 '          -  "for", "while" and "if"                                            ',&
 '          -  Characters, text, files and macros                                 ',&
@@ -8330,11 +8248,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   nonsymmetric eigenvalue problems, to fairly sophisticated matrix             ',&
 '   tools such as the singular value decomposition.                              ',&
 '                                                                                ',&
-'   MAT88 is well suited for classroom use.  It should be useful in              ',&
+'   LAFF is well suited for classroom use.  It should be useful in               ',&
 '   introductory courses in applied linear algebra, as well as more              ',&
 '   advanced courses in numerical analysis, matrix theory, statistics and        ',&
 '   applications of matrices to other disciplines. In nonacademic settings,      ',&
-'   MAT88 can serve as a "desk calculator" for the quick solution of             ',&
+'   LAFF can serve as a "desk calculator" for the quick solution of              ',&
 '   small problems involving matrices.                                           ',&
 '                                                                                ',&
 '   The program is written in Fortran and is designed to be readily              ',&
@@ -8343,17 +8261,17 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   modest. There are less than 7000 lines of Fortran source code,               ',&
 '   including the LINPACK and EISPACK subroutines used.                          ',&
 '                                                                                ',&
-'   The size of the matrices that can be handled in MAT88 depends upon           ',&
+'   The size of the matrices that can be handled in LAFF depends upon            ',&
 '   the amount of storage that is set aside when the system is compiled          ',&
 '   on a particular machine.  Since most of the algorithms used access           ',&
 '   memory in a sequential fashion, a large amount of allocated storage          ',&
 '   causes little or no difficulties even when virtual memory is used.           ',&
 '                                                                                ',&
-'   In some ways, MAT88 resembles SPEAKEASY [4] and, to a lesser extent,         ',&
+'   In some ways, LAFF resembles SPEAKEASY [4] and, to a lesser extent,          ',&
 '   APL. All are interactive terminal languages that ordinarily accept           ',&
 '   single-line commands or statements, process them immediately, and print      ',&
 '   the results. All have arrays or matrices as principal data types. But        ',&
-'   for MAT88, the matrix is the only data type (although scalars, vectors       ',&
+'   for LAFF, the matrix is the only data type (although scalars, vectors        ',&
 '   and text are special cases), the underlying system is portable and           ',&
 '   requires fewer resources, and the supporting subroutines are more            ',&
 '   powerful and in some cases, have better numerical properties.                ',&
@@ -8364,42 +8282,42 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   part on Algol procedures published by Wilkinson, Reinsch and their           ',&
 '   colleagues [5]. LINPACK is a package of 40 Fortran subroutines (in           ',&
 '   each of four data types) for solving and analyzing simultaneous linear       ',&
-'   equations and related matrix problems. Since MAT88 is not primarily          ',&
+'   equations and related matrix problems. Since LAFF is not primarily           ',&
 '   concerned with either execution time efficiency or storage savings,          ',&
 '   it ignores most of the special matrix properties that LINPACK and            ',&
 '   EISPACK subroutines use to advantage. Consequently, only 8 subroutines       ',&
 '   from LINPACK and 5 from EISPACK are actually involved.                       ',&
 '                                                                                ',&
-'   In more advanced applications, MAT88 can be used in conjunction with         ',&
-'   other programs in several ways. It is possible to define new MAT88           ',&
+'   In more advanced applications, LAFF can be used in conjunction with          ',&
+'   other programs in several ways. It is possible to define new LAFF            ',&
 '   functions and add them to the system. With most operating systems,           ',&
 '   it is possible to use the local file system to pass matrices between         ',&
-'   MAT88 and other programs. MAT88 command and statement input can be           ',&
+'   LAFF and other programs. LAFF command and statement input can be             ',&
 '   obtained from a local file instead of from the terminal. The most            ',&
-'   power and flexibility is obtained by using MAT88 as a subroutine             ',&
+'   power and flexibility is obtained by using LAFF as a subroutine              ',&
 '   which is called by other programs.                                           ',&
 '                                                                                ',&
-'   This document first gives an overview of MAT88 from the user''s              ',&
+'   This document first gives an overview of LAFF from the user''s               ',&
 '   point of view. Several extended examples involving data fitting,             ',&
 '   partial differential equations, eigenvalue sensitivity and other             ',&
 '   topics are included.  The system was designed and programmed using           ',&
 '   techniques described by Wirth [6], implemented in nonrecursive,              ',&
 '   portable Fortran. There is a brief discussion of some of the matrix          ',&
 '   algorithms and of their numerical properties. A final section describes      ',&
-'   how MAT88 can be used with other programs. The appendix includes the         ',&
+'   how LAFF can be used with other programs. The appendix includes the          ',&
 '   HELP documentation available on-line.                                        ',&
 '                                                                                ',&
 '================================================================================',&
 'ELEMENTARY OPERATIONS                                                           ',&
 '                                                                                ',&
-'   MAT88 works with essentially only one kind of object, a rectangular          ',&
+'   LAFF works with essentially only one kind of object, a rectangular           ',&
 '   matrix with complex elements. If the imaginary parts of the elements         ',&
 '   are all zero, they are not printed, but they still occupy storage. In        ',&
 '   some situations, special meaning is attached to 1 by 1 matrices,             ',&
 '   that is scalars, and to 1 by n and m by 1 matrices, that is row and          ',&
 '   column vectors.                                                              ',&
 '                                                                                ',&
-'   Matrices can be introduced into MAT88 in four different                      ',&
+'   Matrices can be introduced into LAFF in four different                       ',&
 '   ways:                                                                        ',&
 '                                                                                ',&
 '           --  Explicit list of elements,                                       ',&
@@ -8422,7 +8340,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '          7.    8.   9.                                                         ',&
 '                                                                                ',&
 '   The matrix A will be saved for later use. The individual elements            ',&
-'   are separated by commas or blanks and can be any MAT88 expressions,          ',&
+'   are separated by commas or blanks and can be any LAFF expressions,           ',&
 '   for example                                                                  ',&
 '                                                                                ',&
 '      x = < -1.3, 4/5, 4*atan(1) >                                              ',&
@@ -8453,7 +8371,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      7 8 9                                                                     ',&
 '      >;                                                                        ',&
 '                                                                                ',&
-'   then the MAT88 statement exec(''xyz'') reads the matrix and assigns it       ',&
+'   then the LAFF statement exec(''xyz'') reads the matrix and assigns it        ',&
 '   to A .                                                                       ',&
 '                                                                                ',&
 '   The "for" statement allows the generation of matrices whose elements         ',&
@@ -8524,7 +8442,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Note that both upper and lower case letters are allowed for input            ',&
 '   (on those systems which have both).                                          ',&
 '                                                                                ',&
-'   There are two "matrix division" symbols in MAT88, \ and / .                  ',&
+'   There are two "matrix division" symbols in LAFF, \ and / .                   ',&
 '   (If your terminal does not have a backslash, use $ instead, or               ',&
 '   see "CHAR".) If A and B are matrices, then A\B and B/A correspond            ',&
 '   formally to left and right multiplication of B by the inverse of             ',&
@@ -8648,7 +8566,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      X = eye/A                                                                 ',&
 '                                                                                ',&
-'   is one of several ways in MAT88 to invert a matrix.                          ',&
+'   is one of several ways in LAFF to invert a matrix.                           ',&
 '                                                                                ',&
 '   "flop" provides a measure of the number of floating point operations,        ',&
 '   or "flops", required for each calculation by reporting the CPU time          ',&
@@ -8677,7 +8595,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'FUNCTIONS                                                                       ',&
 '                                                                                ',&
-'   Much of MAT88''s computational power comes from the various                  ',&
+'   Much of LAFF''s computational power comes from the various                   ',&
 '   matrix functions available. The current list includes:                       ',&
 '                                                                                ',&
 '      inv(A)          - Inverse.                                                ',&
@@ -8743,7 +8661,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   simply computes the eigenvalues and stores them in "ans".                    ',&
 '                                                                                ',&
-'   Future versions of MAT88 will probably include additional functions,         ',&
+'   Future versions of LAFF will probably include additional functions,          ',&
 '   since they can easily be added to the system.                                ',&
 '                                                                                ',&
 '================================================================================',&
@@ -8761,7 +8679,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   adds c times the k-th row of A to the i-th row.                              ',&
 '                                                                                ',&
-'   The colon is used in several other ways in MAT88, but all of the uses        ',&
+'   The colon is used in several other ways in LAFF, but all of the uses         ',&
 '   are based on the following definition.                                       ',&
 '                                                                                ',&
 '      j:k    is the same as  <j, j+1, ..., k>                                   ',&
@@ -8859,7 +8777,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'CHARACTERS AND TEXTFILES AND MACROS                                             ',&
 '                                                                                ',&
-'   MAT88 has several commands which control the output format and the           ',&
+'   LAFF has several commands which control the output format and the            ',&
 '   overall execution of the system.                                             ',&
 '                                                                                ',&
 '   The "help" command allows on-line access to short portions of text           ',&
@@ -8882,7 +8800,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   The "quit" and "exit" commands cause return to the underlying operating      ',&
 '   system through the Fortran RETURN statement.                                 ',&
 '                                                                                ',&
-'   MAT88 has a limited facility for handling text. Any string of                ',&
+'   LAFF has a limited facility for handling text. Any string of                 ',&
 '   characters delineated by quotes (with two quotes used to allow one           ',&
 '   quote within the string) is saved as a vector of integer values that         ',&
 '   are the ADE (Ascii Decimal Equivalent) value of the character.               ',&
@@ -8896,15 +8814,15 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      norm(A,''inf'')    computes the infinity norm of A .                      ',&
 '      display(T)       prints the text stored in T .                            ',&
-'      exec(''file'')     obtains MAT88 input from an external file.             ',&
+'      exec(''file'')     obtains LAFF input from an external file.              ',&
 '      save(''file'')     stores all the current variables in a file.            ',&
 '      load(''file'')     retrieves all the variables from a file.               ',&
 '      print(''file'',X)  prints X on a file.                                    ',&
-'      diary(''file'')    makes a copy of the complete MAT88 session.            ',&
+'      diary(''file'')    makes a copy of the complete LAFF session.             ',&
 '                                                                                ',&
 '   The text can also be used in a limited string substitution                   ',&
 '   macro facility. If a variable, say T, contains the source text               ',&
-'   for a MAT88 statement or expression, then the construction                   ',&
+'   for a LAFF statement or expression, then the construction                    ',&
 '                                                                                ',&
 '      > T <                                                                     ',&
 '                                                                                ',&
@@ -8923,12 +8841,12 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Some other examples are given under MACROS in the appendix. This             ',&
 '   facility is useful for fairly short statements and expressions.              ',&
-'   More complicated MAT88 "programs" should use the "exec" facility.            ',&
+'   More complicated LAFF "programs" should use the "exec" facility.             ',&
 '                                                                                ',&
 '================================================================================',&
 'NUMERICAL ALGORITHMS                                                            ',&
 '                                                                                ',&
-'   The algorithms underlying the basic MAT88 functions are described in         ',&
+'   The algorithms underlying the basic LAFF functions are described in          ',&
 '   the LINPACK and EISPACK guides [1-3]. The following list gives the           ',&
 '   subroutines used by these functions.                                         ',&
 '                                                                                ',&
@@ -8982,7 +8900,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '         det(z*eye-A) = C(1)*z**n + ... + C(n)*z + C(n+1) .                     ',&
 '                                                                                ',&
-'   The algorithm can be expressed compactly using MAT88:                        ',&
+'   The algorithm can be expressed compactly using LAFF:                         ',&
 '                                                                                ',&
 '         Z = eig(A);                                                            ',&
 '         C = 0*ones(n+1,1);  C(1) = 1;                                          ',&
@@ -9060,11 +8978,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   "rref", the reduced row echelon form, is of some interest in                 ',&
 '   theoretical linear algebra, although it has little computational             ',&
-'   value. It is included in MAT88 for pedagogical reasons. The algorithm        ',&
+'   value. It is included in LAFF for pedagogical reasons. The algorithm         ',&
 '   is essentially Gauss-Jordan elimination with detection of negligible         ',&
 '   columns applied to rectangular matrices.                                     ',&
 '                                                                                ',&
-'   There are three separate places in MAT88 where the rank of a matrix          ',&
+'   There are three separate places in LAFF where the rank of a matrix           ',&
 '   is implicitly computed: in rref(A), in A\B for non-square A, and             ',&
 '   in the pseudoinverse pinv(A). Three different algorithms with three          ',&
 '   different criteria for negligibility are used and so it is possible          ',&
@@ -9094,7 +9012,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   described by Moler and Morrison [10]. It is a cubically convergent           ',&
 '   algorithm which starts with a and b , rather than with their squares,        ',&
 '   and thereby avoids destructive arithmetic underflows and overflows. In       ',&
-'   MAT88, the algorithm is used for complex modulus, Euclidean vector           ',&
+'   LAFF, the algorithm is used for complex modulus, Euclidean vector            ',&
 '   norm, plane rotations, and the shift calculation in the eigenvalue           ',&
 '   and singular value iterations.                                               ',&
 '                                                                                ',&
@@ -9117,7 +9035,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   together with one floating point addition and the associated                 ',&
 '   indexing and storage reference operations.                                   ',&
 '                                                                                ',&
-'   MAT88 will print the CPU time required for a particular                      ',&
+'   LAFF will print the CPU time required for a particular                       ',&
 '   statement when the statement is terminated by an extra comma. For            ',&
 '   example, the line                                                            ',&
 '                                                                                ',&
@@ -9146,7 +9064,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '             1.1000                                                             ',&
 '                                                                                ',&
 '   "flop(2)" is the cumulative total of all the flops used since                ',&
-'   the beginning of the MAT88 session. The statement                            ',&
+'   the beginning of the LAFF session. The statement                             ',&
 '                                                                                ',&
 '         flop = <0 0>                                                           ',&
 '                                                                                ',&
@@ -9191,7 +9109,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   The following Fortran subprograms illustrate more details of                 ',&
 '   "flop" and "chop". The first subprogram is a simplified example of a         ',&
-'   system-dependent function used within MAT88 itself. The common variable      ',&
+'   system-dependent function used within LAFF itself. The common variable       ',&
 '   G_FLOP_COUNTER is essentially the first component of the variable            ',&
 '   FLOP. The common variable CHP is initially zero, but it is set to p          ',&
 '   by the statement "chop(p)". To shorten the DATA statement, we assume         ',&
@@ -9212,7 +9130,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         END REAL FUNCTION FLOP                                                 ',&
 '                                                                                ',&
 '   The following subroutine illustrates a typical use of the                    ',&
-'   previous function within MAT88. It is a simplified version of                ',&
+'   previous function within LAFF. It is a simplified version of                 ',&
 '   the Basic Linear Algebra Subprogram that adds a scalar multiple              ',&
 '   of one vector to another. We assume here that the vectors are                ',&
 '   stored with a memory increment of one.                                       ',&
@@ -9236,7 +9154,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   between n and 2*n flops if the vectors have nonzero imaginary                ',&
 '   components.                                                                  ',&
 '                                                                                ',&
-'   The permanent MAT88 variable "eps" is reset by the statement                 ',&
+'   The permanent LAFF variable "eps" is reset by the statement                  ',&
 '   CHOP(p). Its new value is usually the smallest inverse power of              ',&
 '   two that satisfies the Fortran logical test                                  ',&
 '                                                                                ',&
@@ -9251,7 +9169,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Our first extended example involves predicting the population of the         ',&
 '   United States in 1980 using extrapolation of various fits to the             ',&
 '   census data from 1900 through 1970. There are eight observations,            ',&
-'   so we begin with the MAT88 statement                                         ',&
+'   so we begin with the LAFF statement                                          ',&
 '                                                                                ',&
 '      n = 8                                                                     ',&
 '                                                                                ',&
@@ -9598,7 +9516,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '              sigma =  sum  (-1)   c                                            ',&
 '                       j=1          j                                           ',&
 '                                                                                ',&
-'   To use MAT88 for this problem, the following "program" is first stored       ',&
+'   To use LAFF for this problem, the following "program" is first stored        ',&
 '   in the local computer file system, say under the name "PDE".                 ',&
 '                                                                                ',&
 '      //Conductivity example.                                                   ',&
@@ -9642,7 +9560,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      //output total operation count                                            ',&
 '         ops = flop(2)                                                          ',&
 '                                                                                ',&
-'   The program can be used within MAT88 by setting the three parameters         ',&
+'   The program can be used within LAFF by setting the three parameters          ',&
 '   and then accessing the file. For example,                                    ',&
 '                                                                                ',&
 '      rho = .9;                                                                 ',&
@@ -9940,7 +9858,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'COMMUNICATING WITH OTHER PROGRAMS                                               ',&
 '                                                                                ',&
-'   There are four different ways MAT88 can be used in                           ',&
+'   There are four different ways LAFF can be used in                            ',&
 '   conjunction with other programs:                                             ',&
 '                                                                                ',&
 '         -- user,                                                               ',&
@@ -9956,10 +9874,10 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         A                                                                      ',&
 '         X = inv(A)                                                             ',&
 '                                                                                ',&
-'   The example A could be introduced into MAT88 by writing                      ',&
+'   The example A could be introduced into LAFF by writing                       ',&
 '   the following Fortran subroutine.                                            ',&
 '                                                                                ',&
-'            SUBROUTINE mat88_user(A,M,N,S,T)                                    ',&
+'            SUBROUTINE laff_user(A,M,N,S,T)                                     ',&
 '            DOUBLEPRECISION A(*),S,T                                            ',&
 '            N = int(A(1))                                                       ',&
 '            M = N                                                               ',&
@@ -9971,8 +9889,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            enddo                                                               ',&
 '            END SUBROUTINE USER                                                 ',&
 '                                                                                ',&
-'   This subroutine should be compiled and linked into MAT88 in                  ',&
-'   place of the original version of USER. Then the MAT88                        ',&
+'   This subroutine should be compiled and linked into LAFF in                   ',&
+'   place of the original version of USER. Then the LAFF                         ',&
 '   statements                                                                   ',&
 '                                                                                ',&
 '         n = 6                                                                  ',&
@@ -9986,7 +9904,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '         for i = 1:n, for j = 1:n, a(i,j) = abs(i-j);                           ',&
 '                                                                                ',&
-'   Then the MAT88 statements                                                    ',&
+'   Then the LAFF statements                                                     ',&
 '                                                                                ',&
 '         n = 6                                                                  ',&
 '         exec(''EXAMPLE'',0)                                                    ',&
@@ -10021,9 +9939,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   The FORMAT number 102 may also be system dependent. This                     ',&
 '   particular one is appropriate for hexadecimal computers with an 8            ',&
 '   byte double precision floating point word. Check, or modify,                 ',&
-'   MAT88 subroutine SAVLOD.                                                     ',&
+'   LAFF subroutine SAVLOD.                                                      ',&
 '                                                                                ',&
-'   After this program is executed, enter MAT88 and give the                     ',&
+'   After this program is executed, enter LAFF and give the                      ',&
 '   following statements:                                                        ',&
 '                                                                                ',&
 '         load(''A'')                                                            ',&
@@ -10047,31 +9965,31 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            ...                                                                 ',&
 '            ...                                                                 ',&
 '                                                                                ',&
-'   The most elaborate mechanism involves using MAT88 as a subroutine            ',&
-'   within another program. Communication with the MAT88 stack is                ',&
-'   accomplished using subroutine MATZ which is distributed with MAT88,          ',&
-'   but which is not used by MAT88 itself. The preamble of MATZ is:              ',&
+'   The most elaborate mechanism involves using LAFF as a subroutine             ',&
+'   within another program. Communication with the LAFF stack is                 ',&
+'   accomplished using subroutine MATZ which is distributed with LAFF,           ',&
+'   but which is not used by LAFF itself. The preamble of MATZ is:               ',&
 '                                                                                ',&
 '         SUBROUTINE MATZ(A,LDA,M,N,ID,JOB,IERR)                                 ',&
 '         INTEGER LDA,M,N,JOB,IERR                                               ',&
 '         character(len=*) :: id                                                 ',&
 '         DOUBLEPRECISION A(LDA,N)                                               ',&
 '                                                                                ',&
-'         ! ACCESS MAT88 VARIABLE STACK                                          ',&
+'         ! ACCESS LAFF VARIABLE STACK                                           ',&
 '         ! A IS AN M BY N MATRIX, STORED IN AN ARRAY WITH                       ',&
 '         !     LEADING DIMENSION LDA.                                           ',&
 '         ! ID IS THE NAME OF A. ID IS UP TO FOUR CHARACTERS.                    ',&
-'         ! JOB =  0  GET REAL A FROM MAT88,                                     ',&
-'         !     =  1  PUT REAL A INTO MAT88,                                     ',&
-'         !     = 10  GET IMAG PART OF A FROM MAT88,                             ',&
-'         !     = 11  PUT IMAG PART OF A INTO MAT88.                             ',&
-'         ! RETURN WITH NONZERO IERR AFTER MAT88 ERROR MESSAGE.                  ',&
+'         ! JOB =  0  GET REAL A FROM LAFF,                                      ',&
+'         !     =  1  PUT REAL A INTO LAFF,                                      ',&
+'         !     = 10  GET IMAG PART OF A FROM LAFF,                              ',&
+'         !     = 11  PUT IMAG PART OF A INTO LAFF.                              ',&
+'         ! RETURN WITH NONZERO IERR AFTER LAFF ERROR MESSAGE.                   ',&
 '         !                                                                      ',&
-'         ! USES MAT88 ROUTINES STACKG, STACKP AND ERROR                         ',&
+'         ! USES LAFF ROUTINES STACKG, STACKP AND ERROR                          ',&
 '                                                                                ',&
-'        The preamble of subroutine MAT88 is:                                    ',&
+'        The preamble of subroutine LAFF is:                                     ',&
 '                                                                                ',&
-'         SUBROUTINE MAT88(INIT)                                                 ',&
+'         SUBROUTINE LAFF(INIT)                                                  ',&
 '         ! INIT = 0 FOR FIRST ENTRY, NONZERO FOR SUBSEQUENT ENTRIES             ',&
 '                                                                                ',&
 '        To do our example, write the following program:                         ',&
@@ -10087,20 +10005,20 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            enddo                                                               ',&
 '            call MATZ(A,LDA,N,N,''A'',1,IERR)                                   ',&
 '            IF (IERR .NE. 0) GO TO ...                                          ',&
-'            call MAT88(1,'''')                                                  ',&
+'            call LAFF(1,'''')                                                   ',&
 '            call MATZ(X,LDA,N,N,''X'',0,IERR)                                   ',&
 '            IF (IERR .NE. 0) GO TO ...                                          ',&
 '            ...                                                                 ',&
 '            ...                                                                 ',&
 '                                                                                ',&
-'   When this program is executed, the call to MAT88(0) produces the             ',&
-'   MAT88 greeting, then waits for input. The command                            ',&
+'   When this program is executed, the call to LAFF(0) produces the              ',&
+'   LAFF greeting, then waits for input. The command                             ',&
 '                                                                                ',&
 '            quit                                                                ',&
 '                                                                                ',&
 '   sends control back to our example program. The matrix A is                   ',&
 '   generated by the program and sent to the stack by the first call             ',&
-'   to MATZ. The call to MAT88(1) produces the MAT88(1) prompt. Then             ',&
+'   to MATZ. The call to LAFF(1) produces the LAFF(1) prompt. Then               ',&
 '   the statements                                                               ',&
 '                                                                                ',&
 '            X = inv(A)                                                          ',&
@@ -10115,7 +10033,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'ACKNOWLEDGEMENT                                                                 ',&
 '                                                                                ',&
-'   Most of the work on MAT88 has been carried out at the University             ',&
+'   Most of the work on LAFF has been carried out at the University              ',&
 '   of New Mexico, where it is being supported by the National Science           ',&
 '   Foundation. Additional work has been done during visits to Stanford          ',&
 '   Linear Accelerator Center, Argonne National Laboratory and Los Alamos        ',&
@@ -10203,7 +10121,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       help \ , help eig                                                        ',&
 '       exec(''demo'',7)                                                         ',&
 '                                                                                ',&
-'      For more information, generate the MAT88 Users'' Guide                    ',&
+'      For more information, generate the LAFF Users'' Guide                     ',&
 '      using                                                                     ',&
 '                                                                                ',&
 '        help manual                                                             ',&
@@ -10235,7 +10153,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      Alternatively, To place all the documenation in a file, use               ',&
 '      "help manual" and enter "w help.txt" at the "continue .." prompt.         ',&
 'NEWS                                                                            ',&
-'      MAT88 is intended to be used primarily by families of FORTRAN             ',&
+'      LAFF is intended to be used primarily by families of FORTRAN              ',&
 '      programs that wish to add a consistent interactive "calculator"           ',&
 '      mode for interactively inspecting and modifying data.                     ',&
 '                                                                                ',&
@@ -10394,7 +10312,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      end of line. Any following text is ignored.                               ',&
 '                                                                                ',&
 '''     Transpose. X'' is the complex conjugate transpose of X .                 ',&
-'      Quote. ''ANY TEXT'' is a vector whose components are the MAT88            ',&
+'      Quote. ''ANY TEXT'' is a vector whose components are the LAFF             ',&
 '      internal codes for the characters. A quote within the text is             ',&
 '      indicated by two quotes. See "display" and "FILE" .                       ',&
 '                                                                                ',&
@@ -10449,7 +10367,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'MACROS                                                                          ',&
 '                                                                                ',&
 '       The macro facility involves text and inward pointing angle               ',&
-'       brackets. If "STRING" is the source text for any MAT88                   ',&
+'       brackets. If "STRING" is the source text for any LAFF                    ',&
 '       expression or statement, then                                            ',&
 '                                                                                ',&
 '             t = ''STRING'';                                                    ',&
@@ -10506,8 +10424,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'HIGH LEVEL FUNCTIONS                                                            ',&
 '                                                                                ',&
-'abs   abs(X) is the absolute value, or complex modulus, of the                  ',&
-'      elements of X .                                                           ',&
+'abs   abs(X) is the absolute value, or complex modulus,                         ',&
+'      of the elements of X .                                                    ',&
 '                                                                                ',&
 'base  base(X,B) is a vector containing the base B representation                ',&
 '      of X. This is often used in conjunction with "display".                   ',&
@@ -10599,7 +10517,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            T = diag(ones(n-1,1),1);  T = T + T'';  I = eye(T);                 ',&
 '            A = T.*.I + I.*.T - 4*eye;                                          ',&
 '                                                                                ',&
-'      Just in case they might be useful, MAT88 includes                         ',&
+'      Just in case they might be useful, LAFF includes                          ',&
 '      constructions called Kronecker tensor quotients, denoted by               ',&
 '      X ./. Y and X .\. Y . They are obtained by replacing the                  ',&
 '      element-wise multiplications in X .*. Y with divisions.                   ',&
@@ -10701,7 +10619,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      "rand(''uniform'')" switches back to the uniform distribution.            ',&
 '      "rand(''seed'')" returns the current value of the seed for the            ',&
 '      generator. "rand(''seed'',n)" sets the seed to n.                         ',&
-'      "rand(''seed'',0)" resets the seed to 0, its value when MAT88             ',&
+'      "rand(''seed'',0)" resets the seed to 0, its value when LAFF              ',&
 '      is first entered.                                                         ',&
 '                                                                                ',&
 'rank  Rank. "K = rank(X)" is the number of singular values of X                 ',&
@@ -10801,12 +10719,12 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      0 is below the main diagonal.                                             ',&
 '                                                                                ',&
 'user  Allows personal Fortran subroutines to be linked into                     ',&
-'      MAT88. The subroutine should have the heading                             ',&
+'      LAFF. The subroutine should have the heading                              ',&
 '                                                                                ',&
 '         SUBROUTINE USER(A,M,N,S,T)                                             ',&
 '         REAL or DOUBLEPRECISION A(M,N),S,T                                     ',&
 '                                                                                ',&
-'      The MAT88 statement "Y = user(X,s,t)" results in a call to the            ',&
+'      The LAFF statement "Y = user(X,s,t)" results in a call to the             ',&
 '      subroutine with a copy of the matrix X stored in the argument A,          ',&
 '      its column and row dimensions in M and N, and the scalar parameters       ',&
 '      s and t stored in S and T. If s and t are omitted, they are set           ',&
@@ -10814,7 +10732,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      N may be reset within the subroutine. The statement Y = "user(K)"         ',&
 '      results in a call with M = 1, N = 1 and A(1,1) = "float(K)". After        ',&
 '      the subroutine has been written, it must be compiled and linked           ',&
-'      to the MAT88 object code within the local operating system.               ',&
+'      to the LAFF object code within the local operating system.                ',&
 '                                                                                ',&
 'zeros                                                                           ',&
 '      Returns a matrix of all zeros.                                            ',&
@@ -10843,7 +10761,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      will lead to only the final printing of A.                                ',&
 '      Similar considerations apply to "while".                                  ',&
 '                                                                                ',&
-'      See "exit" (terminates execution of loops or of MAT88 itself).            ',&
+'      See "exit" (terminates execution of loops or of LAFF itself).             ',&
 '                                                                                ',&
 'if    Conditionally execute statements                                          ',&
 '                                                                                ',&
@@ -10917,11 +10835,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '        E                                                                       ',&
 '                                                                                ',&
 'exit  Causes termination of a "for" or "while" loop.                            ',&
-'      If not in a loop, terminates execution of MAT88.                          ',&
+'      If not in a loop, terminates execution of LAFF.                           ',&
 '      Also see "quit".                                                          ',&
 '                                                                                ',&
 'quit  From the terminal, causes return to the operating system                  ',&
-'      or other program which invoked MAT88. From inside an                      ',&
+'      or other program which invoked LAFF. From inside an                       ',&
 '      "exec", causes return to the invoking "exec", or to the                   ',&
 '      terminal.                                                                 ',&
 '================================================================================',&
@@ -10931,7 +10849,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      functions access files.  The ''file'' parameter takes different           ',&
 '      forms for different operating systems. On most systems, ''file''          ',&
 '      may be a string of up to 1024 characters in quotes. For example,          ',&
-'      "save(''A'')" or "exec(''MAT88/demo.exec'')" . The string will be used    ',&
+'      "save(''A'')" or "exec(''LAFF/demo.exec'')" . The string will be used     ',&
 '      as the name of a file in the local operating system.                      ',&
 '                                                                                ',&
 '      Check your local installation for details.  The filename must be          ',&
@@ -10939,23 +10857,26 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      Also see "quit" and "exit".                                               ',&
 '                                                                                ',&
-'delete                                                                          ',&
-'       "delete(''filename'')" deletes the given file.                           ',&
+'delete  "delete(''filename'')" deletes the given file.                          ',&
 '                                                                                ',&
-'exec  "exec(''file'',k)" obtains subsequent MAT88 input from an                 ',&
+'exec  "exec(''file'',k)" obtains subsequent LAFF input from an                  ',&
 '      external file. The printing of input is controlled by the                 ',&
 '      optional parameter k .                                                    ',&
+'                                                                                ',&
+'      Files are searched for by the given name. If not found, it is searched    ',&
+'      for in the colon-separated directory names in the environment variable    ',&
+'      LAFF_PATH.                                                                ',&
 '                                                                                ',&
 '      "include" is an alias for "exec".                                         ',&
 '                                                                                ',&
 '         If k = 0 , there is no echo, prompt or pause. This is the              ',&
 '                    default if the exec command is followed by a semicolon.     ',&
 '         If k = 1 , the input is echoed.                                        ',&
-'         If k = 2 , the MAT88 prompt <> is printed.                             ',&
+'         If k = 2 , the LAFF prompt <> is printed.                              ',&
 '         If k = 3 , there will be echos and prompts, but no pauses.             ',&
 '                    This is the the default if the exec command is not          ',&
 '                    followed by a semicolon.                                    ',&
-'         If k = 4 , MAT88 pauses before each prompt and waits for a             ',&
+'         If k = 4 , LAFF pauses before each prompt and waits for a              ',&
 '                    null line to continue.                                      ',&
 '         If k = 7 , there will be echos, prompts and pauses. This is            ',&
 '                    useful for demonstrations on video terminals.               ',&
@@ -10968,8 +10889,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      "exec"s may also be driven by "for" and "while" loops.                    ',&
 '                                                                                ',&
-'include                                                                         ',&
-'      "include" is an alias for "exec".                                         ',&
+'include  "include" is an alias for "exec".                                      ',&
 '                                                                                ',&
 'load  "load(''file'')" retrieves all the variables from the file .              ',&
 '      See FILE and "save" for more details. To prepare your own                 ',&
@@ -11001,7 +10921,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      The formats used are system dependent. The following are                  ',&
 '      typical. See SUBROUTINE mat_savlod(3f) in your local implementation       ',&
-'      of MAT88.                                                                 ',&
+'      of LAFF.                                                                  ',&
 '                                                                                ',&
 '        101 FORMAT(A32,3I4)                                                     ',&
 '        102 FORMAT(4Z18)                                                        ',&
@@ -11052,12 +10972,12 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '           display(0:10,2 )  // display values as binary numbers                ',&
 '                                                                                ',&
 '      If no base is specified and all the elements of X are integers            ',&
-'      between 0 and 255, then X is interpreted as MAT88 text and printed        ',&
+'      between 0 and 255, then X is interpreted as LAFF text and printed         ',&
 '      accordingly.                                                              ',&
 '                                                                                ',&
 '         <>display(''the analysis is complete'')                                ',&
 '           the analysis is complete                                             ',&
-'         display(32:126) // print the printable default MAT88 characters        ',&
+'         display(32:126) // print the printable default LAFF characters         ',&
 '                                                                                ',&
 '      Otherwise or if the base is one, + , - and blank are printed for          ',&
 '      positive, negative and zero elements.                                     ',&
@@ -11119,7 +11039,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 'CHAR  special issues regarding strings                                          ',&
 '                                                                                ',&
-'   MAT88 has a limited facility for handling text. Any string of                ',&
+'   LAFF has a limited facility for handling text. Any string of                 ',&
 '   characters delineated by quotes (with two quotes used to allow one           ',&
 '   quote within the string) is saved as a vector of integer values that         ',&
 '   are the ADE (Ascii Decimal Equivalent) value of the character.               ',&
@@ -11188,7 +11108,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      A command line consisting of two exclamations("!!") will cause a          ',&
 '      small line-based editor to be called (very similar to the CDC NOS         ',&
 '      editor "xedit") with a copy of the previous input lines. When the         ',&
-'      editor returns control to MAT88, it will execute the edited command       ',&
+'      editor returns control to LAFF, it will execute the edited command        ',&
 '      (by default).                                                             ',&
 '                                                                                ',&
 '      In editor mode the command to be edited is shifted over one and the       ',&
@@ -11234,7 +11154,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      values may be assigned. "eps" is used as a default tolerance by "pinv"    ',&
 '      and "rank".                                                               ',&
 '                                                                                ',&
-'lala  A placeholder for a new command.                                          ',&
+'laff  A placeholder for a new command.                                          ',&
 '                                                                                ',&
 'debug  "debu(1)" turns on verbose low-level debugging for the developer,        ',&
 '       "debu(0)" turns it back off.                                             ',&
@@ -11242,6 +11162,32 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 '']
 end subroutine mat_help_text
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+function find_exec_file(filename) result(returned)
+! look for file. If not found look for file.la. If not found, repeat using directories in MATRIX_PATH=DIR1:DIR2:DIR3...
+character(len=:),allocatable,intent(in) :: filename
+character(len=:),allocatable            :: returned
+   if(exists(filename))then
+      returned=filename
+   elseif(exists(trim(filename)//'.la'))then
+      returned=filename//'.la'
+   else
+      returned=lookfor(filename,'LAFF_PATH')
+      if(returned.eq.'')then
+         returned=lookfor(filename//'.la','LAFF_PATH')
+      endif
+      if(returned.eq.'')returned=filename
+   endif
+end function find_exec_file
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+logical function exists(filename) result(r)
+character(len=*), intent(in) :: filename
+    inquire(file=filename, exist=r)
+end function
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================

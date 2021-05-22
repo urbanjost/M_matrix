@@ -2,7 +2,7 @@
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 program bigmat
-use M_matrix, only  : mat88
+use M_matrix, only  : laff
 use M_CLI2, only : set_args, lget, sget, iget, expressions=>unnamed          ! add command-line parser module
 implicit none
 character(len=:),allocatable :: help_text(:)
@@ -15,11 +15,11 @@ logical                      :: markdown
    call set_args('mat --markdown F -noecho F',help_text,version_text )
    echo=.not.lget('noecho')
    if(size(expressions).eq.0)then
-      call mat88(echo=echo)                           ! CALL MAT88 interactively with default scratch space
+      call laff(echo=echo)                           ! CALL LAFF interactively with default scratch space
    else
-      call mat88(200000,echo=echo)                    ! CALL MAT88 to initialize it and set scratch space size
+      call laff(200000,echo=echo)                    ! CALL LAFF to initialize it and set scratch space size
       do i=1,size(expressions)
-         call mat88(expressions(i))                   ! CALL MAT88
+         call laff(expressions(i))                   ! CALL LAFF
       enddo
    endif
    stop
@@ -65,9 +65,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   An explanation of Example 1:                                                 ',&
 '                                                                                ',&
-'    // For this session the <> character is the MAT88 prompt.                   ',&
+'    // For this session the <> character is the LAFF prompt.                   ',&
 '     <> A=<1 2 3;5 4 6;7 8 9>            <---  you enter this                   ',&
-'     A     =                             <---  MAT88 response                   ',&
+'     A     =                             <---  LAFF response                   ',&
 '         1.    2.    3.                                                         ',&
 '         5.    4.    6.                                                         ',&
 '         7.    8.    9.                                                         ',&
@@ -79,22 +79,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '     <> A*b             <--- you enter "multiply A and b"                       ',&
 '                                                                                ',&
-'     ANS   =            <--- MAT88 response                                     ',&
+'     ANS   =            <--- LAFF response                                     ',&
 '        38.                                                                     ',&
 '        91.                                                                     ',&
 '       146.                                                                     ',&
 '                                                                                ',&
 '     <> b*A             <---you enter "multiply b and A"                        ',&
-'        /--ERROR                         <--- MAT88 response                    ',&
+'        /--ERROR                         <--- LAFF response                    ',&
 '     INCOMPATIBLE FOR MULTIPLICATION                                            ',&
 '                                                                                ',&
 '     <> det(A)         <--- Take the determinant of A                           ',&
 '                                                                                ',&
-'     ANS   =           <---MAT88 response                                       ',&
+'     ANS   =           <---LAFF response                                       ',&
 '                                                                                ',&
 '        18.                                                                     ',&
 '                                                                                ',&
-'     <> quit           <--- you quit MAT88                                      ',&
+'     <> quit           <--- you quit LAFF                                      ',&
 '                                                                                ',&
 '     total flops        34                                                      ',&
 '     ADIOS                                                                      ',&
@@ -129,14 +129,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Use the HELP command for further information.                                ',&
 '   For example, to enter HELP on the entire manual,                             ',&
 '   display directions for using HELP and                                        ',&
-'   place a User manual in the file "mat88.txt",                                 ',&
+'   place a User manual in the file "laff.txt",                                 ',&
 '   enter                                                                        ',&
 '                                                                                ',&
 '    mat                                                                         ',&
 '    <>help manual                                                               ',&
 '    continue ...                                                                ',&
 '    h // show directions for using "help"                                       ',&
-'    w mat88.txt                                                                 ',&
+'    w laff.txt                                                                 ',&
 '    continue ...                                                                ',&
 '    q                                                                           ',&
 '    quit                                                                        ',&
@@ -183,9 +183,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!
 !!    An explanation of Example 1:
 !!
-!!     // For this session the <> character is the MAT88 prompt.
+!!     // For this session the <> character is the LAFF prompt.
 !!      <> A=<1 2 3;5 4 6;7 8 9>            <---  you enter this
-!!      A     =                             <---  MAT88 response
+!!      A     =                             <---  LAFF response
 !!          1.    2.    3.
 !!          5.    4.    6.
 !!          7.    8.    9.
@@ -197,22 +197,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!
 !!      <> A*b             <--- you enter "multiply A and b"
 !!
-!!      ANS   =            <--- MAT88 response
+!!      ANS   =            <--- LAFF response
 !!         38.
 !!         91.
 !!        146.
 !!
 !!      <> b*A             <---you enter "multiply b and A"
-!!         /--ERROR                         <--- MAT88 response
+!!         /--ERROR                         <--- LAFF response
 !!      INCOMPATIBLE FOR MULTIPLICATION
 !!
 !!      <> det(A)         <--- Take the determinant of A
 !!
-!!      ANS   =           <---MAT88 response
+!!      ANS   =           <---LAFF response
 !!
 !!         18.
 !!
-!!      <> quit           <--- you quit MAT88
+!!      <> quit           <--- you quit LAFF
 !!
 !!      total flops        34
 !!      ADIOS
@@ -247,14 +247,14 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!    Use the HELP command for further information.
 !!    For example, to enter HELP on the entire manual,
 !!    display directions for using HELP and
-!!    place a User manual in the file "mat88.txt",
+!!    place a User manual in the file "laff.txt",
 !!    enter
 !!
 !!     mat
 !!     <>help manual
 !!     continue ...
 !!     h // show directions for using "help"
-!!     w mat88.txt
+!!     w laff.txt
 !!     continue ...
 !!     q
 !!     quit

@@ -1,9 +1,0 @@
-rand(3,2)
-# ans   =
-#    0.3322    0.4369
-#    0.5935    0.2693
-#    0.5015    0.6326
-rand('uniform')
-rand('seed')
-rand('normal')
-quit

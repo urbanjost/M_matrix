@@ -1,16 +1,16 @@
 program test_1
-use M_matrix, only : mat88, get_from_mat88, put_into_mat88
+use M_matrix, only : laff, get_from_laff, put_into_laff
 implicit none
 integer,parameter :: lda=10
 integer           :: m,n, i,j, ierr
 doubleprecision   :: arr(lda,lda),x(lda,lda)
 logical           :: logs=.false.
    !!logs=.true.
-   !!call mat88(2000,echo=.true.)
-   call mat88( "display(ones(80,1)'*46)")
-   call mat88( 'display("test_1");clear;')
-   if(logs)call mat88( 'diary("test_1.log");')
-   call mat88( [ character(len=256) :: &
+   !!call laff(2000,echo=.true.)
+   call laff( "display(ones(80,1)'*46)")
+   call laff( 'display("test_1");clear;')
+   if(logs)call laff( 'diary("test_1.log");')
+   call laff( [ character(len=256) :: &
 '// -----------------------------------------------------------------            ',&
 'titles=["GNP deflator"                                                          ',&
 '        "GNP         "                                                          ',&

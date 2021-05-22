@@ -45,7 +45,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 <div id="Container">
 <div id="Content">
 <CENTER>
-<H1><HR><I>Manual Reference Pages &nbsp;-&nbsp;</I><NOBR>mat88 (3m_matrix)</NOBR><HR></H1>
+<H1><HR><I>Manual Reference Pages &nbsp;-&nbsp;</I><NOBR>laff (3m_matrix)</NOBR><HR></H1>
 </CENTER>
 <A name=0>
 
@@ -53,7 +53,7 @@ a.existingWikiWord[title]{ //border: 1px dashed #BBB; }
 
 </A>
 <BLOCKQUOTE>
-<B>MAT88</B>(3f) - [M_matrix] initialize and/or pass commands to matrix
+<B>LAFF</B>(3f) - [M_matrix] initialize and/or pass commands to matrix
 laboratory interpreter
 <B>LICENSE</B>(MIT)
 </BLOCKQUOTE>
@@ -71,7 +71,7 @@ laboratory interpreter
 </A>
 <BLOCKQUOTE>
 <P>
-<B>subroutine</B> <B>MAT88</B>(init,cmd)
+<B>subroutine</B> <B>LAFF</B>(init,cmd)
 <P>
 <PRE>
    integer,intent(in),optional :: init
@@ -87,27 +87,27 @@ laboratory interpreter
 
 </A>
 <BLOCKQUOTE>
-<B>MAT88</B>(3f) is modeled on <B>MATLAB</B>(3f) (MATrix LABoratory), a FORTRAN
+<B>LAFF</B>(3f) is modeled on <B>MATLAB</B>(3f) (MATrix LABoratory), a FORTRAN
 package developed by Argonne National Laboratories for in-house use.
 It provides comprehensive vector and tensor operations in a package
 which may be programmed, either through a macro language or through
 execution of script files.
 <P>
-<B>MAT88</B>(3f) Functions supported include (but are not by any means limited
+<B>LAFF</B>(3f) Functions supported include (but are not by any means limited
 to) sin, cos, tan, arcfunctions, upper triangular, lower triangular,
 determinants, matrix multiplication, identity, Hilbert matrices,
 eigenvalues and eigenvectors, matrix roots and products, inversion
 and so on and so forth.
 <P>
-<B>MAT88</B>() can be used
+<B>LAFF</B>() can be used
 <BLOCKQUOTE>
-<TABLE cellpadding=3><!-- tsb: <B>MAT88</B>() can be used
+<TABLE cellpadding=3><!-- tsb: <B>LAFF</B>() can be used
  -->
 <TR></TR><TR></TR>
 <TR valign=top><TD width=3%>
 o
 </TD><TD>
-as a stand-alone utility for working with <B>mat88</B>() files and
+as a stand-alone utility for working with <B>laff</B>() files and
 for basic computations.
 </TD></TR>
 <TR valign=top><TD width=3%>
@@ -146,11 +146,11 @@ The HELP command describes using the interpreter.
 <TR valign=top><TD width=6% nowrap>
 <B>INIT</B> </TD><TD valign=bottom>
 indicate size of scratch space to allocate and (re)initialize
-MAT88.
+LAFF.
 </TD></TR>
 <TR valign=top><TD width=6% nowrap>
 <B>CMD</B> </TD><TD valign=bottom>
-MAT88 <B>command</B>(s) to perform. May be CHARACTER scalar or vector
+LAFF <B>command</B>(s) to perform. May be CHARACTER scalar or vector
 </TD></TR>
 <TR></TR></TABLE>INIT and CMD cannot be combined on a single call.
 <P>
@@ -159,7 +159,7 @@ doubleprecision complex values to allocate for the combined scratch
 and variable storage area. This form may be repeated and reinitializes
 the utility at each call. A size of zero will deallocate any allocated
 storage (after which the routine cannot be called with commands until
-reallocated by another call to <B>mat88</B>()).
+reallocated by another call to <B>laff</B>()).
 <P>
 If no parameters are supplied interactive mode is entered.
 <P>
@@ -176,38 +176,38 @@ scratch space will be allocated to 200000.
 Sample program
 <P>
 <PRE>
-      program demo_MAT88
-      use M_matrix, only : mat88
+      program demo_LAFF
+      use M_matrix, only : laff
 <P>
          write(*,&#146;(a)&#146;)&#146;optionally initialize scratch area size&#146;
-         call MAT88(20000)
+         call LAFF(20000)
 <P>
          write(*,&#146;(a)&#146;)&#146;do some commands&#146;
-         call MAT88([character(len=80) :: &
+         call LAFF([character(len=80) :: &
          & &#146;semi;                         &#146;,&
          & &#146;a=magic(4),b=-a               &#146;,&
          & &#146;a+b;a;b                       &#146;,&
          & &#146;display("That is all Folks!") &#146;])
 <P>
          write(*,&#146;(a)&#146;)&#146;do a single command&#146;
-         call MAT88(&#146;who&#146;)
+         call LAFF(&#146;who&#146;)
 <P>
          write(*,&#146;(a)&#146;)&#146;enter interactive mode&#146;
-         call MAT88()
+         call LAFF()
 <P>
          write(*,&#146;(a)&#146;)&#146;ending program&#146;
 </PRE>
-end program demo_MAT88
+end program demo_LAFF
 <P>
 Example 2:
 <P>
 <PRE>
    program bigmat
-   use M_matrix, only : mat88
-      ! pass strings to MAT88 but do not enter interactive mode
-      call mat88(20000)                  ! initialize silently
-      call mat88( &#146;a=[1 2 3 4; 5 6 7 8]&#146;)
-      call mat88( [character(len=80) :: &
+   use M_matrix, only : laff
+      ! pass strings to LAFF but do not enter interactive mode
+      call laff(20000)                  ! initialize silently
+      call laff( &#146;a=[1 2 3 4; 5 6 7 8]&#146;)
+      call laff( [character(len=80) :: &
        & &#146;semi;lines(999999)                                    &#146;,&
        & &#146;// create a magic square and add 100 to all the values&#146;,&
        & &#146;A=magic(4),&lt;X,Y&gt;=size(A)                              &#146;,&
@@ -226,20 +226,20 @@ Sample program with custom user function
 <P>
 <PRE>
       program sample_user
-      use M_matrix, only : mat88
-         call MAT88(20000)
-         call MAT88(&#146; &#146;)
+      use M_matrix, only : laff
+         call LAFF(20000)
+         call LAFF(&#146; &#146;)
       end program
 <P>
       !-------------------------------------------------------------
-      SUBROUTINE mat88_user(A,M,N,S,T)  ! sample mat88_user routine
+      SUBROUTINE laff_user(A,M,N,S,T)  ! sample laff_user routine
       ! Allows personal  Fortran  subroutines  to  be  linked  into
-      ! MAT88. The subroutine should have the heading
+      ! LAFF. The subroutine should have the heading
       !
-      !               SUBROUTINE mat88_user(A,M,N,S,T)
+      !               SUBROUTINE laff_user(A,M,N,S,T)
       !               DOUBLEPRECISION A(M,N),S,T
       !
-      ! The MAT88 statement Y = USER(X,s,t) results in a call to
+      ! The LAFF statement Y = USER(X,s,t) results in a call to
       ! the subroutine with a copy of the matrix X stored in the
       ! argument A, its column and row dimensions in M and N,
       ! and the scalar parameters S and T stored in S and T.
@@ -248,7 +248,7 @@ Sample program with custom user function
       ! N may be reset within the subroutine. The statement Y =
       ! USER(K) results in a call with M = 1, N = 1 and A(1,1) =
       ! FLOAT(K). After the subroutine has been written, it must
-      ! be compiled and linked to the MAT88 object code within the
+      ! be compiled and linked to the LAFF object code within the
       ! local operating system.
       !
       integer M,N
@@ -271,7 +271,7 @@ Sample program with custom user function
             enddo
          enddo
       endif
-      END SUBROUTINE mat88_user
+      END SUBROUTINE laff_user
 <P>
       ! end program sample_user
 <P>
@@ -1011,8 +1011,8 @@ w5 = [
 <TR></TR></TABLE></TD></TR>
 <TR></TR></TABLE></BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>mat88 (3m_matrix)</TD> <TD align=right width=33%><I>May 20, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from ebdbe9c9-0f33-48f5-b7a4-8b3aa9dbbd5e using man macros.</FONT>
-<br><br><center><img src="images/mat88.gif"></center>
+<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>laff (3m_matrix)</TD> <TD align=right width=33%><I>May 21, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from 88bec78c-0fff-429a-916d-72a118276c3d using man macros.</FONT>
+<br><br><center><img src="images/laff.gif"></center>
 </div>
 </div>
 </body>
