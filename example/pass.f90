@@ -1,5 +1,5 @@
 program try_matz
-use M_matrix, only : laff, get_from_laff, put_into_laff, ifexists_laff
+use M_matrix, only : laff, get_from_laff, put_into_laff, ifin_laff
 implicit none
 integer,parameter             :: lda=10
 integer                       :: m,n, i,j, ierr
@@ -21,13 +21,13 @@ doubleprecision,allocatable   :: scalar
     & 'c=3**3;', &
     & 'FRED=3**3;', &
     & '']) 
-    write(*,*)'a',ifexists_laff('a')
-    write(*,*)'b',ifexists_laff('b')
-    write(*,*)'c',ifexists_laff('c')
-    write(*,*)'d',ifexists_laff('d')
+    write(*,*)'a',ifin_laff('a')
+    write(*,*)'b',ifin_laff('b')
+    write(*,*)'c',ifin_laff('c')
+    write(*,*)'d',ifin_laff('d')
     write(*,*)'reallylongname_reallylongname_really_long_name_really_longname', &
-    & ifexists_laff('reallylongname_reallylongname_really_long_name_really_longname')
-    write(*,*)'///',ifexists_laff('///')
+    & ifin_laff('reallylongname_reallylongname_really_long_name_really_longname')
+    write(*,*)'///',ifin_laff('///')
 
    RUN: block
        ! put some values from the program into laff

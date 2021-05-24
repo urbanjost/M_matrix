@@ -1,10 +1,10 @@
 program config_file
-use M_matrix, only : laff, get_from_laff, put_into_laff, ifexists_laff
+use M_matrix, only : laff, get_from_laff, put_into_laff, ifin_laff
 ! create contents for a test file
 character(len=*),parameter:: sample(*)=[character(len=80) :: &
 "// my data definition file                                         ", &
 "                                                                   ", &
-"title='this is my title';                                          ", &
+"title='this is my title from the file';                            ", &
 "                                                                   ", &
 "A=[1 2 3; 4 5 6; 7 8 9];                                           ", &
 "                                                                   ", &
@@ -42,14 +42,21 @@ integer :: ierr
    write(lun,'(a)')sample
    close(lun)
 
-   ! read the test file
-   !WORKS!call laff( 'title="set the title with a command";')
-   call put_into_laff('title','from a put',ierr=ierr)
+
+   ! preset a LAFF variable using a command
+   call laff( 'title2="set with a command";')
+   ! preset a LAFF variable using a PUT
+   call put_into_laff('set with a PUT','from a put',ierr=ierr)
    write(*,*)'IERR=',ierr
-   !call laff( 'exec("scr_test2.mat");')
+
+   ! load file. Note the "return" is currently required
+   call laff(" exec('scr_test2.mat');return;")
+
    ! get some data now set in laff()
    call get_from_laff('title',mytitle,ierr=ierr)
    write(*,*)'In program title is now ['//trim(mytitle)//']'
+
+   ! interactively enter LAFF
    call laff()
 
    open(file='scr_test2.mat',newunit=lun)

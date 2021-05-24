@@ -115,8 +115,8 @@ system as a command line.
 ### :green_circle: ADD:
 initial commit
 
-The "." command enters command recall/edit mode. Enter "?" at the prompt
-after entering "." for help.
+The "??" command enters command recall/edit mode. Enter "?" at the prompt
+after entering "??" for help.
 <!-- ======================================================================== -->
 ---
 **????-??-??**  John S. Urban  <https://github.com/urbanjost>

@@ -1,10 +1,25 @@
 # M_matrix
 
-This module allows you to interact with a Fortran program using Matlab
-or Octave-like commands. This allows you to add code to your Fortran
-program that you can use to optionally inspect data during development
-and debugging and to create configuration and data files that resemble
-Fortran syntax. It is a WIP (Work In Progress) but is already useful.
+This module contains the laff(3f) procedure, which allows for interacting
+with a Fortran program using Matlab or Octave-like commands.  It is also
+usable as a simple one-line language.  It is a WIP (Work In Progress)
+but is already useful.
+
+  + You can pass intrinsic-type data between your program and the utility.
+  + blocks of commands may be passed to laff(3f).
+  + external files containing laff(3f) commands may be read.
+  + you can create a journal of the commands used and replay them.
+  + there is a built-in command history utility that lets you recall,
+    edit, and save your command history.
+  + a built-in help utility describes the many matrix and math functions
+    available.
+
+  - user-added routines to do work at this point
+
+All together, this allows laff(3f) to be used for self-describing
+configuration and data files, inspecting data in existing programs,
+transferring small amounts of data between programs or assisting in
+debugging and development, unit testing and macro-level timing.
 
 A stand-alone program is included that lets you use it as a calculator
 and to test and create input files as well.
@@ -17,11 +32,11 @@ Perhaps it could be useful for creating a testing framework for Linear
 Algebra libraries and other routines in the growing Fortran stdlib effort
 or `fpm` packages as well.
 
-Any feedback would be appreciated. How important is it to be compatible
-with Matlab or Octave or Fortran? Does this appear useful for creating
-configuration files, input files, inspecting data in existing programs,
-transferring data between programs or providing for unit testing and
-macro timing and debugging?
+Any feedback would be appreciated. 
+
+ + How important is it to be compatible with Matlab or Octave or Fortran? 
+ + would a pure functional version be preferred?
+ + would dynamic loading of external routines be an important addition?
 
 I do not plan on extending this to allow for creating functions at this
 point, which would be required to turn it into a more powerful program,
@@ -30,6 +45,50 @@ and using modern Fortran features to make it more maintainable.
 
 My primary interest is in making it into a tool for interacting with
 Fortran programs.
+```fortran
+    program demo_laff
+    use M_matrix, only : laff, put_into_laff, get_from_laff, ifin_laff
+    !real,allocatable             :: r
+    !complex,allocatable          :: cvec(:)
+    integer,allocatable          :: iarr(:,:)
+    character(len=:),allocatable :: t(:)
+    integer                      :: ierr
+
+    ! store some data into laff(3)
+    call put_into_laff('A',[1,2,3,4,5]*10.5,ierr)
+    write(*,*)'is A defined in LAFF?',ifin_laff('A')
+    call laff('A/2.0')
+ 
+    ! pass some commands to laff(3f)
+    call laff([character(len=80) :: &
+    &'PI=atan(1)*4               ', &
+    &'mytitle="this is my title";', &
+    &'littlearray=<              ', &
+    &'   1 2 3;                  ', &
+    &'   4 5 6;                  ', &
+    &'   7 8 9;                  ', &
+    &'>                          ', &
+    &'S=sum(A)                   ', &
+    &'I=inv(littlearray);        ', &
+    &'B=littlearray*sin(PI/3)    ', &
+    &'save("keepB",B)            ', &
+    &''])
+
+    ! read a file containing laff(3f) commands
+    call laff('exec("mycommands")')
+
+    ! interactively interact with laff(3f) interpreter
+    call laff() 
+
+    call get_from_laff('littlearray',iarr,ierr)
+    write(*,'(a)')'IN CALLING PROGRAM IARR='
+    write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
+
+    call get_from_laff('mytitle',t,ierr)
+    write(*,*)'IN CALLING PROGRAM T=',t
+
+    end program demo_laff
+```
 
 Installation requires fpm(1):
 
@@ -52,11 +111,12 @@ the fpm.toml project file.
 
 ##DOCUMENTATION
 
+ - call laff(3f) interactively and enter "help manual" to browse the entire user manual
+
  - An [index](https://urbanjost.github.io/M_strings/man3.html) to HTML versions
    of the manpages included in the distribution.
 ---
 [CHANGELOG](CHANGELOG.md)
----
 ---
 
 ### Example input files:
@@ -195,45 +255,45 @@ the fpm.toml project file.
 #### net
 ```text
             C = <
-            1 2 15 . . .
-            2 1 3 . . .
-            3 2 4 11 . .
-            4 3 5 . . .
-            5 4 6 7 . .
-            6 5 8 . . .
-            7 5 9 30 . .
-            8 6 9 10 11 .
-            9 7 8 30 . .
-            10 8 12 30 31 34
-            11 3 8 12 13 .
-            12 10 11 34 36 .
-            13 11 14 . . .
-            14 13 15 16 38 .
-            15 1 14 . . .
-            16 14 17 20 35 37
-            17 16 18 . . .
-            18 17 19 . . .
-            19 18 20 . . .
-            20 16 19 21 . .
-            21 20 22 . . .
-            22 21 23 . . .
-            23 22 24 35 . .
-            24 23 25 39 . .
-            25 24 . . . .
-            26 27 33 39 . .
-            27 26 32 . . .
-            28 29 32 . . .
-            29 28 30 . . .
-            30 7 9 10 29 .
-            31 10 32 . . .
-            32 27 28 31 34 .
-            33 26 34 . . .
-            34 10 12 32 33 35
-            35 16 23 34 36 .
-            36 12 35 38 . .
-            37 16 38 . . .
-            38 14 36 37 . .
-            39 24 26 . . .
+            1   2   15  .   .   .
+            2   1   3   .   .   .
+            3   2   4   11  .   .
+            4   3   5   .   .   .
+            5   4   6   7   .   .
+            6   5   8   .   .   .
+            7   5   9   30  .   .
+            8   6   9   10  11  .
+            9   7   8   30  .   .
+            10  8   12  30  31  34
+            11  3   8   12  13  .
+            12  10  11  34  36  .
+            13  11  14  .   .   .
+            14  13  15  16  38  .
+            15  1   14  .   .   .
+            16  14  17  20  35  37
+            17  16  18  .   .   .
+            18  17  19  .   .   .
+            19  18  20  .   .   .
+            20  16  19  21  .   .
+            21  20  22  .   .   .
+            22  21  23  .   .   .
+            23  22  24  35  .   .
+            24  23  25  39  .   .
+            25  24  .   .   .   .
+            26  27  33  39  .   .
+            27  26  32  .   .   .
+            28  29  32  .   .   .
+            29  28  30  .   .   .
+            30  7   9   10  29  .
+            31  10  32  .   .   .
+            32  27  28  31  34  .
+            33  26  34  .   .   .
+            34  10  12  32  33  35
+            35  16  23  34  36  .
+            36  12  35  38  .   .
+            37  16  38  .   .   .
+            38  14  36  37  .   .
+            39  24  26  .   .   .
             >;
             <n, m> = size(C);
             A = 0*ones(n,n);

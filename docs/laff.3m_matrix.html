@@ -71,13 +71,13 @@ laboratory interpreter
 </A>
 <BLOCKQUOTE>
 <P>
-<B>subroutine</B> <B>LAFF</B>(init,cmd)
+<B>subroutine</B> <B>laff</B>(init,cmd)
 <P>
 <PRE>
-   integer,intent(in),optional :: init
-   character(len=*),intent(in),optional :: cmd
-      or
-   character(len=*),intent(in),optional :: cmd(:)
+     integer,intent(in),optional :: init
+     character(len=*),intent(in),optional :: cmd
+        or
+     character(len=*),intent(in),optional :: cmd(:)
 <P>
 </PRE>
 </BLOCKQUOTE>
@@ -213,12 +213,12 @@ Example 2:
        & &#146;A=magic(4),&lt;X,Y&gt;=size(A)                              &#146;,&
        & &#146;B=A+ones(X,Y)*100                                     &#146;,&
        & &#146;// save all current values to a file                  &#146;,&
-       & &#146;save("sample.mat")                                    &#146;,&
+       & &#146;save("sample.laf")                                    &#146;,&
        & &#146;// clear all user values                              &#146;,&
        & &#146;clear                                                 &#146;,&
        & &#146;// show variable names, load values from file         &#146;,&
        & &#146;// and show again to show the variables are restored  &#146;,&
-       & &#146;who;load("sample.mat");who                            &#146;])
+       & &#146;who;load("sample.laf");who                            &#146;])
    end program bigmat
 <P>
 </PRE>
@@ -251,8 +251,8 @@ Sample program with custom user function
       ! be compiled and linked to the LAFF object code within the
       ! local operating system.
       !
-      integer M,N
-      DOUBLEPRECISION A(M,N),S,T
+      integer m,n
+      doubleprecision a(m,n),s,t
       !
       if(s.eq.0.and.t.eq.0)then
          ! print statistics for matrix, for example
@@ -261,17 +261,17 @@ Sample program with custom user function
          write(*,*)&#146;s=&#146;,s
          write(*,*)&#146;t=&#146;,t
 <P>
-         DO i10 = 1, M
+         do i10 = 1, m
             write(*,*)(a(i10,i20),i20=1,n)
          enddo
       else  ! a(i,j)=a(i,j)*s+t  in a linear fashion
-         DO i30 = 1, M
-            DO i40 = 1, N
-               a(i30,i40)=a(i30,i40)*S+T
+         do i30 = 1, m
+            do i40 = 1, n
+               a(i30,i40)=a(i30,i40)*s+t
             enddo
          enddo
       endif
-      END SUBROUTINE laff_user
+      end subroutine laff_user
 <P>
       ! end program sample_user
 <P>
@@ -280,738 +280,466 @@ Sample program with custom user function
 Example inputs
 <P>
 <PRE>
-    :avg:
+     &gt;:avg:
 <P>
-    for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; &#46;&#46;&#46;
-    a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
+     &gt;for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; &#46;&#46;&#46;
+     &gt;a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
 <P>
-    :cdiv:
+     &gt;:cdiv:
 <P>
-    // ======================================================
-    // cdiv
-    a=sqrt(random(8))
-    ar = real(a); ai = imag(a); br = real(b); bi = imag(b);
-    p = bi/br;
-    t = (ai - p*ar)/(br + p*bi);
-    cr = p*t + ar/br;
-    ci = t;
-    p2 = br/bi;
-    t2 = (ai + p2*ar)/(bi + p2*br);
-    ci2 = p2*t2 - ar/bi;
-    cr2 = t2;
-    s = abs(br) + abs(bi);
-    ars = ar/s;
-    ais = ai/s;
-    brs = br/s;
-    bis = bi/s;
-    s = brs**2 + bis**2;
-    cr3 = (ars*brs + ais*bis)/s;
-    ci3 = (ais*brs - ars*bis)/s;
-    [cr ci; cr2 ci2; cr3 ci3]
-    // ======================================================
+     &gt;// ======================================================
+     &gt;// cdiv
+     &gt;a=sqrt(random(8))
+     &gt;ar = real(a); ai = imag(a); br = real(b); bi = imag(b);
+     &gt;p = bi/br;
+     &gt;t = (ai - p*ar)/(br + p*bi);
+     &gt;cr = p*t + ar/br;
+     &gt;ci = t;
+     &gt;p2 = br/bi;
+     &gt;t2 = (ai + p2*ar)/(bi + p2*br);
+     &gt;ci2 = p2*t2 - ar/bi;
+     &gt;cr2 = t2;
+     &gt;s = abs(br) + abs(bi);
+     &gt;ars = ar/s;
+     &gt;ais = ai/s;
+     &gt;brs = br/s;
+     &gt;bis = bi/s;
+     &gt;s = brs**2 + bis**2;
+     &gt;cr3 = (ars*brs + ais*bis)/s;
+     &gt;ci3 = (ais*brs - ars*bis)/s;
+     &gt;[cr ci; cr2 ci2; cr3 ci3]
+     &gt;// ======================================================
 <P>
-    :exp:
+     &gt;:exp:
 <P>
-    t = 0*x + eye; s = 0*eye(x); n = 1;
-    while abs(s+t-s) &gt; 0, s = s+t, t = x*t/n, n = n + 1
+     &gt;t = 0*x + eye; s = 0*eye(x); n = 1;
+     &gt;while abs(s+t-s) &gt; 0, s = s+t, t = x*t/n, n = n + 1
 <P>
-    :four:
-     n
-     pi = 4*atan(1);
-     i = sqrt(-1);
-     w = exp(2*pi*i/n);
-     F = [];
-     for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
-     F = F/sqrt(n);
-     alpha = r*pi;
-     rho = exp(i*alpha);
-     S = log(rho*F)/i - alpha*eye;
-     serr = norm(imag(S),1);
-     S = real(S);
-     serr = serr + norm(S-S&#146;,1)
-     S = (S + S&#146;)/2;
-     ferr = norm(F-exp(i*S),1)
+     &gt;:four:
+     &gt; n
+     &gt; pi = 4*atan(1);
+     &gt; i = sqrt(-1);
+     &gt; w = exp(2*pi*i/n);
+     &gt; F = [];
+     &gt; for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
+     &gt; F = F/sqrt(n);
+     &gt; alpha = r*pi;
+     &gt; rho = exp(i*alpha);
+     &gt; S = log(rho*F)/i - alpha*eye;
+     &gt; serr = norm(imag(S),1);
+     &gt; S = real(S);
+     &gt; serr = serr + norm(S-S&#146;,1)
+     &gt; S = (S + S&#146;)/2;
+     &gt; ferr = norm(F-exp(i*S),1)
 <P>
-     :gs:
-     for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)&#146;; x(k,:) = x(k,:) - d*x(j,:); &#46;&#46;&#46;
-     end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;
+     &gt; :gs:
+     &gt; for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)&#146;; x(k,:) = x(k,:) - d*x(j,:); &#46;&#46;&#46;
+     &gt; end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;
 <P>
-     :jacobi:
-     [n, n] = size(A);
-     X = eye(n);
-     anorm = norm(A,&#146;fro&#146;);
-     cnt = 1;
-     while cnt &gt; 0, &#46;&#46;&#46;
-       cnt = 0; &#46;&#46;&#46;
-       for p = 1:n-1, &#46;&#46;&#46;
-         for q = p+1:n, &#46;&#46;&#46;
-           if anorm + abs(a(p,q)) &gt; anorm, &#46;&#46;&#46;
-             cnt = cnt + 1; &#46;&#46;&#46;
-             exec(&#146;jacstep&#146;); &#46;&#46;&#46;
-           end, &#46;&#46;&#46;
-         end, &#46;&#46;&#46;
-       end, &#46;&#46;&#46;
-       display(rat(A)), &#46;&#46;&#46;
-     end
+     &gt; :jacobi:
+     &gt; [n, n] = size(A);
+     &gt; X = eye(n);
+     &gt; anorm = norm(A,&#146;fro&#146;);
+     &gt; cnt = 1;
+     &gt; while cnt &gt; 0, &#46;&#46;&#46;
+     &gt;   cnt = 0; &#46;&#46;&#46;
+     &gt;   for p = 1:n-1, &#46;&#46;&#46;
+     &gt;     for q = p+1:n, &#46;&#46;&#46;
+     &gt;       if anorm + abs(a(p,q)) &gt; anorm, &#46;&#46;&#46;
+     &gt;         cnt = cnt + 1; &#46;&#46;&#46;
+     &gt;         exec(&#146;jacstep&#146;); &#46;&#46;&#46;
+     &gt;       end, &#46;&#46;&#46;
+     &gt;     end, &#46;&#46;&#46;
+     &gt;   end, &#46;&#46;&#46;
+     &gt;   display(rat(A)), &#46;&#46;&#46;
+     &gt; end
 <P>
-     :jacstep:
+     &gt; :jacstep:
 <P>
-     d = (a(q,q)-a(p,p))*0.5/a(p,q);
-     t = 1/(abs(d)+sqrt(d*d+1));
-     if d &lt; 0, t = -t; end;
-     c = 1/sqrt(1+t*t);  s = t*c;
-     R = eye(n); r(p,p)=c; r(q,q)=c; r(p,q)=s; r(q,p)=-s;
-     X = X*R;
-     A = R&#146;*A*R;
+     &gt; d = (a(q,q)-a(p,p))*0.5/a(p,q);
+     &gt; t = 1/(abs(d)+sqrt(d*d+1));
+     &gt; if d &lt; 0, t = -t; end;
+     &gt; c = 1/sqrt(1+t*t);  s = t*c;
+     &gt; R = eye(n); r(p,p)=c; r(q,q)=c; r(p,q)=s; r(q,p)=-s;
+     &gt; X = X*R;
+     &gt; A = R&#146;*A*R;
 <P>
-     :kron:
+     &gt; :kron:
 <P>
-     //  C = Kronecker product of A and B
-     [m, n] = size(A);
-     for i = 1:m, &#46;&#46;&#46;
-        ci = a(i,1)*B; &#46;&#46;&#46;
-        for j = 2:n, ci = [ci a(i,j)*B]; end &#46;&#46;&#46;
-        if i = 1, C = ci; else, C = [C; ci];
+     &gt; //  C = Kronecker product of A and B
+     &gt; [m, n] = size(A);
+     &gt; for i = 1:m, &#46;&#46;&#46;
+     &gt;    ci = a(i,1)*B; &#46;&#46;&#46;
+     &gt;    for j = 2:n, ci = [ci a(i,j)*B]; end &#46;&#46;&#46;
+     &gt;    if i = 1, C = ci; else, C = [C; ci];
 <P>
-     :lanczos:
+     &gt; :lanczos:
 <P>
-     [n,n] = size(A);
-     q1 = rand(n,1);
-     ort
-     alpha = []; beta = [];
-     q = q1/norm(q1); r = A*q(:,1);
-     for j = 1:n, exec(&#146;lanstep&#146;,0);
+     &gt; [n,n] = size(A);
+     &gt; q1 = rand(n,1);
+     &gt; ort
+     &gt; alpha = []; beta = [];
+     &gt; q = q1/norm(q1); r = A*q(:,1);
+     &gt; for j = 1:n, exec(&#146;lanstep&#146;,0);
 <P>
-     :lanstep:
+     &gt; :lanstep:
 <P>
-     alpha(j) = q(:,j)&#146;*r;
-     r = r - alpha(j)*q(:,j);
-     if ort &lt;&gt; 0, for k = 1:j-1, r = r - r&#146;*q(:,k)*q(:,k);
-     beta(j) = norm(r);
-     q(:,j+1) = r/beta(j);
-     r = A*q(:,j+1) - beta(j)*q(:,j);
-     if j &gt; 1, T = diag(beta(1:j-1),1); T = diag(alpha) + T + T&#146;; eig(T)
+     &gt; alpha(j) = q(:,j)&#146;*r;
+     &gt; r = r - alpha(j)*q(:,j);
+     &gt; if ort &lt;&gt; 0, for k = 1:j-1, r = r - r&#146;*q(:,k)*q(:,k);
+     &gt; beta(j) = norm(r);
+     &gt; q(:,j+1) = r/beta(j);
+     &gt; r = A*q(:,j+1) - beta(j)*q(:,j);
+     &gt; if j &gt; 1, T = diag(beta(1:j-1),1); T = diag(alpha) + T + T&#146;; eig(T)
 <P>
-     :mgs:
+     &gt; :mgs:
 <P>
-     for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; &#46;&#46;&#46;
-        for j = k+1:n, d = x(j,:)*x(k,:)&#146;; x(j,:) = x(j,:) - d*x(k,:);
+     &gt; for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; &#46;&#46;&#46;
+     &gt;    for j = k+1:n, d = x(j,:)*x(k,:)&#146;; x(j,:) = x(j,:) - d*x(k,:);
 <P>
-     :net:
+     &gt; :net:
 <P>
-     C = [
-     1   2   15  .   .   .
-     2   1   3   .   .   .
-     3   2   4   11  .   .
-     4   3   5   .   .   .
-     5   4   6   7   .   .
-     6   5   8   .   .   .
-     7   5   9   30  .   .
-     8   6   9   10  11  .
-     9   7   8   30  .   .
-     10  8   12  30  31  34
-     11  3   8   12  13  .
-     12  10  11  34  36  .
-     13  11  14  .   .   .
-     14  13  15  16  38  .
-     15  1   14  .   .   .
-     16  14  17  20  35  37
-     17  16  18  .   .   .
-     18  17  19  .   .   .
-     19  18  20  .   .   .
-     20  16  19  21  .   .
-     21  20  22  .   .   .
-     22  21  23  .   .   .
-     23  22  24  35  .   .
-     24  23  25  39  .   .
-     25  24  .   .   .   .
-     26  27  33  39  .   .
-     27  26  32  .   .   .
-     28  29  32  .   .   .
-     29  28  30  .   .   .
-     30  7   9   10  29  .
-     31  10  32  .   .   .
-     32  27  28  31  34  .
-     33  26  34  .   .   .
-     34  10  12  32  33  35
-     35  16  23  34  36  .
-     36  12  35  38  .   .
-     37  16  38  .   .   .
-     38  14  36  37  .   .
-     39  24  26  .   .   .
-     ];
-     [n, m] = size(C);
-     A = 0*ones(n,n);
-     for i=1:n, for j=2:m, k=c(i,j); if k&gt;0, a(i,k)=1;
-     check = norm(A-A&#146;,1), if check &gt; 0, quit
-     [X,D] = eig(A+eye);
-     D = diag(D);  D = D(n:-1:1)
-     X = X(:,n:-1:1);
-     [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
+     &gt; C = [
+     &gt; 1   2   15  .   .   .
+     &gt; 2   1   3   .   .   .
+     &gt; 3   2   4   11  .   .
+     &gt; 4   3   5   .   .   .
+     &gt; 5   4   6   7   .   .
+     &gt; 6   5   8   .   .   .
+     &gt; 7   5   9   30  .   .
+     &gt; 8   6   9   10  11  .
+     &gt; 9   7   8   30  .   .
+     &gt; 10  8   12  30  31  34
+     &gt; 11  3   8   12  13  .
+     &gt; 12  10  11  34  36  .
+     &gt; 13  11  14  .   .   .
+     &gt; 14  13  15  16  38  .
+     &gt; 15  1   14  .   .   .
+     &gt; 16  14  17  20  35  37
+     &gt; 17  16  18  .   .   .
+     &gt; 18  17  19  .   .   .
+     &gt; 19  18  20  .   .   .
+     &gt; 20  16  19  21  .   .
+     &gt; 21  20  22  .   .   .
+     &gt; 22  21  23  .   .   .
+     &gt; 23  22  24  35  .   .
+     &gt; 24  23  25  39  .   .
+     &gt; 25  24  .   .   .   .
+     &gt; 26  27  33  39  .   .
+     &gt; 27  26  32  .   .   .
+     &gt; 28  29  32  .   .   .
+     &gt; 29  28  30  .   .   .
+     &gt; 30  7   9   10  29  .
+     &gt; 31  10  32  .   .   .
+     &gt; 32  27  28  31  34  .
+     &gt; 33  26  34  .   .   .
+     &gt; 34  10  12  32  33  35
+     &gt; 35  16  23  34  36  .
+     &gt; 36  12  35  38  .   .
+     &gt; 37  16  38  .   .   .
+     &gt; 38  14  36  37  .   .
+     &gt; 39  24  26  .   .   .
+     &gt; ];
+     &gt; [n, m] = size(C);
+     &gt; A = 0*ones(n,n);
+     &gt; for i=1:n, for j=2:m, k=c(i,j); if k&gt;0, a(i,k)=1;
+     &gt; check = norm(A-A&#146;,1), if check &gt; 0, quit
+     &gt; [X,D] = eig(A+eye);
+     &gt; D = diag(D);  D = D(n:-1:1)
+     &gt; X = X(:,n:-1:1);
+     &gt; [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
 <P>
-     :pascal:
+     &gt; :pascal:
 <P>
-     //Generate next Pascal matrix
-     [k,k] = size(L);
-     k = k + 1;
-     L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];
+     &gt; //Generate next Pascal matrix
+     &gt; [k,k] = size(L);
+     &gt; k = k + 1;
+     &gt; L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];
 <P>
-     :pdq:
+     &gt; :pdq:
 <P>
-     alpha = []; beta = 0; q = []; p = p(:,1)/norm(p(:,1));
-     t = A&#146;*p(:,1);
-     alpha(1) = norm(t);
-     q(:,1) = t/alpha(1);
-     X = p(:,1)*(alpha(1)*q(:,1))&#146;
-     e(1) = norm(A-X,1)
-     for j = 2:r, exec(&#146;pdqstep&#146;,ip); &#46;&#46;&#46;
-        X = X + p(:,j)*(alpha(j)*q(:,j)+beta(j)*q(:,j-1))&#146;, &#46;&#46;&#46;
-        e(j) = norm(A-X,1)
+     &gt; alpha = []; beta = 0; q = []; p = p(:,1)/norm(p(:,1));
+     &gt; t = A&#146;*p(:,1);
+     &gt; alpha(1) = norm(t);
+     &gt; q(:,1) = t/alpha(1);
+     &gt; X = p(:,1)*(alpha(1)*q(:,1))&#146;
+     &gt; e(1) = norm(A-X,1)
+     &gt; for j = 2:r, exec(&#146;pdqstep&#146;,ip); &#46;&#46;&#46;
+     &gt;    X = X + p(:,j)*(alpha(j)*q(:,j)+beta(j)*q(:,j-1))&#146;, &#46;&#46;&#46;
+     &gt;    e(j) = norm(A-X,1)
 <P>
-     :pdqstep:
+     &gt; :pdqstep:
 <P>
-     t = A*q(:,j-1) - alpha(j-1)*p(:,j-1);
-        if ort&gt;0, for i = 1:j-1, t = t - t&#146;*p(:,i)*p(:,i);
-     beta(j) = norm(t);
-     p(:,j) = t/beta(j);
-     t = A&#146;*p(:,j) - beta(j)*q(:,j-1);
-        if ort&gt;0, for i = 1:j-1, t = t - t&#146;*q(:,i)*q(:,i);
-     alpha(j) = norm(t);
-     q(:,j) = t/alpha(j);
+     &gt; t = A*q(:,j-1) - alpha(j-1)*p(:,j-1);
+     &gt;    if ort&gt;0, for i = 1:j-1, t = t - t&#146;*p(:,i)*p(:,i);
+     &gt; beta(j) = norm(t);
+     &gt; p(:,j) = t/beta(j);
+     &gt; t = A&#146;*p(:,j) - beta(j)*q(:,j-1);
+     &gt;    if ort&gt;0, for i = 1:j-1, t = t - t&#146;*q(:,i)*q(:,i);
+     &gt; alpha(j) = norm(t);
+     &gt; q(:,j) = t/alpha(j);
 <P>
-     :pop:
+     &gt; :pop:
 <P>
-     y = [ 75.995   91.972  105.711  123.203   &#46;&#46;&#46;
-          131.669  150.697  179.323  203.212]&#146;
-     t = [ 1900:10:1970 ]&#146;
-     t = (t - 1940*ones(t))/40;   [t y]
-     n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
+     &gt; y = [ 75.995   91.972  105.711  123.203   &#46;&#46;&#46;
+     &gt;      131.669  150.697  179.323  203.212]&#146;
+     &gt; t = [ 1900:10:1970 ]&#146;
+     &gt; t = (t - 1940*ones(t))/40;   [t y]
+     &gt; n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
+     &gt; A
+     &gt; c = A\y
+<P>
+     &gt; :qr:
+<P>
+     &gt; scale = s(m);
+     &gt; sm = s(m)/scale; smm1 = s(m-1)/scale; emm1 = e(m-1)/scale;
+     &gt; sl = s(l)/scale; el = e(l)/scale;
+     &gt; b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
+     &gt; c = (sm*emm1)**2;
+     &gt; shift = sqrt(b**2+c); if b &lt; 0, shift = -shift;
+     &gt; shift = c/(b + shift)
+     &gt; f = (sl + sm)*(sl-sm) - shift
+     &gt; g = sl*el
+     &gt; for k = l: m-1, exec(&#146;qrstep&#146;,ip)
+     &gt; e(m-1) = f
+<P>
+     &gt; :qrstep:
+<P>
+     &gt; exec(&#146;rot&#146;);
+     &gt; if k &lt;&gt; l, e(k-1) = f
+     &gt; f = cs*s(k) + sn*e(k)
+     &gt; e(k) = cs*e(k) - sn*s(k)
+     &gt; g = sn*s(k+1)
+     &gt; s(k+1) = cs*s(k+1)
+     &gt; exec(&#146;rot&#146;);
+     &gt; s(k) = f
+     &gt; f = cs*e(k) + sn*s(k+1)
+     &gt; s(k+1) = -sn*e(k) + cs*s(k+1)
+     &gt; g = sn*e(k+1)
+     &gt; e(k+1) = cs*e(k+1)
+<P>
+     &gt; :rho:
+<P>
+     &gt; //Conductivity example.
+     &gt; //Parameters ---
+     &gt;    rho       //radius of cylindrical inclusion
+     &gt;    n         //number of terms in solution
+     &gt;    m         //number of boundary points
+     &gt; //initialize operation counter
+     &gt;    flop = [0 0];
+     &gt; //initialize variables
+     &gt;    m1 = round(m/3);   //number of points on each straight edge
+     &gt;    m2 = m - m1;       //number of points with Dirichlet conditions
+     &gt;    pi = 4*atan(1);
+     &gt; //generate points in Cartesian coordinates
+     &gt;    //right hand edge
+     &gt;    for i = 1:m1, x(i) = 1; y(i) = (1-rho)*(i-1)/(m1-1);
+     &gt;    //top edge
+     &gt;    for i = m2+1:m, x(i) = (1-rho)*(m-i)/(m-m2-1); y(i) = 1;
+     &gt;    //circular edge
+     &gt;    for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); &#46;&#46;&#46;
+     &gt;       x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);
+     &gt; //convert to polar coordinates
+     &gt;    for i = 1:m-1, th(i) = atan(y(i)/x(i));  &#46;&#46;&#46;
+     &gt;       r(i) = sqrt(x(i)**2+y(i)**2);
+     &gt;    th(m) = pi/2;  r(m) = 1;
+     &gt; //generate matrix
+     &gt;    //Dirichlet conditions
+     &gt;    for i = 1:m2, for j = 1:n, k = 2*j-1; &#46;&#46;&#46;
+     &gt;       a(i,j) = r(i)**k*cos(k*th(i));
+     &gt;    //Neumann conditions
+     &gt;    for i = m2+1:m, for j = 1:n, k = 2*j-1; &#46;&#46;&#46;
+     &gt;       a(i,j) = k*r(i)**(k-1)*sin((k-1)*th(i));
+     &gt; //generate right hand side
+     &gt;    for i = 1:m2, b(i) = 1;
+     &gt;    for i = m2+1:m, b(i) = 0;
+     &gt; //solve for coefficients
+     &gt;    c = A$b
+     &gt; //compute effective conductivity
+     &gt;    c(2:2:n) = -c(2:2:n)
+     &gt;    sigma = sum(c)
+     &gt; //output total operation count
+     &gt;    ops = flop(2)
+<P>
+     &gt; :rogers.exec:
+<P>
+     &gt; exec(&#146;d.boug&#146;);                        // reads data
+     &gt; [g,k] = size(p);               // p is matrix of gene frequencies
+     &gt; wv = ncen/sum(ncen);           // ncen contains population sizes
+     &gt; pbar = wv*p;                   // weighted average of p
+     &gt; p = p - ones(g,1)*pbar;        // deviations from mean
+     &gt; p = sqrt(diag(wv)) * p;        // weight rows of p by sqrt of pop size
+     &gt; h = diag(pbar); h = h*(eye-h); // diagonal contains binomial variance: p*(1-p)
+     &gt; r = p*inv(h)*p&#146;/k;             // normalized covariance matrix
+     &gt; eig(r)&#146;
+<P>
+     &gt; :rosser:
+<P>
+     &gt; A  = [
+     &gt;   611.  196. -192.  407.   -8.  -52.  -49.   29.
+     &gt;   196.  899.  113. -192.  -71.  -43.   -8.  -44.
+     &gt;  -192.  113.  899.  196.   61.   49.    8.   52.
+     &gt;   407. -192.  196.  611.    8.   44.   59.  -23.
+     &gt;    -8.  -71.   61.    8.  411. -599.  208.  208.
+     &gt;   -52.  -43.   49.   44. -599.  411.  208.  208.
+     &gt;   -49.   -8.    8.   59.  208.  208.   99. -911.
+     &gt;    29.  -44.   52.  -23.  208.  208. -911.   99.  ];
+<P>
+     &gt; :rot:
+<P>
+     &gt; // subexec rot(f,g,cs,sn)
+     &gt;    rho = g; if abs(f) &gt; abs(g), rho = f;
+     &gt;    cs = 1.0; sn = 0.0; z = 1.0;
+     &gt;    r = norm([f g]); if rho &lt; 0, r = -r; r
+     &gt;    if r &lt;&gt; 0.0, cs = f/r
+     &gt;    if r &lt;&gt; 0.0, sn = g/r
+     &gt;    if abs(f) &gt; abs(g), z = sn;
+     &gt;    if abs(g) &gt;= abs(f), if cs &lt;&gt; 0, z = 1/cs;
+     &gt;    f = r;
+     &gt;    g = z;
+<P>
+     &gt; :rqi:
+<P>
+     &gt; rho = (x&#146;*A*x)
+     &gt; x = (A-rho*eye)\x;
+     &gt; x = x/norm(x)
+<P>
+     &gt; :setup:
+<P>
+     &gt; diary(&#146;xxx&#146;)
+     &gt; !tail -f xxx &gt; /dev/tty1 &
+     &gt; !tail -f xxx &gt; /dev/tty2 &
+<P>
+     &gt; :sigma:
+<P>
+     &gt; RHO = .5  M = 20  N = 10   SIGMA =  1.488934271883534
+     &gt; RHO = .5  M = 40  N = 20   SIGMA =  1.488920312974229
+     &gt; RHO = .5  M = 60  N = 30   SIGMA =  1.488920697912116
+<P>
+     &gt; :strut.laf:
+<P>
+     &gt; // Structure problem, Forsythe, Malcolm and Moler, p. 62
+     &gt; s =  sqrt(2)/2;
+     &gt; A = [
+     &gt; -s  .  .  1  s   .  .  .  .  .  .  .  .  .  .  .  .
+     &gt; -s  . -1  . -s   .  .  .  .  .  .  .  .  .  .  .  .
+     &gt;  . -1  .  .  .   1  .  .  .  .  .  .  .  .  .  .  .
+     &gt;  .  .  1  .  .   .  .  .  .  .  .  .  .  .  .  .  .
+     &gt;  .  .  . -1  .   .  .  1  .  .  .  .  .  .  .  .  .
+     &gt;  .  .  .  .  .   . -1  .  .  .  .  .  .  .  .  .  .
+     &gt;  .  .  .  . -s -1  .  .  s  1  .  .  .   .  .  .  .
+     &gt;  .  .  .  .  s   .  1  .  s  .  .  .  .  .  .  .  .
+     &gt;  .  .  .  .  .   .  . -1 -s  .  .  1  s  .  .  .  .
+     &gt;  .  .  .  .  .   .  .  . -s  . -1  . -s  .  .  .  .
+     &gt;  .  .  .  .  .   .  .  .  . -1  .  .  .  1  .  .  .
+     &gt;  .  .  .  .  .   .  .  .  .  .  1  .  .  .  .  .  .
+     &gt;  .  .  .  .  .   .  .  .  .  .  . -1  .  .  .  s  .
+     &gt;  .  .  .  .  .   .  .  .  .  .  .  .  .  . -1 -s  .
+     &gt;  .  .  .  .  .   .  .  .  .  .  .  . -s -1  .  .  1
+     &gt;  .  .  .  .  .   .  .  .  .  .  .  .  s  .  1  .  .
+     &gt;  .  .  .  .  .   .  .  .  .  .  .  .  .  .  . -s -1];
+     &gt; b = [
+     &gt;  .  .  . 10  .   .  . 15  .  .  .  .  .  .  . 10  .]&#146;;
+<P>
+     &gt; :test1:
+<P>
+     &gt; // -----------------------------------------------------------------
+     &gt; // start a new log file
+     &gt; sh rm -fv log.txt
+     &gt; diary(&#146;log.txt&#146;)
+     &gt; // -----------------------------------------------------------------
+     &gt; titles=[&#146;GNP deflator&#146;
+     &gt;  &#146;GNP         &#146;
+     &gt;  &#146;Unemployment&#146;
+     &gt;  &#146;Armed Force &#146;
+     &gt;  &#146;Population  &#146;
+     &gt;  &#146;Year        &#146;
+     &gt;  &#146;Employment  &#146;];
+     &gt; data = &#46;&#46;&#46;
+     &gt; [ 83.0  234.289  235.6  159.0  107.608  1947  60.323
+     &gt;   88.5  259.426  232.5  145.6  108.632  1948  61.122
+     &gt;   88.2  258.054  368.2  161.6  109.773  1949  60.171
+     &gt;   89.5  284.599  335.1  165.0  110.929  1950  61.187
+     &gt;   96.2  328.975  209.9  309.9  112.075  1951  63.221
+     &gt;   98.1  346.999  193.2  359.4  113.270  1952  63.639
+     &gt;   99.0  365.385  187.0  354.7  115.094  1953  64.989
+     &gt;  100.0  363.112  357.8  335.0  116.219  1954  63.761
+     &gt;  101.2  397.469  290.4  304.8  117.388  1955  66.019
+     &gt;  104.6  419.180  282.2  285.7  118.734  1956  67.857
+     &gt;  108.4  442.769  293.6  279.8  120.445  1957  68.169
+     &gt;  110.8  444.546  468.1  263.7  121.950  1958  66.513
+     &gt;  112.6  482.704  381.3  255.2  123.366  1959  68.655
+     &gt;  114.2  502.601  393.1  251.4  125.368  1960  69.564
+     &gt;  115.7  518.173  480.6  257.2  127.852  1961  69.331
+     &gt;  116.9  554.894  400.7  282.7  130.081  1962  70.551];
+     &gt; short
+     &gt; X = data;
+     &gt; [n,p] = size(X)
+     &gt; mu = ones(1,n)*X/n
+     &gt; X = X - ones(n,1)*mu;  X = X/diag(sqrt(diag(X&#146;*X)))
+     &gt; corr = X&#146;*X
+     &gt; y = data(:,p); X = [ones(y) data(:,1:p-1)];
+     &gt; long e
+     &gt; beta = X\y
+     &gt; expected = [ &#46;&#46;&#46;
+     &gt;    -3.482258634594421D+03
+     &gt;     1.506187227124484D-02
+     &gt;    -3.581917929257409D-02
+     &gt;    -2.020229803816908D-02
+     &gt;    -1.033226867173703D-02
+     &gt;    -5.110410565317738D-02
+     &gt;     1.829151464612817D+00
+     &gt; ]
+     &gt; display(&#146;EXPE and BETA should be the same&#146;)
+<P>
+     &gt; :tryall:
+<P>
+     &gt; diary(&#146;log.txt&#146;)
+     &gt; a=magic(8)
+     &gt; n=3
+     &gt; exec(&#146;avg&#146;)
+     &gt; b=random(8,8)
+     &gt; exec(&#146;cdiv&#146;)
+     &gt; exec(&#146;exp&#146;)
+     &gt; exec(&#146;four&#146;)
+     &gt; exec(&#146;gs&#146;)
+     &gt; exec(&#146;jacobi&#146;)
+     &gt; // jacstep
+     &gt; exec(&#146;kron&#146;)
+     &gt; exec(&#146;lanczos&#146;)
+     &gt; // lanstep
+     &gt; exec(&#146;longley&#146;)
+     &gt; exec(&#146;mgs&#146;)
+     &gt; exec(&#146;net&#146;)
+     &gt; exec(&#146;pascal&#146;)
+     &gt; exec(&#146;pdq&#146;)
+     &gt; // pdqstep
+     &gt; exec(&#146;pop&#146;)
+     &gt; exec(&#146;qr&#146;)
+     &gt; // qrstep
+     &gt; exec(&#146;rho&#146;)
+     &gt; exec(&#146;rosser&#146;)
+     &gt; // rot
+     &gt; exec(&#146;rqi&#146;)
+     &gt; exec(&#146;setup&#146;)
+     &gt; exec(&#146;sigma&#146;)
+     &gt; exec(&#146;strut.laf&#146;)
+     &gt; exec(&#146;w5&#146;)
+     &gt; exec(&#146;rogers.exec
+     &gt; exec(&#146;rogers.load
+<P>
+     &gt; :w5:
+<P>
+     &gt; w5 = [
+     &gt;         1.     1.      0.      0.      0.
+     &gt;       -10.     1.      1.      0.      0.
+     &gt;        40.     0.      1.      1.      0.
+     &gt;       205.     0.      0.      1.      1.
+     &gt;       024.     0.      0.      0.     -4.
+     &gt;      ]
 </PRE>
-<A name=>
-
-    <H4>&nbsp; &nbsp; A</H4>
-</A>
-<BLOCKQUOTE>
-c = A\y
-<P>
-:qr:
-<P>
-scale = <B>s</B>(m);
-sm = <B>s</B>(m)/scale; smm1 = <B>s</B>(m-1)/scale; emm1 = <B>e</B>(m-1)/scale;
-sl = <B>s</B>(l)/scale; el = <B>e</B>(l)/scale;
-b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
-c = (sm*emm1)**2;
-shift = <B>sqrt</B>(b**2+c); if b &lt; 0, shift = <B>-shift</B>;
-shift = <B>c/</B>(b + shift)
-f = (sl + sm)*(sl-sm) - shift
-g = sl*el
-for k = l: m-1, <B>exec</B>(&#146;qrstep&#146;,ip)
-<B>e</B>(m-1) = f
-<P>
-:qrstep:
-<P>
-<B>exec</B>(&#146;rot&#146;);
-if k &lt;&gt; l, <B>e</B>(k-1) = f
-f = cs*<B>s</B>(k) + sn*<B>e</B>(k)
-<B>e</B>(k) = cs*<B>e</B>(k) - sn*<B>s</B>(k)
-g = sn*<B>s</B>(k+1)
-<B>s</B>(k+1) = cs*<B>s</B>(k+1)
-<B>exec</B>(&#146;rot&#146;);
-<B>s</B>(k) = f
-f = cs*<B>e</B>(k) + sn*<B>s</B>(k+1)
-<B>s</B>(k+1) = <B>-sn</B>*<B>e</B>(k) + cs*<B>s</B>(k+1)
-g = sn*<B>e</B>(k+1)
-<B>e</B>(k+1) = cs*<B>e</B>(k+1)
-<P>
-:rho:
-<P>
-//Conductivity example.
-//Parameters ---
-<BLOCKQUOTE>
-<TABLE cellpadding=3><!-- tsb: //Conductivity example.
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>rho</B> </TD><TD valign=bottom>
-//radius of cylindrical inclusion
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>n</B> </TD><TD valign=bottom>
-//number of terms in solution
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>m</B> </TD><TD valign=bottom>
-//number of boundary points
-//initialize operation counter
-flop = [0 0];
-//initialize variables
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>m1 = </B><B>round</B>(m/3); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-//number of points on each straight edge
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>m2 = m - m1;</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-//number of points with Dirichlet conditions
-pi = 4*<B>4*atan</B>(1);
-//generate points in Cartesian coordinates
-//right hand edge
-for i = 1:m1, <B>x</B>(i) = 1; <B>y</B>(i) = (1-rho)*(i-1)/(m1-1);
-//top edge
-for i = m2+1:m, <B>x</B>(i) = (1-rho)*(m-i)/(m-m2-1); <B>y</B>(i) = 1;
-//circular edge
-for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); &#46;&#46;&#46;
-<TABLE width=100% cellpadding=3><!-- tsb: //number of points with Dirichlet conditions
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD colspan=2>
-<B></B><B>x</B>(i) = 1-rho*sin(t); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-<B>y</B>(i) = 1-rho*cos(t);
-//convert to polar coordinates
-</TD></TR>
-<TR></TR></TABLE><!-- .TP -->
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>for i = 1:m-1, </B><B>th</B>(i) = <B>atan</B>(<B>y</B>(i)/<B>x</B>(i)); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-&#46;&#46;&#46;
-<B>r</B>(i) = <B>sqrt</B>(<B>x</B>(i)**2+<B>y</B>(i)**2);
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B></B><B>th</B>(m) = pi/2; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-<B>r</B>(m) = 1;
-//generate matrix
-//Dirichlet conditions
-for i = 1:m2, for j = 1:n, k = 2*j-1; &#46;&#46;&#46;
-<B>a</B>(i,j) = <B>r</B>(i)**k*cos(k*<B>th</B>(i));
-//Neumann conditions
-for i = m2+1:m, for j = 1:n, k = 2*j-1; &#46;&#46;&#46;
-<B>a</B>(i,j) = k*<B>r</B>(i)**(k-1)*sin((k-1)*<B>th</B>(i));
-//generate right hand side
-for i = 1:m2, <B>b</B>(i) = 1;
-for i = m2+1:m, <B>b</B>(i) = 0;
-//solve for coefficients
-c = A$b
-//compute effective conductivity
-<B>c</B>(2:2:n) = -<B>c</B>(2:2:n)
-sigma = <B>sum</B>(c)
-//output total operation count
-ops = <B>flop</B>(2)
-</TD></TR>
-<TR></TR></TABLE></BLOCKQUOTE>
-<P>
-:rogers.exec:
-<TABLE cellpadding=3><!-- tsb: :rogers.exec:
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD colspan=2>
-<B></B><B>exec</B>(&#146;d.boug&#146;); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-// reads data
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>[g,k] = </B><B>size</B>(p); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-// p is matrix of gene frequencies
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>wv = ncen/</B><B>sum</B>(ncen); </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-// ncen contains population sizes
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>pbar = wv*p;</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-// weighted average of p
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>p = p - </B><B>ones</B>(g,1)*pbar; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-// deviations from mean
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>p = </B><B>sqrt</B>(diag(wv)) * p; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-// weight rows of p by sqrt of pop size
-h = <B>diag</B>(pbar); h = h*(eye-h); // diagonal contains binomial variance: p*(1-p)
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>r = p*</B><B>p*inv</B>(h)*p&#146;/k; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-// normalized covariance matrix
-<B>eig</B>(r)&#146;
-</TD></TR>
-<TR><TD colspan=2>
-:rosser:
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>A</B> </TD><TD valign=bottom>
-= [
-<TABLE width=100% cellpadding=3><!-- tsb: = [
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=4%>
-611.
-</TD><TD>
-196. <B>-192</B>. 407. <B>-8</B>. <B>-52</B>. <B>-49</B>. 29.
-</TD></TR>
-<TR valign=top><TD width=4%>
-196.
-</TD><TD>
-899. 113. <B>-192</B>. <B>-71</B>. <B>-43</B>. <B>-8</B>. <B>-44</B>.
-</TD></TR>
-<TR></TR></TABLE><!-- .TP -->
-</TD></TR>
-<TR valign=top><TD width=4% nowrap>
-<B></B><B>-192</B>. </TD><TD valign=bottom>
-113.  899.  196.   61.   49.    8.   52.
-<TABLE width=100% cellpadding=3><!-- tsb: 113.  899.  196.   61.   49.    8.   52.
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=4%>
-407.
-</TD><TD>
-<B>-192</B>. 196. 611. 8. 44. 59. <B>-23</B>.
-<TABLE width=100% cellpadding=3><!-- tsb: <B>-192</B>. 196. 611. 8. 44. 59. <B>-23</B>.
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=6% nowrap>
-<B></B><B>-8</B>. </TD><TD valign=bottom>
-<B>-71</B>.   61.    8.  411. <B>-599</B>.  208.  208.
-</TD></TR>
-<TR></TR></TABLE><!-- .TP -->
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B></B><B>-52</B>. </TD><TD valign=bottom>
-<B>-43</B>.   49.   44. <B>-599</B>.  411.  208.  208.
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B></B><B>-49</B>. </TD><TD valign=bottom>
-<B>-8</B>.    8.   59.  208.  208.   99. <B>-911</B>.
-<TABLE width=100% cellpadding=3><!-- tsb: <B>-8</B>.    8.   59.  208.  208.   99. <B>-911</B>.
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=4%>
-29.
-</TD><TD>
-<B>-44</B>. 52. <B>-23</B>. 208. 208. <B>-911</B>. 99. ];
-</TD></TR>
-<TR></TR></TABLE><!-- .RE -->
-</TD></TR>
-<TR></TR></TABLE><!-- .PP -->
-</TD></TR>
-<TR><TD colspan=2>
-:rot:
-</TD></TR>
-<TR><TD colspan=2>
-// subexec <B>rot</B>(f,g,cs,sn)
-rho = g; if <B>abs</B>(f) &gt; <B>abs</B>(g), rho = f;
-cs = 1.0; sn = 0.0; z = 1.0;
-r = <B>norm</B>([f g]); if rho &lt; 0, r = <B>-r</B>; r
-if r &lt;&gt; 0.0, cs = f/r
-if r &lt;&gt; 0.0, sn = g/r
-if <B>abs</B>(f) &gt; <B>abs</B>(g), z = sn;
-if <B>abs</B>(g) &gt;= <B>abs</B>(f), if cs &lt;&gt; 0, z = 1/cs;
-f = r;
-g = z;
-</TD></TR>
-<TR><TD colspan=2>
-:rqi:
-</TD></TR>
-<TR><TD colspan=2>
-rho = (x&#146;*A*x)
-x = (A-rho*eye)\x;
-x = <B>x/norm</B>(x)
-</TD></TR>
-<TR><TD colspan=2>
-:setup:
-</TD></TR>
-<TR><TD colspan=2>
-<B>diary</B>(&#146;xxx&#146;)
-!tail <B>-f</B> xxx &gt; /dev/tty1 &
-!tail <B>-f</B> xxx &gt; /dev/tty2 &
-</TD></TR>
-<TR><TD colspan=2>
-:sigma:
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>RHO = .5</B> </TD></TR><TR valign=top><TD width=4%>&nbsp;</TD><TD>
-M = 20  N = 10   SIGMA =  1.488934271883534
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>RHO = .5</B> </TD></TR><TR valign=top><TD width=4%>&nbsp;</TD><TD>
-M = 40  N = 20   SIGMA =  1.488920312974229
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>RHO = .5</B> </TD></TR><TR valign=top><TD width=4%>&nbsp;</TD><TD>
-M = 60  N = 30   SIGMA =  1.488920697912116
-</TD></TR>
-<TR><TD colspan=2>
-:strut.mat:
-</TD></TR>
-<TR><TD colspan=2>
-// Structure problem, Forsythe, Malcolm and Moler, p. 62
-</TD></TR>
-<TR valign=top><TD width=4% nowrap>
-<B>s =</B> </TD><TD valign=bottom>
-<B>sqrt</B>(2)/2;
-A = [
-</TD></TR>
-<TR valign=top><TD width=4% nowrap>
-<B></B><B>-s</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=4% nowrap>
-<B></B><B>-s</B> </TD><TD valign=bottom>
-<TABLE width=100% cellpadding=3>
-<TR valign=top><TD width=6% nowrap>
-<B>. </B><B>-1</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-b = [
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>.</B> </TD><TD valign=bottom>
-</TD></TR>
-<TR></TR></TABLE><!-- .PP -->
-</TD></TR>
-<TR><TD colspan=2>
-:test1:
-</TD></TR>
-<TR><TD colspan=2>
-// -----------------------------------------------------------------
-// start a new log file
-sh rm <B>-fv</B> log.txt
-<B>diary</B>(&#146;log.txt&#146;)
-// -----------------------------------------------------------------
-titles=[&#146;GNP deflator&#146;
-</TD></TR>
-<TR><TD width=6%>&nbsp;</TD><TD>
-<TABLE width=100% cellpadding=3>
-<TR valign=top><TD width=6% nowrap>
-<B>&#146;GNP</B> </TD><TD valign=bottom>
-<BR>.Unemployment&#146; 
-<BR>.Armed Force &#146;
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>&#146;Population</B> <!-- Consumed .TP -->
-<BR>
-<B>&#146;Year</B> <!-- Consumed .TP -->
-<BR>
-<B>&#146;Employment</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-data = &#46;&#46;&#46;
-</TD></TR>
-<TR></TR></TABLE><!-- .TP -->
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>[ 83.0</B> </TD><TD valign=bottom>
-234.289  235.6  159.0  107.608  1947  60.323
-<TABLE width=100% cellpadding=3><!-- tsb: 234.289  235.6  159.0  107.608  1947  60.323
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>88.5</B> </TD><TD valign=bottom>
-259.426  232.5  145.6  108.632  1948  61.122
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>88.2</B> </TD><TD valign=bottom>
-258.054  368.2  161.6  109.773  1949  60.171
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>89.5</B> </TD><TD valign=bottom>
-284.599  335.1  165.0  110.929  1950  61.187
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>96.2</B> </TD><TD valign=bottom>
-328.975  209.9  309.9  112.075  1951  63.221
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>98.1</B> </TD><TD valign=bottom>
-346.999  193.2  359.4  113.270  1952  63.639
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>99.0</B> </TD><TD valign=bottom>
-365.385  187.0  354.7  115.094  1953  64.989
-</TD></TR>
-<TR></TR></TABLE><!-- .TP -->
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>100.0</B> </TD><TD valign=bottom>
-363.112  357.8  335.0  116.219  1954  63.761
-<TABLE width=100% cellpadding=3><!-- tsb: 363.112  357.8  335.0  116.219  1954  63.761
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>101.2</B> </TD><TD valign=bottom>
-397.469  290.4  304.8  117.388  1955  66.019
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>104.6</B> </TD><TD valign=bottom>
-419.180  282.2  285.7  118.734  1956  67.857
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>108.4</B> </TD><TD valign=bottom>
-442.769  293.6  279.8  120.445  1957  68.169
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>110.8</B> </TD><TD valign=bottom>
-444.546  468.1  263.7  121.950  1958  66.513
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>112.6</B> </TD><TD valign=bottom>
-482.704  381.3  255.2  123.366  1959  68.655
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>114.2</B> </TD><TD valign=bottom>
-502.601  393.1  251.4  125.368  1960  69.564
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>115.7</B> </TD><TD valign=bottom>
-518.173  480.6  257.2  127.852  1961  69.331
-</TD></TR>
-<TR valign=top><TD width=6% nowrap>
-<B>116.9</B> </TD><TD valign=bottom>
-554.894  400.7  282.7  130.081  1962  70.551];
-short
-X = data;
-[n,p] = <B>size</B>(X)
-mu = <B>ones</B>(1,n)*X/n
-</TD></TR>
-<TR></TR></TABLE><!-- .TP -->
-</TD></TR>
-<TR valign=top><TD colspan=2>
-<B>X = X - </B><B>ones</B>(n,1)*mu; </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
-X = <B>X/diag</B>(<B>sqrt</B>(<B>diag</B>(X&#146;*X)))
-corr = X&#146;*X
-y = <B>data</B>(:,p); X = <B>[ones</B>(y) <B>data</B>(:,1:p-1)];
-long e
-beta = X\y
-expected = [ &#46;&#46;&#46;
-<B>-3.482258634594421D</B>+03
-1.506187227124484D-02
-<B>-3.581917929257409D-02</B>
-<B>-2.020229803816908D-02</B>
-<B>-1.033226867173703D-02</B>
-<B>-5.110410565317738D-02</B>
-1.829151464612817D+00
-]
-<B>display</B>(&#146;EXPE and BETA should be the same&#146;)
-</TD></TR>
-<TR><TD colspan=2>
-:tryall:
-</TD></TR>
-<TR><TD colspan=2>
-<B>diary</B>(&#146;log.txt&#146;)
-<B>a=magic</B>(8)
-n=3
-<B>exec</B>(&#146;avg&#146;)
-<B>b=random</B>(8,8)
-<B>exec</B>(&#146;cdiv&#146;)
-<B>exec</B>(&#146;exp&#146;)
-<B>exec</B>(&#146;four&#146;)
-<B>exec</B>(&#146;gs&#146;)
-<B>exec</B>(&#146;jacobi&#146;)
-// jacstep
-<B>exec</B>(&#146;kron&#146;)
-<B>exec</B>(&#146;lanczos&#146;)
-// lanstep
-<B>exec</B>(&#146;longley&#146;)
-<B>exec</B>(&#146;mgs&#146;)
-<B>exec</B>(&#146;net&#146;)
-<B>exec</B>(&#146;pascal&#146;)
-<B>exec</B>(&#146;pdq&#146;)
-// pdqstep
-<B>exec</B>(&#146;pop&#146;)
-<B>exec</B>(&#146;qr&#146;)
-// qrstep
-<B>exec</B>(&#146;rho&#146;)
-<B>exec</B>(&#146;rosser&#146;)
-// rot
-<B>exec</B>(&#146;rqi&#146;)
-<B>exec</B>(&#146;setup&#146;)
-<B>exec</B>(&#146;sigma&#146;)
-<B>exec</B>(&#146;strut.mat&#146;)
-<B>exec</B>(&#146;w5&#146;)
-<B>exec</B>(&#146;rogers.exec
-<B>exec</B>(&#146;rogers.load
-</TD></TR>
-<TR><TD colspan=2>
-:w5:
-</TD></TR>
-<TR><TD colspan=2>
-w5 = [
-</TD></TR>
-<TR><TD width=6%>&nbsp;</TD><TD>
-<TABLE width=100% cellpadding=3>
-<TR valign=top><TD width=4%>
-1.
-</TD><TD>
-1. 0. 0. 0.
-</TD></TR>
-<TR></TR></TABLE><!-- .TP -->
-</TD></TR>
-<TR valign=top><TD width=4% nowrap>
-<B></B><B>-10</B>. </TD><TD valign=bottom>
-1.      1.      0.      0.
-<TABLE width=100% cellpadding=3><!-- tsb: 1.      1.      0.      0.
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=4%>
-40.
-</TD><TD>
-0. 1. 1. 0.
-</TD></TR>
-<TR></TR></TABLE><!-- .IP 205. 4 -->
-</TD></TR>
-<TR></TR></TABLE><TABLE cellpadding=3>
-<TR valign=top><TD width=4%>
-205.
-</TD><TD>
-0. 0. 1. 1.
-<TABLE width=100% cellpadding=3><!-- tsb: 0. 0. 1. 1.
- -->
-<TR></TR><TR></TR>
-<TR valign=top><TD width=4%>
-024.
-</TD><TD>
-0. 0. 0. <B>-4</B>.
-]
-</TD></TR>
-<TR></TR></TABLE></TD></TR>
-<TR></TR></TABLE></BLOCKQUOTE>
 <P><HR>
-<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>laff (3m_matrix)</TD> <TD align=right width=33%><I>May 21, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from 88bec78c-0fff-429a-916d-72a118276c3d using man macros.</FONT>
+<TABLE width=100%><TR> <TD width=33%><I></I></TD> <TD width=33% align=center>laff (3m_matrix)</TD> <TD align=right width=33%><I>May 24, 2021</I></TD> </TR></TABLE><FONT SIZE=-1>Generated by <A HREF="http://www.squarebox.co.uk/download/manServer.shtml">manServer 1.08</A> from c29ad9a6-ee74-4e2b-86e0-aa3d9c4caba5 using man macros.</FONT>
 <br><br><center><img src="images/laff.gif"></center>
 </div>
 </div>

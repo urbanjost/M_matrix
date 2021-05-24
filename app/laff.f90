@@ -12,7 +12,7 @@ logical                      :: echo
 logical                      :: markdown
    call setup()
    ! define command arguments,default values and crack command line
-   call set_args('mat --markdown F -noecho F',help_text,version_text )
+   call set_args('laff --markdown F -noecho F',help_text,version_text )
    echo=.not.lget('noecho')
    if(size(expressions).eq.0)then
       call laff(echo=echo)                           ! CALL LAFF interactively with default scratch space
@@ -27,13 +27,13 @@ contains
 subroutine setup()
 help_text=[ CHARACTER(LEN=128) :: &
 'NAME                                                                            ',&
-'   mat(1f) - interpret matrix expressions using a shell-like interface          ',&
+'   laff(1f) - interpret matrix expressions using a shell-like interface         ',&
 '                                                                                ',&
 'SYNOPSIS                                                                        ',&
-'    mat [expression(s)] | [ --help| --version]                                  ',&
+'    laff [expression(s)] | [ --help| --version]                                 ',&
 '                                                                                ',&
 'DESCRIPTION                                                                     ',&
-'   mat(1) is an interactive computer program that serves as a convenient        ',&
+'   laff(1) is an interactive computer program that serves as a convenient       ',&
 '   "laboratory" for computations involving matrices. It provides easy           ',&
 '   access to matrix software developed by the LINPACK and EISPACK               ',&
 '   projects. The capabilities range from standard tasks such as solving         ',&
@@ -55,7 +55,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '  Sample commands                                                               ',&
 '                                                                                ',&
 '    # Example 1: introductory usage:                                            ',&
-'    mat                                                                         ',&
+'    laff                                                                        ',&
 '    a=<1 2 3;5 4 6;7 8 9>                                                       ',&
 '    b=<5;6;7>                                                                   ',&
 '    a*b                                                                         ',&
@@ -65,9 +65,9 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   An explanation of Example 1:                                                 ',&
 '                                                                                ',&
-'    // For this session the <> character is the LAFF prompt.                   ',&
+'    // For this session the <> character is the LAFF prompt.                    ',&
 '     <> A=<1 2 3;5 4 6;7 8 9>            <---  you enter this                   ',&
-'     A     =                             <---  LAFF response                   ',&
+'     A     =                             <---  LAFF response                    ',&
 '         1.    2.    3.                                                         ',&
 '         5.    4.    6.                                                         ',&
 '         7.    8.    9.                                                         ',&
@@ -79,22 +79,22 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '     <> A*b             <--- you enter "multiply A and b"                       ',&
 '                                                                                ',&
-'     ANS   =            <--- LAFF response                                     ',&
+'     ANS   =            <--- LAFF response                                      ',&
 '        38.                                                                     ',&
 '        91.                                                                     ',&
 '       146.                                                                     ',&
 '                                                                                ',&
 '     <> b*A             <---you enter "multiply b and A"                        ',&
-'        /--ERROR                         <--- LAFF response                    ',&
+'        /--ERROR                         <--- LAFF response                     ',&
 '     INCOMPATIBLE FOR MULTIPLICATION                                            ',&
 '                                                                                ',&
 '     <> det(A)         <--- Take the determinant of A                           ',&
 '                                                                                ',&
-'     ANS   =           <---LAFF response                                       ',&
+'     ANS   =           <---LAFF response                                        ',&
 '                                                                                ',&
 '        18.                                                                     ',&
 '                                                                                ',&
-'     <> quit           <--- you quit LAFF                                      ',&
+'     <> quit           <--- you quit LAFF                                       ',&
 '                                                                                ',&
 '     total flops        34                                                      ',&
 '     ADIOS                                                                      ',&
@@ -102,7 +102,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   Example 2: Simple looping and conditionals are also available                ',&
 '                                                                                ',&
-'    mat                                                                         ',&
+'    laff                                                                        ',&
 '    //Eigenvalue sensitivity example. See section 8 of the Users'' Guide.       ',&
 '    B = <3 0 7; 0 2 0; 0 0 1>                                                   ',&
 '    L = <1 0 0; 2 1 0; -3 4 1>,  M = L\L''                                      ',&
@@ -129,28 +129,28 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   Use the HELP command for further information.                                ',&
 '   For example, to enter HELP on the entire manual,                             ',&
 '   display directions for using HELP and                                        ',&
-'   place a User manual in the file "laff.txt",                                 ',&
+'   place a User manual in the file "laff.userguide.txt",                        ',&
 '   enter                                                                        ',&
 '                                                                                ',&
-'    mat                                                                         ',&
+'    laff                                                                        ',&
 '    <>help manual                                                               ',&
 '    continue ...                                                                ',&
 '    h // show directions for using "help"                                       ',&
-'    w laff.txt                                                                 ',&
+'    w laff.userguide.txt                                                        ',&
 '    continue ...                                                                ',&
 '    q                                                                           ',&
 '    quit                                                                        ',&
 '']
 !>
 !!##NAME
-!!    mat(1f) - interpret matrix expressions using a shell-like interface
+!!    laff(1f) - interpret matrix expressions using a shell-like interface
 !!
 !!##SYNOPSIS
 !!
-!!     mat [expression(s)] | [ --help| --version]
+!!     laff [expression(s)] | [ --help| --version]
 !!
 !!##DESCRIPTION
-!!    mat(1) is an interactive computer program that serves as a convenient
+!!    laff(1) is an interactive computer program that serves as a convenient
 !!    "laboratory" for computations involving matrices. It provides easy
 !!    access to matrix software developed by the LINPACK and EISPACK
 !!    projects. The capabilities range from standard tasks such as solving
@@ -173,7 +173,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!   Sample commands
 !!
 !!     # Example 1: introductory usage:
-!!     mat
+!!     laff
 !!     a=<1 2 3;5 4 6;7 8 9>
 !!     b=<5;6;7>
 !!     a*b
@@ -220,7 +220,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!
 !!    Example 2: Simple looping and conditionals are also available
 !!
-!!     mat
+!!     laff
 !!     //Eigenvalue sensitivity example. See section 8 of the Users' Guide.
 !!     B = <3 0 7; 0 2 0; 0 0 1>
 !!     L = <1 0 0; 2 1 0; -3 4 1>,  M = L\L'
@@ -247,20 +247,20 @@ help_text=[ CHARACTER(LEN=128) :: &
 !!    Use the HELP command for further information.
 !!    For example, to enter HELP on the entire manual,
 !!    display directions for using HELP and
-!!    place a User manual in the file "laff.txt",
+!!    place a User manual in the file "laff.userguide.txt",
 !!    enter
 !!
-!!     mat
+!!     laff
 !!     <>help manual
 !!     continue ...
 !!     h // show directions for using "help"
-!!     w laff.txt
+!!     w laff.userguide.txt
 !!     continue ...
 !!     q
 !!     quit
 version_text=[ CHARACTER(LEN=128) :: &
 'PRODUCT:        GPF (General Purpose Fortran) utilities and examples            ',&
-'PROGRAM:        mat(1)                                                          ',&
+'PROGRAM:        laff(1)                                                         ',&
 'DESCRIPTION:    interpret matrix operations using a shell-like interface        ',&
 'VERSION:        1.0, 19910403                                                   ',&
 'AUTHOR:         John S. Urban; heavily based on the original by Cleve Moler     ',&
