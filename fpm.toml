@@ -32,4 +32,4 @@ M_history      = { git = "https://github.com/urbanjost/M_history.git" }
 M_CLI2         = { git = "https://github.com/urbanjost/M_CLI2.git" }
 M_list         = { git = "https://github.com/urbanjost/M_list.git" }
 M_io           = { git = "https://github.com/urbanjost/M_io.git" }
-#M_LA           = { git = "https://github.com/urbanjost/M_LA.git" }
+M_LA           = { git = "https://github.com/urbanjost/M_LA.git" }
