@@ -9815,7 +9815,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'SUMMARY    A list of basic (case-sensitive) section and topic names             ',&
 '   .______________._________________________________________________________.   ',&
-'   |SYNTAX        | [ ] < > ( ) = .  , !  ; \ / '''' + - * : semi             | ',&
+'   |SYNTAX        | [ ] < > ( ) = .  , !  ; \ / '''' + - * : semi ?           | ',&
 '   |______________._________________________________________________________|   ',&
 '   |VARIABLES     | ans    clear who                                        |   ',&
 '   |______________._________________________________________________________|   ',&
@@ -9982,12 +9982,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      situation, it may be replaced by a semicolon to suppress                  ',&
 '      printing.                                                                 ',&
 '                                                                                ',&
-'!     If the line begins with two exclamations command history                  ',&
-'      mode is entered. The rest of the line is treated as an optional           ',&
-'      initial history edit command. Enter "!!?" to enter history mode           ',&
-'      and then display additional instructions.                                 ',&
-'                                                                                ',&
-'      Otherwise if the exclamation is the first character of a line the         ',&
+'!     If an exclamation is the first character of a line the                    ',&
 '      rest of the line is passed to the system to be executed.                  ',&
 '                                                                                ',&
 '      Examples:                                                                 ',&
@@ -10774,8 +10769,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Currently, upon input certain alternate characters are folded into           ',&
 '   others so that if you input any of the characters {}|$@"[] they will         ',&
 '   be converted to other characters.                                            ',&
+'                                                                                ',&
 '                K  character alternate name                                     ',&
-'               36                      blank                                    ',&
 '               37       (        {     lparen                                   ',&
 '               38       )        }     rparen                                   ',&
 '               40       :        |     colon                                    ',&
@@ -10785,7 +10780,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '               50       <        [     less                                     ',&
 '               51       >        ]     great                                    ',&
 '                                                                                ',&
-'   unused: `~!#%^&_?                                                            ',&
+'   unused: `~%^&_ special-purpose ?#!                                           ',&
 '                                                                                ',&
 '   So if you wanted to home the cursor and clear the screen on an               ',&
 '   ANSI-compatible terminal and entered                                         ',&
@@ -10827,7 +10822,13 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      |112  p |113  q |114  r |115  s |116  t |117  u |118  v |119  w |         ',&
 '      |120  x |121  y |122  z |123  { |124  | |125  } |126  ~ |127 del|         ',&
 '      *-------*-------*-------*-------*-------*-------*-------*-------*         ',&
-'??    See "EDIT"                                                                ',&
+'                                                                                ',&
+'??    Two exclamation marks beginning a line enters command history mode.       ',&
+'      The rest of the line is treated as an optional initial history            ',&
+'      edit command. Enter "???" to enter history mode and then display          ',&
+'      additional instructions.                                                  ',&
+'      see "EDIT" for further details.                                           ',&
+'                                                                                ',&
 'EDIT                                                                            ',&
 '      A command line consisting of two question marks("??") will cause a        ',&
 '      small line-based editor to be called (very similar to the CDC NOS         ',&
