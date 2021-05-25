@@ -112,9 +112,9 @@ the fpm.toml project file.
 ##DOCUMENTATION
 
  - call laff(3f) interactively and enter "help manual" to browse the 
- [entire user manual](https://urbanjost.github.io/M_strings/userguide.txt)
+ [entire user manual](https://urbanjost.github.io/M_matrix/userguide.txt)
 
- - An [index](https://urbanjost.github.io/M_strings/man3.html) to HTML versions
+ - An [index](https://urbanjost.github.io/M_matrix/man3.html) to HTML versions
    of the manpages included in the distribution.
 ---
 [CHANGELOG](CHANGELOG.md)
