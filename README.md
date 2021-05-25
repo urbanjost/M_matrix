@@ -14,7 +14,7 @@ but is already useful.
   + a built-in help utility describes the many matrix and math functions
     available.
 
-  - user-added routines to do work at this point
+  - __user-added routines do not work at this point__
 
 All together, this allows laff(3f) to be used for self-describing
 configuration and data files, inspecting data in existing programs,
@@ -109,7 +109,7 @@ the fpm.toml project file.
         M_matrix        = { git = "https://github.com/urbanjost/M_matrix.git" }
 ```
 
-##DOCUMENTATION
+## DOCUMENTATION
 
  - call laff(3f) interactively and enter "help manual" to browse the 
  [entire user manual](https://urbanjost.github.io/M_matrix/userguide.txt)
