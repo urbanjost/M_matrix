@@ -314,6 +314,8 @@ public mat_wdotci
 ! till get rid of type mismatches, the following are public
 
 integer,parameter,private:: sp=kind(1.0),dp=kind(1.0d0)
+character(len=*),parameter :: gen0='(*(g0))'
+character(len=*),parameter :: gen1='(*(g0,1x))'
 !==================================================================================================================================!
 ! program limits
 integer,parameter        :: GG_LINELEN=1024
@@ -550,11 +552,11 @@ integer,parameter        :: G_CHARSET_SIZE=256      ! number of characters in ch
 ! thinking ! for comments, & for continue like Fortran
 ! use % for shell commands?
 ! fold {} to ()
-!       | to :
-!       $ to \
-!       @ to .
-!       " to '
 !      [] to <>
+!       " to '
+!no more       | to :
+!no more       $ to \
+!no more       @ to .
 
 character(len=*),parameter :: digit='0123456789'
 character(len=*),parameter :: little='abcdefghijklmnopqrstuvwxyz'
@@ -3685,7 +3687,14 @@ FINISHED: block
             endif
             call mat_buf2str(topic_name,G_BUF,len(topic_name))      ! convert ADE array to string
          endif
-         call help_command(G_HELP_TEXT,topic_name,merge(G_LINECOUNT(:2),[0,huge(0)],G_PROMPT))
+         if(topic_name.eq.'search')then
+            topic_name=ade2str(pack(G_LIN,G_LIN.gt.0.and.G_LIN.lt.255))
+            i=index(topic_name,'search')                            ! assuming help command on line by itself to some extent
+            if(i.ne.0)topic_name=topic_name(i:)
+         endif
+         call help_command(G_HELP_TEXT,trim(topic_name),&
+         & merge(G_LINECOUNT(:2),[0,huge(0)],&                      ! page length
+         G_PROMPT))
       endblock HELP_
 !===================================================================================================================================
    case default ! did not find a match
@@ -5966,9 +5975,6 @@ character(len=*) :: line
       select case(line(i:i))
       case('{');line(i:i)='('
       case('}');line(i:i)=')'
-      case('|');line(i:i)=':'
-      case('$');line(i:i)='\'
-      case('@');line(i:i)='.'
       case('"');line(i:i)="'"
       case('[');line(i:i)='<'
       case(']');line(i:i)='>'
@@ -9908,6 +9914,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      o  "help" with no options lists common topic and section names.           ',&
 '      o  The special topic "topics" shows all topic lines.                      ',&
 '      o  The special topic "manual" displays all the help text.                 ',&
+'      o  The special topic "search" shows lines from the manual                 ',&
+'         containing the subsequent string                                       ',&
+'                                                                                ',&
 '         Enter "h" at the "continue ..." prompt for additional options.         ',&
 '                                                                                ',&
 '      For example:                                                              ',&
@@ -9919,6 +9928,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         help FLOW   // the entire section on flow control is displayed.        ',&
 '         help manual // show all the help text                                  ',&
 '         help help   // obviously prints this message.                          ',&
+'         help search factor // show all lines containing "factor".              ',&
 '                                                                                ',&
 '      Alternatively, To place all the documenation in a file, use               ',&
 '      "help manual" and enter "w help.txt" at the "continue .." prompt.         ',&
@@ -9934,7 +9944,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      Mar, 1990.                                                                ',&
 '                                                                                ',&
-'      Input lines can now be recalled and edited.  A "!!" on a line by          ',&
+'      Input lines can now be recalled and edited.  A "??" on a line by          ',&
 '      itself calls the command history mode. Enter "?" after entering           ',&
 '      the mode for details.                                                     ',&
 '                                                                                ',&
@@ -10962,25 +10972,31 @@ integer :: i
 integer :: m,n
 integer :: l
 if(allocated(G_PSEUDO_FILE)) write(*,*)'G_PSEUDO_FILE:SIZE:',size(G_PSEUDO_FILE)
-write(*,*)'G_PROMPT:',G_PROMPT,':G_ECHO:',G_ECHO
-write(*,*)'G_LIN:',trim(ade2str(G_LIN))
-write(*,*)'G_LHS:',G_LHS,':G_RHS:',G_RHS
-write(*,*)'G_FIN:',G_FIN,':G_FUN:',G_FUN,':G_FMT:',G_FMT
-write(*,*)'G_RIO:',G_RIO,':G_INPUT_LUN:',G_INPUT_LUN,':G_OUTPUT_LUN:',G_OUTPUT_LUN
-write(*,*)'G_PTZ:',G_PTZ,':G_SYM:',G_SYM,':G_SYN:',trim(ade2str(G_SYN))
-write(*,*)'G_CURRENT_RANDOM_SEED:',G_CURRENT_RANDOM_SEED,':G_CURRENT_RANDOM_TYPE:',G_CURRENT_RANDOM_TYPE
-write(*,*)'G_FLOP_COUNTER:',G_FLOP_COUNTER
-write(*,*)'G_DEBUG_LEVEL:',G_DEBUG_LEVEL
-write(*,*)'G_FILE_OPEN_ERROR:',G_FILE_OPEN_ERROR,':G_ERR:',G_ERR
-write(*,*)'G_LINECOUNT:',G_LINECOUNT
-                                     ! [1] lines displayed since count started
-                                     ! [2] line limit before warning (ie. page length+1)
-                                     ! [3] 0 or 1 for "semi" mode to be on or off
-                                     ! [4] flag from "exec" command, and ...
-
-write(*,*)'G_BUF:',trim(ade2str(G_BUF))
-write(*,*)'GM_BIGMEM:',GM_BIGMEM
-write(*,*)'G_TOP_OF_SAVED:',G_TOP_OF_SAVED,':G_ARGUMENT_POINTER:',G_ARGUMENT_POINTER
+write(*,gen1)'G_PROMPT:',G_PROMPT,':G_ECHO:',G_ECHO
+write(*,gen1)'G_LIN:',trim(ade2str(G_LIN))
+write(*,gen1)'G_LINE_POINTER:',G_LINE_POINTER
+!                                              ! [1] first character to process in current line
+!                                              ! [2] last character to process in current line
+!                                              ! [3]
+!                                              ! [4] pointer into current character in current line being processed
+!                                              ! [5]
+!                                              ! [6]
+write(*,gen1)'G_LHS:',G_LHS,':G_RHS:',G_RHS
+write(*,gen1)'G_FIN:',G_FIN,':G_FUN:',G_FUN,':G_FMT:',G_FMT
+write(*,gen1)'G_RIO:',G_RIO,':G_INPUT_LUN:',G_INPUT_LUN,':G_OUTPUT_LUN:',G_OUTPUT_LUN
+write(*,gen1)'G_PTZ:',G_PTZ,':G_SYM:',G_SYM,':G_SYN:',trim(ade2str(G_SYN))
+write(*,gen1)'G_CURRENT_RANDOM_SEED:',G_CURRENT_RANDOM_SEED,':G_CURRENT_RANDOM_TYPE:',G_CURRENT_RANDOM_TYPE
+write(*,gen1)'G_FLOP_COUNTER:',G_FLOP_COUNTER
+write(*,gen1)'G_DEBUG_LEVEL:',G_DEBUG_LEVEL
+write(*,gen1)'G_FILE_OPEN_ERROR:',G_FILE_OPEN_ERROR,':G_ERR:',G_ERR
+write(*,gen1)'G_LINECOUNT:',G_LINECOUNT
+!                                    ! [1] lines displayed since count started
+!                                    ! [2] line limit before warning (ie. page length+1)
+!                                    ! [3] 0 or 1 for "semi" mode to be on or off
+!                                    ! [4] flag from "exec" command, and ...
+write(*,gen1)'G_BUF:',trim(ade2str(G_BUF))
+write(*,gen1)'GM_BIGMEM:',GM_BIGMEM
+write(*,gen1)'G_TOP_OF_SAVED:',G_TOP_OF_SAVED,':G_ARGUMENT_POINTER:',G_ARGUMENT_POINTER
 do i=1,GG_MAX_NUMBER_OF_NAMES
    m=G_STACK_ROWS(i)
    n=G_STACK_COLS(i)
@@ -10998,12 +11014,6 @@ enddo
 !integer                  :: G_PT
 !
 !integer                  :: G_CHRA ! current character in line
-!integer                  :: G_LINE_POINTER(6) ! [1] first character to process in current line
-!                                              ! [2] last character to process in current line
-!                                              ! [3]
-!                                              ! [4] pointer into current character in current line being processed
-!                                              ! [5]
-!                                              ! [6]
 !==================================================================================================================================!
 !doubleprecision,allocatable    :: GM_REALS(:), GM_IMAGS(:)               ! set to size of GM_BIGMEM
 !==================================================================================================================================!
