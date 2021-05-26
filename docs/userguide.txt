@@ -1940,6 +1940,9 @@ help  topic|SECTION_NAME
       o  "help" with no options lists common topic and section names.
       o  The special topic "topics" shows all topic lines.
       o  The special topic "manual" displays all the help text.
+      o  The special topic "search" shows lines from the manual
+         containing the subsequent string
+
          Enter "h" at the "continue ..." prompt for additional options.
 
       For example:
@@ -1951,6 +1954,7 @@ help  topic|SECTION_NAME
          help FLOW   // the entire section on flow control is displayed.
          help manual // show all the help text
          help help   // obviously prints this message.
+         help search factor // show all lines containing "factor".
 
       Alternatively, To place all the documenation in a file, use
       "help manual" and enter "w help.txt" at the "continue .." prompt.
@@ -1966,7 +1970,7 @@ NEWS
 
       Mar, 1990.
 
-      Input lines can now be recalled and edited.  A "!!" on a line by
+      Input lines can now be recalled and edited.  A "??" on a line by
       itself calls the command history mode. Enter "?" after entering
       the mode for details.
 

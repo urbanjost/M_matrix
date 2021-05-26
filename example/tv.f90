@@ -176,7 +176,7 @@ integer :: ierr
 
 call set_usersub(laff_text_viz) ! set user routine
 
-call laff("user(val,48,24);") ! display using user routine
+call laff("user(val,24,80);") ! display using user routine
 write(*,*)'user added routine does normalized pixelized text plot'
 write(*,*)'optional parameters give character cell dimensiones'
 write(*,*)'the default is the size of the array'
