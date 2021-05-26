@@ -13,8 +13,7 @@ but is already useful.
     edit, and save your command history.
   + a built-in help utility describes the many matrix and math functions
     available.
-
-  - __user-added routines do not work at this point__
+  + a custom routine may be called via the user(..) function in laff(3f).
 
 All together, this allows laff(3f) to be used for self-describing
 configuration and data files, inspecting data in existing programs,
