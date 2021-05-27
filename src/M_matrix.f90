@@ -626,9 +626,9 @@ integer,parameter ::  e_up=69   ! E
 !integer,parameter ::  =88 ! X
 !integer,parameter ::  =89 ! Y
 integer,parameter ::  z_up=90   ! Z
-!integer,parameter ::  =91 ! [
+integer,parameter ::  lbracket=91 ! [
 integer,parameter ::  bslash=92 ! \
-!integer,parameter ::  =93 ! ]
+integer,parameter ::  rbracket=93 ! ]
 !integer,parameter ::  =94 ! ^
 integer,parameter ::  score=95  ! _
 !integer,parameter ::  =96 ! `
@@ -658,9 +658,9 @@ integer,parameter ::  e_low=101 ! e
 !integer,parameter ::  =120 ! x
 !integer,parameter ::  =121 ! y
 integer,parameter ::  z_low=122 ! z
-!integer,parameter ::  =123 ! {
+integer,parameter ::  lbrace=123 ! {
 !integer,parameter ::  =124 ! |
-!integer,parameter ::  =125 ! }
+integer,parameter ::  rbrace=125 ! }
 !integer,parameter ::  =126 ! ~
 
 integer,parameter        :: GG_PAD(32)=blank
@@ -1169,7 +1169,7 @@ end subroutine usersub_placeholder
 !!      >    for i = 1:m2, b(i) = 1;
 !!      >    for i = m2+1:m, b(i) = 0;
 !!      > //solve for coefficients
-!!      >    c = A$b
+!!      >    c = A\b
 !!      > //compute effective conductivity
 !!      >    c(2:2:n) = -c(2:2:n)
 !!      >    sigma = sum(c)
@@ -2421,15 +2421,15 @@ end subroutine mat_getch
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_base(x,b,eps,s,n)
+subroutine mat_base(x,base,eps,s,n)
 
-! ident_17="@(#)M_matrix::mat_base(3fp): store base b representation of x in s(1:n)"
+! ident_17="@(#)M_matrix::mat_base(3fp): store representation of x in s(1:n) using specified base"
 
-doubleprecision :: x
-doubleprecision :: b
-doubleprecision :: eps
-doubleprecision :: s(*)
-integer         :: n
+doubleprecision            :: x
+doubleprecision,intent(in) :: base
+doubleprecision,intent(in) :: eps
+doubleprecision            :: s(*)
+integer                    :: n
 
 doubleprecision :: t
 
@@ -2448,39 +2448,41 @@ integer      :: m
    s(l+2) = dot
    x = dabs(x)
    if (x .ne. 0.0d0) then
-      k = dlog(x)/dlog(b)
+      k = dlog(x)/dlog(base)
    else
       k = 0
    endif
    if (x .gt. 1.0d0) k = k + 1
-   x = x/b**k
-   if (b*x .ge. b) k = k + 1
-   if (b*x .ge. b) x = x/b
+   x = x/base**k
+   if (base*x .ge. base) k = k + 1
+   if (base*x .ge. base) x = x/base
    if (eps .ne. 0.0d0)then
-      m = (-1)*dlog(eps)/dlog(b) + 4
+      m = (-1)*dlog(eps)/dlog(base) + 4
    else
       m = 54
    endif
    do l = 4, m
-      x = b*x
+      x = base*x
       j = int(x)
       s(l) = dble(j)
       x = x - s(l)
+      s(l)=s(l)+48
    enddo
    s(m+1) = comma
    if (k .ge. 0) s(m+2) = plus
    if (k .lt. 0) s(m+2) = minus
    t = dabs(dble(k))
    n = m + 3
-   if (t .ge. b) n = n + int(dlog(t)/dlog(b))
+   if (t .ge. base) n = n + int(dlog(t)/dlog(base))
    l = n
    INFINITE: do
-      j = int(dmod(t,b))
-      s(l) = dble(j)
+      j = int(dmod(t,base))
+      s(l) = dble(j+48)
       l = l - 1
-      t = t/b
+      t = t/base
       if (l .lt. m+3) exit
    enddo INFINITE
+   write(*,*)'GOT HERE A:MAT_BASE:',ade2str(nint(s(1:m+3)))
 end subroutine mat_base
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -3238,7 +3240,7 @@ character(len=:),allocatable :: symbol
             call mat_getsym()
             goto 50
          endif
-         IF (G_CHRA .EQ. LPAREN) then
+         IF (G_CHRA .EQ. LPAREN .or. G_CHRA .EQ. LBRACE) then
             ! lhs is name(...)
             G_LINE_POINTER(5) = G_LINE_POINTER(4)
             call mat_copyid(ID,G_SYN)
@@ -3247,8 +3249,8 @@ character(len=:),allocatable :: symbol
          endif
          goto 50
       endif
-      if (G_SYM .eq. less) goto 40
-      if (G_SYM .eq. great) goto 45
+      if (G_SYM .eq. less .or. G_SYM .eq. lbracket) goto 40
+      if (G_SYM .eq. great .or. G_SYM .eq. rbracket) goto 45
       goto 50
 !.......................................................................
 !     lhs is name(...)
@@ -3267,12 +3269,12 @@ character(len=:),allocatable :: symbol
       excnt = G_PSTK(G_PT)
       G_PT = G_PT-1
       if (G_SYM .eq. comma) goto 32
-      if (G_SYM .ne. rparen) then
+      if ((G_SYM .ne. rparen) .and. (G_SYM.ne.rbrace)) then
          call mat_err(3)
          goto 01
          return  ! ???? cannot unconditionally goto and return
       endif
-      if (G_SYM .eq. rparen) call mat_getsym()
+      if ((G_SYM .eq. rparen) .or. (G_SYM.eq.rbrace)) call mat_getsym()
       if (G_SYM .eq. equal) goto 50
 !     lhs is really rhs, forget scan just done
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER - excnt
@@ -3295,7 +3297,7 @@ character(len=:),allocatable :: symbol
       endif
       call mat_copyid(id,G_SYN)
       call mat_getsym()
-      if (G_SYM .eq. great)then
+      if (G_SYM .eq. great.or. G_SYM.eq.rbracket)then
          call mat_getsym()
          if (G_SYM .eq. equal) goto 50
          goto 43
@@ -3319,7 +3321,7 @@ character(len=:),allocatable :: symbol
 !     macros string
    45 continue
       call mat_getsym()
-      if (G_SYM.eq.less .and. G_CHRA.eq.GG_EOL) then
+      if ((G_SYM.eq.less .or. G_SYM.eq.lbracket) .and. G_CHRA.eq.GG_EOL) then
          call mat_err(28) ! Empty macro
          goto 01
       endif
@@ -3330,11 +3332,11 @@ character(len=:),allocatable :: symbol
 !.......................................................................
    46 continue
       G_PT = G_PT-1
-      if (G_SYM.ne.less .and. G_SYM.ne.GG_EOL) then
+      if ((G_SYM.ne.less .and. G_SYM.ne.lbracket) .and. G_SYM.ne.GG_EOL) then
          call mat_err(37) ! Improper MACROS
          goto 01
       endif
-      if (G_SYM .eq. less) call mat_getsym()
+      if (G_SYM .eq. less .or. G_SYM.eq. lbracket) call mat_getsym()
       k = G_LINE_POINTER(6)
       G_LIN(k+1) = G_LINE_POINTER(1)
       G_LIN(k+2) = G_LINE_POINTER(2)
@@ -5224,9 +5226,9 @@ logical                    :: isfound
 60    continue
       if (G_FIN.eq.7)goto 65
       if (G_RHS .ge. 2)then
-         if (G_RHS .ne. 2) call mat_err(39) ! Incorrect number of arguments
-         if (GM_REALS(location) .lt. 1.0d0)then ! test if base is 0
-            call mat_err(36) ! Argument out of range
+         if (G_RHS .ne. 2) call mat_err(39)           ! Incorrect number of arguments
+         if (GM_REALS(location) .lt. 1.0d0)then       ! test if base is 0
+            call mat_err(36)                          ! Argument out of range
             exit FUN5
          endif
          b = GM_REALS(location)
@@ -5263,9 +5265,12 @@ logical                    :: isfound
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 !     command::base
    65 CONTINUE
-      if (G_RHS .ne. 2) call mat_err(39) ! Incorrect number of arguments
-      if (GM_REALS(location) .le. 1.0d0)then ! test if base is 0
-         call mat_err(36) ! Argument out of range
+      if (G_RHS .ne. 2) then
+         call mat_err(39)                         ! Incorrect number of arguments
+         exit FUN5
+      endif
+      if (GM_REALS(location) .le. 1.0d0) then     ! test if base is <= 0
+         call mat_err(36)                         ! Argument out of range
          exit FUN5
       endif
       b = GM_REALS(location)
@@ -5973,11 +5978,11 @@ subroutine fold(line)
 character(len=*) :: line
    do i=1,len(line)
       select case(line(i:i))
-      case('{');line(i:i)='('
-      case('}');line(i:i)=')'
+      !case('{');line(i:i)='('
+      !case('}');line(i:i)=')'
       case('"');line(i:i)="'"
-      case('[');line(i:i)='<'
-      case(']');line(i:i)='>'
+      !case('[');line(i:i)='<'
+      !case(']');line(i:i)='>'
       case default
       endselect
    enddo
@@ -6114,13 +6119,13 @@ integer            :: n
 !     *call* EXPR
    return
 40 continue
-   if (G_SYM.ne.equal .and. G_SYM.NE.LESS .and. G_SYM.NE.GREAT)then
+   if (G_SYM.ne.equal .and. (G_SYM.NE.LESS.and.G_SYM.ne.lbracket) .and. (G_SYM.NE.GREAT.and.G_SYM.ne.rbracket))then
       call mat_err(35)    ! improper WHILE or IF clause
       return
    endif
    op = G_SYM
    call mat_getsym()
-   if (G_SYM.EQ.equal .or. G_SYM.EQ.great) op = op + G_SYM
+   if (G_SYM.EQ.equal .or. (G_SYM.EQ.great)) op = op + G_SYM
    if (op .gt. great) call mat_getsym()
    G_PSTK(G_PT) = 256*G_PSTK(G_PT) + op
    G_RSTK(G_PT) = 5
@@ -6140,8 +6145,8 @@ integer            :: n
       call mat_err(35) ! improper WHILE or IF clause
       return
    endif
-   if (op.eq.equal         .and. e1.eq.e2) goto 50
-   if (op.eq.less          .and. e1.lt.e2) goto 50
+   if (op.eq.equal .and. e1.eq.e2) goto 50
+   if ((op.eq.less) .and. e1.lt.e2) goto 50
    if (op.eq.great         .and. e1.gt.e2) goto 50
    if (op.eq.(less+equal)  .and. e1.le.e2) goto 50
    if (op.eq.(great+equal) .and. e1.ge.e2) goto 50
@@ -6295,12 +6300,12 @@ integer           :: n
    !      1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19
    goto (99,99,99,99,99,99,99,01,01,25,45,65,99,99,99,55,75,32,37),r
 01 continue
-   if (.not.(G_SYM.eq.isnum .or. G_SYM.eq.quote .or.  G_SYM.EQ.less)) then
+   if (.not.(G_SYM.eq.isnum .or. G_SYM.eq.quote .or.  (G_SYM.EQ.less.or.G_SYM.eq.lbracket))) then
 
-      if (G_SYM .eq. great)then
+      if (G_SYM .eq. great.or.G_SYM.eq.rbracket)then
          !  MACROS STRING
             call mat_getsym()
-            if (G_SYM .eq. less .and. G_CHRA.EQ.GG_EOL) then
+            if ((G_SYM .eq. less.or.G_SYM.eq.lbracket) .and. G_CHRA.EQ.GG_EOL) then
             call mat_err(28) ! Empty macro
             return
          endif
@@ -6315,7 +6320,7 @@ integer           :: n
          ! FUNCTION OR MATRIX ELEMENT
          call mat_copyid(id,G_SYN)
          call mat_getsym()
-         if (G_SYM .eq. lparen) goto 42
+         if (G_SYM .eq. lparen .or. G_SYM.eq. lbrace) goto 42
          G_RHS = 0
          call mat_funs(ID)
          if (G_FIN .ne. 0) then
@@ -6334,7 +6339,7 @@ integer           :: n
          goto 60
       endif
       id(1) = BLANK
-      if (G_SYM .eq. lparen) goto 42
+      if (G_SYM .eq. lparen .or. G_SYM.eq. lbrace) goto 42
       call mat_err(2)
       return
    endif
@@ -6354,7 +6359,7 @@ integer           :: n
    G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
    G_STACK_ID_LOC(G_ARGUMENT_POINTER) = location
    if (G_SYM .ne. quote) then
-      if (G_SYM .eq. less) goto 20
+      if (G_SYM .eq. less.or.G_SYM.eq.lbracket) goto 20
       ! single number, getsym stored it in GM_IMAGS
       G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
       G_STACK_COLS(G_ARGUMENT_POINTER) = 1
@@ -6414,7 +6419,7 @@ integer           :: n
    call mat_getsym()
 
 22 continue
-   if (G_SYM.eq.semi .or. G_SYM.eq.great .or. G_SYM.eq.GG_EOL) then
+   if (G_SYM.eq.semi .or. (G_SYM.eq.great.or.G_SYM.eq.rbracket) .or. G_SYM.eq.GG_EOL) then
       if (G_SYM.eq.semi .and. G_CHRA.eq.GG_EOL) call mat_getsym()
       call mat_stack1(quote)
       if (G_ERR .gt. 0) return
@@ -6429,7 +6434,7 @@ integer           :: n
       G_STACK_COLS(G_ARGUMENT_POINTER) = G_STACK_COLS(G_ARGUMENT_POINTER) &
          & + G_STACK_COLS(G_ARGUMENT_POINTER+1)
       if (G_SYM .eq. GG_EOL) call mat_getlin()
-      if (G_SYM .ne. great) goto 21
+      if (G_SYM .ne. great.and. G_SYM.ne.rbracket) goto 21
       call mat_stack1(quote)
       if (G_ERR .gt. 0) return
       call mat_getsym()
@@ -6458,11 +6463,11 @@ integer           :: n
 !==================================================================================================================================!
 32 continue
    G_PT = G_PT-1
-   if (G_SYM.ne.less .and. G_SYM.NE.GG_EOL) then
+   if ((G_SYM.ne.less.or.G_SYM.eq.lbracket) .and. G_SYM.NE.GG_EOL) then
       call mat_err(37) ! Improper MACROS
       return
    endif
-   if (G_SYM .EQ. LESS) call mat_getsym()
+   if (G_SYM .EQ. LESS.or.G_SYM.eq.lbracket) call mat_getsym()
    k = G_LINE_POINTER(6)
    G_LIN(k+1) = G_LINE_POINTER(1)
    G_LIN(k+2) = G_LINE_POINTER(2)
@@ -6521,11 +6526,11 @@ integer           :: n
    excnt = G_PSTK(G_PT)
    G_PT = G_PT-1
    if (G_SYM .eq. comma) goto 42
-   if (G_SYM .ne. rparen) then
+   if ((G_SYM .ne. rparen) .and. (G_SYM.ne.rbrace)) then
       call mat_err(3)
       return
    endif
-   if (G_SYM .eq. rparen) call mat_getsym()
+   if ((G_SYM .eq. rparen) .or. (G_SYM .eq. rbrace)) call mat_getsym()
    if (id(1) .eq. blank) goto 60
    G_RHS = excnt
    call MAT_STACK_GET(id)
@@ -8201,15 +8206,13 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Note that both upper and lower case letters are allowed for input            ',&
 '   (on those systems which have both).                                          ',&
 '                                                                                ',&
-'   There are two "matrix division" symbols in LAFF, \ and / .                   ',&
-'   (If your terminal does not have a backslash, use $ instead, or               ',&
-'   see "CHAR".) If A and B are matrices, then A\B and B/A correspond            ',&
-'   formally to left and right multiplication of B by the inverse of             ',&
-'   A, that is inv(A)*B and B*inv(A), but the result is obtained                 ',&
-'   directly without the computation of the inverse. In the scalar               ',&
-'   case, 3\1 and 1/3 have the same value, namely one-third. In                  ',&
-'   general, A\B denotes the solution X to the equation A*X = B and              ',&
-'   B/A denotes the solution to X*A = B.                                         ',&
+'   There are two "matrix division" symbols in LAFF, \ and / .  If A and         ',&
+'   B are matrices, then A\B and B/A correspond formally to left and right       ',&
+'   multiplication of B by the inverse of A, that is inv(A)*B and B*inv(A),      ',&
+'   but the result is obtained directly without the computation of the           ',&
+'   inverse. In the scalar case, 3\1 and 1/3 have the same value, namely         ',&
+'   one-third. In general, A\B denotes the solution X to the equation A*X =      ',&
+'   B and B/A denotes the solution to X*A = B.                                   ',&
 '                                                                                ',&
 '   Left division, A\B, is defined whenever B has as many rows as A. If A        ',&
 '   is square, it is factored using Gaussian elimination. The factors are        ',&
@@ -8344,12 +8347,10 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   (Roundoff error usually causes this result to be a matrix of "small"         ',&
 '   numbers, rather than all zeros.)                                             ',&
 '                                                                                ',&
-'   All computations are done using either single or double precision real       ',&
-'   arithmetic, whichever is appropriate for the particular computer. There      ',&
+'   All computations are done using double precision real arithmetic. There      ',&
 '   is no mixed-precision arithmetic.  The Fortran COMPLEX data type             ',&
 '   is not used because many systems create unnecessary underflows and           ',&
-'   overflows with complex operations and because some systems do not            ',&
-'   allow double precision complex arithmetic.                                   ',&
+'   overflows with complex operations.                                           ',&
 '                                                                                ',&
 '================================================================================',&
 'FUNCTIONS                                                                       ',&
@@ -8559,10 +8560,14 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   The "quit" and "exit" commands cause return to the underlying operating      ',&
 '   system through the Fortran RETURN statement.                                 ',&
 '                                                                                ',&
-'   LAFF has a limited facility for handling text. Any string of                 ',&
-'   characters delineated by quotes (with two quotes used to allow one           ',&
-'   quote within the string) is saved as a vector of integer values that         ',&
-'   are the ADE (Ascii Decimal Equivalent) value of the character.               ',&
+'   LAFF has a limited facility for handling text. Any string of characters      ',&
+'   delineated by quotes (with two quotes used to allow one quote within         ',&
+'   the string) is saved as a vector of integer values that are the ADE          ',&
+'   (Ascii Decimal Equivalent) value of the character, with special              ',&
+'   equivalencing of the characters {}[]" into ()<>'' in expressions. It         ',&
+'   is important to know you use those characters as part of an expression       ',&
+'   or command without treating them as equivalent outside of strings.           ',&
+'                                                                                ',&
 '   (The complete list is in the appendix under "CHAR".) For example             ',&
 '                                                                                ',&
 '      ''2*A + 3''  is the same as  < 50 42 65 32 43 32 51 >.                    ',&
@@ -10818,20 +10823,17 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      display(32:126)  //  display the basic visible ASCII characters           ',&
 '                                                                                ',&
 '   Currently, upon input certain alternate characters are folded into           ',&
-'   others so that if you input any of the characters {}|$@"[] they will         ',&
+'   others so that if you input any of the characters {}"[] they will            ',&
 '   be converted to other characters.                                            ',&
 '                                                                                ',&
-'                K  character alternate name                                     ',&
-'               37       (        {     lparen                                   ',&
-'               38       )        }     rparen                                   ',&
-'               40       :        |     colon                                    ',&
-'               45       \        $     backslash                                ',&
-'               47       .        @     dot                                      ',&
-'               49       ''        "     quote                                   ',&
-'               50       <        [     less                                     ',&
-'               51       >        ]     great                                    ',&
+'              ADE  character ADE alternate name                                 ',&
+'               40       (    123     {     lparen                               ',&
+'               41       )    125     }     rparen                               ',&
+'               39       ''     34     "     quote                               ',&
+'               60       <     91     [     less                                 ',&
+'               62       >     93     ]     great                                ',&
 '                                                                                ',&
-'   unused: `~%^&_ special-purpose ?#!                                           ',&
+'   unused: `~%^&_|$@ special-purpose ?#!                                        ',&
 '                                                                                ',&
 '   So if you wanted to home the cursor and clear the screen on an               ',&
 '   ANSI-compatible terminal and entered                                         ',&
