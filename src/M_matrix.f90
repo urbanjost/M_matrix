@@ -320,7 +320,7 @@ character(len=*),parameter :: gen1='(*(g0,1x))'
 ! program limits
 integer,parameter        :: GG_LINELEN=1024
 integer,parameter        :: GG_MAX_NUMBER_OF_NAMES=480
-integer,parameter        :: GG_MAX_NAME_LENGTH=32       ! <WARNING> just began changing this to a constant
+integer,parameter        :: GG_MAX_NAME_LENGTH=63       ! <WARNING> just began changing this to a constant
 integer,parameter        :: GG_EOL=99999           ! make > 2256
 
 !==================================================================================================================================!
@@ -657,7 +657,7 @@ integer,parameter ::  lbrace=123 ! {
 integer,parameter ::  rbrace=125 ! }
 !integer,parameter ::  =126 ! ~
 
-integer,parameter        :: GG_PAD(32)=blank
+integer,parameter        :: GG_PAD(63)=blank
 !==================================================================================================================================!
 ! allow for a user-defined subroutine.
 ! ??? expand this to allow for multiple routines and a user-specified name for the procedure
@@ -7963,8 +7963,10 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   procedures that serves as a convenient tool for Fortran programs to          ',&
 '   interact with their data (interactively or in batch mode) with a             ',&
 '   tool that acts as a basic "laboratory" for computations involving            ',&
-'   matrices. It provides easy access to matrix software developed by            ',&
-'   the LINPACK and EISPACK projects.                                            ',&
+'   matrices.                                                                    ',&
+'                                                                                ',&
+'   It provides easy access to matrix software developed by the LINPACK          ',&
+'   and EISPACK projects.                                                        ',&
 '                                                                                ',&
 '   It is based on the Los Alamos procedure MATLAB, and owes much to             ',&
 '   Cleve Moler, Department of Computer Science, University of New Mexico.       ',&
@@ -7989,24 +7991,21 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   nonsymmetric eigenvalue problems, to fairly sophisticated matrix             ',&
 '   tools such as the singular value decomposition.                              ',&
 '                                                                                ',&
-'   LAFF is well suited for classroom use.  It should be useful in               ',&
-'   introductory courses in applied linear algebra, as well as more              ',&
-'   advanced courses in numerical analysis, matrix theory, statistics and        ',&
-'   applications of matrices to other disciplines. In nonacademic settings,      ',&
-'   LAFF can serve as a "desk calculator" for the quick solution of              ',&
-'   small problems involving matrices.                                           ',&
+'   LAFF should be useful in applied linear algebra, as well as more             ',&
+'   numerical analysis, matrix theory, statistics and applications of            ',&
+'   matrices to other disciplines.                                               ',&
+'                                                                                ',&
+'   LAFF can serve as a "desk calculator" for the quick solution of small        ',&
+'   problems involving matrices.                                                 ',&
 '                                                                                ',&
 '   The program is written in Fortran and is designed to be readily              ',&
 '   installed under any operating system which permits interactive               ',&
 '   execution of Fortran programs. The resources required are fairly             ',&
-'   modest. There are less than 7000 lines of Fortran source code,               ',&
-'   including the LINPACK and EISPACK subroutines used.                          ',&
+'   modest.                                                                      ',&
 '                                                                                ',&
-'   The size of the matrices that can be handled in LAFF depends upon            ',&
-'   the amount of storage that is set aside when the system is compiled          ',&
-'   on a particular machine.  Since most of the algorithms used access           ',&
-'   memory in a sequential fashion, a large amount of allocated storage          ',&
-'   causes little or no difficulties even when virtual memory is used.           ',&
+'   The size of the matrices that can be handled in LAFF depends upon the        ',&
+'   amount of storage available on the supporting platform and the optional      ',&
+'   word count that can be supplied on an initial call to LAFF(3f).              ',&
 '                                                                                ',&
 '   In some ways, LAFF resembles SPEAKEASY [4] and, to a lesser extent,          ',&
 '   APL. All are interactive terminal languages that ordinarily accept           ',&
@@ -8031,12 +8030,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   In more advanced applications, LAFF can be used in conjunction with          ',&
 '   other programs in several ways. It is possible to define new LAFF            ',&
-'   functions and add them to the system. With most operating systems,           ',&
-'   it is possible to use the local file system to pass matrices between         ',&
-'   LAFF and other programs. LAFF command and statement input can be             ',&
-'   obtained from a local file instead of from the terminal. The most            ',&
-'   power and flexibility is obtained by using LAFF as a subroutine              ',&
-'   which is called by other programs.                                           ',&
+'   functions and add them to the system.  it is possible to use the local       ',&
+'   file system to pass matrices between LAFF and other programs. LAFF           ',&
+'   command and statement input can be obtained from a local file instead        ',&
+'   of from the terminal. The most power and flexibility is obtained by          ',&
+'   using LAFF as a subroutine which is called by other programs.                ',&
 '                                                                                ',&
 '   This document first gives an overview of LAFF from the user''s               ',&
 '   point of view. Several extended examples involving data fitting,             ',&
@@ -8134,8 +8132,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   Two consecutive slashes anywhere on a line cause the remainder of            ',&
 '   the line to be ignored. This is useful for inserting comments.               ',&
 '                                                                                ',&
-'   Names of variables are formed by a letter, followed by any number of         ',&
-'   letters and digits, but only the first 32 characters are remembered.         ',&
+'   Names of variables are formed by a letter, followed by any of                ',&
+'   letters, digits and underscores, up to 63 characters in length.              ',&
 '                                                                                ',&
 '   The special character prime ('') is used to denote the transpose of          ',&
 '   a matrix, so                                                                 ',&
