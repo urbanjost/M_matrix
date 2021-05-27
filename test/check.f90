@@ -1213,10 +1213,21 @@ subroutine test_tril ()
    call laff( 'help tril')
    call laff( 'tally=[0];')
    call laff( [ character(len=256) :: &
+  & '', &
+  & 'a=magic(6);', &
+  & '', &
+  & 'answer=tril(a);', &
+  & 'expected =<35 0 0 0 0 0; 3 32 0 0 0 0; 31 9 2 0 0 0; 8 28 33 17 0 0; 30 5 34 12 14 0; 4 36 29 13 18 11>;', &
+  & 'if answer=expected, tally=[tally,0], else, tally=[tally,1];', &
+  & '', &
+  & 'answer=tril(a,2);', &
+  & 'expected = <35 1 6 0 0 0; 3 32 7 21 0 0; 31 9 2 22 27 0; 8 28 33 17 10 15; 30 5 34 12 14 16; 4 36 29 13 18 11>;', &
+  & 'if answer=expected, tally=[tally,0], else, tally=[tally,2];', &
+  & '', &
+  & 'answer=tril(a,-1);', &
+  & 'expected =< 0 0 0 0 0 0; 3 0 0 0 0 0; 31 9 0 0 0 0; 8 28 33 0 0 0; 30 5 34 12 0 0; 4 36 29 13 18 0>;', &
+  & 'if answer=expected, tally=[tally,0], else, tally=[tally,3];', &
   & '                                                                         ', &
-  & '                                                                         ', &
-  & '                                                                         ', &
-  !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
   & 'if sum(tally)=0,display(''tril PASSED'');else,display(''tril FAILED'');tally ', &
   & ''])
 end subroutine test_tril
