@@ -7,18 +7,18 @@ doubleprecision   :: arr(lda,lda),x(lda,lda)
 logical           :: logs=.false.
    !!logs=.true.
    !!call laff(2000,echo=.true.)
-   call laff( "display(ones(80,1)'*46)")
-   call laff( 'display("test_1");clear;')
-   if(logs)call laff( 'diary("test_1.log");')
+   call laff( 'display(ones(80,1)''*46)')
+   call laff( 'display(''test_1'');clear;')
+   if(logs)call laff( 'diary(''test_1.log'');')
    call laff( [ character(len=256) :: &
 '// -----------------------------------------------------------------            ',&
-'titles=["GNP deflator"                                                          ',&
-'        "GNP         "                                                          ',&
-'        "Unemployment"                                                          ',&
-'        "Armed Force "                                                          ',&
-'        "Population  "                                                          ',&
-'        "Year        "                                                          ',&
-'        "Employment  "];                                                        ',&
+'titles=[''GNP deflator''                                                          ',&
+'        ''GNP         ''                                                          ',&
+'        ''Unemployment''                                                          ',&
+'        ''Armed Force ''                                                          ',&
+'        ''Population  ''                                                          ',&
+'        ''Year        ''                                                          ',&
+'        ''Employment  ''];                                                        ',&
 '// -----------------------------------------------------------------            ',&
 'data = [                                                                        ',&
 '    83.0  234.289  235.6  159.0  107.608  1947  60.323                          ',&
@@ -49,7 +49,7 @@ logical           :: logs=.false.
 'long e                                                                          ',&
 'beta = X\y                                                                      ',&
 '// -----------------------------------------------------------------            ',&
-'display("EXPECTED and BETA should be the same");                                ',&
+'display(''EXPECTED and BETA should be the same'');                                ',&
 'eps                                                                             ',&
 'expected = [ ...                                                                ',&
 '        -3.482258634594421D+03                                                  ',&
@@ -64,7 +64,7 @@ logical           :: logs=.false.
 '<M,N>=size(expected);                                                           ',&
 'for i=1:M, for j=1:N, if abs(delta(i,j))<=eps, delta(i,j)=0; else, delta(i,j)=-1;',&
 'delta                                                                           ',&
-'if delta=zeros(M,N),display("PASSED"),else,display("FAILED")                    ',&
+'if delta=zeros(M,N),display(''PASSED''),else,display(''FAILED'')                    ',&
 '// -----------------------------------------------------------------            ',&
 ''])
 end program test_1

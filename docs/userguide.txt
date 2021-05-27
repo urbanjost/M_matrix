@@ -227,15 +227,13 @@ ELEMENTARY OPERATIONS
    Note that both upper and lower case letters are allowed for input
    (on those systems which have both).
 
-   There are two "matrix division" symbols in LAFF, \ and / .
-   (If your terminal does not have a backslash, use $ instead, or
-   see "CHAR".) If A and B are matrices, then A\B and B/A correspond
-   formally to left and right multiplication of B by the inverse of
-   A, that is inv(A)*B and B*inv(A), but the result is obtained
-   directly without the computation of the inverse. In the scalar
-   case, 3\1 and 1/3 have the same value, namely one-third. In
-   general, A\B denotes the solution X to the equation A*X = B and
-   B/A denotes the solution to X*A = B.
+   There are two "matrix division" symbols in LAFF, \ and / .  If A and
+   B are matrices, then A\B and B/A correspond formally to left and right
+   multiplication of B by the inverse of A, that is inv(A)*B and B*inv(A),
+   but the result is obtained directly without the computation of the
+   inverse. In the scalar case, 3\1 and 1/3 have the same value, namely
+   one-third. In general, A\B denotes the solution X to the equation A*X =
+   B and B/A denotes the solution to X*A = B.
 
    Left division, A\B, is defined whenever B has as many rows as A. If A
    is square, it is factored using Gaussian elimination. The factors are
@@ -370,12 +368,10 @@ ELEMENTARY OPERATIONS
    (Roundoff error usually causes this result to be a matrix of "small"
    numbers, rather than all zeros.)
 
-   All computations are done using either single or double precision real
-   arithmetic, whichever is appropriate for the particular computer. There
+   All computations are done using double precision real arithmetic. There
    is no mixed-precision arithmetic.  The Fortran COMPLEX data type
    is not used because many systems create unnecessary underflows and
-   overflows with complex operations and because some systems do not
-   allow double precision complex arithmetic.
+   overflows with complex operations.
 
 ================================================================================
 FUNCTIONS
@@ -585,10 +581,14 @@ CHARACTERS AND TEXTFILES AND MACROS
    The "quit" and "exit" commands cause return to the underlying operating
    system through the Fortran RETURN statement.
 
-   LAFF has a limited facility for handling text. Any string of
-   characters delineated by quotes (with two quotes used to allow one
-   quote within the string) is saved as a vector of integer values that
-   are the ADE (Ascii Decimal Equivalent) value of the character.
+   LAFF has a limited facility for handling text. Any string of characters
+   delineated by quotes (with two quotes used to allow one quote within
+   the string) is saved as a vector of integer values that are the ADE
+   (Ascii Decimal Equivalent) value of the character, with special
+   equivalencing of the characters {}[]" into ()<>' in expressions. It
+   is important to know you use those characters as part of an expression
+   or command without treating them as equivalent outside of strings.
+
    (The complete list is in the appendix under "CHAR".) For example
 
       '2*A + 3'  is the same as  < 50 42 65 32 43 32 51 >.
@@ -2109,13 +2109,15 @@ SYNTAX
       IF A and B have the same dimensions, then A ./ B has
       elements a(i,j)/b(i,j) .
 
-      Two or more slashes together on a line indicate a logical
-      end of line. Any following text is ignored.
+      Two or more slashes together on a line indicate a logical end of
+      line. Any following text is ignored.
 
 '     Transpose. X' is the complex conjugate transpose of X .
-      Quote. 'ANY TEXT' is a vector whose components are the LAFF
-      internal codes for the characters. A quote within the text is
-      indicated by two quotes. See "display" and "FILE" .
+
+      A quote is also use to delmit text. 'ANY TEXT' is a vector whose
+      components are the LAFF internal codes for the characters. A
+      quote within the text is indicated by two quotes. See "display"
+      and "FILE" .
 
 +     Addition. X + Y . X and Y must have the same dimensions.
 
@@ -2838,38 +2840,31 @@ CHAR  special issues regarding strings
    characters delineated by quotes (with two quotes used to allow one
    quote within the string) is saved as a vector of integer values that
    are the ADE (Ascii Decimal Equivalent) value of the character.
+
+   In commands { and } are equivalent to ( and )
+
+   When defining an array [ and ] or < and > may be used as the delimiters.
+
+   laff(3f)  is too flexible about that and lets them be interchanged freely
+   instead of being matched but that will probably change to be more strictly
+   enforced.
+
+   Currently " is not a special character but will probably be allowed as a
+   string quoting character in the future.
+
    For example
 
       '2*A + 3'        //  is the same as  < 50 42 65 32 43 32 51 >.
       display(32:126)  //  display the basic visible ASCII characters
 
-   Currently, upon input certain alternate characters are folded into
-   others so that if you input any of the characters {}|$@"[] they will
-   be converted to other characters.
-
-                K  character alternate name
-               37       (        {     lparen
-               38       )        }     rparen
-               40       :        |     colon
-               45       \        $     backslash
-               47       .        @     dot
-               49       '        "     quote
-               50       <        [     less
-               51       >        ]     great
-
-   unused: `~%^&_ special-purpose ?#!
 
    So if you wanted to home the cursor and clear the screen on an
    ANSI-compatible terminal and entered
 
        display(<27,'[H',27,'[2J'>)
 
-   It would not work as the [ character got mapped to <. You would
-   instead enter
-
-       display([27,91,'H',27,91,'2J'])
-
-   More usefully, if you define the string
+   The terminal screen would clear. More usefully, if you define the
+   string
 
        clr='display([27,91,''H'',27,91,''2J''])'
 

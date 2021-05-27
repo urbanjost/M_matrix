@@ -48,7 +48,7 @@
 !!     ! pass some commands to laff(3f)
 !!     call laff([character(len=80) :: &
 !!     &'PI=atan(1)*4               ', &
-!!     &'mytitle="this is my title";', &
+!!     &"mytitle='this is my title';", &
 !!     &'littlearray=<              ', &
 !!     &'   1 2 3;                  ', &
 !!     &'   4 5 6;                  ', &
@@ -57,11 +57,11 @@
 !!     &'S=sum(A)                   ', &
 !!     &'I=inv(littlearray);        ', &
 !!     &'B=littlearray*sin(PI/3)    ', &
-!!     &'save("keepB",B)            ', &
+!!     &"save('keepB',B)            ", &
 !!     &''])
 !!
 !!     ! read a file containing laff(3f) commands
-!!     call laff('exec("mycommands");')
+!!     call laff("exec('mycommands');")
 !!
 !!     ! interactively interact with laff(3f) interpreter
 !!     call laff()
@@ -551,12 +551,6 @@ integer,parameter        :: G_CHARSET_SIZE=256      ! number of characters in ch
 ! now allow all characters, using !#
 ! thinking ! for comments, & for continue like Fortran
 ! use % for shell commands?
-! fold {} to ()
-!      [] to <>
-!       " to '
-!no more       | to :
-!no more       $ to \
-!no more       @ to .
 
 character(len=*),parameter :: digit='0123456789'
 character(len=*),parameter :: little='abcdefghijklmnopqrstuvwxyz'
@@ -804,7 +798,7 @@ end subroutine usersub_placeholder
 !!          & 'semi;                         ',&
 !!          & 'a=magic(4),b=-a               ',&
 !!          & 'a+b;a;b                       ',&
-!!          & 'display("That is all Folks!") '])
+!!          & "display('That is all Folks!') "])
 !!
 !!          write(*,'(a)')'do a single command'
 !!          call LAFF('who')
@@ -828,12 +822,12 @@ end subroutine usersub_placeholder
 !!        & 'A=magic(4),<X,Y>=size(A)                              ',&
 !!        & 'B=A+ones(X,Y)*100                                     ',&
 !!        & '// save all current values to a file                  ',&
-!!        & 'save("sample.laf")                                    ',&
+!!        & "save('sample.laf')                                    ",&
 !!        & '// clear all user values                              ',&
 !!        & 'clear                                                 ',&
 !!        & '// show variable names, load values from file         ',&
 !!        & '// and show again to show the variables are restored  ',&
-!!        & 'who;load("sample.laf");who                            '])
+!!        & "who;load('sample.laf');who                            "])
 !!    end program bigmat
 !!
 !!   Example 3: Sample program with custom user function
@@ -1549,7 +1543,7 @@ character(len=255)   :: msg
     case(19); msg='Matrix is singular to working precision'
     case(20); msg='Matrix must be square'
     case(21); msg='Subscript out of range'
-    case(22); write(msg, "(1x,'Recursion difficulties',*(i4))") (G_RSTK(i),i=1,G_PT)
+    case(22); write(msg, '(1x,"Recursion difficulties",*(i4))') (G_RSTK(i),i=1,G_PT)
     case(23); msg='Only 1, 2 or INF norm of matrix'
     case(24); msg='No convergence'
     case(25); msg='Can not use function name as variable'
@@ -1977,7 +1971,7 @@ character(len=GG_LINELEN) :: string_buf
       ! its column and row dimensions in M and N, and the scalar parameters
       ! s and t stored in S and T. If s and t are omitted, they are set
       ! to 0.0. After the return, A is stored in Y. The dimensions M and
-      ! N may be reset within the subroutine. The statement Y = "user(K)"
+      ! N may be reset within the subroutine. The statement Y = user(K)"
       ! results in a call with M = 1, N = 1 and A(1,1) = "float(K)".
 
       ! all of the arguments are in a vector that is part of the stack.
@@ -5877,7 +5871,6 @@ integer                   :: ios
          endif
       endif
       if(G_ECHO)write(*,'(*(g0))')'',trim(mline)
-      call fold(mline)
       shift_mline=adjustl(mline)
       if(shift_mline(1:2).eq.'??')then            ! edit command line history
          mline='. '//mline(3:)
@@ -5971,22 +5964,6 @@ character(len=GG_LINELEN) :: line
       G_PSEUDO_FILE=[character(len=GG_LINELEN) :: ]
    endif
 end function get_pseudo_line
-
-subroutine fold(line)
-! the Fortran matlab version folded these characters, I think even in strings in quotes, so do that for now but probably
-! want to allow both instead of folding or these characters cannot be used in filenames and display() functions
-character(len=*) :: line
-   do i=1,len(line)
-      select case(line(i:i))
-      !case('{');line(i:i)='('
-      !case('}');line(i:i)=')'
-      case('"');line(i:i)="'"
-      !case('[');line(i:i)='<'
-      !case(']');line(i:i)='>'
-      case default
-      endselect
-   enddo
-end subroutine fold
 
 end subroutine mat_getlin
 !==================================================================================================================================!
@@ -10088,13 +10065,15 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      IF A and B have the same dimensions, then A ./ B has                      ',&
 '      elements a(i,j)/b(i,j) .                                                  ',&
 '                                                                                ',&
-'      Two or more slashes together on a line indicate a logical                 ',&
-'      end of line. Any following text is ignored.                               ',&
+'      Two or more slashes together on a line indicate a logical end of          ',&
+'      line. Any following text is ignored.                                      ',&
 '                                                                                ',&
 '''     Transpose. X'' is the complex conjugate transpose of X .                 ',&
-'      Quote. ''ANY TEXT'' is a vector whose components are the LAFF             ',&
-'      internal codes for the characters. A quote within the text is             ',&
-'      indicated by two quotes. See "display" and "FILE" .                       ',&
+'                                                                                ',&
+'      A quote is also use to delmit text. ''ANY TEXT'' is a vector whose        ',&
+'      components are the LAFF internal codes for the characters. A              ',&
+'      quote within the text is indicated by two quotes. See "display"           ',&
+'      and "FILE" .                                                              ',&
 '                                                                                ',&
 '+     Addition. X + Y . X and Y must have the same dimensions.                  ',&
 '                                                                                ',&
@@ -10817,35 +10796,31 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   characters delineated by quotes (with two quotes used to allow one           ',&
 '   quote within the string) is saved as a vector of integer values that         ',&
 '   are the ADE (Ascii Decimal Equivalent) value of the character.               ',&
+'                                                                                ',&
+'   In commands { and } are equivalent to ( and )                                ',&
+'                                                                                ',&
+'   When defining an array [ and ] or < and > may be used as the delimiters.     ',&
+'                                                                                ',&
+'   laff(3f)  is too flexible about that and lets them be interchanged freely    ',&
+'   instead of being matched but that will probably change to be more strictly   ',&
+'   enforced.                                                                    ',&
+'                                                                                ',&
+'   Currently " is not a special character but will probably be allowed as a     ',&
+'   string quoting character in the future.                                      ',&
+'                                                                                ',&
 '   For example                                                                  ',&
 '                                                                                ',&
 '      ''2*A + 3''        //  is the same as  < 50 42 65 32 43 32 51 >.          ',&
 '      display(32:126)  //  display the basic visible ASCII characters           ',&
 '                                                                                ',&
-'   Currently, upon input certain alternate characters are folded into           ',&
-'   others so that if you input any of the characters {}"[] they will            ',&
-'   be converted to other characters.                                            ',&
-'                                                                                ',&
-'              ADE  character ADE alternate name                                 ',&
-'               40       (    123     {     lparen                               ',&
-'               41       )    125     }     rparen                               ',&
-'               39       ''     34     "     quote                               ',&
-'               60       <     91     [     less                                 ',&
-'               62       >     93     ]     great                                ',&
-'                                                                                ',&
-'   unused: `~%^&_|$@ special-purpose ?#!                                        ',&
 '                                                                                ',&
 '   So if you wanted to home the cursor and clear the screen on an               ',&
 '   ANSI-compatible terminal and entered                                         ',&
 '                                                                                ',&
 '       display(<27,''[H'',27,''[2J''>)                                          ',&
 '                                                                                ',&
-'   It would not work as the [ character got mapped to <. You would              ',&
-'   instead enter                                                                ',&
-'                                                                                ',&
-'       display([27,91,''H'',27,91,''2J''])                                      ',&
-'                                                                                ',&
-'   More usefully, if you define the string                                      ',&
+'   The terminal screen would clear. More usefully, if you define the            ',&
+'   string                                                                       ',&
 '                                                                                ',&
 '       clr=''display([27,91,''''H'''',27,91,''''2J''''])''                      ',&
 '                                                                                ',&
