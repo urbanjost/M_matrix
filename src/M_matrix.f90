@@ -2476,7 +2476,6 @@ integer      :: m
       t = t/base
       if (l .lt. m+3) exit
    enddo INFINITE
-   write(*,*)'GOT HERE A:MAT_BASE:',ade2str(nint(s(1:m+3)))
 end subroutine mat_base
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -7992,8 +7991,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   tools such as the singular value decomposition.                              ',&
 '                                                                                ',&
 '   LAFF should be useful in applied linear algebra, as well as more             ',&
-'   numerical analysis, matrix theory, statistics and applications of            ',&
-'   matrices to other disciplines.                                               ',&
+'   general numerical analysis, matrix theory, statistics and applications       ',&
+'   of matrices to other disciplines.                                            ',&
 '                                                                                ',&
 '   LAFF can serve as a "desk calculator" for the quick solution of small        ',&
 '   problems involving matrices.                                                 ',&
@@ -11085,4 +11084,3 @@ end module M_matrix
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-
