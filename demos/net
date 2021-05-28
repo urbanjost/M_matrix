@@ -40,7 +40,7 @@ C = <
 39 24 26 . . . 
 >;
 
-<n, m> = size(C);
+<n, m> = shape(C);
 A = 0*ones(n,n);
 for i=1:n, for j=2:m, k=c(i,j); if k>0, a(i,k)=1;
 check = norm(A-A',1), if check > 0, quit

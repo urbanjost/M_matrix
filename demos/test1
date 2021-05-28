@@ -29,7 +29,7 @@ data = ...
  116.9  554.894  400.7  282.7  130.081  1962  70.551>;
 short
 X = data; 
-<n,p> = size(X)
+<n,p> = shape(X)
 mu = ones(1,n)*X/n
 X = X - ones(n,1)*mu;  X = X/diag(sqrt(diag(X'*X)))
 corr = X'*X

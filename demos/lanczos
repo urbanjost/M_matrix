@@ -1,4 +1,4 @@
-<n,n> = size(A);
+<n,n> = shape(A);
 q1 = rand(n,1);
 ort
 alfa = <>; beta = <>;

@@ -21,7 +21,9 @@ transferring small amounts of data between programs or assisting in
 debugging and development, unit testing and macro-level timing.
 
 A stand-alone program is included that lets you use it as a calculator
-and to test and create input files as well.
+and to test and create input files as well. In interactive mode you can
+browse the user manual via the "help" command and even view Fortran
+intrinsic documentation via the "fhelp" command.
 
 It was originally based on some **very** old code that still requires
 some major refactoring, but if anyone else is interested or finds it
@@ -186,7 +188,7 @@ the fpm.toml project file.
 
 #### jacobi
 ```text
-            <n, n> = size(A);
+            <n, n> = shape(A);
             X = eye(n);
             anorm = norm(A,'fro');
             cnt = 1;
@@ -218,7 +220,7 @@ the fpm.toml project file.
 #### kron
 ```text
             //  C = Kronecker product of A and B
-            <m, n> = size(A);
+            <m, n> = shape(A);
             for i = 1:m, ...
                ci = a(i,1)*B; ...
                for j = 2:n, ci = <ci a(i,j)*B>; end ...
@@ -227,7 +229,7 @@ the fpm.toml project file.
 
 #### lanczos
 ```text
-            <n,n> = size(A);
+            <n,n> = shape(A);
             q1 = rand(n,1);
             ort
             alfa = <>; beta = <>;
@@ -295,7 +297,7 @@ the fpm.toml project file.
             38  14  36  37  .   .
             39  24  26  .   .   .
             >;
-            <n, m> = size(C);
+            <n, m> = shape(C);
             A = 0*ones(n,n);
             for i=1:n, for j=2:m, k=c(i,j); if k>0, a(i,k)=1;
             check = norm(A-A',1), if check > 0, quit
@@ -308,7 +310,7 @@ the fpm.toml project file.
 #### pascal
 ```text
             //Generate next Pascal matrix
-            <k,k> = size(L);
+            <k,k> = shape(L);
             k = k + 1;
             L(k,1:k) = <L(k-1,:) 0> + <0 L(k-1,:)>;
 ```
@@ -427,7 +429,7 @@ the fpm.toml project file.
 #### rogers.exec
 ```text
             exec('d.boug');                        // reads data
-            <g,k> = size(p);               // p is matrix of gene frequencies
+            <g,k> = shape(p);               // p is matrix of gene frequencies
             wv = ncen/sum(ncen);           // ncen contains population sizes
             pbar = wv*p;                   // weighted average of p
             p = p - ones(g,1)*pbar;        // deviations from mean
@@ -539,7 +541,7 @@ the fpm.toml project file.
              116.9  554.894  400.7  282.7  130.081  1962  70.551>;
             short
             X = data;
-            <n,p> = size(X)
+            <n,p> = shape(X)
             mu = ones(1,n)*X/n
             X = X - ones(n,1)*mu;  X = X/diag(sqrt(diag(X'*X)))
             corr = X'*X

@@ -80,12 +80,13 @@ module M_matrix
 use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
 use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
 
-use M_strings, only : value_to_string, lower, v2s, s2v
-use M_journal, only : journal
-use M_help, only    : help_command
-use M_history, only : redo
-use M_list, only    : insert, locate, replace, remove
-use M_io, only      : lookfor
+use M_strings, only     : value_to_string, lower, v2s, s2v
+use M_journal, only     : journal
+use M_help, only        : help_command
+use M_history, only     : redo
+use M_list, only        : insert, locate, replace, remove
+use M_io, only          : lookfor
+use M_intrinsics, only  : help_intrinsics
 
 use M_LA, only : mat_flop,   mat_inverse_hilbert,  mat_iwamax,  mat_magic,   mat_pythag,  mat_rat,    mat_round,  mat_rref
 use M_LA, only : mat_rrot,   mat_rrotg,            mat_rset,    mat_rswap,   mat_urand,   mat_wasum,  mat_wcopy
@@ -542,6 +543,7 @@ interface laff
 end interface laff
 
 character(len=:),allocatable :: G_HELP_TEXT(:)
+character(len=:),allocatable :: G_FORTRAN_TEXT(:)
 
 !==================================================================================================================================!
 ! CHARACTER SET
@@ -676,6 +678,7 @@ end interface
 public usersub_interface
 
 procedure(usersub_interface),pointer :: usersub => usersub_placeholder
+!==================================================================================================================================!
 !==================================================================================================================================!
 
 contains
@@ -819,7 +822,7 @@ end subroutine usersub_placeholder
 !!       call laff( [character(len=80) :: &
 !!        & 'semi;lines(999999)                                    ',&
 !!        & '// create a magic square and add 100 to all the values',&
-!!        & 'A=magic(4),<X,Y>=size(A)                              ',&
+!!        & 'A=magic(4),<X,Y>=shape(A)                             ',&
 !!        & 'B=A+ones(X,Y)*100                                     ',&
 !!        & '// save all current values to a file                  ',&
 !!        & "save('sample.laf')                                    ",&
@@ -946,7 +949,7 @@ end subroutine usersub_placeholder
 !!      > end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;
 !!
 !!      > :jacobi:
-!!      > [n, n] = size(A);
+!!      > [n, n] = shape(A);
 !!      > X = eye(n);
 !!      > anorm = norm(A,'fro');
 !!      > cnt = 1;
@@ -976,7 +979,7 @@ end subroutine usersub_placeholder
 !!      > :kron:
 !!
 !!      > //  C = Kronecker product of A and B
-!!      > [m, n] = size(A);
+!!      > [m, n] = shape(A);
 !!      > for i = 1:m, ...
 !!      >    ci = a(i,1)*B; ...
 !!      >    for j = 2:n, ci = [ci a(i,j)*B]; end ...
@@ -984,7 +987,7 @@ end subroutine usersub_placeholder
 !!
 !!      > :lanczos:
 !!
-!!      > [n,n] = size(A);
+!!      > [n,n] = shape(A);
 !!      > q1 = rand(n,1);
 !!      > ort
 !!      > alpha = []; beta = [];
@@ -1049,7 +1052,7 @@ end subroutine usersub_placeholder
 !!      > 38  14  36  37  .   .
 !!      > 39  24  26  .   .   .
 !!      > ];
-!!      > [n, m] = size(C);
+!!      > [n, m] = shape(C);
 !!      > A = 0*ones(n,n);
 !!      > for i=1:n, for j=2:m, k=c(i,j); if k>0, a(i,k)=1;
 !!      > check = norm(A-A',1), if check > 0, quit
@@ -1061,7 +1064,7 @@ end subroutine usersub_placeholder
 !!      > :pascal:
 !!
 !!      > //Generate next Pascal matrix
-!!      > [k,k] = size(L);
+!!      > [k,k] = shape(L);
 !!      > k = k + 1;
 !!      > L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];
 !!
@@ -1172,8 +1175,8 @@ end subroutine usersub_placeholder
 !!
 !!      > :rogers.exec:
 !!
-!!      > exec('d.boug');                        // reads data
-!!      > [g,k] = size(p);               // p is matrix of gene frequencies
+!!      > exec('d.boug');                // reads data
+!!      > [g,k] = shape(p);              // p is matrix of gene frequencies
 !!      > wv = ncen/sum(ncen);           // ncen contains population sizes
 !!      > pbar = wv*p;                   // weighted average of p
 !!      > p = p - ones(g,1)*pbar;        // deviations from mean
@@ -1283,7 +1286,7 @@ end subroutine usersub_placeholder
 !!      >  116.9  554.894  400.7  282.7  130.081  1962  70.551];
 !!      > short
 !!      > X = data;
-!!      > [n,p] = size(X)
+!!      > [n,p] = shape(X)
 !!      > mu = ones(1,n)*X/n
 !!      > X = X - ones(n,1)*mu;  X = X/diag(sqrt(diag(X'*X)))
 !!      > corr = X'*X
@@ -1378,7 +1381,7 @@ integer                     :: i,j
    if(GM_BIGMEM.lt.0)GM_BIGMEM=200000
    if(allocated(GM_REALS) )deallocate(GM_REALS)
    if(allocated(GM_IMAGS) )deallocate(GM_IMAGS)
-   allocate(GM_REALS(GM_BIGMEM),GM_IMAGS(GM_BIGMEM))          ! set to size of GM_BIGMEM
+   allocate(GM_REALS(GM_BIGMEM),GM_IMAGS(GM_BIGMEM))                      ! set to size of GM_BIGMEM
 
    G_INPUT_LUN = STDIN                                                    ! unit number for terminal input
    call mat_files(G_INPUT_LUN,G_BUF)
@@ -1445,6 +1448,8 @@ integer                     :: i,j
    G_DEBUG_LEVEL = 0
    G_PTZ = 0
    G_PT = G_PTZ
+
+   G_FORTRAN_TEXT=help_intrinsics('manual',m_help=.true.)  ! load Fortran documentation
 
 end subroutine LAFF_init
 !==================================================================================================================================
@@ -1850,8 +1855,8 @@ character(len=GG_LINELEN) :: string_buf
    n = G_STACK_COLS(G_ARGUMENT_POINTER)
 
 !  functions/G_FIN
-!  magi diag sum  prod user eye  rand ones chop size kron  tril triu zeros
-!    1    2    3    4    5    6    7    8    9   10  11-13  14   15   16
+!  magi diag sum  prod user eye  rand ones chop shape kron  tril triu zeros
+!    1    2    3    4    5    6    7    8    9   10   11-13  14   15   16
 
    FUN6: select case(G_FIN)
 !===================================================================================================================================
@@ -1903,7 +1908,7 @@ character(len=GG_LINELEN) :: string_buf
                              GM_REALS(location),  GM_IMAGS(location))
               IF (G_ERR .GT. 0) return
               location = location + 1
-            ENDDO
+            enddo
           enddo
         enddo
       enddo
@@ -2005,14 +2010,14 @@ character(len=GG_LINELEN) :: string_buf
       G_STACK_COLS(G_ARGUMENT_POINTER) = n               ! store the possibly new size
       G_STACK_ROWS(G_ARGUMENT_POINTER) = m
 !===================================================================================================================================
-   case(10) ! COMMAND::SIZE
+   case(10) ! COMMAND::SHAPE
       ! store the two output values onto stack
       GM_REALS(location) = M
       GM_IMAGS(location) = 0.0D0
       GM_REALS(location+1) = N
       GM_IMAGS(location+1) = 0.0D0
       if(G_LHS.eq.1)then
-         ! output is a 1x2 array so store values indicating the size of the new stack value
+         ! output is a 1x2 array so store values indicating the shape of the new stack value
          G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
          G_STACK_COLS(G_ARGUMENT_POINTER) = 2
       else
@@ -2194,18 +2199,11 @@ character(len=GG_LINELEN) :: string_buf
 
       ll=location
       do j=1,m
-         id=blank
-         id(1:n)=int(GM_REALS(ll:ll+n-1))
-         varname=''
-         do i=1,n
-            if(id(i).le.0)exit   ! ??? why exit. What is the special meaning?
-            if(id(i).lt.G_CHARSET_SIZE.and.id(i).ge.0)then
-               varname(i:i)=achar(id(i))
-            else
-               call journal('sc',' function name contains unacceptable characters:',id(i))
+         varname=ade2str( int(GM_REALS(ll:ll+n-1)) )
+         if(.not.mat_is_name(varname))then
+               call journal('sc',' function name contains unacceptable characters')
                return
-            endif
-         enddo
+         endif
          ll=ll+n
          env_value=system_getenv(varname)
          ! do not leave it undefined or any variable on LHS will not be defined so make sure at least 1
@@ -2339,7 +2337,7 @@ integer                           :: i
    case('rand','random');   selector=607
    case('ones');            selector=608
    case('chop');            selector=609
-   case('size');            selector=610
+   case('shape');           selector=610
    case('kron');            selector=611
    case('tril');            selector=614
    case('triu');            selector=615
@@ -3521,10 +3519,10 @@ integer                      :: ierr
 
 ! a list of names this procedure matches to use for some preliminary tests
 character(len=10),parameter :: cmd(*)=[ character(len=10) :: &
- & 'clear', 'else',  'end',      'exit',  'for',  &
- & 'help',  'if',    'long',     'quit',  'semi', &
- & 'short', 'what',  'while',    'who',   'sh',   &
- & 'laff',  'shell', 'continue', 'return'         &
+ & 'clear', 'else',  'end',      'exit',   'for',  &
+ & 'help',  'if',    'long',     'quit',   'semi', &
+ & 'short', 'what',  'while',    'who',    'sh',   &
+ & 'laff',  'shell', 'continue', 'return', 'fhelp'   &
  & ]
 
 FINISHED: block
@@ -3544,6 +3542,8 @@ FINISHED: block
         end select
 
         if (id.eq.'help')then                ! special case where anything after the help could be a topic
+           exit
+        elseif(id.eq.'fhelp')then
            exit
         else
            call mat_err(16)                  ! improper command
@@ -3665,7 +3665,7 @@ FINISHED: block
    case('sh')
       call sh_command()
 !===================================================================================================================================
-   case('help')
+   case('help','fhelp')
       HELP_ : block
       character(len=GG_LINELEN) :: topic_name
          G_BUF=blank
@@ -3687,9 +3687,15 @@ FINISHED: block
             i=index(topic_name,'search')                            ! assuming help command on line by itself to some extent
             if(i.ne.0)topic_name=topic_name(i:)
          endif
-         call help_command(G_HELP_TEXT,trim(topic_name),&
-         & merge(G_LINECOUNT(:2),[0,huge(0)],&                      ! page length
-         G_PROMPT))
+         if(id.eq.'help')then
+            call help_command(G_HELP_TEXT,trim(topic_name),&
+            & merge(G_LINECOUNT(:2),[0,huge(0)],&                      ! page length
+            & G_PROMPT))
+         else
+            call help_command(G_FORTRAN_TEXT,trim(topic_name),&
+            & merge(G_LINECOUNT(:2),[0,huge(0)],&                      ! page length
+            & G_PROMPT))
+         endif
       endblock HELP_
 !===================================================================================================================================
    case default ! did not find a match
@@ -4301,73 +4307,75 @@ integer          :: nn
       G_STACK_COLS(G_ARGUMENT_POINTER) = 1
       goto 99
 !===================================================================================================================================
-!     ELEMENTARY FUNCTIONS
-!     FOR MATRICES.. X,D = EIG(A), FUN(A) = X*FUN(D)/X
+!     elementary functions
+!     for matrices.. x,d = eig(a), fun(a) = x*fun(d)/x
    40 continue
-      INC = 1
-      N = M*N
-      L2 = location
+      inc = 1
+      n = m*n
+      l2 = location
       goto 44
+
    42 continue
       INC = N+1
+
    44 continue
-      DO J = 1, N
-        LS = L2+(J-1)*INC
-        SR = GM_REALS(LS)
-        SI = GM_IMAGS(LS)
-        TI = 0.0D0
-        IF (G_FIN .eq. 0) then
-          call mat_wlog(SR,SI,SR,SI)
-          call mat_wmul(SR,SI,POWR,POWI,SR,SI)
-          TR(1) = DEXP(SR)*DCOS(SI)
-          TI(1) = DEXP(SR)*DSIN(SI)
+      do j = 1, n
+        ls = l2+(j-1)*inc
+        sr = GM_REALS(ls)
+        si = GM_IMAGS(ls)
+        ti = 0.0d0
+        if (G_FIN .eq. 0) then
+          call mat_wlog(sr,si,sr,si)
+          call mat_wmul(sr,si,powr,powi,sr,si)
+          tr(1) = dexp(sr)*dcos(si)
+          ti(1) = dexp(sr)*dsin(si)
         endif
 
         select case(G_FIN)
-        CASE( 1)
-                 TR(1) = DSIN(SR)*DCOSH(SI)
-                 TI(1) = DCOS(SR)*DSINH(SI)
-        CASE( 2)
-                 TR(1) = DCOS(SR)*DCOSH(SI)
-                 TI(1) = (-DSIN(SR))*DSINH(SI)
-        CASE( 3)
-                 call mat_watan(SR,SI,TR(1),TI(1))
-        CASE( 4)
-                 TR(1) = DEXP(SR)*DCOS(SI)
-                 TI(1) = DEXP(SR)*DSIN(SI)
-        CASE( 5)
-                 call mat_wsqrt(SR,SI,TR(1),TI(1))
-        CASE( 6)
-                 call mat_wlog(SR,SI,TR(1),TI(1))
-        CASE( 21)
-                 TR(1) = mat_pythag(SR,SI)
-        CASE( 22)
-                 TR(1) = mat_round(SR)
-        CASE( 23)
-                 TR(1) = SR
-        CASE( 24)
-                 TR(1) = SI
-        CASE( 25)
-                 TR(1) = SR
-                 TI(1) = -SI
+        case( 1)                                      ! sin
+                 tr(1) = dsin(sr)*dcosh(si)
+                 ti(1) = dcos(sr)*dsinh(si)
+        case( 2)                                      ! cos
+                 tr(1) = dcos(sr)*dcosh(si)
+                 ti(1) = (-dsin(sr))*dsinh(si)
+        case( 3)                                      ! atan
+                 call mat_watan(sr,si,tr(1),ti(1))
+        case( 4)                                      ! exp
+                 tr(1) = dexp(sr)*dcos(si)
+                 ti(1) = dexp(sr)*dsin(si)
+        case( 5)                                      ! sqrt
+                 call mat_wsqrt(sr,si,tr(1),ti(1))
+        case( 6)                                      ! log
+                 call mat_wlog(sr,si,tr(1),ti(1))
+        case( 21)
+                 tr(1) = mat_pythag(sr,si)
+        case( 22)
+                 tr(1) = mat_round(sr)
+        case( 23)
+                 tr(1) = sr
+        case( 24)
+                 tr(1) = si
+        case( 25)
+                 tr(1) = sr
+                 ti(1) = -si
         end select
 
-        IF (G_ERR .GT. 0) return
-        GM_REALS(LS) = mat_flop(TR(1))
-        GM_IMAGS(LS) = 0.0D0
-        IF (TI(1) .NE. 0.0D0) GM_IMAGS(LS) = mat_flop(TI(1))
+        if (G_ERR .gt. 0) return
+        GM_REALS(ls) = mat_flop(tr(1))
+        GM_IMAGS(ls) = 0.0d0
+        if (ti(1) .ne. 0.0d0) GM_IMAGS(ls) = mat_flop(ti(1))
       enddo
-      IF (INC .EQ. 1) goto 99
-      DO J = 1, N
-        LS = L2+(J-1)*INC
-        SR = GM_REALS(LS)
-        SI = GM_IMAGS(LS)
-        LS = location+(J-1)*N
-        LL = L2+(J-1)*N
-        call mat_wcopy(N,GM_REALS(LS),GM_IMAGS(LS),1,GM_REALS(LL),GM_IMAGS(LL),1)
-        call mat_wscal(N,SR,SI,GM_REALS(LS),GM_IMAGS(LS),1)
+      if (inc .eq. 1) goto 99
+      do j = 1, n
+        ls = l2+(j-1)*inc
+        sr = GM_REALS(ls)
+        si = GM_IMAGS(ls)
+        ls = location+(j-1)*n
+        ll = l2+(j-1)*n
+        call mat_wcopy(n,GM_REALS(ls),GM_IMAGS(ls),1,GM_REALS(ll),GM_IMAGS(ll),1)
+        call mat_wscal(n,sr,si,GM_REALS(ls),GM_IMAGS(ls),1)
       enddo
-!     SIGNAL MATFN1 TO DIVIDE BY EIGENVECTORS
+      ! signal matfn1 to divide by eigenvectors
       G_FUN = 21
       G_FIN = -1
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
@@ -9851,7 +9859,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   |              | eig    eye   hess   invh   imag     inv    kron   lu    |   ',&
 '   |              | magic  norm  ones   orth   pinv     poly   prod   qr    |   ',&
 '   |              | rand   rank  rcond  rat    real     rref   roots  round |   ',&
-'   |              | schur  size  sum    svd    tril     triu   user   zeros |   ',&
+'   |              | schur  shape sum    svd    tril     triu   user   zeros |   ',&
 '   |______________._________________________________________________________|   ',&
 '   |FLOW control  | else   end   if     for    while    exit   quit         |   ',&
 '   |______________._________________________________________________________|   ',&
@@ -9884,6 +9892,15 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '        q                                                                       ',&
 '================================================================================',&
 'DOCUMENTATION                                                                   ',&
+'fhelp topic|SECTION_NAME                                                        ',&
+'                                                                                ',&
+'      "fhelp" is identical in usage to "help" except that it searches a         ',&
+'      collection of descriptions of Fortran intrinsics.                         ',&
+'                                                                                ',&
+'        fhelp verify                                                            ',&
+'        fhelp pack                                                              ',&
+'                                                                                ',&
+'      See "help"                                                                ',&
 '                                                                                ',&
 'help  topic|SECTION_NAME                                                        ',&
 '                                                                                ',&
@@ -10336,7 +10353,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      so that A*X*A = A , X*A*X = X and AX and XA are Hermitian . The           ',&
 '      computation is based on "svd(A)" and any singular values less             ',&
 '      than a tolerance are treated as zero. The default tolerance is            ',&
-'      "norm(size(A),''inf'')*norM(A)*eps". This tolerance may be overridden     ',&
+'      "norm(shape(A),''inf'')*norM(A)*eps". This tolerance may be overridden    ',&
 '      with "X = pinv(A,tol)". See "rank".                                       ',&
 '                                                                                ',&
 'poly  Characteristic polynomial.                                                ',&
@@ -10379,7 +10396,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      is first entered.                                                         ',&
 '                                                                                ',&
 'rank  Rank. "K = rank(X)" is the number of singular values of X                 ',&
-'      that are larger than "norm(size(X),''inf'')*norm(X)*eps".                 ',&
+'      that are larger than "norm(shape(X),''inf'')*norm(X)*eps".                ',&
 '      "K = rank(X,tol)" is the number of singular values of X that              ',&
 '      are larger than tol.                                                      ',&
 '                                                                                ',&
@@ -10445,9 +10462,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       diagonal, and a unitary matrix U so that X = U*T*U'' and                 ',&
 '       U''*U = eye . By itself, "schur(X)" returns T .                          ',&
 '                                                                                ',&
-'size  If X is an M by N matrix, then size(X) is <M, N> .                        ',&
-'      Can also be used with a multiple assignment,                              ',&
-'            <M, N> = size(X) .                                                  ',&
+'shape  If X is an M by N matrix, then shape(X) is <M, N> .                      ',&
+'       Can also be used with a multiple assignment,                             ',&
+'            <M, N> = shape(X) .                                                 ',&
 '                                                                                ',&
 'sum   "sum(X)" is the sum of all the elements of X.                             ',&
 '      "sum(diag(X))" is the trace of X.                                         ',&
@@ -10621,7 +10638,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      Files are searched for by the given name. If not found, it is searched    ',&
 '      for in the colon-separated directory names in the environment variable    ',&
-'      LAFF_PATH.                                                                ',&
+'      LAFF_PATH. It is looked for first literally by the given name, and then   ',&
+'      by the name suffixed with ".la".                                          ',&
 '                                                                                ',&
 '      "include" is an alias for "exec".                                         ',&
 '                                                                                ',&
@@ -10766,7 +10784,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '            // read commands from a file if an environment variable is set.     ',&
 '            MATRC=getenv(''MATRC'');                                            ',&
-'            if MATRC <> " ", exec(''MATRC'');                                   ',&
+'            if MATRC <> '' '', exec(''MATRC'');                                 ',&
 '================================================================================',&
 'PERFORMANCE INFORMATION                                                         ',&
 '                                                                                ',&
@@ -10876,7 +10894,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      For example, if you had entered a line such as:                           ',&
 '                                                                                ',&
-'         <M,N>=size(A);for I = 1:M, for J = 1:N, A(I,J) = A(I,J)+3.6;           ',&
+'         <M,N>=shape(A);for I = 1:M, for J = 1:N, A(I,J) = A(I,J)+3.6;          ',&
 '                                                                                ',&
 '      Then to repeat the command changing "3.6" to "5.1" enter                  ',&
 '                                                                                ',&
@@ -11055,14 +11073,11 @@ end subroutine mat_wlog
 !==================================================================================================================================!
 subroutine mat_watan(xr,xi,yr,yi)
 
-! ident_47="@(#)M_LA::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
+! ident_38="@(#)M_LA::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
 
-doubleprecision :: xr
-doubleprecision :: xi
-doubleprecision :: yr
-doubleprecision :: yi
-doubleprecision :: tr
-doubleprecision :: ti
+doubleprecision,intent(in)  :: xr, xi
+doubleprecision,intent(out) :: yr, yi
+doubleprecision             :: tr, ti
 
    if (xi .eq. 0.0d0) then
       yr = datan2(xr,1.0d0)

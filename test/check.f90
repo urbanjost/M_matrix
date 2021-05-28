@@ -72,7 +72,7 @@ logical           :: logs=.false.
    call test_short ()   ! short  See "long" also.
    call test_sh ()      ! sh    Starts the command shell interactively, using the command defined by
    call test_sin ()     ! sin   sin(X) is the sine of X. See HIGH.
-      call test_size ()    ! size  If X is an M by N matrix, then size(X) is <M, N> .
+      call test_shape ()    ! shape  If X is an M by N matrix, then shape(X) is <M, N> .
    call test_sqrt ()    ! sqrt  sqrt(X) is the square root of X. See HIGH. Complex
       call test_sum ()     ! sum   "sum(X)" is the sum of all the elements of X.
    call test_svd ()     ! svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
@@ -129,12 +129,12 @@ subroutine test_magic()
    call laff( 'b=sum(a);')
    call laff( &
    & 'display(ones(80,1)''*95);       &
-   & if size(a) = [N,N],             &
-   &    display(''magic SIZE OK'');    &
+   & if shape(a) = [N,N],             &
+   &    display(''magic shape OK'');    &
    &    tally=[tally,0];             &
    & else,                           &
-   &    display(''magic SIZE BAD'');   &
-   &    size(a),                     &
+   &    display(''magic shape BAD'');   &
+   &    shape(a),                     &
    &    tally=[tally,1];             ')
    call laff( &
    & 'if b = 5050,                   &
@@ -142,7 +142,7 @@ subroutine test_magic()
    &    tally=[tally,0];             &
    & else,                           &
    &    display(''magic SUM FAILED''); &
-   &    size(a),                     &
+   &    shape(a),                     &
    &    tally=[tally,1];             &
    & end                             ')
    call laff( 'if sum(tally) = 0,display(''magic PASSED''),else,display(''magic FAILED'');tally')
@@ -155,9 +155,9 @@ subroutine test_ones()
    call laff( 'a=ones(30,40);')
    call laff( 'b=sum(a);')
    call laff(  &
-   & 'if b = 1200,display(''ones SUM OK''),tally=[tally,0];else,display(''ones SUM FAILED'');size(a),tally=[tally,1];end')
+   & 'if b = 1200,display(''ones SUM OK''),tally=[tally,0];else,display(''ones SUM FAILED'');shape(a),tally=[tally,1];end')
    call laff( &
-   & 'if size(a) = [30,40] ,display(''ones SIZE OK'');tally=[tally,0];else,display(''ones SIZE BAD'');size(a),tally=[tally,1];')
+   & 'if shape(a) = [30,40] ,display(''ones shape OK'');tally=[tally,0];else,display(''ones shape BAD'');shape(a),tally=[tally,1];')
    call laff( &
    & 'if sum(a-ones(30,40)) = 0, &
    &    display(''ones DELTA OK''), &
@@ -170,46 +170,46 @@ subroutine test_ones()
 end subroutine test_ones
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_zeros()
-   call laff( 'display(ones(80,1)''*61); help zeros; display(ones(80,1)''*95)')
-   call laff( 'tally=[0];')
-   if(logs)call laff( 'diary(''zeros.log'');')
-   call laff( 'a=zeros(30,40);')
-   call laff( 'b=sum(a);')
-   call laff(  &
-   & 'if b = 0,display(''zeros SUM OK''),tally=[tally,0];else,display(''zeros SUM FAILED'');size(a),tally=[tally,1];end')
-   call laff( &
-   & 'if size(a) = [30,40] ,display(''zeros SIZE OK'');tally=[tally,0];else,display(''zeros SIZE BAD'');size(a),tally=[tally,1];')
-   call laff( &
-   & 'if sum(a-zeros(30,40)) = 0, &
-   &    display(''zeros DELTA OK''), &
-   &    tally=[tally,0]; &
-   & else, &
-   &    display(''zeros DELTA FAILED''); &
-   &    tally=[tally,1]; &
-   & end')
-   call laff( 'if sum(tally) = 0,display(''zeros PASSED''),else,display(''zeros FAILED'');tally')
+  call laff( 'display(ones(80,1)''*61); help zeros; display(ones(80,1)''*95)')
+  call laff( 'tally=[0];')
+  if(logs)call laff( 'diary(''zeros.log'');')
+  call laff( 'a=zeros(30,40);')
+  call laff( 'b=sum(a);')
+  call laff(  &
+  & 'if b = 0,display(''zeros SUM OK''),tally=[tally,0];else,display(''zeros SUM FAILED'');shape(a),tally=[tally,1];end')
+  call laff( &
+  & 'if shape(a) = [30,40],display(''zeros shape OK'');tally=[tally,0];else,display(''zeros shape BAD'');shape(a),tally=[tally,1];')
+  call laff( &
+  & 'if sum(a-zeros(30,40)) = 0, &
+  &    display(''zeros DELTA OK''), &
+  &    tally=[tally,0]; &
+  & else, &
+  &    display(''zeros DELTA FAILED''); &
+  &    tally=[tally,1]; &
+  & end')
+  call laff( 'if sum(tally) = 0,display(''zeros PASSED''),else,display(''zeros FAILED'');tally')
 end subroutine test_zeros
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sum()
-   call laff( 'display(ones(80,1)''*61); help sum; display(ones(80,1)''*95)')
-   call laff( 'tally=[0];')
-   if(logs)call laff( 'diary(''sum.log'');')
-   call laff( 'a=<1 2 3; 4 5 6; 7 8 9>;')
-   call laff( 'b=sum(magic(3));')
-   call laff( 'c=sum(a);')
-   call laff(  &
-   & "if c = 45,display('sum SUM OF ''a'' OK'),tally=[tally,0];else,display('sum SUM OF ''a'' FAILED');size(a),tally=[tally,1];end")
-   call laff( &
-   & 'if size(c) = [1,1] ,display(''sum SIZE OK'');tally=[tally,0];else,display(''sum SIZE BAD'');size(a),tally=[tally,1];')
-   call laff( &
-   & 'if sum(a) + b = 90, &
-   &    display(''sum ARRAY OK''), &
-   &    tally=[tally,0]; &
-   & else, &
-   &    display(''sum ARRAY FAILED''); &
-   &    tally=[tally,1]; &
-   & end')
-   call laff( 'if sum(tally) = 0,display(''sum PASSED''),else,display(''sum FAILED'');tally')
+  call laff( 'display(ones(80,1)''*61); help sum; display(ones(80,1)''*95)')
+  call laff( 'tally=[0];')
+  if(logs)call laff( 'diary(''sum.log'');')
+  call laff( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call laff( 'b=sum(magic(3));')
+  call laff( 'c=sum(a);')
+  call laff(  &
+  & "if c = 45,display('sum SUM OF ''a'' OK'),tally=[tally,0];else,display('sum SUM OF ''a'' FAILED');shape(a),tally=[tally,1];end")
+  call laff( &
+  & 'if shape(c) = [1,1] ,display(''sum shape OK'');tally=[tally,0];else,display(''sum shape BAD'');shape(a),tally=[tally,1];')
+  call laff( &
+  & 'if sum(a) + b = 90, &
+  &    display(''sum ARRAY OK''), &
+  &    tally=[tally,0]; &
+  & else, &
+  &    display(''sum ARRAY FAILED''); &
+  &    tally=[tally,1]; &
+  & end')
+  call laff( 'if sum(tally) = 0,display(''sum PASSED''),else,display(''sum FAILED'');tally')
 end subroutine test_sum
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_abs ()
@@ -284,26 +284,26 @@ subroutine test_round ()
    'end;                                                                          ', &
    '                                                                              ', &
    'if sum(tally)=0,display(''round PASSED'');else,display(''round FAILED'')          ', &
-   '<M,N>=size(tally)                                                             ', &
+   '<M,N>=shape(tally)                                                             ', &
    'display(tally(2:N),1)                                                         ', &
    ''])
 end subroutine test_round
 !-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_size ()
+subroutine test_shape ()
    call laff( 'display(ones(80,1)''*61)')
-   call laff( 'help size')
+   call laff( 'help shape')
    call laff( 'tally=[0];')
    call laff( [ character(len=256) :: &
-     & 'a=10;b=magic(4);c=ones(11,5);                                            ', &
-     & '<X,Y>=size(c);                                                           ', &
-     & 'if X=11,display(''X is 11''),else,display(''X is NOT 11'');X                 ', &
-     & 'if Y= 5,display(''Y is  5''),else,display(''Y is NOT  5'');Y                 ', &
-     & 'if size(a) = 1,       display(''size of a OK'');tally=[tally,0];else,display(''size of a BAD'');size(a),tally=[tally,1];', &
-     & 'if size(b) = [ 4, 4], display(''size of b OK'');tally=[tally,0];else,display(''size of b BAD'');size(b),tally=[tally,1];', &
-     & 'if size(c) = [11, 5], display(''size of c OK'');tally=[tally,0];else,display(''size of c BAD'');size(c),tally=[tally,1];', &
-     & 'if sum(tally)=0,display(''size PASSED'');else,display(''size FAILED'');tally ', &
-     & ''])
-end subroutine test_size
+   & 'a=10;b=magic(4);c=ones(11,5);                                            ', &
+   & '<X,Y>=shape(c);                                                           ', &
+   & 'if X=11,display(''X is 11''),else,display(''X is NOT 11'');X                 ', &
+   & 'if Y= 5,display(''Y is  5''),else,display(''Y is NOT  5'');Y                 ', &
+   & 'if shape(a)=1,display(''shape of a OK'');tally=[tally,0];else,display(''shape of a BAD'');shape(a),tally=[tally,1];', &
+   & 'if shape(b)=[ 4, 4],display(''shape of b OK'');tally=[tally,0];else,display(''shape of b BAD'');shape(b),tally=[tally,1];', &
+   & 'if shape(c)=[11,5],display(''shape of c OK'');tally=[tally,0];else,display(''shape of c BAD'');shape(c),tally=[tally,1];', &
+   & 'if sum(tally)=0,display(''shape PASSED'');else,display(''shape FAILED'');tally ', &
+   & ''])
+end subroutine test_shape
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_hess ()
    call laff( 'display(ones(80,1)''*61)')
@@ -475,7 +475,7 @@ subroutine test_kron ()
      & 'B=rand(4);                                                               ', &
      & '// ==========================================                            ', &
      & '// first, the hard way                                                   ', &
-     & '[m, n] = size(A);                                                        ', &
+     & '[m, n] = shape(A);                                                        ', &
      & 'for i = 1:m, ...                                                         ', &
      & '   ci = A(i,1)*B; ...                                                    ', &
      & '   for j = 2:n, ci = [ci A(i,j)*B]; end ...                              ', &
@@ -1374,7 +1374,7 @@ subroutine test_general_pascal()
    & 'L=[1]                                                                                     ', &
    & '     //Generate next Lower triangular Pascal matrix:                                      ', &
    & '     for I=1:4,...                                                                        ', &
-   & '        [k,k] = size(L);...                                                               ', &
+   & '        [k,k] = shape(L);...                                                               ', &
    & '        k = k + 1;...                                                                     ', &
    & '        L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];...                                        ', &
    & '        L,...                                                                             ', &
@@ -1417,7 +1417,7 @@ subroutine test_general_expr()
    & 'answers=[   a, b, c,d,  e]                                                   ', &
    & 'expected=[7d0,14,56,3,256]                                                   ', &
    & 'tally=[tally,answers-expected];                                              ', &
-   & '[rows,cols]=size(tally);                                                     ', &
+   & '[rows,cols]=shape(tally);                                                     ', &
    & 'for i=1:cols, if abs(tally(i)) < 2*eps,tally(i)=0;else,tally(i)=1;           ', &
    & 'if sum(abs(tally)) = 0,display(''general expr  PASSED''),else,display(''general expr  FAILED'');tally', &
    & 'tally'])

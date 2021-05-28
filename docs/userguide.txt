@@ -36,8 +36,8 @@ LAFF USERS' GUIDE
    tools such as the singular value decomposition.
 
    LAFF should be useful in applied linear algebra, as well as more
-   numerical analysis, matrix theory, statistics and applications of
-   matrices to other disciplines.
+   general numerical analysis, matrix theory, statistics and applications
+   of matrices to other disciplines.
 
    LAFF can serve as a "desk calculator" for the quick solution of small
    problems involving matrices.
@@ -1896,7 +1896,7 @@ SUMMARY    A list of basic (case-sensitive) section and topic names
    |              | eig    eye   hess   invh   imag     inv    kron   lu    |
    |              | magic  norm  ones   orth   pinv     poly   prod   qr    |
    |              | rand   rank  rcond  rat    real     rref   roots  round |
-   |              | schur  size  sum    svd    tril     triu   user   zeros |
+   |              | schur  shape sum    svd    tril     triu   user   zeros |
    |______________._________________________________________________________|
    |FLOW control  | else   end   if     for    while    exit   quit         |
    |______________._________________________________________________________|
@@ -1929,6 +1929,15 @@ SAMPLE
         q
 ================================================================================
 DOCUMENTATION
+fhelp topic|SECTION_NAME
+
+      "fhelp" is identical in usage to "help" except that it searches a
+      collection of descriptions of Fortran intrinsics.
+
+        fhelp verify
+        fhelp pack
+
+      See "help"
 
 help  topic|SECTION_NAME
 
@@ -2381,7 +2390,7 @@ pinv  Pseudoinverse.
       so that A*X*A = A , X*A*X = X and AX and XA are Hermitian . The
       computation is based on "svd(A)" and any singular values less
       than a tolerance are treated as zero. The default tolerance is
-      "norm(size(A),'inf')*norM(A)*eps". This tolerance may be overridden
+      "norm(shape(A),'inf')*norM(A)*eps". This tolerance may be overridden
       with "X = pinv(A,tol)". See "rank".
 
 poly  Characteristic polynomial.
@@ -2424,7 +2433,7 @@ rand  Random numbers and matrices. "rand(N)" is an N by N matrix
       is first entered.
 
 rank  Rank. "K = rank(X)" is the number of singular values of X
-      that are larger than "norm(size(X),'inf')*norm(X)*eps".
+      that are larger than "norm(shape(X),'inf')*norm(X)*eps".
       "K = rank(X,tol)" is the number of singular values of X that
       are larger than tol.
 
@@ -2490,9 +2499,9 @@ schur  Schur decomposition. "<U,T> = schur(X)" produces an upper
        diagonal, and a unitary matrix U so that X = U*T*U' and
        U'*U = eye . By itself, "schur(X)" returns T .
 
-size  If X is an M by N matrix, then size(X) is <M, N> .
-      Can also be used with a multiple assignment,
-            <M, N> = size(X) .
+shape  If X is an M by N matrix, then shape(X) is <M, N> .
+       Can also be used with a multiple assignment,
+            <M, N> = shape(X) .
 
 sum   "sum(X)" is the sum of all the elements of X.
       "sum(diag(X))" is the trace of X.
@@ -2666,7 +2675,8 @@ exec  "exec('file',k)" obtains subsequent LAFF input from an
 
       Files are searched for by the given name. If not found, it is searched
       for in the colon-separated directory names in the environment variable
-      LAFF_PATH.
+      LAFF_PATH. It is looked for first literally by the given name, and then
+      by the name suffixed with ".la".
 
       "include" is an alias for "exec".
 
@@ -2811,7 +2821,7 @@ getenv   get environment variable or return a space
 
             // read commands from a file if an environment variable is set.
             MATRC=getenv('MATRC');
-            if MATRC <> " ", exec('MATRC');
+            if MATRC <> ' ', exec('MATRC');
 ================================================================================
 PERFORMANCE INFORMATION
 
@@ -2921,7 +2931,7 @@ EDIT
 
       For example, if you had entered a line such as:
 
-         <M,N>=size(A);for I = 1:M, for J = 1:N, A(I,J) = A(I,J)+3.6;
+         <M,N>=shape(A);for I = 1:M, for J = 1:N, A(I,J) = A(I,J)+3.6;
 
       Then to repeat the command changing "3.6" to "5.1" enter
 

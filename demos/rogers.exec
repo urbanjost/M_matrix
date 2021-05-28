@@ -1,5 +1,5 @@
 exec('d.boug');			// reads data
-<g,k> = size(p);		// p is matrix of gene frequencies
+<g,k> = shape(p);		// p is matrix of gene frequencies
 wv = ncen/sum(ncen);		// ncen contains population sizes
 pbar = wv*p;			// weighted average of p
 p = p - ones(g,1)*pbar; 	// deviations from mean

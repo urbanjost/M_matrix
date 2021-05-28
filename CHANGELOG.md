@@ -9,6 +9,17 @@ new features, changes, and relevant notifications.
 **2021-05-20**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: DIFF:
+  +  renamed size() to shape() as it resembles the Fortran procedure of that
+     name more than the Fortran size() intrinsic function..
+
+### :green_circle: ADD:
+  +  added Fortran intrinsic documentation via the "fhelp" command.
+
+<!-- ======================================================================== -->
+---
+**2021-05-20**  John S. Urban  <https://github.com/urbanjost>
+
+### :green_circle: DIFF:
   +  renamed "mat88" to "laff".
 
 ### :green_circle: ADD:
@@ -16,8 +27,6 @@ new features, changes, and relevant notifications.
   +  LAFF_PATH environment variable can be used to define a colon-delimited list of
      directories to search for exec(1) files. Names are search for as specified and
      with the ".la" suffix.
-
-### :green_circle: FIX:
 
 <!-- ======================================================================== -->
 ---

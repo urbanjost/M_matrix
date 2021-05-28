@@ -1,4 +1,4 @@
-<n, n> = size(A); 
+<n, n> = shape(A); 
 X = eye(n);
 anorm = norm(A,'fro');
 cnt = 1;

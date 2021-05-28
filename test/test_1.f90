@@ -41,7 +41,7 @@ logical           :: logs=.false.
 '// -----------------------------------------------------------------            ',&
 'short                                                                           ',&
 'X = data;                                                                       ',&
-'[n,p] = size(X)                                                                 ',&
+'[n,p] = shape(X)                                                                 ',&
 'mu = ones(1,n)*X/n                                                              ',&
 'X = X - ones(n,1)*mu;  X = X/diag(sqrt(diag(X''*X)))                            ',&
 'corr = X''*X                                                                    ',&
@@ -61,7 +61,7 @@ logical           :: logs=.false.
 '         1.829151464612817D+00                                                  ',&
 '];                                                                              ',&
 'delta=expected-beta                                                             ',&
-'<M,N>=size(expected);                                                           ',&
+'<M,N>=shape(expected);                                                           ',&
 'for i=1:M, for j=1:N, if abs(delta(i,j))<=eps, delta(i,j)=0; else, delta(i,j)=-1;',&
 'delta                                                                           ',&
 'if delta=zeros(M,N),display(''PASSED''),else,display(''FAILED'')                    ',&
