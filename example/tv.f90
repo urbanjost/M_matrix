@@ -28,7 +28,7 @@ integer, intent(in):: x,y
     cols = x
     rows = y
     call viz_put(cli//'?25l') ! hide the cursor to reduce flicker
-   call viz_put(cli//'2J')     ! clear the screen
+   !call viz_put(cli//'2J')     ! clear the screen
 end subroutine viz_init
 
 subroutine viz_done
@@ -132,22 +132,22 @@ real                      :: vmax, scalef, tmp
             if (m > maxplot) m = 10
             if (tmp < 0.0) then
                 if (m > 5) then
-                    call viz_put(esc//'[36m'//plot(m))
+                    call viz_put(cli//'36m'//plot(m))
                 else
-                    call viz_put(esc//'[34m'//plot(m))
+                    call viz_put(cli//'34m'//plot(m))
                 endif
             else
                 if (m > 5) then
-                    call viz_put(esc//'[31m'//plot(m))
+                    call viz_put(cli//'31m'//plot(m))
                 else
-                    call viz_put(esc//'[30m'//plot(m))
+                    call viz_put(cli//'30m'//plot(m))
                 endif
             endif
         enddo
-        call viz_put(esc//'[30m|')
+        call viz_put(cli//'30m|')
     enddo
     call viz_pos(1,rows)
-    call viz_put(esc//'[30m')
+    call viz_put(cli//'30m')
     DO i=1,cols+1
        call viz_put('-')
     enddo
@@ -161,22 +161,26 @@ use M_matrix
 use text_viz
 implicit none
 integer, parameter :: nx = 200, ny = 200
-real :: val(nx,ny)
-integer :: i,j
-integer :: ierr
-
-! create a dataset in the program to pass to LAFF()
-   do j=1,ny ! fill array with data
-      do i=1,nx
-         val(i,j) = sin(real(i)*0.05)*sin(real(j)*0.033)
-      enddo
-   enddo
-   call put_into_laff('val',val,ierr)
-
-
+real               :: val(nx,ny)
+integer            :: i,j,k
+integer            :: ierr
+character(len=1)   :: paws
 call set_usersub(laff_text_viz) ! set user routine
 
-call laff("user(val,24,80);") ! display using user routine
+! create a dataset in the program to pass to LAFF()
+   do k=1,2000
+      do j=1,ny ! fill array with data
+         do i=1,nx
+            val(i,j) = sin(real(i)*real(k)*0.0001)*sin(real(j)*0.033)
+         enddo
+      enddo
+      call put_into_laff('val',val,ierr)
+      call laff("user(val,24,80);") ! display using user routine
+      !read(*,'(a)')paws
+   enddo
+
+
+
 write(*,*)'user added routine does normalized pixelized text plot'
 write(*,*)'optional parameters give character cell dimensiones'
 write(*,*)'the default is the size of the array'

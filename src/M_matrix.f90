@@ -321,7 +321,7 @@ character(len=*),parameter :: gen1='(*(g0,1x))'
 ! program limits
 integer,parameter        :: GG_LINELEN=1024
 integer,parameter        :: GG_MAX_NUMBER_OF_NAMES=480
-integer,parameter        :: GG_MAX_NAME_LENGTH=63       ! <WARNING> just began changing this to a constant
+integer,parameter        :: GG_MAX_NAME_LENGTH=63
 integer,parameter        :: GG_EOL=99999           ! make > 2256
 
 !==================================================================================================================================!
@@ -377,10 +377,10 @@ integer                  :: G_LINE_POINTER(6) ! [1] first character to process i
 integer,save                   :: GM_BIGMEM=-1                           ! allocated size of data storage
 doubleprecision,allocatable    :: GM_REALS(:), GM_IMAGS(:)               ! set to size of GM_BIGMEM
 
-integer                        :: G_STACK_IDS(GG_MAX_NAME_LENGTH, GG_MAX_NUMBER_OF_NAMES)
-integer                        :: G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES)
-integer                        :: G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES)
-integer                        :: G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES)
+integer                        :: G_VAR_IDS(GG_MAX_NAME_LENGTH, GG_MAX_NUMBER_OF_NAMES)
+integer                        :: G_VAR_DATALOC(GG_MAX_NUMBER_OF_NAMES)
+integer                        :: G_VAR_ROWS(GG_MAX_NUMBER_OF_NAMES)
+integer                        :: G_VAR_COLS(GG_MAX_NUMBER_OF_NAMES)
 
 type vctr
    integer :: rows
@@ -403,10 +403,10 @@ integer,allocatable            :: scr_cols(:)
 integer                     :: G_TOP_OF_SAVED, G_ARGUMENT_POINTER
 
 !   Two large real arrays, GM_REALS and GM_IMAGS (for real and imaginary parts), are used to store all
-!   the matrices. Four integer arrays (G_STACK_IDS, G_STACK_ROWS, G_STACK_COLS, G_STACK_ID_LOC) are used to store the names,
+!   the matrices. Four integer arrays (G_VAR_IDS, G_VAR_ROWS, G_VAR_COLS, G_VAR_DATALOC) are used to store the names,
 !   the row and column dimensions, and the pointers into the real stacks. The following diagram illustrates this storage scheme.
 !
-!                    TOP        IDSTK     MSTK NSTK LSTK              GM_REALS    GM_IMAGS
+!                    TOP        IDS       ROWS COLS LOCS              GM_REALS    GM_IMAGS
 !                     --      -- -- -- --   --   --   --              --------   --------    <<== G_ARGUMENT_POINTER
 !                    |  |--->|  |  |  |  | |  | |  | |  |----------->|        | |        |
 !                     --      -- -- -- --   --   --   --              --------   --------
@@ -1371,11 +1371,7 @@ integer                     :: i,j
    allocate(G_PSEUDO_FILE(0))
 
    G_LIN=blank
-   do i=1,size(G_STACK_IDS,dim=1)
-      do j=1,size(G_STACK_IDS,dim=2)
-         G_STACK_IDS(i,j)=blank
-      enddo
-   enddo
+   G_VAR_IDS=blank
 
    GM_BIGMEM=INIT
    if(GM_BIGMEM.lt.0)GM_BIGMEM=200000
@@ -1400,10 +1396,10 @@ integer                     :: i,j
 
    call update('eps',1,1,GM_BIGMEM-4)
       !=============================================================
-      call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-3),EPS)
-      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-3) = GM_BIGMEM-4
-      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-3) = 1
-      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-3) = 1
+      call mat_copyid(G_VAR_IDS(1,GG_MAX_NUMBER_OF_NAMES-3),EPS)
+      G_VAR_DATALOC(GG_MAX_NUMBER_OF_NAMES-3) = GM_BIGMEM-4
+      G_VAR_ROWS(GG_MAX_NUMBER_OF_NAMES-3) = 1
+      G_VAR_COLS(GG_MAX_NUMBER_OF_NAMES-3) = 1
       !=============================================================
 
    ! interesting way to calculate the epsilon value of a machine
@@ -1418,28 +1414,28 @@ integer                     :: i,j
 
    call update('flops',1,2,GM_BIGMEM-3)
       !=============================================================
-      call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-2),flops)
-      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-2) = GM_BIGMEM-3
-      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-2) = 1
-      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-2) = 2
+      call mat_copyid(G_VAR_IDS(1,GG_MAX_NUMBER_OF_NAMES-2),flops)
+      G_VAR_DATALOC(GG_MAX_NUMBER_OF_NAMES-2) = GM_BIGMEM-3
+      G_VAR_ROWS(GG_MAX_NUMBER_OF_NAMES-2) = 1
+      G_VAR_COLS(GG_MAX_NUMBER_OF_NAMES-2) = 2
       !=============================================================
 
    call update('eye',-1,-1,GM_BIGMEM-1)
       !=============================================================
-      call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES-1), eye)
-      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES-1) = GM_BIGMEM-1
-      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES-1) = -1
-      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES-1) = -1
+      call mat_copyid(G_VAR_IDS(1,GG_MAX_NUMBER_OF_NAMES-1), eye)
+      G_VAR_DATALOC(GG_MAX_NUMBER_OF_NAMES-1) = GM_BIGMEM-1
+      G_VAR_ROWS(GG_MAX_NUMBER_OF_NAMES-1) = -1
+      G_VAR_COLS(GG_MAX_NUMBER_OF_NAMES-1) = -1
       !=============================================================
 
    GM_REALS(GM_BIGMEM-1) = 1.0D0
 
    call update('rand',1,1,GM_BIGMEM)
       !=============================================================
-      call mat_copyid(G_STACK_IDS(1,GG_MAX_NUMBER_OF_NAMES), rand)
-      G_STACK_ID_LOC(GG_MAX_NUMBER_OF_NAMES) = GM_BIGMEM
-      G_STACK_ROWS(GG_MAX_NUMBER_OF_NAMES) = 1
-      G_STACK_COLS(GG_MAX_NUMBER_OF_NAMES) = 1
+      call mat_copyid(G_VAR_IDS(1,GG_MAX_NUMBER_OF_NAMES), rand)
+      G_VAR_DATALOC(GG_MAX_NUMBER_OF_NAMES) = GM_BIGMEM
+      G_VAR_ROWS(GG_MAX_NUMBER_OF_NAMES) = 1
+      G_VAR_COLS(GG_MAX_NUMBER_OF_NAMES) = 1
       !=============================================================
 
    G_FMT = 1
@@ -1540,8 +1536,8 @@ character(len=255)   :: msg
     case(15); msg='Improper assignment to submatrix'
     case(16); msg='Improper command'
     case(17)
-      lb = GM_BIGMEM - G_STACK_ID_LOC(G_TOP_OF_SAVED) + 1
-      lt = g_err + G_STACK_ID_LOC(G_TOP_OF_SAVED)
+      lb = GM_BIGMEM - G_VAR_DATALOC(G_TOP_OF_SAVED) + 1
+      lt = g_err + G_VAR_DATALOC(G_TOP_OF_SAVED)
       call journal(' Too much memory required')
       write(msg,'(1X,I7,'' Variables,'',I7,'' Temporaries,'',I7,'' Available.'')') lb,lt,GM_BIGMEM
     case(18); msg='Too many names'
@@ -1850,9 +1846,9 @@ character(len=80) :: message
 character(len=GG_LINELEN) :: string_buf
 !
 
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-   m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-   n = G_STACK_COLS(G_ARGUMENT_POINTER)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   n = G_VAR_COLS(G_ARGUMENT_POINTER)
 
 !  functions/G_FIN
 !  magi diag sum  prod user eye  rand ones chop shape kron  tril triu zeros
@@ -1865,8 +1861,8 @@ character(len=GG_LINELEN) :: string_buf
       IF (N .EQ. 2) N = 0
       IF (N .GT. 0) call mat_magic(GM_REALS(location),N,N)
       call mat_rset(N*N,0.0D0,GM_IMAGS(location),1)
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = N
-      G_STACK_COLS(G_ARGUMENT_POINTER) = N
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = N
+      G_VAR_COLS(G_ARGUMENT_POINTER) = N
 !===================================================================================================================================
    case(11,12,13) !  COMMAND::KRONECKER PRODUCT
       if (G_RHS .ne. 2) then
@@ -1874,13 +1870,13 @@ character(len=GG_LINELEN) :: string_buf
          return
       endif
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER - 1
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-      MA = G_STACK_ROWS(G_ARGUMENT_POINTER)
-      NA = G_STACK_COLS(G_ARGUMENT_POINTER)
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      MA = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      NA = G_VAR_COLS(G_ARGUMENT_POINTER)
       LA = location + MAX(M*N*MA*NA,M*N+MA*NA)
       LB = LA + MA*NA
 
-      if(too_much_memory(LB + M*N - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
+      if(too_much_memory(LB + M*N - G_VAR_DATALOC(G_TOP_OF_SAVED)) )return
 
 !     MOVE A AND B ABOVE RESULT
       call mat_wcopy(MA*NA+M*N,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(LA),GM_IMAGS(LA),1)
@@ -1912,8 +1908,8 @@ character(len=GG_LINELEN) :: string_buf
           enddo
         enddo
       enddo
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = M*MA
-      G_STACK_COLS(G_ARGUMENT_POINTER) = N*NA
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = M*MA
+      G_VAR_COLS(G_ARGUMENT_POINTER) = N*NA
 !===================================================================================================================================
    case(9) ! COMMAND::CHOP
 
@@ -1941,7 +1937,7 @@ character(len=GG_LINELEN) :: string_buf
 
       t = GM_REALS(GM_BIGMEM-4)
       if (t.lt.eps .or. t.eq.eps0) GM_REALS(GM_BIGMEM-4) = eps
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
    case(3) ! COMMAND::SUM
       sr = 0.0d0
@@ -1954,8 +1950,8 @@ character(len=GG_LINELEN) :: string_buf
       enddo
       GM_REALS(location) = sr
       GM_IMAGS(location) = si
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 !===================================================================================================================================
    case(4) ! COMMAND::PROD
       SR = 1.0D0
@@ -1967,8 +1963,8 @@ character(len=GG_LINELEN) :: string_buf
       enddo
       GM_REALS(location) = SR
       GM_IMAGS(location) = SI
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 !===================================================================================================================================
    case(5) ! COMMAND::USER
       ! The LAFF statement "Y = user(X,s,t)" results in a call to the
@@ -1989,26 +1985,26 @@ character(len=GG_LINELEN) :: string_buf
          s = GM_REALS(location)
          ! back up the stack one argument
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-         location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)   ! the end of argument X
-         m = G_STACK_ROWS(G_ARGUMENT_POINTER)            ! the size of X(M,N)
-         n = G_STACK_COLS(G_ARGUMENT_POINTER)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)   ! the end of argument X
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)            ! the size of X(M,N)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
       elseif(G_RHS.gt.2)then
          t = GM_REALS(location)
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1       ! back up to s
-         location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
          s = GM_REALS(location)
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1       ! back up to X
-         location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-         m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-         n = G_STACK_COLS(G_ARGUMENT_POINTER)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
       else  ! if not 1,2,3 should it be an error???
       endif
       ! ??? if user routine changes size of array and/or should pass vector instead of address ???
       ! ??? user routine cannot do complex values? Just REAL ???
       call usersub(GM_REALS(location:),m,n,s,t)
       call mat_rset(m*n,0.0d0,GM_IMAGS(location),1)      ! set the imaginary values to zero
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n               ! store the possibly new size
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = m
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n               ! store the possibly new size
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = m
 !===================================================================================================================================
    case(10) ! COMMAND::SHAPE
       ! store the two output values onto stack
@@ -2018,17 +2014,17 @@ character(len=GG_LINELEN) :: string_buf
       GM_IMAGS(location+1) = 0.0D0
       if(G_LHS.eq.1)then
          ! output is a 1x2 array so store values indicating the shape of the new stack value
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-         G_STACK_COLS(G_ARGUMENT_POINTER) = 2
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+         G_VAR_COLS(G_ARGUMENT_POINTER) = 2
       else
          ! output is two scalars
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-         G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+         G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER + 1
-         G_STACK_ID_LOC(G_ARGUMENT_POINTER) = location+1
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-         G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+         G_VAR_DATALOC(G_ARGUMENT_POINTER) = location+1
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+         G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endif
 !===================================================================================================================================
    case(2,14,15) ! COMMAND::DIAG=2
@@ -2038,9 +2034,9 @@ character(len=GG_LINELEN) :: string_buf
       if (G_RHS .eq. 2) then
          k = int(GM_REALS(location))
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-         location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-         m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-         n = G_STACK_COLS(G_ARGUMENT_POINTER)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
       endif
 
       if (G_FIN .ge. 14) then ! COMMAND::TRIL, COMMAND::TRIU
@@ -2059,10 +2055,10 @@ character(len=GG_LINELEN) :: string_buf
       elseif (m .eq. 1 .or. n .eq. 1) then
          n = max(m,n)+iabs(k)
 
-         if(too_much_memory( location+n*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
+         if(too_much_memory( location+n*n - G_VAR_DATALOC(G_TOP_OF_SAVED)) )return
 
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = n
-         G_STACK_COLS(G_ARGUMENT_POINTER) = n
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = n
+         G_VAR_COLS(G_ARGUMENT_POINTER) = n
          do jb = 1, n
             do ib = 1, n
                j = n+1-jb
@@ -2081,8 +2077,8 @@ character(len=GG_LINELEN) :: string_buf
       else
          if (k.ge.0) mn=min(m,n-k)
          if (k.lt.0) mn=min(m+k,n)
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = max(mn,0)
-         G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = max(mn,0)
+         G_VAR_COLS(G_ARGUMENT_POINTER) = 1
          if (mn .le. 0) exit FUN6
          do i = 1, mn
             if (k.ge.0) ls = location+(i-1)+(i+k-1)*m
@@ -2103,8 +2099,8 @@ character(len=GG_LINELEN) :: string_buf
          if (G_RHS .eq. 2) then
             nn = int(GM_REALS(location))
             G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-            location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-            n = G_STACK_COLS(G_ARGUMENT_POINTER)
+            location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+            n = G_VAR_COLS(G_ARGUMENT_POINTER)
          endif
 
          if (G_FIN.eq.7.and.n.lt.GG_MAX_NAME_LENGTH)then        ! a call to RAND might be RAND('UNIFORM'|'SEED'|'NORMAL')
@@ -2115,14 +2111,14 @@ character(len=GG_LINELEN) :: string_buf
             enddo
             if(mat_eqid(id,unifor).or.mat_eqid(id,normal))then ! SWITCH UNIFORM AND NORMAL(if a matrix just happens to match, a bug)
                G_CURRENT_RANDOM_TYPE = id(1) - unifor(1)        ! set random type to generate by seeing if first letter is a "u"
-               G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+               G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
                exit FUN6
             elseif (mat_eqid(id,seed)) then                     ! if a matrix just happens to match "seed" , a bug)
                if (G_RHS .eq. 2) G_CURRENT_RANDOM_SEED = nn
                GM_REALS(location) = G_CURRENT_RANDOM_SEED
-               G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-               if (G_RHS .eq. 2) G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
-               G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+               G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+               if (G_RHS .eq. 2) G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
+               G_VAR_COLS(G_ARGUMENT_POINTER) = 1
                exit FUN6
             endif
          endif
@@ -2132,10 +2128,10 @@ character(len=GG_LINELEN) :: string_buf
             if (G_RHS .eq. 2) n = max(nn,0)
             if (G_RHS .ne. 2) n = m
 
-            if(too_much_memory( location+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED))) return
+            if(too_much_memory( location+m*n - G_VAR_DATALOC(G_TOP_OF_SAVED))) return
 
-            G_STACK_ROWS(G_ARGUMENT_POINTER) = m
-            G_STACK_COLS(G_ARGUMENT_POINTER) = n
+            G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+            G_VAR_COLS(G_ARGUMENT_POINTER) = n
             if (m*n .eq. 0) exit FUN6
          endif
 
@@ -2212,9 +2208,9 @@ character(len=GG_LINELEN) :: string_buf
 
       m=size(answers,dim=1)
       n=len(answers)
-      if(too_much_memory( location+m*n - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = m
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n
+      if(too_much_memory( location+m*n - G_VAR_DATALOC(G_TOP_OF_SAVED)) )return
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n
       if (m*n .eq. 0) exit FUN6
 
       ! so starting at GM_REALS(location) convert the characters to numbers and store the M x N number of characters
@@ -2242,8 +2238,8 @@ character(len=GG_LINELEN) :: string_buf
       GM_REALS(location:location+8-1) = dble(time_values)
       GM_IMAGS(location:location+8-1) = 0.0D0
       ! output is a 1x8 array so store values indicating the size of the new stack value
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 8
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 8
       endblock DATETIME
 !===================================================================================================================================
    end select FUN6
@@ -2301,7 +2297,7 @@ integer                           :: i
    case('abs');             selector=221  !  calling  codes  corresponding  to  the  function  names
    case('round');           selector=222
    case('real');            selector=223
-   case('imag');            selector=224
+   case('imag','aimag');    selector=224
    case('conjg');           selector=225
 
    case('svd');             selector=301
@@ -2521,9 +2517,9 @@ integer           :: itype
 !.......................................................................
    if (G_LINECOUNT(1) .lt. 0) goto 99
 !.......................................................................
-   location = G_STACK_ID_LOC(k)
-   m = G_STACK_ROWS(k)
-   n = G_STACK_COLS(k)
+   location = G_VAR_DATALOC(k)
+   m = G_VAR_ROWS(k)
+   n = G_VAR_COLS(k)
    mn = m*n
    typ = 1
    s = 0.0d0
@@ -2757,9 +2753,9 @@ integer           :: m
 integer           :: mn
 integer           :: n
 
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-   m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-   n = G_STACK_COLS(G_ARGUMENT_POINTER)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   n = G_VAR_COLS(G_ARGUMENT_POINTER)
    mn = m*n
    if (mn .eq. 0) then
    elseif (op .ne. quote) then                                 ! unary minus
@@ -2767,13 +2763,13 @@ integer           :: n
    else                                                        ! transpose
       ll = location + mn
 
-      if(too_much_memory( ll+mn - G_STACK_ID_LOC(G_TOP_OF_SAVED)) )return
+      if(too_much_memory( ll+mn - G_VAR_DATALOC(G_TOP_OF_SAVED)) )return
 
       call mat_wcopy(MN,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(ll),GM_IMAGS(ll),1)
-      M = G_STACK_COLS(G_ARGUMENT_POINTER)
-      N = G_STACK_ROWS(G_ARGUMENT_POINTER)
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = m
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n
+      M = G_VAR_COLS(G_ARGUMENT_POINTER)
+      N = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n
       do i = 1, m
          do j = 1, n
             ls = location+mn+(j-1)+(i-1)*n
@@ -2863,10 +2859,10 @@ integer  :: n, nk, nt
       return
    endif
 
-   m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-   n = G_STACK_COLS(G_ARGUMENT_POINTER)
+   m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   n = G_VAR_COLS(G_ARGUMENT_POINTER)
    if (m .gt. 0) then
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
    elseif(m.lt.0) then
       call mat_err(14) ! EYE-dentity undefined by CONTEXT
       return
@@ -2884,17 +2880,17 @@ integer  :: n, nk, nt
    nt = 0
 
    ! unconditionally add name to end of list
-   call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1),id)
+   call mat_copyid(G_VAR_IDS(1,G_TOP_OF_SAVED-1),id)
 
    ! did variable already exist (knowning name is there at least once)
    do k=GG_MAX_NUMBER_OF_NAMES,1,-1
-      if (mat_eqid(G_STACK_IDS(1:,k),id)) exit
+      if (mat_eqid(G_VAR_IDS(1:,k),id)) exit
    enddo
 
    if (k .ne. G_TOP_OF_SAVED-1) then        ! variable exists
-      lk = G_STACK_ID_LOC(k)
-      mk = G_STACK_ROWS(k)
-      nk = G_STACK_COLS(k)
+      lk = G_VAR_DATALOC(k)
+      mk = G_VAR_ROWS(k)
+      nk = G_VAR_COLS(k)
       mnk = mk*nk
       if (G_RHS .gt. 2) then
          call mat_err(15)                   ! Improper assignment to submatrix
@@ -2903,7 +2899,7 @@ integer  :: n, nk, nt
          mt = mk
          nt = nk
          lt = location + mn
-         if(too_much_memory( lt + mnk - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )then
+         if(too_much_memory( lt + mnk - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )then
             return
          endif
          call mat_wcopy(mnk,GM_REALS(lk),GM_IMAGS(lk),1,GM_REALS(lt),GM_IMAGS(lt),1)
@@ -2921,16 +2917,16 @@ integer  :: n, nk, nt
 
       if (k .ne. G_TOP_OF_SAVED) then
          ! shift storage
-         ls = G_STACK_ID_LOC(G_TOP_OF_SAVED)
+         ls = G_VAR_DATALOC(G_TOP_OF_SAVED)
          ll = ls + mnk
          call mat_wcopy(lk-ls,GM_REALS(ls),GM_IMAGS(ls),-1,GM_REALS(ll),GM_IMAGS(ll),-1)
          km1 = k-1
          do ib = G_TOP_OF_SAVED, km1
             i = G_TOP_OF_SAVED+km1-ib
-            call mat_copyid(G_STACK_IDS(1,i+1),G_STACK_IDS(1,i))
-            G_STACK_ROWS(i+1) = G_STACK_ROWS(i)
-            G_STACK_COLS(i+1) = G_STACK_COLS(i)
-            G_STACK_ID_LOC(i+1) = G_STACK_ID_LOC(i)+mnk
+            call mat_copyid(G_VAR_IDS(1,i+1),G_VAR_IDS(1,i))
+            G_VAR_ROWS(i+1) = G_VAR_ROWS(i)
+            G_VAR_COLS(i+1) = G_VAR_COLS(i)
+            G_VAR_DATALOC(i+1) = G_VAR_DATALOC(i)+mnk
          enddo
       endif
 
@@ -2949,11 +2945,11 @@ integer  :: n, nk, nt
    endif
 
    k = G_TOP_OF_SAVED-1
-   call mat_copyid(G_STACK_IDS(1,k), id)
+   call mat_copyid(G_VAR_IDS(1,k), id)
 
    if (G_RHS .eq. 1) then
       !  vect(arg)
-      if (G_STACK_ROWS(G_ARGUMENT_POINTER-1) .lt. 0) then
+      if (G_VAR_ROWS(G_ARGUMENT_POINTER-1) .lt. 0) then
          goto 59
       endif
       mn1 = 1
@@ -2965,40 +2961,40 @@ integer  :: n, nk, nt
             call mat_err(15) ! Improper assignment to submatrix
             return
          endif
-         l2 = G_STACK_ID_LOC(G_ARGUMENT_POINTER-1)
-         m2 = G_STACK_ROWS(G_ARGUMENT_POINTER-1)
-         mn2 = m2*G_STACK_COLS(G_ARGUMENT_POINTER-1)
+         l2 = G_VAR_DATALOC(G_ARGUMENT_POINTER-1)
+         m2 = G_VAR_ROWS(G_ARGUMENT_POINTER-1)
+         mn2 = m2*G_VAR_COLS(G_ARGUMENT_POINTER-1)
          m1 = -1
          goto 60
       endif
-      l1 = G_STACK_ID_LOC(G_ARGUMENT_POINTER-1)
-      m1 = G_STACK_ROWS(G_ARGUMENT_POINTER-1)
-      mn1 = m1*G_STACK_COLS(G_ARGUMENT_POINTER-1)
+      l1 = G_VAR_DATALOC(G_ARGUMENT_POINTER-1)
+      m1 = G_VAR_ROWS(G_ARGUMENT_POINTER-1)
+      mn1 = m1*G_VAR_COLS(G_ARGUMENT_POINTER-1)
       m2 = -1
       goto 60
    elseif (G_RHS .eq. 2)then
       ! matrix(arg,arg)
-      if (G_STACK_ROWS(G_ARGUMENT_POINTER-1).lt.0 .and. G_STACK_ROWS(G_ARGUMENT_POINTER-2).lt.0) then
+      if (G_VAR_ROWS(G_ARGUMENT_POINTER-1).lt.0 .and. G_VAR_ROWS(G_ARGUMENT_POINTER-2).lt.0) then
          goto 59
       endif
-      l2 = G_STACK_ID_LOC(G_ARGUMENT_POINTER-1)
-      m2 = G_STACK_ROWS(G_ARGUMENT_POINTER-1)
-      mn2 = m2*G_STACK_COLS(G_ARGUMENT_POINTER-1)
+      l2 = G_VAR_DATALOC(G_ARGUMENT_POINTER-1)
+      m2 = G_VAR_ROWS(G_ARGUMENT_POINTER-1)
+      mn2 = m2*G_VAR_COLS(G_ARGUMENT_POINTER-1)
       if (m2 .lt. 0) mn2 = n
-      l1 = G_STACK_ID_LOC(G_ARGUMENT_POINTER-2)
-      m1 = G_STACK_ROWS(G_ARGUMENT_POINTER-2)
-      mn1 = m1*G_STACK_COLS(G_ARGUMENT_POINTER-2)
+      l1 = G_VAR_DATALOC(G_ARGUMENT_POINTER-2)
+      m1 = G_VAR_ROWS(G_ARGUMENT_POINTER-2)
+      mn1 = m1*G_VAR_COLS(G_ARGUMENT_POINTER-2)
       if (m1 .lt. 0) mn1 = m
       goto 60
    endif
 !
 !  STORE
 40 continue
-   if (k .lt. GG_MAX_NUMBER_OF_NAMES) G_STACK_ID_LOC(k) = G_STACK_ID_LOC(k+1) - mn
-   G_STACK_ROWS(k) = m
-   G_STACK_COLS(k) = n
+   if (k .lt. GG_MAX_NUMBER_OF_NAMES) G_VAR_DATALOC(k) = G_VAR_DATALOC(k+1) - mn
+   G_VAR_ROWS(k) = m
+   G_VAR_COLS(k) = n
 
-   lk = G_STACK_ID_LOC(k)
+   lk = G_VAR_DATALOC(k)
    call mat_wcopy(mn,GM_REALS(location),GM_IMAGS(location),-1,GM_REALS(lk),GM_IMAGS(lk),-1)
    goto 90
 !===================================================================================================================================
@@ -3008,7 +3004,7 @@ integer  :: n, nk, nt
       return
    endif
 
-   lk = G_STACK_ID_LOC(k)
+   lk = G_VAR_DATALOC(k)
    call mat_wcopy(mn,GM_REALS(location),GM_IMAGS(location),-1,GM_REALS(lk),GM_IMAGS(lk),-1)
    goto 90
 !===================================================================================================================================
@@ -3040,13 +3036,13 @@ integer  :: n, nk, nt
       return
    endif
    mnk = mk*nk
-   lk = G_STACK_ID_LOC(k+1) - mnk
+   lk = G_VAR_DATALOC(k+1) - mnk
 
    if(too_much_memory( lt + mt*nt - lk) )return
 
-   G_STACK_ID_LOC(k) = lk
-   G_STACK_ROWS(k) = mk
-   G_STACK_COLS(k) = nk
+   G_VAR_DATALOC(k) = lk
+   G_VAR_ROWS(k) = mk
+   G_VAR_COLS(k) = nk
    call mat_wset(mnk,0.0d0,0.0d0,GM_REALS(lk),GM_IMAGS(lk),1)
    if (nt .ge. 1) then
       do j = 1, nt
@@ -3335,8 +3331,8 @@ character(len=:),allocatable :: symbol
       G_LINE_POINTER(1) = k + 4
 !     transfer stack to input line
       k = G_LINE_POINTER(1)
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-      n = G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      n = G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
       do j = 1, n
          ls = location + j-1
          G_LIN(k) = int(GM_REALS(ls))
@@ -3500,7 +3496,7 @@ character(len=:),allocatable :: symbol
       if(G_ARGUMENT_POINTER.lt.1)then
          !call journal('sc','*mat_parse* stack emptied',G_ARGUMENT_POINTER)
       else
-         if (G_FIN.gt.0 .and. G_STACK_ROWS(G_ARGUMENT_POINTER).lt.0) call mat_err(14)
+         if (G_FIN.gt.0 .and. G_VAR_ROWS(G_ARGUMENT_POINTER).lt.0) call mat_err(14)
       endif
       if (G_ERR .gt. 0) goto 01
       return
@@ -3562,8 +3558,8 @@ FINISHED: block
       if(verify(achar(G_CHRA),big//little//digit)==0)then ! is alphanumeric so good to go by name
          call mat_getsym()
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
-         G_STACK_COLS(G_ARGUMENT_POINTER) = 0
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
+         G_VAR_COLS(G_ARGUMENT_POINTER) = 0
          G_RHS = 0
          call mat_stack_put(G_SYN)
          if (G_ERR .gt. 0) return
@@ -3653,11 +3649,11 @@ FINISHED: block
 !===================================================================================================================================
    case('who')
       call journal(' Your current variables are...')
-      call mat_print_id(G_STACK_IDS(1,G_TOP_OF_SAVED),GG_MAX_NUMBER_OF_NAMES-G_TOP_OF_SAVED+1)
+      call mat_print_id(G_VAR_IDS(1,G_TOP_OF_SAVED),GG_MAX_NUMBER_OF_NAMES-G_TOP_OF_SAVED+1)
       !x!do i=1,size(keywords)
       !x!   write(*,*)keywords(i),rows(i),cols(i),locs(i)
       !x!enddo
-      l = GM_BIGMEM-G_STACK_ID_LOC(G_TOP_OF_SAVED)+1
+      l = GM_BIGMEM-G_VAR_DATALOC(G_TOP_OF_SAVED)+1
       call journal('sc','using',l,'out of',GM_BIGMEM,'elements')
 !===================================================================================================================================
    case('what')
@@ -3847,16 +3843,16 @@ integer           :: n
 integer           :: n2
 integer           :: nn
 !
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-   M = G_STACK_ROWS(G_ARGUMENT_POINTER)
-   N = G_STACK_COLS(G_ARGUMENT_POINTER)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   M = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   N = G_VAR_COLS(G_ARGUMENT_POINTER)
 !===================================================================================================================================
    select case(G_FIN)
 !===================================================================================================================================
     case(-1) ! MATRIX RIGHT DIVISION, A/A2
-      l2 = G_STACK_ID_LOC(G_ARGUMENT_POINTER+1)
-      m2 = G_STACK_ROWS(G_ARGUMENT_POINTER+1)
-      n2 = G_STACK_COLS(G_ARGUMENT_POINTER+1)
+      l2 = G_VAR_DATALOC(G_ARGUMENT_POINTER+1)
+      m2 = G_VAR_ROWS(G_ARGUMENT_POINTER+1)
+      n2 = G_VAR_COLS(G_ARGUMENT_POINTER+1)
       if (m2 .ne. n2) then
          call mat_err(20)
          return
@@ -3868,7 +3864,7 @@ integer           :: nn
          endif
          l3 = l2 + m2*n2
 
-         if(too_much_memory( l3+n2 - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+         if(too_much_memory( l3+n2 - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
          call ml_wgeco(GM_REALS(l2),GM_IMAGS(l2),m2,n2,G_BUF,rcond,GM_REALS(l3),GM_IMAGS(l3))
          if (rcond .eq. 0.0d0) then
@@ -3919,14 +3915,14 @@ integer           :: nn
       si(1) = GM_IMAGS(location)
       n = n2
       m = n
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = n
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = n
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n
       call mat_wcopy(n*n,GM_REALS(l2),GM_IMAGS(l2),1,GM_REALS(location),GM_IMAGS(location),1)
 !===================================================================================================================================
     case(-2) ! MATRIX LEFT DIVISION A BACKSLASH A2
-      l2 = G_STACK_ID_LOC(G_ARGUMENT_POINTER+1)
-      m2 = G_STACK_ROWS(G_ARGUMENT_POINTER+1)
-      n2 = G_STACK_COLS(G_ARGUMENT_POINTER+1)
+      l2 = G_VAR_DATALOC(G_ARGUMENT_POINTER+1)
+      m2 = G_VAR_ROWS(G_ARGUMENT_POINTER+1)
+      n2 = G_VAR_COLS(G_ARGUMENT_POINTER+1)
       if (m .ne. n) then
          call mat_err(20)
          return
@@ -3934,7 +3930,7 @@ integer           :: nn
       if (m2*n2 .ne. 1) then
          l3 = l2 + m2*n2
 
-         if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+         if(too_much_memory( l3+n - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
          call ml_wgeco(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,rcond,GM_REALS(l3),GM_IMAGS(l3))
          if (rcond .eq. 0.0d0) then
@@ -3956,7 +3952,7 @@ integer           :: nn
             lj = l2+(j-1)*m2
             call ml_wgesl(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,GM_REALS(lj),GM_IMAGS(lj),0)
          enddo
-         G_STACK_COLS(G_ARGUMENT_POINTER) = n2
+         G_VAR_COLS(G_ARGUMENT_POINTER) = n2
          call mat_wcopy(m2*n2,GM_REALS(l2),GM_IMAGS(l2),1,GM_REALS(location),GM_IMAGS(location),1)
          goto 99
       endif
@@ -3987,7 +3983,7 @@ integer           :: nn
 32    continue
       l3 = location + n*n
 
-      if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( l3+n - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       call ml_wgeco(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,rcond,GM_REALS(l3),GM_IMAGS(l3))
       if (rcond .eq. 0.0d0) then
@@ -4021,8 +4017,8 @@ integer           :: nn
       enddo
       GM_REALS(location) = dtr(1)*10.d0**k
       GM_IMAGS(location) = dti(1)*10.d0**k
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       goto 99
 42    continue
       if (dti(1) .eq. 0.0d0)then
@@ -4036,8 +4032,8 @@ integer           :: nn
       GM_IMAGS(location) = dti(1)
       GM_REALS(location+1) = dtr(2)
       GM_IMAGS(location+1) = 0.0d0
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 2
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 2
 43    format(' det =  ',f7.4,7h * 10**,i4)
 44    format(' det =  ',f7.4,' + ',f7.4,' i ',7h * 10**,i4)
 !===================================================================================================================================
@@ -4048,20 +4044,20 @@ integer           :: nn
       endif
       l3 = location + n*n
 
-      if(too_much_memory( l3+n - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( l3+n - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       call ml_wgeco(GM_REALS(location),GM_IMAGS(location),m,n,G_BUF,rcond,GM_REALS(l3),GM_IMAGS(l3))
       GM_REALS(location) = rcond
       GM_IMAGS(location) = 0.0d0
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       if (G_lhs .ne. 1)then
          location = location + 1
          call mat_wcopy(n,GM_REALS(l3),GM_IMAGS(l3),1,GM_REALS(location),GM_IMAGS(location),1)
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER + 1
-         G_STACK_ID_LOC(G_ARGUMENT_POINTER) = location
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = n
-         G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+         G_VAR_DATALOC(G_ARGUMENT_POINTER) = location
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = n
+         G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endif
 !===================================================================================================================================
     case(4) ! COMMAND::LU
@@ -4077,11 +4073,11 @@ integer           :: nn
          return
       endif
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
-      G_STACK_ID_LOC(G_ARGUMENT_POINTER) = location + nn
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = n
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n
+      G_VAR_DATALOC(G_ARGUMENT_POINTER) = location + nn
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = n
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n
 
-      if(too_much_memory( location+nn+nn - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( location+nn+nn - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       do kb = 1, n
          k = n+1-kb
@@ -4108,8 +4104,8 @@ integer           :: nn
 !===================================================================================================================================
     case(5) ! COMMAND::inverse_hilbert
       n = int(GM_REALS(location))
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = n
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = n
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n
       call mat_inverse_hilbert(GM_REALS(location),n,n)
       call mat_rset(n*n,0.0d0,GM_IMAGS(location),1)
       if (G_FIN .lt. 0) call mat_wscal(n*n,sr(1),si(1),GM_REALS(location),GM_IMAGS(location),1)
@@ -4132,15 +4128,15 @@ integer           :: nn
     case(7) ! COMMAND::RREF
       if (G_RHS .ge. 2)then
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-         location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-         if (G_STACK_ROWS(G_ARGUMENT_POINTER) .ne. m) then
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         if (G_VAR_ROWS(G_ARGUMENT_POINTER) .ne. m) then
             call mat_err(5)
             return
          endif
-         n = n + G_STACK_COLS(G_ARGUMENT_POINTER)
+         n = n + G_VAR_COLS(G_ARGUMENT_POINTER)
       endif
       call mat_rref(GM_REALS(location),GM_IMAGS(location),m,m,n,GM_REALS(GM_BIGMEM-4))
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n
 !===================================================================================================================================
    end select
 !
@@ -4181,13 +4177,13 @@ integer          :: nn
 !    ABS  ROUN REAL IMAG CONJ
 !     21   22   23   24   25
       if (G_FIN .ne. 0) goto 05
-         location = G_STACK_ID_LOC(G_ARGUMENT_POINTER+1)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER+1)
          powr = GM_REALS(location)
          powi = GM_IMAGS(location)
    05 continue
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-      m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-      n = G_STACK_COLS(G_ARGUMENT_POINTER)
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      n = G_VAR_COLS(G_ARGUMENT_POINTER)
       if (G_FIN .ge. 11 .and. G_FIN .le. 13) goto 10
       if (G_FIN .eq. 14 .and. (m.eq.1 .or. n.eq.1))then
          goto 50
@@ -4214,7 +4210,7 @@ integer          :: nn
       LE = LD + N
       LW = LE + N
 
-      if(too_much_memory( LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( LW+N - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       call mat_wcopy(NN,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(L2),GM_IMAGS(L2),1)
 !
@@ -4276,9 +4272,9 @@ integer          :: nn
          return
       endif
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
-      G_STACK_ID_LOC(G_ARGUMENT_POINTER) = L2
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = N
-      G_STACK_COLS(G_ARGUMENT_POINTER) = N
+      G_VAR_DATALOC(G_ARGUMENT_POINTER) = L2
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = N
+      G_VAR_COLS(G_ARGUMENT_POINTER) = N
 !
 !     DIAGONAL OF VALUES OR CANONICAL FORMS
    34 continue
@@ -4304,7 +4300,7 @@ integer          :: nn
    37 continue
       IF (G_FIN .EQ. 14) goto 52
       call mat_wcopy(N,GM_REALS(LD),GM_IMAGS(LD),1,GM_REALS(location),GM_IMAGS(location),1)
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       goto 99
 !===================================================================================================================================
 !     elementary functions
@@ -4401,8 +4397,8 @@ integer          :: nn
                             -1)
          LD = LD+1
       enddo
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = N+1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = N+1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       goto 99
 !===================================================================================================================================
 !     ROOTS
@@ -4420,7 +4416,7 @@ integer          :: nn
       L2 = L1+N+1
       LW = L2+N*N
 
-      if(too_much_memory( LW+N - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( LW+N - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       call mat_wset(N*N+N,0.0D0,0.0D0,GM_REALS(L2),GM_IMAGS(L2),1)
       DO J = 1, N
@@ -4442,8 +4438,8 @@ integer          :: nn
          return
       endif
    65 continue
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = N
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = N
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       goto 99
 !===================================================================================================================================
    99 continue
@@ -4477,9 +4473,9 @@ logical         :: fro,inf
 doubleprecision :: p,s,t(1,1),tol,eps
 !
    if (G_FIN.eq.1 .and. G_RHS.eq.2) G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-   m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-   n = G_STACK_COLS(G_ARGUMENT_POINTER)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   n = G_VAR_COLS(G_ARGUMENT_POINTER)
    mn = m*n
    !      SVD PINV COND NORM RANK
    !        1    2    3    4    5
@@ -4490,7 +4486,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
       l1 = ld + min(m+1,n)
       l2 = l1 + n
 
-      if(too_much_memory( l2+min(m,n) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( l2+min(m,n) - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       call ml_wsvdc(GM_REALS(location),GM_IMAGS(location),   &
                   & m,m,n,                               &
@@ -4509,11 +4505,11 @@ doubleprecision :: p,s,t(1,1),tol,eps
       if (t(1,1) .ne. 0.0d0) then
          GM_REALS(location) = mat_flop(s/t(1,1))
          GM_IMAGS(location) = 0.0d0
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-         G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+         G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       else
          call journal(' CONDITION IS INFINITE')
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
       endif
 !===================================================================================================================================
     case(4) ! command::norm
@@ -4528,9 +4524,9 @@ doubleprecision :: p,s,t(1,1),tol,eps
             p = GM_REALS(location)
          endif
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-         location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-         m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-         n = G_STACK_COLS(G_ARGUMENT_POINTER)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
          mn = m*n
          if (fro) then
             m = mn
@@ -4563,7 +4559,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
             l1 = ld + min(m+1,n)
             l2 = l1 + n
 
-            if(too_much_memory( l2+min(m,n) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )then
+            if(too_much_memory( l2+min(m,n) - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )then
                return
             endif
 
@@ -4606,8 +4602,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
 
       GM_REALS(location) = s
       GM_IMAGS(location) = 0.0d0
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 !===================================================================================================================================
     case(1) !     COMMAND::SVD
       IF (G_LHS .EQ. 3)then
@@ -4619,7 +4615,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
          L1 = LV + N*N
          L2 = L1 + N
 
-         if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+         if(too_much_memory( L2+MIN(M,N) - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
          JOB = 11
          IF (G_RHS .EQ. 2) JOB = 21
@@ -4652,30 +4648,30 @@ doubleprecision :: p,s,t(1,1),tol,eps
                       & 1, &
                       & GM_REALS(location),GM_IMAGS(location), &
                       & 1)
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = M
-         G_STACK_COLS(G_ARGUMENT_POINTER) = K
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = M
+         G_VAR_COLS(G_ARGUMENT_POINTER) = K
          IF (G_ARGUMENT_POINTER+1 .GE. G_TOP_OF_SAVED) then
             call mat_err(18)
             return
          endif
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
-         G_STACK_ID_LOC(G_ARGUMENT_POINTER) = location + M*K
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = K
-         G_STACK_COLS(G_ARGUMENT_POINTER) = N
+         G_VAR_DATALOC(G_ARGUMENT_POINTER) = location + M*K
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = K
+         G_VAR_COLS(G_ARGUMENT_POINTER) = N
          IF (G_ARGUMENT_POINTER+1 .GE. G_TOP_OF_SAVED) then
             call mat_err(18)
             return
          endif
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
-         G_STACK_ID_LOC(G_ARGUMENT_POINTER) = location + M*K + K*N
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = N
-         G_STACK_COLS(G_ARGUMENT_POINTER) = N
+         G_VAR_DATALOC(G_ARGUMENT_POINTER) = location + M*K + K*N
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = N
+         G_VAR_COLS(G_ARGUMENT_POINTER) = N
       else
          LD = location + M*N
          L1 = LD + MIN(M+1,N)
          L2 = L1 + N
 
-         if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+         if(too_much_memory( L2+MIN(M,N) - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
          call ml_wsvdc(GM_REALS(location),GM_IMAGS(location),m,m,n, &
          & GM_REALS(ld),GM_IMAGS(ld),GM_REALS(l1),GM_IMAGS(l1), &
@@ -4686,8 +4682,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
          endif
          K = MIN(M,N)
          call mat_wcopy(K,GM_REALS(LD),GM_IMAGS(LD),1,GM_REALS(location),GM_IMAGS(location),1)
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = K
-         G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = K
+         G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endif
 !===================================================================================================================================
     case(2,5) ! COMMAND::PINV AND RANK
@@ -4695,9 +4691,9 @@ doubleprecision :: p,s,t(1,1),tol,eps
       IF (G_RHS .EQ. 2) then
          TOL = GM_REALS(location)
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-         location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-         M = G_STACK_ROWS(G_ARGUMENT_POINTER)
-         N = G_STACK_COLS(G_ARGUMENT_POINTER)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         M = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         N = G_VAR_COLS(G_ARGUMENT_POINTER)
       endif
       LU = location + M*N
       LD = LU + M*M
@@ -4707,7 +4703,7 @@ doubleprecision :: p,s,t(1,1),tol,eps
       IF (G_FIN .EQ. 5) L1 = LD + N
       L2 = L1 + N
 
-      if(too_much_memory( L2+MIN(M,N) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( L2+MIN(M,N) - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       IF (G_FIN .EQ. 2) JOB = 11
       IF (G_FIN .EQ. 5) JOB = 0
@@ -4746,13 +4742,13 @@ doubleprecision :: p,s,t(1,1),tol,eps
                GM_IMAGS(ll) = mat_wdotci(k,GM_REALS(l2),GM_IMAGS(l2),m,GM_REALS(l1),GM_IMAGS(l1),n)
             enddo
          enddo
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = n
-         G_STACK_COLS(G_ARGUMENT_POINTER) = m
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = n
+         G_VAR_COLS(G_ARGUMENT_POINTER) = m
       else
          GM_REALS(location) = dble(k)
          GM_IMAGS(location) = 0.0d0
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-         G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+         G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endif
 !===================================================================================================================================
    end select FUN3
@@ -4786,9 +4782,9 @@ integer           :: n2
 character(len=81) :: message
 DOUBLEPRECISION   :: T(1),TOL,EPS
 !
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-      M = G_STACK_ROWS(G_ARGUMENT_POINTER)
-      N = G_STACK_COLS(G_ARGUMENT_POINTER)
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      M = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      N = G_VAR_COLS(G_ARGUMENT_POINTER)
 
       IF (G_FIN .EQ. -1) then
          goto 10
@@ -4800,9 +4796,9 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
 !
 !     RECTANGULAR MATRIX RIGHT DIVISION, A/A2
    10 continue
-      L2 = G_STACK_ID_LOC(G_ARGUMENT_POINTER+1)
-      M2 = G_STACK_ROWS(G_ARGUMENT_POINTER+1)
-      N2 = G_STACK_COLS(G_ARGUMENT_POINTER+1)
+      L2 = G_VAR_DATALOC(G_ARGUMENT_POINTER+1)
+      M2 = G_VAR_ROWS(G_ARGUMENT_POINTER+1)
+      N2 = G_VAR_COLS(G_ARGUMENT_POINTER+1)
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER + 1
       IF (N.GT.1 .AND. N.NE.N2) then
          call mat_err(11)
@@ -4813,9 +4809,9 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       LL = L2+M2*N2
       call mat_wcopy(M*N,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(LL),GM_IMAGS(LL),1)
       call mat_wcopy(M*N+M2*N2,GM_REALS(L2),GM_IMAGS(L2),1,GM_REALS(location),GM_IMAGS(location),1)
-      G_STACK_ID_LOC(G_ARGUMENT_POINTER) = location+M2*N2
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = M
-      G_STACK_COLS(G_ARGUMENT_POINTER) = N
+      G_VAR_DATALOC(G_ARGUMENT_POINTER) = location+M2*N2
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = M
+      G_VAR_COLS(G_ARGUMENT_POINTER) = N
       call mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) return
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER - 1
@@ -4826,14 +4822,14 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
 !     RECTANGULAR MATRIX LEFT DIVISION A BACKSLASH A2
 !
    20 continue
-      L2 = G_STACK_ID_LOC(G_ARGUMENT_POINTER+1)
-      M2 = G_STACK_ROWS(G_ARGUMENT_POINTER+1)
-      N2 = G_STACK_COLS(G_ARGUMENT_POINTER+1)
+      L2 = G_VAR_DATALOC(G_ARGUMENT_POINTER+1)
+      M2 = G_VAR_ROWS(G_ARGUMENT_POINTER+1)
+      N2 = G_VAR_COLS(G_ARGUMENT_POINTER+1)
       IF (M2*N2 .GT. 1) goto 21
         M2 = M
         N2 = M
 
-        if(too_much_memory( L2+M*M - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+        if(too_much_memory( L2+M*M - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
         call mat_wset(M*M-1,0.0D0,0.0D0,GM_REALS(L2+1),GM_IMAGS(L2+1),1)
         call mat_wcopy(M,GM_REALS(L2),GM_IMAGS(L2),0,GM_REALS(L2),GM_IMAGS(L2),M+1)
@@ -4845,7 +4841,7 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       L3 = L2 + MAX(M,N)*N2
       L4 = L3 + N
 
-      if(too_much_memory( L4 + N - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( L4 + N - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       IF (M .GT. N) goto 23
       DO JB = 1, N2
@@ -4913,8 +4909,8 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
         LL = location+(J-1)*N
         call mat_wcopy(N,GM_REALS(LS),GM_IMAGS(LS),1,GM_REALS(LL),GM_IMAGS(LL),1)
       enddo
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = N
-      G_STACK_COLS(G_ARGUMENT_POINTER) = N2
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = N
+      G_VAR_COLS(G_ARGUMENT_POINTER) = N2
       IF (G_FIN .EQ. -1) call mat_stack1(QUOTE)
       IF (G_ERR .GT. 0) return
       goto 99
@@ -4928,7 +4924,7 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
       le = ls + m*n
       l4 = le + mm
 
-      if(too_much_memory( l4+mm - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( l4+mm - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       if (ls.ne.location) then
          call mat_wcopy(m*n,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(ls),GM_IMAGS(ls),1)
@@ -4954,7 +4950,7 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
      &             t,t,t,t,t,t,10000,info)
       enddo
       if (G_FIN .eq. 2) goto 99
-      G_STACK_COLS(G_ARGUMENT_POINTER) = M
+      G_VAR_COLS(G_ARGUMENT_POINTER) = M
       do j = 1, n
         ll = ls+j+(j-1)*m
         call mat_wset(m-j,0.0d0,0.0d0,GM_REALS(ll),GM_IMAGS(ll),1)
@@ -4964,9 +4960,9 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
          return
       endif
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
-      G_STACK_ID_LOC(G_ARGUMENT_POINTER) = ls
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = m
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n
+      G_VAR_DATALOC(G_ARGUMENT_POINTER) = ls
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n
       if (G_LHS .eq. 2) goto 99
       call mat_wset(N*N,0.0D0,0.0D0,GM_REALS(le),GM_IMAGS(le),1)
       do j = 1, n
@@ -4978,9 +4974,9 @@ DOUBLEPRECISION   :: T(1),TOL,EPS
          return
       endif
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
-      G_STACK_ID_LOC(G_ARGUMENT_POINTER) = le
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = n
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n
+      G_VAR_DATALOC(G_ARGUMENT_POINTER) = le
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = n
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n
       goto 99
 !===================================================================================================================================
 !
@@ -5020,9 +5016,9 @@ integer                    :: ly
 integer                    :: mn
 logical                    :: isfound
 !
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-   m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-   n = G_STACK_COLS(G_ARGUMENT_POINTER)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   n = G_VAR_COLS(G_ARGUMENT_POINTER)
 
    !  functions/G_FIN
    !  exec save load prin diar disp base line char plot rat  debu doc  delete
@@ -5043,8 +5039,8 @@ logical                    :: isfound
             flag = int(GM_REALS(location))
             top2 = G_ARGUMENT_POINTER
             G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-            location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-            mn = G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
+            location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+            mn = G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
          endif
 
          ! if a single character and a digit set LUN to that so exec(0) works
@@ -5104,7 +5100,7 @@ logical                    :: isfound
          endif
 
          G_SYM = GG_EOL
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
       endif
       endblock EXEC_CMD
 !===================================================================================================================================
@@ -5114,13 +5110,13 @@ logical                    :: isfound
       k = GG_MAX_NUMBER_OF_NAMES-4
       if (k .lt. G_TOP_OF_SAVED) k = GG_MAX_NUMBER_OF_NAMES
       if (G_RHS .eq. 2) k = top2
-      if (G_RHS .eq. 2) call mat_copyid(G_STACK_IDS(1,k),G_SYN)
+      if (G_RHS .eq. 2) call mat_copyid(G_VAR_IDS(1,k),G_SYN)
       do
-         location = G_STACK_ID_LOC(k)
-         m = G_STACK_ROWS(k)
-         n = G_STACK_COLS(k)
+         location = G_VAR_DATALOC(k)
+         m = G_VAR_ROWS(k)
+         n = G_VAR_COLS(k)
          do i = 1, GG_MAX_NAME_LENGTH
-            j = G_STACK_IDS(i,k)
+            j = G_VAR_IDS(i,k)
             G_BUF(i) = j
          enddo
          img = 0
@@ -5130,7 +5126,7 @@ logical                    :: isfound
          if (k .lt. G_TOP_OF_SAVED) exit
       enddo
       call mat_files(-lunit,G_BUF) ! close unit
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0  ! do not set "ans" to filename
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0  ! do not set "ans" to filename
 !===================================================================================================================================
       case(14) ! COMMAND::DELETE
          DELETE_IT: block
@@ -5149,7 +5145,7 @@ logical                    :: isfound
             G_ERR=999
             exit FUN5
          endif
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 0  ! do not set "ans" to filename
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 0  ! do not set "ans" to filename
          endblock DELETE_IT
 !===================================================================================================================================
       case(3) ! command::load
@@ -5160,19 +5156,19 @@ logical                    :: isfound
       call mat_buf2str(mline,G_BUF,GG_LINELEN)
 
       do
-         space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
+         space_left = G_VAR_DATALOC(G_TOP_OF_SAVED) - location
          IF(.not.G_FILE_OPEN_ERROR)then
             call mat_savlod(lunit, &
                 & id, &
-                & G_STACK_ROWS(G_ARGUMENT_POINTER), &
-                & G_STACK_COLS(G_ARGUMENT_POINTER), &
+                & G_VAR_ROWS(G_ARGUMENT_POINTER), &
+                & G_VAR_COLS(G_ARGUMENT_POINTER), &
                 & img, &
                 & space_left, &
                 & GM_REALS(location), &
                 & GM_IMAGS(location))
          endif
 
-         mn = G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
+         mn = G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
 
          if (mn .ne. 0)then
             if (img .eq. 0) call mat_rset(mn,0.0d0,GM_IMAGS(location),1)
@@ -5203,7 +5199,7 @@ logical                    :: isfound
 
       call mat_files(-lunit,G_BUF) ! close unit
 
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       case(4) ! command::print
       k = G_OUTPUT_LUN                                ! hold
@@ -5217,11 +5213,11 @@ logical                    :: isfound
       G_LINECOUNT(2) = location                       ! restore
       G_OUTPUT_LUN = k                                ! restore
 
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       case(5) ! command::diary
       call mat_files(8,G_BUF)
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       case(6,7) !     COMMAND::DISPLAY
 60    continue
@@ -5261,7 +5257,7 @@ logical                    :: isfound
          call mat_buf2str(mline,G_BUF,n)
          call journal(mline)
       enddo
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
       exit FUN5
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 !     command::base
@@ -5278,8 +5274,8 @@ logical                    :: isfound
       l2 = location
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
       G_RHS = 1
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-      m = G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      m = G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
       eps = GM_REALS(GM_BIGMEM-4)
       do i = 1, m
          ls = l2+(i-1)*n
@@ -5288,15 +5284,15 @@ logical                    :: isfound
       enddo
       call mat_rset(m*n,0.0d0,GM_IMAGS(l2),1)
       call mat_wcopy(m*n,GM_REALS(l2),GM_IMAGS(l2),1,GM_REALS(location),GM_IMAGS(location),1)
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = n
-      G_STACK_COLS(G_ARGUMENT_POINTER) = m
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = n
+      G_VAR_COLS(G_ARGUMENT_POINTER) = m
       call mat_stack1(quote)
       if (G_FIN .eq. 6) goto 60
 !===================================================================================================================================
       case(8)
 !     command::lines
       G_LINECOUNT(2) = int(GM_REALS(location))
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       !!! BROKEN BY GOING TO ASCII. ELIMINATE OR CORRECT
       case(9) !     COMMAND::CHAR                   ! does currently not do anything
@@ -5306,7 +5302,7 @@ logical                    :: isfound
          exit FUN5
       endif
       CH = K
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       case(10) !     COMMAND::PLOT
       IF (G_RHS .GE. 2) goto 82
@@ -5316,7 +5312,7 @@ logical                    :: isfound
          GM_IMAGS(LL) = dble(I)
       enddo
       call mat_plot(G_OUTPUT_LUN,GM_IMAGS(location),GM_REALS(location),N,TDUM,0)
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
       exit FUN5
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -5325,16 +5321,16 @@ logical                    :: isfound
       IF (G_RHS .EQ. 3) K = M*N
       IF (G_RHS .GT. 3) K = G_RHS - 2
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER - (G_RHS - 1)
-      N = G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
-      IF (G_STACK_ROWS(G_ARGUMENT_POINTER+1)*G_STACK_COLS(G_ARGUMENT_POINTER+1) .NE. N) then
+      N = G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
+      IF (G_VAR_ROWS(G_ARGUMENT_POINTER+1)*G_VAR_COLS(G_ARGUMENT_POINTER+1) .NE. N) then
          call mat_err(5)
          exit FUN5
       endif
-      LX = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-      LY = G_STACK_ID_LOC(G_ARGUMENT_POINTER+1)
-      IF (G_RHS .GT. 3) location = G_STACK_ID_LOC(G_ARGUMENT_POINTER+2)
+      LX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      LY = G_VAR_DATALOC(G_ARGUMENT_POINTER+1)
+      IF (G_RHS .GT. 3) location = G_VAR_DATALOC(G_ARGUMENT_POINTER+2)
       call mat_plot(G_OUTPUT_LUN,GM_REALS(LX),GM_REALS(LY),N,GM_REALS(location),K)
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       case(11) ! COMMAND::RAT
       if (G_RHS .ne. 2) then
@@ -5343,12 +5339,12 @@ logical                    :: isfound
          if (G_lhs .eq. 2) l2 = location + mn
          lw = l2 + mn
 
-         if(too_much_memory( lw + lrat - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+         if(too_much_memory( lw + lrat - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
          if (G_lhs .eq. 2) G_ARGUMENT_POINTER = G_ARGUMENT_POINTER + 1
-         G_STACK_ID_LOC(G_ARGUMENT_POINTER) = l2
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = m
-         G_STACK_COLS(G_ARGUMENT_POINTER) = n
+         G_VAR_DATALOC(G_ARGUMENT_POINTER) = l2
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+         G_VAR_COLS(G_ARGUMENT_POINTER) = n
          call mat_rset(G_lhs*mn,0.0d0,GM_IMAGS(location),1)
          do i = 1, mn
             call mat_rat(GM_REALS(location),lrat,mrat,s,t,GM_REALS(lw))
@@ -5362,17 +5358,17 @@ logical                    :: isfound
          mrat = int(GM_REALS(location))
          lrat = int(GM_REALS(location-1))
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER - 1
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
       endif
 !===================================================================================================================================
       case(12) !     COMMAND::DEBUG
       G_DEBUG_LEVEL = int(GM_REALS(location))
       call journal('sc',' DEBUG ',G_DEBUG_LEVEL)
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       case(13) !     COMMAND::SHOW
       call printit()
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       end select FUN5
 !===================================================================================================================================
@@ -5403,10 +5399,10 @@ integer             :: mnk
 integer             :: n
 character(len=GG_MAX_NAME_LENGTH)    :: id_name
 
-   call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)    ! copy ID to next blank entry in G_STACK_IDS in case it is not there(?)
+   call mat_copyid(G_VAR_IDS(1,G_TOP_OF_SAVED-1), ID)    ! copy ID to next blank entry in G_VAR_IDS in case it is not there(?)
 
-   do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
-      if (mat_eqid(G_STACK_IDS(1:,k), id))exit             ! if found name exit loop
+   do k=GG_MAX_NUMBER_OF_NAMES,1,-1                      ! start at bottom and search up through names till find the name
+      if (mat_eqid(G_VAR_IDS(1:,k), id))exit             ! if found name exit loop
    enddo
    ! if (?)
    ! or if matched the name inserted above did not find it.
@@ -5415,17 +5411,17 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       return
    endif
 
-   current_location = G_STACK_ID_LOC(K)                               ! found it, so this is the location where the data begins
+   current_location = G_VAR_DATALOC(K)                               ! found it, so this is the location where the data begins
    IF (G_RHS .EQ. 1) then                                             ! VECT(ARG)
-      IF (G_STACK_ROWS(G_ARGUMENT_POINTER) .EQ. 0) goto 99
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-      MN = G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
-      MNK = G_STACK_ROWS(K)*G_STACK_COLS(K)                            ! number of values in this variable
-      IF (G_STACK_ROWS(G_ARGUMENT_POINTER) .LT. 0) MN = MNK
+      IF (G_VAR_ROWS(G_ARGUMENT_POINTER) .EQ. 0) goto 99
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      MN = G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
+      MNK = G_VAR_ROWS(K)*G_VAR_COLS(K)                            ! number of values in this variable
+      IF (G_VAR_ROWS(G_ARGUMENT_POINTER) .LT. 0) MN = MNK
       DO I = 1, MN
         LL = location+I-1
         LS = current_location+I-1
-        IF (G_STACK_ROWS(G_ARGUMENT_POINTER) .GT. 0) LS = current_location + int(GM_REALS(LL)) - 1
+        IF (G_VAR_ROWS(G_ARGUMENT_POINTER) .GT. 0) LS = current_location + int(GM_REALS(LL)) - 1
         IF (LS .LT. current_location .OR. LS .GE. current_location+MNK) then
            call mat_err(21)          ! Subscript out of range
            return
@@ -5433,30 +5429,30 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
         GM_REALS(LL) = GM_REALS(LS)
         GM_IMAGS(LL) = GM_IMAGS(LS)
       enddo
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
-      IF (G_STACK_ROWS(K) .GT. 1) G_STACK_ROWS(G_ARGUMENT_POINTER) = MN
-      IF (G_STACK_ROWS(K) .EQ. 1) G_STACK_COLS(G_ARGUMENT_POINTER) = MN
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
+      IF (G_VAR_ROWS(K) .GT. 1) G_VAR_ROWS(G_ARGUMENT_POINTER) = MN
+      IF (G_VAR_ROWS(K) .EQ. 1) G_VAR_COLS(G_ARGUMENT_POINTER) = MN
       goto 99
    elseif (G_RHS .EQ. 2) then                                              ! MATRIX(ARG,ARG)
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-      IF (G_STACK_ROWS(G_ARGUMENT_POINTER+1) .EQ. 0) G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
-      IF (G_STACK_ROWS(G_ARGUMENT_POINTER) .EQ. 0) goto 99
-      L2 = G_STACK_ID_LOC(G_ARGUMENT_POINTER+1)
-      M = G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
-      IF (G_STACK_ROWS(G_ARGUMENT_POINTER) .LT. 0) M = G_STACK_ROWS(K)
-      N = G_STACK_ROWS(G_ARGUMENT_POINTER+1)*G_STACK_COLS(G_ARGUMENT_POINTER+1)
-      IF (G_STACK_ROWS(G_ARGUMENT_POINTER+1) .LT. 0) N = G_STACK_COLS(K)
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      IF (G_VAR_ROWS(G_ARGUMENT_POINTER+1) .EQ. 0) G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
+      IF (G_VAR_ROWS(G_ARGUMENT_POINTER) .EQ. 0) goto 99
+      L2 = G_VAR_DATALOC(G_ARGUMENT_POINTER+1)
+      M = G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
+      IF (G_VAR_ROWS(G_ARGUMENT_POINTER) .LT. 0) M = G_VAR_ROWS(K)
+      N = G_VAR_ROWS(G_ARGUMENT_POINTER+1)*G_VAR_COLS(G_ARGUMENT_POINTER+1)
+      IF (G_VAR_ROWS(G_ARGUMENT_POINTER+1) .LT. 0) N = G_VAR_COLS(K)
       L3 = L2 + N
-      MK = G_STACK_ROWS(K)
-      MNK = G_STACK_ROWS(K)*G_STACK_COLS(K)
+      MK = G_VAR_ROWS(K)
+      MNK = G_VAR_ROWS(K)*G_VAR_COLS(K)
       DO J = 1, N
          DO I = 1, M
            LI = location+I-1
-           IF (G_STACK_ROWS(G_ARGUMENT_POINTER) .GT. 0) LI = location + int(GM_REALS(LI)) - 1
+           IF (G_VAR_ROWS(G_ARGUMENT_POINTER) .GT. 0) LI = location + int(GM_REALS(LI)) - 1
            LJ = L2+J-1
-           IF (G_STACK_ROWS(G_ARGUMENT_POINTER+1) .GT. 0) LJ = L2 + int(GM_REALS(LJ)) - 1
+           IF (G_VAR_ROWS(G_ARGUMENT_POINTER+1) .GT. 0) LJ = L2 + int(GM_REALS(LJ)) - 1
            LS = current_location + LI-location + (LJ-L2)*MK
            IF (LS.LT.current_location .OR. LS.GE.current_location+MNK) then
               call mat_err(21)
@@ -5469,8 +5465,8 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       enddo
       MN = M*N
       call mat_wcopy(MN,GM_REALS(L3),GM_IMAGS(L3),1,GM_REALS(location),GM_IMAGS(location),1)
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = M
-      G_STACK_COLS(G_ARGUMENT_POINTER) = N
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = M
+      G_VAR_COLS(G_ARGUMENT_POINTER) = N
       goto 99
    elseif (G_RHS .GT. 2) then
       call mat_err(21)                                                     ! Subscript out of range
@@ -5478,8 +5474,8 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
    else                                                                    ! SCALAR
       location = 1
       IF (G_ARGUMENT_POINTER .GT. 0) &
-        & location = G_STACK_ID_LOC(G_ARGUMENT_POINTER) + &
-        & G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
+        & location = G_VAR_DATALOC(G_ARGUMENT_POINTER) + &
+        & G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
       IF (G_ARGUMENT_POINTER+1 .GE. G_TOP_OF_SAVED) then
          call mat_err(18)  ! Too many names
          return
@@ -5488,12 +5484,12 @@ character(len=GG_MAX_NAME_LENGTH)    :: id_name
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
 
       !  LOAD VARIABLE TO TOP OF STACK
-      G_STACK_ID_LOC(G_ARGUMENT_POINTER) = location
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = G_STACK_ROWS(K)
-      G_STACK_COLS(G_ARGUMENT_POINTER) = G_STACK_COLS(K)
-      MN = G_STACK_ROWS(K)*G_STACK_COLS(K)
+      G_VAR_DATALOC(G_ARGUMENT_POINTER) = location
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = G_VAR_ROWS(K)
+      G_VAR_COLS(G_ARGUMENT_POINTER) = G_VAR_COLS(K)
+      MN = G_VAR_ROWS(K)*G_VAR_COLS(K)
 
-      if(too_much_memory( location+MN - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+      if(too_much_memory( location+MN - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
       !  IF RAND, MATFN6 GENERATES RANDOM NUMBER
       IF (K .EQ. GG_MAX_NUMBER_OF_NAMES) then
@@ -5544,13 +5540,13 @@ integer           ::  n2
 integer           ::  nexp
 integer           :: op_select
 
-   l2 = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-   m2 = G_STACK_ROWS(G_ARGUMENT_POINTER)
-   n2 = G_STACK_COLS(G_ARGUMENT_POINTER)
+   l2 = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   m2 = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   n2 = G_VAR_COLS(G_ARGUMENT_POINTER)
    G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-   m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-   n = G_STACK_COLS(G_ARGUMENT_POINTER)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   n = G_VAR_COLS(G_ARGUMENT_POINTER)
    G_FUN = 0
 
    if(op.eq.DSTAR)then
@@ -5568,8 +5564,8 @@ integer           :: op_select
          endif
          m = m2
          n = n2
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = m
-         G_STACK_COLS(G_ARGUMENT_POINTER) = n
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+         G_VAR_COLS(G_ARGUMENT_POINTER) = n
          sr = GM_REALS(location)
          si = GM_IMAGS(location)
          call mat_wcopy(m*n,GM_REALS(location+1),GM_IMAGS(location+1),1,GM_REALS(location),GM_IMAGS(location),1)
@@ -5604,8 +5600,8 @@ integer           :: op_select
          endif
          m = m2
          n = n2
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = m
-         G_STACK_COLS(G_ARGUMENT_POINTER) = n
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+         G_VAR_COLS(G_ARGUMENT_POINTER) = n
          sr = GM_REALS(location)
          si = GM_IMAGS(location)
          call mat_wcopy(m*n,GM_REALS(location+1),GM_IMAGS(location+1),1,GM_REALS(location),GM_IMAGS(location),1)
@@ -5645,7 +5641,7 @@ integer           :: op_select
       mn = m*n2
       ll = location + mn
 
-      if(too_much_memory( ll+m*n+m2*n2 - G_STACK_ID_LOC(G_TOP_OF_SAVED)) ) exit do_op
+      if(too_much_memory( ll+m*n+m2*n2 - G_VAR_DATALOC(G_TOP_OF_SAVED)) ) exit do_op
 
       call mat_wcopy(m*n+m2*n2,GM_REALS(location),GM_IMAGS(location),-1,GM_REALS(ll),GM_IMAGS(ll),-1)
       do j = 1, n2
@@ -5657,7 +5653,7 @@ integer           :: op_select
             GM_IMAGS(k) = mat_wdotui(N,GM_REALS(k1),GM_IMAGS(k1),m,GM_REALS(k2),GM_IMAGS(k2),1)
          enddo
       enddo
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n2
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n2
       exit do_op
 !-----------------------------------------------------------------------------------------------------------------------------------
    ! multiplication by scalar
@@ -5670,10 +5666,10 @@ integer           :: op_select
       sr = GM_REALS(location)
       si = GM_IMAGS(location)
       l1 = location+1
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = m2
-      G_STACK_COLS(G_ARGUMENT_POINTER) = n2
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = m2
+      G_VAR_COLS(G_ARGUMENT_POINTER) = n2
    13 continue
-      mn = G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
+      mn = G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
       call mat_wscal(mn,sr,si,GM_REALS(l1),GM_IMAGS(l1),1)
       if (l1.ne.location) call mat_wcopy(mn,GM_REALS(l1),GM_IMAGS(l1),1,GM_REALS(location),GM_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -5697,7 +5693,7 @@ integer           :: op_select
 
       MN = M*N
 
-      if(too_much_memory( L2+MN+N - G_STACK_ID_LOC(G_TOP_OF_SAVED)) ) exit do_op
+      if(too_much_memory( L2+MN+N - G_VAR_DATALOC(G_TOP_OF_SAVED)) ) exit do_op
 
       call mat_wcopy(MN,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(L2),GM_IMAGS(L2),1)
       L3 = L2+MN
@@ -5741,8 +5737,8 @@ integer           :: op_select
       endif
       SR = GM_REALS(location)
       SI = GM_IMAGS(location)
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = M2
-      G_STACK_COLS(G_ARGUMENT_POINTER) = N2
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = M2
+      G_VAR_COLS(G_ARGUMENT_POINTER) = N2
       MN = M2*N2
       DO I = 1, MN
          LL = location+I-1
@@ -5757,7 +5753,7 @@ integer           :: op_select
       IF (G_RHS .GE. 3) then
          ST = GM_REALS(location)
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-         location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
          IF (ST .EQ. 0.0D0) goto 63
       endif
 
@@ -5768,12 +5764,12 @@ integer           :: op_select
          GM_REALS(location) = E1
          GM_REALS(location+1) = ST
          GM_REALS(location+2) = E2
-         G_STACK_ROWS(G_ARGUMENT_POINTER) = -3
-         G_STACK_COLS(G_ARGUMENT_POINTER) = -1
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = -3
+         G_VAR_COLS(G_ARGUMENT_POINTER) = -1
          exit DO_OP
       endif
 
-      if(too_much_memory( location + MAX(3,int((E2-E1)/ST)) - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) ) exit do_op
+      if(too_much_memory( location + MAX(3,int((E2-E1)/ST)) - G_VAR_DATALOC(G_TOP_OF_SAVED) ) ) exit do_op
 
       do
          IF (ST .GT. 0.0D0 .AND. GM_REALS(location) .GT. E2) exit
@@ -5785,9 +5781,9 @@ integer           :: op_select
       enddo
 
    63 continue
-      G_STACK_COLS(G_ARGUMENT_POINTER) = N
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      IF (N .EQ. 0) G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
+      G_VAR_COLS(G_ARGUMENT_POINTER) = N
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      IF (N .EQ. 0) G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (1000:2000-1) ! element-wise operations
       op = op -1000
@@ -6041,9 +6037,9 @@ integer            :: n
    G_SYM = semi
    G_CHRA = blank
    j = j+1
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-   m = G_STACK_ROWS(G_ARGUMENT_POINTER)
-   n = G_STACK_COLS(G_ARGUMENT_POINTER)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   n = G_VAR_COLS(G_ARGUMENT_POINTER)
    lj = location+(j-1)*m
    l2 = location + m*n
    if (m .ne. -3) goto 12
@@ -6062,11 +6058,11 @@ integer            :: n
       return
    endif
    G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
-   G_STACK_ID_LOC(G_ARGUMENT_POINTER) = l2
-   G_STACK_ROWS(G_ARGUMENT_POINTER) = m
-   G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+   G_VAR_DATALOC(G_ARGUMENT_POINTER) = l2
+   G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+   G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 
-   if(too_much_memory( l2+m - G_STACK_ID_LOC(G_TOP_OF_SAVED) ) )return
+   if(too_much_memory( l2+m - G_VAR_DATALOC(G_TOP_OF_SAVED) ) )return
 
    call mat_wcopy(m,GM_REALS(lj),GM_IMAGS(lj),1,GM_REALS(l2),GM_IMAGS(l2),1)
    G_RHS = 0
@@ -6080,8 +6076,8 @@ integer            :: n
 15 continue
    goto 10
 20 continue
-   G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
-   G_STACK_COLS(G_ARGUMENT_POINTER) = 0
+   G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
+   G_VAR_COLS(G_ARGUMENT_POINTER) = 0
    G_RHS = 0
    call mat_stack_put(G_IDS(1,G_PT))
    if (G_ERR .gt. 0) return
@@ -6118,9 +6114,9 @@ integer            :: n
 45 continue
    op = mod(G_PSTK(G_PT),256)
    G_PSTK(G_PT) = G_PSTK(G_PT)/256
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER-1)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER-1)
    e1 = GM_REALS(location)
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
    e2 = GM_REALS(location)
    G_ARGUMENT_POINTER = G_ARGUMENT_POINTER - 2
    if (mat_eqid(G_SYN,do) .or. mat_eqid(G_SYN,thenn)) G_SYM = semi
@@ -6331,9 +6327,9 @@ integer           :: n
    ! put something on the stack
    location = 1
    if (G_ARGUMENT_POINTER .gt. 0) then
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER) &
-       & + G_STACK_ROWS(G_ARGUMENT_POINTER) &
-       & * G_STACK_COLS(G_ARGUMENT_POINTER)
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER) &
+       & + G_VAR_ROWS(G_ARGUMENT_POINTER) &
+       & * G_VAR_COLS(G_ARGUMENT_POINTER)
    endif
    if (G_ARGUMENT_POINTER+1 .ge. G_TOP_OF_SAVED) then
       call mat_err(18)
@@ -6341,12 +6337,12 @@ integer           :: n
    endif
 
    G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
-   G_STACK_ID_LOC(G_ARGUMENT_POINTER) = location
+   G_VAR_DATALOC(G_ARGUMENT_POINTER) = location
    if (G_SYM .ne. quote) then
       if (G_SYM .eq. less.or.G_SYM.eq.lbracket) goto 20
       ! single number, getsym stored it in GM_IMAGS
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-      G_STACK_COLS(G_ARGUMENT_POINTER) = 1
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       GM_REALS(location) = GM_IMAGS(GM_BIGMEM)
       GM_IMAGS(location) = 0.0D0
       call mat_getsym()
@@ -6382,24 +6378,24 @@ integer           :: n
       call mat_err(31) ! Improper string
       return
    endif
-   G_STACK_ROWS(G_ARGUMENT_POINTER) = 1
-   G_STACK_COLS(G_ARGUMENT_POINTER) = n
+   G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+   G_VAR_COLS(G_ARGUMENT_POINTER) = n
    call mat_getsym()
    goto 60
 !==================================================================================================================================!
 !  explicit matrix
 20 continue
-   G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
-   G_STACK_COLS(G_ARGUMENT_POINTER) = 0
+   G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
+   G_VAR_COLS(G_ARGUMENT_POINTER) = 0
 
 21 continue
    G_ARGUMENT_POINTER = G_ARGUMENT_POINTER + 1
-   G_STACK_ID_LOC(G_ARGUMENT_POINTER) = &
-      &   G_STACK_ID_LOC(G_ARGUMENT_POINTER-1) &
-      & + G_STACK_ROWS(G_ARGUMENT_POINTER-1)&
-      & * G_STACK_COLS(G_ARGUMENT_POINTER-1)
-   G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
-   G_STACK_COLS(G_ARGUMENT_POINTER) = 0
+   G_VAR_DATALOC(G_ARGUMENT_POINTER) = &
+      &   G_VAR_DATALOC(G_ARGUMENT_POINTER-1) &
+      & + G_VAR_ROWS(G_ARGUMENT_POINTER-1)&
+      & * G_VAR_COLS(G_ARGUMENT_POINTER-1)
+   G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
+   G_VAR_COLS(G_ARGUMENT_POINTER) = 0
    call mat_getsym()
 
 22 continue
@@ -6408,15 +6404,15 @@ integer           :: n
       call mat_stack1(quote)
       if (G_ERR .gt. 0) return
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER - 1
-      if (G_STACK_ROWS(G_ARGUMENT_POINTER) .eq. 0)  &
-         & G_STACK_ROWS(G_ARGUMENT_POINTER) = G_STACK_ROWS(G_ARGUMENT_POINTER+1)
-      if (G_STACK_ROWS(G_ARGUMENT_POINTER) .ne. G_STACK_ROWS(G_ARGUMENT_POINTER+1) &
-         & .and. G_STACK_ROWS(G_ARGUMENT_POINTER+1) .gt. 0) then
+      if (G_VAR_ROWS(G_ARGUMENT_POINTER) .eq. 0)  &
+         & G_VAR_ROWS(G_ARGUMENT_POINTER) = G_VAR_ROWS(G_ARGUMENT_POINTER+1)
+      if (G_VAR_ROWS(G_ARGUMENT_POINTER) .ne. G_VAR_ROWS(G_ARGUMENT_POINTER+1) &
+         & .and. G_VAR_ROWS(G_ARGUMENT_POINTER+1) .gt. 0) then
          call mat_err(6)
          return
       endif
-      G_STACK_COLS(G_ARGUMENT_POINTER) = G_STACK_COLS(G_ARGUMENT_POINTER) &
-         & + G_STACK_COLS(G_ARGUMENT_POINTER+1)
+      G_VAR_COLS(G_ARGUMENT_POINTER) = G_VAR_COLS(G_ARGUMENT_POINTER) &
+         & + G_VAR_COLS(G_ARGUMENT_POINTER+1)
       if (G_SYM .eq. GG_EOL) call mat_getlin()
       if (G_SYM .ne. great.and. G_SYM.ne.rbracket) goto 21
       call mat_stack1(quote)
@@ -6433,16 +6429,16 @@ integer           :: n
 25 continue
    G_PT = G_PT-1
    G_ARGUMENT_POINTER = G_ARGUMENT_POINTER - 1
-   if (G_STACK_ROWS(G_ARGUMENT_POINTER) .eq. 0) then
-      G_STACK_ROWS(G_ARGUMENT_POINTER) = G_STACK_ROWS(G_ARGUMENT_POINTER+1)
+   if (G_VAR_ROWS(G_ARGUMENT_POINTER) .eq. 0) then
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = G_VAR_ROWS(G_ARGUMENT_POINTER+1)
    endif
 
-   if (G_STACK_ROWS(G_ARGUMENT_POINTER) .ne. G_STACK_ROWS(G_ARGUMENT_POINTER+1))then
+   if (G_VAR_ROWS(G_ARGUMENT_POINTER) .ne. G_VAR_ROWS(G_ARGUMENT_POINTER+1))then
       call mat_err(5)
       return
    endif
-   G_STACK_COLS(G_ARGUMENT_POINTER) =  &
-      & G_STACK_COLS(G_ARGUMENT_POINTER) + G_STACK_COLS(G_ARGUMENT_POINTER+1)
+   G_VAR_COLS(G_ARGUMENT_POINTER) =  &
+      & G_VAR_COLS(G_ARGUMENT_POINTER) + G_VAR_COLS(G_ARGUMENT_POINTER+1)
    goto 22
 !==================================================================================================================================!
 32 continue
@@ -6459,8 +6455,8 @@ integer           :: n
    G_LINE_POINTER(1) = k + 4
 !     transfer stack to input line
    k = G_LINE_POINTER(1)
-   location = G_STACK_ID_LOC(G_ARGUMENT_POINTER)
-   n = G_STACK_ROWS(G_ARGUMENT_POINTER)*G_STACK_COLS(G_ARGUMENT_POINTER)
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   n = G_VAR_ROWS(G_ARGUMENT_POINTER)*G_VAR_COLS(G_ARGUMENT_POINTER)
    do j = 1, n
       ls = location + j-1
       G_LIN(k) = int(GM_REALS(ls))
@@ -6772,10 +6768,10 @@ integer                            :: k
    ! convert character name to laff character set
    id=iachar(' ')
    call mat_str2buf(varname,id,len(varname))
-   call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_STACK_IDS for messages(?)
+   call mat_copyid(G_VAR_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_VAR_IDS for messages(?)
 
    do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
-      if (mat_eqid(G_STACK_IDS(1:,k), id))exit            ! if found name exit loop
+      if (mat_eqid(G_VAR_IDS(1:,k), id))exit            ! if found name exit loop
    enddo
 
    ! if matched the name inserted above did not find it.
@@ -6907,10 +6903,10 @@ integer                                  :: i,j,k,location,m,n
    id=iachar(' ')
    call mat_str2buf(varname,id,len(varname))
    ! ??? make sure this letter is in set of LAFF characters and get its LAFF number
-   call mat_copyid(G_STACK_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_STACK_IDS for messages(?)
+   call mat_copyid(G_VAR_IDS(1,G_TOP_OF_SAVED-1), ID)   ! copy ID to next blank entry in G_VAR_IDS for messages(?)
 
    do k=GG_MAX_NUMBER_OF_NAMES,1,-1                       ! start at bottom and search up through names till find the name
-      if (mat_eqid(G_STACK_IDS(1:,k), id))exit            ! if found name exit loop
+      if (mat_eqid(G_VAR_IDS(1:,k), id))exit            ! if found name exit loop
    enddo
 
    ! if matched the name inserted above did not find it.
@@ -6921,10 +6917,10 @@ integer                                  :: i,j,k,location,m,n
       allocate(a(0,0))
    else
       if(allocated(a))deallocate(a)
-      M=G_STACK_ROWS(k)
-      N=G_STACK_COLS(k)
+      M=G_VAR_ROWS(k)
+      N=G_VAR_COLS(k)
       allocate(a(m,n))
-      location=G_STACK_ID_LOC(k)
+      location=G_VAR_DATALOC(k)
       do j=1,n
          do i=1,m
             if(type.eq.0)then
@@ -7044,14 +7040,14 @@ integer                              :: size_of_a
    endif
 
    if(G_ARGUMENT_POINTER.ne.0)then
-      location = G_STACK_ID_LOC(G_ARGUMENT_POINTER) ! location of bottom of used scratch space
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER) ! location of bottom of used scratch space
    else
      !call journal('sc','<WARNING>G_ARGUMENT_POINTER=',G_ARGUMENT_POINTER)
      G_ARGUMENT_POINTER= 1
-     G_STACK_ID_LOC(G_ARGUMENT_POINTER)=1
+     G_VAR_DATALOC(G_ARGUMENT_POINTER)=1
      location=1
    endif
-   space_left = G_STACK_ID_LOC(G_TOP_OF_SAVED) - location
+   space_left = G_VAR_DATALOC(G_TOP_OF_SAVED) - location
    !! assume input arrays can be one or two dimension but laff stores everything as a vector and store m and n
    m=size(realxx,dim=1)
    n=size(realxx,dim=2)
@@ -7071,8 +7067,8 @@ integer                              :: size_of_a
       endif
       GM_REALS(location:location+m*n-1)=rowpack(realxx)
    endif
-   G_STACK_ROWS(G_ARGUMENT_POINTER)=m
-   G_STACK_COLS(G_ARGUMENT_POINTER)=n
+   G_VAR_ROWS(G_ARGUMENT_POINTER)=m
+   G_VAR_COLS(G_ARGUMENT_POINTER)=n
    G_SYM = semi   !! ??? why
    G_RHS = 0      !! ??? why
    call mat_str2buf(varname,id,GG_MAX_NAME_LENGTH)                        ! convert character string to an ID
@@ -7081,8 +7077,8 @@ integer                              :: size_of_a
    call mat_stack_put(id)
    !! ???? if(G_ERR.ne.0)
    G_ARGUMENT_POINTER = G_ARGUMENT_POINTER + 1
-   G_STACK_ROWS(G_ARGUMENT_POINTER) = 0
-   G_STACK_COLS(G_ARGUMENT_POINTER) = 0
+   G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
+   G_VAR_COLS(G_ARGUMENT_POINTER) = 0
 end subroutine store_double_into_laff
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
@@ -9869,7 +9865,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   |______________._________________________________________________________|   ',&
 '   |ENVIRONMENT   | getenv                                                  |   ',&
 '   |______________._________________________________________________________|   ',&
-'   |DOCUMENTATION | help   manual topics NEWS                               |   ',&
+'   |DOCUMENTATION | help   fhelp  NEWS                                      |   ',&
 '   |______________._________________________________________________________|   ',&
 '   |MISCELLANEOUS | eps    debug  flops sh     MACROS   EDIT   CHARS        |   ',&
 '   |______________._________________________________________________________|   ',&
@@ -10108,18 +10104,24 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 ':     Colon. Used in subscripts, "for" iterations and possibly                  ',&
 '      elsewhere.                                                                ',&
 '                                                                                ',&
-'         J:K  is the same as  <J, J+1, ..., K>                                  ',&
-'         J:K  is empty if  J > K .                                              ',&
-'         J:I:K  is the same as  <J, J+I, J+2I, ..., K>                          ',&
-'         J:I:K  is empty if  I > 0 and J > K or if I < 0 and J < K .            ',&
+'        j:k   is the same as  <j, j+1, ..., k>                                  ',&
+'              is empty if  j > k .                                              ',&
+'        j:i:k is the same as [j, j+i,j+2*i, ..., k]                             ',&
+'              (Fortran DO loop users beware of the unusual order!)              ',&
+'                                                                                ',&
+'         j:i:k  is the same as  <j, j+i, j+2i, ..., k>                          ',&
+'         j:i:k  is empty if  i > 0 and j > k or if i < 0 and j < k .            ',&
 '                                                                                ',&
 '      The colon notation can be used to pick out selected rows,                 ',&
 '      columns and elements of vectors and matrices.                             ',&
 '                                                                                ',&
-'         A(:) is all the elements of A, regarded as a single column.            ',&
-'         A(:,J)  is the J-th column of A                                        ',&
-'         A(J:K)  is A(J),A(J+1),...,A(K)                                        ',&
-'         A(:,J:K)  is A(:,J),A(:,J+1),...,A(:,K) and so on.                     ',&
+'         A(:)    is all the elements of A, regarded as a single column.         ',&
+'                 However, used on the left side of an assignment, A(:)          ',&
+'                 fills A, but preserves its shape.                              ',&
+'        A(:,j)   is the j-th column of A                                        ',&
+'        A(j:k)   is A(j), A(j+1), ... , A(k)                                    ',&
+'        A(:,j:k) is A(:,j), A(:,j+1), ... ,A(:,k) and so on.                    ',&
+'        A(:,:)   is the same as A.                                              ',&
 '                                                                                ',&
 '      For the use of the colon in the "for" statement, See "for" .              ',&
 '                                                                                ',&
@@ -10269,6 +10271,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      "invh" has an alias of "inverse_hilbert" and "invhilb".                   ',&
 '                                                                                ',&
+'aimag see "imag"                                                                ',&
 'imag  "imag(X)" is the imaginary part of X .                                    ',&
 '                                                                                ',&
 'inv   "inv(X)" is the inverse of the square matrix X . A warning                ',&
@@ -10990,11 +10993,11 @@ write(*,gen1)'G_BUF:',trim(ade2str(G_BUF))
 write(*,gen1)'GM_BIGMEM:',GM_BIGMEM
 write(*,gen1)'G_TOP_OF_SAVED:',G_TOP_OF_SAVED,':G_ARGUMENT_POINTER:',G_ARGUMENT_POINTER
 do i=1,GG_MAX_NUMBER_OF_NAMES
-   m=G_STACK_ROWS(i)
-   n=G_STACK_COLS(i)
-   l=G_STACK_ID_LOC(i)
-   if(.not.(ade2str(G_STACK_IDS(:,i)).eq.''.and.l.eq.0.and.m.eq.0.and.n.eq.0))then
-      write(*,*)i,ade2str(G_STACK_IDS(:,i)),l,m,n,'VALS=',real(GM_REALS(l:l+m*n-1))
+   m=G_VAR_ROWS(i)
+   n=G_VAR_COLS(i)
+   l=G_VAR_DATALOC(i)
+   if(.not.(ade2str(G_VAR_IDS(:,i)).eq.''.and.l.eq.0.and.m.eq.0.and.n.eq.0))then
+      write(*,*)i,ade2str(G_VAR_IDS(:,i)),l,m,n,'VALS=',real(GM_REALS(l:l+m*n-1))
    endif
 enddo
 !==================================================================================================================================!

@@ -34,3 +34,20 @@ M_list         = { git = "https://github.com/urbanjost/M_list.git" }
 M_io           = { git = "https://github.com/urbanjost/M_io.git" }
 M_LA           = { git = "https://github.com/urbanjost/M_LA.git" }
 M_intrinsics   = { git = "https://github.com/urbanjost/M_intrinsics.git" }
+#
+#To specify a build script to be used, put it in the library section of your fpm.toml file, like:
+[library]
+source-dir="src"
+build-script="my_build_script"
+
+#fpm will set the following environment variables to specify some parameters to the build script:
+#
+#    FC – The Fortran compiler to be used.
+#    FFLAGS – The flags that should be passed to the Fortran compiler.
+#    BUILD_DIR – Where the compiled files should be placed.
+#    INCLUDE_DIRS – The folders where any dependencies can be found,
+#    space separated. It is then the responsibility of the build script
+#    to generate the appropriate include flags.
+
+# Additionally, script will be called with the name of the archive (*.a
+# file) that should be produced as the command line argument.
