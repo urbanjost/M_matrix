@@ -1,4 +1,3 @@
-! ident_1="@(#)M_matrix::mat_str2buf(3fp): convert CHARACTER TO ADE array vector"
 !>
 !!##NAME
 !!    M_matrix(3f) - [M_matrix] The Linear ALgebra Fortran Facility (LAFF)
@@ -16,7 +15,7 @@
 !!   * external files containing laff(3f) commands may be read to create
 !!     data or as configuration files.
 !!   * LAFF commands may be recorded and played back.
-!!   * a command-line based command history allowed for recalling and editing
+!!   * a command-line based command history allowed for recalling and editin
 !!     input.
 !!   * a stand-alone program lets you create and test LAFF files. It is
 !!     a flexible calculator utility all by itself.
@@ -69,7 +68,7 @@
 !!     ! get some data from LAFF into the calling program
 !!     call get_from_laff('littlearray',iarr,ierr)
 !!     write(*,'(a)')'IN CALLING PROGRAM IARR='
-!!     write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
+!!     write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1)
 !!
 !!     call get_from_laff('mytitle',t,ierr)
 !!     write(*,*)'IN CALLING PROGRAM T=',t
@@ -107,7 +106,7 @@ use M_LA, only : mat_wpofa,  mat_wrscal,           mat_wscal,   mat_wset,    mat
 !!       LINE, STATEMENT, CLAUSE, EXPRESSION, TERM,
 !!       FACTOR, NUMBER, INTEGER, NAME, COMMAND, TEXT .
 !!
-!!    The diagrams define each of the non-terminal symbols using the others
+!!    The diagrams define each of the non-terminal symbols using the other
 !!    and the terminal symbols:
 !!
 !!       LETTER -- A THROUGH Z,
@@ -141,7 +140,7 @@ use M_LA, only : mat_wpofa,  mat_wrscal,           mat_wscal,   mat_wset,    mat
 !!         |          |         |          |         |
 !!         |          |-> ( >---|-> EXPR >-|---> ) >-|
 !!         |                  |              |       |
-!!    -----|                  |-----< , <----|       |--> = >--> EXPR >--->
+!!    -----|                  |-----< , <----|       |--> = >--> EXPR >---
 !!         |                                         |
 !!         |       |--< , <---|                      |
 !!         |       |          |                      |
@@ -296,7 +295,7 @@ use M_LA, only : mat_wpofa,  mat_wrscal,           mat_wscal,   mat_wset,    mat
 !!    1000 using ABSoft Fortran v2.2.  It will run in 512K environment.
 !!    I have seen it on IBM mainframes and IBM PCs.
 !!
-!!    Subsequent changes per John S. Urban: see change log and git(1) history
+!!    Subsequent changes per John S. Urban: see change log and git(1) histor
 implicit none
 !private
 
@@ -339,7 +338,6 @@ integer                  :: G_FMT
 
 integer                  :: G_RIO
 integer                  :: G_INPUT_LUN
-integer                  :: G_OUTPUT_LUN
 
 integer                  :: G_PTZ
 integer                  :: G_SYM
@@ -623,7 +621,7 @@ integer,parameter ::  e_up=69   ! E
 !integer,parameter ::  =89 ! Y
 integer,parameter ::  z_up=90   ! Z
 integer,parameter ::  lbracket=91 ! [
-integer,parameter ::  bslash=92 ! \
+integer,parameter ::  bslash=92 ! backslash
 integer,parameter ::  rbracket=93 ! ]
 !integer,parameter ::  =94 ! ^
 integer,parameter ::  score=95  ! _
@@ -945,7 +943,7 @@ end subroutine usersub_placeholder
 !!      > ferr = norm(F-exp(i*S),1)
 !!
 !!      > :gs:
-!!      > for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)'; x(k,:) = x(k,:) - d*x(j,:); ...
+!!      > for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)'; x(k,:) = x(k,:) - d*x(j,:); ..
 !!      > end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;
 !!
 !!      > :jacobi:
@@ -1351,7 +1349,7 @@ end subroutine usersub_placeholder
 !!      >      ]
 subroutine LAFF_init(init,echo)
 
-! ident_2="@(#)M_matrix::laff(3f): initialize and/or pass commands to matrix laboratory interpreter"
+character(len=*),parameter::ident_1="@(#)M_matrix::laff(3f): initialize and/or pass commands to matrix laboratory interpreter"
 
 integer,intent(in)          :: init
 logical,intent(in),optional :: echo
@@ -1360,7 +1358,6 @@ integer,parameter           :: EPS(GG_MAX_NAME_LENGTH)=   [iachar(['e','p','s','
 integer,parameter           :: FLOPS(GG_MAX_NAME_LENGTH)= [iachar(['f','l','o','p','s']),GG_PAD(6:)]
 integer,parameter           :: EYE(GG_MAX_NAME_LENGTH)=   [iachar(['e','y','e',' ',' ']),GG_PAD(6:)]
 integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','d',' ']),GG_PAD(6:)]
-integer                     :: i,j
 
    if(present(echo)) G_ECHO=echo
 
@@ -1382,8 +1379,7 @@ integer                     :: i,j
    G_INPUT_LUN = STDIN                                                    ! unit number for terminal input
    call mat_files(G_INPUT_LUN,G_BUF)
    G_RIO = G_INPUT_LUN                                                    ! current file to read commands from
-   G_OUTPUT_LUN = STDOUT                                                  ! unit number for terminal output
-   call mat_files(G_OUTPUT_LUN,G_BUF)
+   call mat_files(STDOUT,G_BUF)
 
    call mat_help_text()                                                   ! initialize help text
    G_CURRENT_RANDOM_SEED = 0                                              ! random number seed
@@ -1451,7 +1447,8 @@ end subroutine LAFF_init
 !==================================================================================================================================
 subroutine LAFF_cmd(input_string,echo)
 
-! ident_3="@(#)M_matrix::laff(3f): run a single command in matrix laboratory interpreter and return to calling program"
+character(len=*),parameter::ident_2="&
+&@(#)M_matrix::laff(3f): run a single command in matrix laboratory interpreter and return to calling program"
 
 character(len=*),intent(in) :: input_string
 logical,intent(in),optional :: echo
@@ -1462,7 +1459,8 @@ end subroutine LAFF_cmd
 !==================================================================================================================================
 subroutine LAFF_cmds(pseudo_file,echo)
 
-! ident_4="@(#)M_matrix::laff(3f): run an array of commands in matrix laboratory interpreter and return to calling program"
+character(len=*),parameter::ident_3="&
+&@(#)M_matrix::laff(3f): run an array of commands in matrix laboratory interpreter and return to calling program"
 
 character(len=*),intent(in),optional :: pseudo_file(:)
 logical,intent(in),optional          :: echo
@@ -1474,7 +1472,6 @@ logical,intent(in),optional          :: echo
    else
       G_INPUT_LUN = STDIN                                                    ! unit number for terminal input
       G_RIO = G_INPUT_LUN                                                    ! current file to read commands from
-      G_OUTPUT_LUN = STDOUT                                                  ! unit number for terminal output
       G_PROMPT=.true.
    endif
 
@@ -1507,7 +1504,7 @@ end subroutine LAFF_cmds
 !==================================================================================================================================!
 subroutine mat_err(n)
 
-! ident_5="@(#)M_matrix::mat_err(3fp): given error number, write associated error message and set G_ERR"
+character(len=*),parameter::ident_4="@(#)M_matrix::mat_err(3fp): given error number, write associated error message and set G_ERR"
 
 integer,intent(in)   :: n
 
@@ -1585,7 +1582,6 @@ integer                      :: lunit             ! logical unit number
 integer                      :: iname(GG_LINELEN) ! INAME = FILE NAME, 1 character per word
                                                   ! how to know length of iname?
 character(len=1024)          :: name
-character(len=1024)          :: temp1
 character(len=*),optional    :: status
 character(len=20)            :: status_local
 integer                      :: ios
@@ -1632,7 +1628,7 @@ end subroutine mat_files
 !==================================================================================================================================!
 subroutine mat_getsym()
 
-! ident_6="@(#)M_matrix::mat_getsym(3fp): get a symbol"
+character(len=*),parameter::ident_5="@(#)M_matrix::mat_getsym(3fp): get a symbol"
 
 doubleprecision   :: syv
 doubleprecision   :: s
@@ -1717,7 +1713,7 @@ end subroutine mat_getsym
 !==================================================================================================================================!
 subroutine mat_str2buf(string,buf,lrecl)
 
-! ident_7="@(#)M_matrix::mat_str2buf(3fp): convert string to hollerith"
+character(len=*),parameter::ident_6="@(#)M_matrix::mat_str2buf(3fp): convert string to hollerith"
 
 ! g95 compiler does not support Hollerith, this is a KLUDGE to give time to think about it
 
@@ -1737,7 +1733,7 @@ end subroutine mat_str2buf
 !==================================================================================================================================!
 function str2ade(string) result(vec)
 
-! ident_8="@(#)M_matrix::mat_str2buf(3fp): convert CHARACTER TO ADE array vector"
+character(len=*),parameter::ident_7="@(#)M_matrix::mat_str2buf(3fp): convert CHARACTER TO ADE array vector"
 
 character(len=*),intent(in)  :: string
 integer,allocatable          :: vec(:)
@@ -1752,7 +1748,7 @@ end function str2ade
 !==================================================================================================================================!
 function ade2str(buf) result(string)
 
-! ident_9="@(#)M_matrix::mat_str2buf(3fp): convert ADE array to CHARACTER"
+character(len=*),parameter::ident_8="@(#)M_matrix::mat_str2buf(3fp): convert ADE array to CHARACTER"
 
 character(len=:),allocatable :: string
 integer,intent(in)           :: buf(:)
@@ -1771,7 +1767,7 @@ end function ade2str
 !==================================================================================================================================!
 subroutine mat_buf2str(string,buf,lrecl)
 
-! ident_10="@(#)M_matrix::mat_buf2string(3fp): convert hollerith to string"
+character(len=*),parameter::ident_9="@(#)M_matrix::mat_buf2string(3fp): convert hollerith to string"
 
 integer,intent(in)     :: lrecl
 integer,intent(in)     :: buf(:)
@@ -1789,7 +1785,7 @@ end subroutine mat_buf2str
 !==================================================================================================================================!
 subroutine ints2str(ints,string,ierr)
 
-! ident_11="@(#)M_matrix::ints2str(3f) convert laff integers to a character variable"
+character(len=*),parameter::ident_10="@(#)M_matrix::ints2str(3f): convert laff integers to a character variable"
 
 ! temporary procedure while writing ASCII-based upgrade
 
@@ -1817,7 +1813,7 @@ end subroutine ints2str
 !==================================================================================================================================!
 subroutine mat_matfn6()
 !
-! ident_12="@(#)M_matrix::mat_matfn6(3f):evaluate utility functions"
+character(len=*),parameter::ident_11="@(#)M_matrix::mat_matfn6(3f):evaluate utility functions"
 !
 integer :: i, j, k
 integer :: ia
@@ -1843,8 +1839,6 @@ integer,parameter :: seed(GG_MAX_NAME_LENGTH)   =  [iachar(['s','e','e','d',' ',
 integer           :: id(GG_MAX_NAME_LENGTH)
 doubleprecision   :: eps0,eps,s,sr,si,t
 character(len=80) :: message
-character(len=GG_LINELEN) :: string_buf
-!
 
    location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
    m = G_VAR_ROWS(G_ARGUMENT_POINTER)
@@ -2249,7 +2243,7 @@ end subroutine mat_matfn6
 !==================================================================================================================================!
 subroutine mat_funs(id)
 
-! ident_13="@(#)M_matrix::ml_funcs(3fp):scan function list and set G_FUN and G_FIN"
+character(len=*),parameter::ident_12="@(#)M_matrix::ml_funcs(3fp):scan function list and set G_FUN and G_FIN"
 
 integer,intent(in)                :: id(GG_MAX_NAME_LENGTH)
 integer                           :: selector
@@ -2359,7 +2353,7 @@ end subroutine mat_funs
 !==================================================================================================================================!
 subroutine mat_copyid(x,y)
 
-! ident_14="@(#)M_matrix::mat_copyid(3fp): copy a name to allow an easy way to store a name"
+character(len=*),parameter::ident_13="@(#)M_matrix::mat_copyid(3fp): copy a name to allow an easy way to store a name"
 
 integer,intent(out) :: x(GG_MAX_NAME_LENGTH)
 integer,intent(in)  :: y(GG_MAX_NAME_LENGTH)
@@ -2373,7 +2367,7 @@ end subroutine mat_copyid
 !==================================================================================================================================!
 subroutine mat_getval(s)
 
-! ident_15="@(#)M_matrix::mat_getval(3fp): form numerical value from string of integer characters"
+character(len=*),parameter::ident_14="@(#)M_matrix::mat_getval(3fp): form numerical value from string of integer characters"
 
 doubleprecision,intent(out) :: s
       s = 0.0d0
@@ -2400,7 +2394,7 @@ end subroutine mat_getval
 !==================================================================================================================================!
 subroutine mat_getch()
 
-! ident_16="@(#)M_matrix::mat_getch(3f): get next character from input line into G_CHRA"
+character(len=*),parameter::ident_15="@(#)M_matrix::mat_getch(3f): get next character from input line into G_CHRA"
 
    G_CHRA = G_LIN(G_LINE_POINTER(4))
    if (G_CHRA .ne. GG_EOL) G_LINE_POINTER(4) = G_LINE_POINTER(4) + 1
@@ -2411,7 +2405,7 @@ end subroutine mat_getch
 !==================================================================================================================================!
 subroutine mat_base(x,base,eps,s,n)
 
-! ident_17="@(#)M_matrix::mat_base(3fp): store representation of x in s(1:n) using specified base"
+character(len=*),parameter::ident_16="@(#)M_matrix::mat_base(3fp): store representation of x in s(1:n) using specified base"
 
 doubleprecision            :: x
 doubleprecision,intent(in) :: base
@@ -2476,7 +2470,7 @@ end subroutine mat_base
 !==================================================================================================================================!
 subroutine mat_print(ID,K)
 
-! ident_18="@(#)M_matrix::mat_print(3fp): primary output routine"
+character(len=*),parameter::ident_17="@(#)M_matrix::mat_print(3fp): primary output routine"
 
 integer           :: id(GG_MAX_NAME_LENGTH)
 integer           :: k
@@ -2590,21 +2584,13 @@ integer           :: itype
    G_LINECOUNT(1) = G_LINECOUNT(1)+2
    if (s .ne. 1.0d0)then
       write(message,'(''  '',1PD9.1," *")') s
-      if(G_OUTPUT_LUN.eq.STDOUT)then
-         call journal(message)
-      else
-         write(G_OUTPUT_LUN,'(a)')message(1:80)
-      endif
+      call journal(message)
    endif
    do j1 = 1, n, jinc
       j2 = min(n, j1+jinc-1)
       if (n .gt. jinc)then
          write(message,'(''     COLUMNS'',I6,'' THRU'',I6)') j1,j2
-         if(G_OUTPUT_LUN.eq.STDOUT)then
-            call journal(message)
-         else
-            write(G_OUTPUT_LUN,'(a)')message(1:80)
-         endif
+         call journal(message)
       endif
       do i = 1, m
          jm = j2-j1+1
@@ -2658,7 +2644,7 @@ integer           :: itype
             istep=3
             itype= 888
          case(-1)
-            call mat_formz(G_OUTPUT_LUN,GM_REALS(ls),GM_IMAGS(ls))
+            call mat_formz(GM_REALS(ls),GM_IMAGS(ls))
             istep=-1
             itype=-1
          case default
@@ -2674,11 +2660,7 @@ integer           :: itype
                case(999); write(message,form)(pr(j),j=j3,min(j3+istep,jm))
                case(888); write(message,form)(pr(j),sig(j),pi(j),j=j3,min(j3+istep-1,jm))
                end select
-               if(G_OUTPUT_LUN.eq.STDOUT)then
-                  call journal(message)
-               else
-                  write(G_OUTPUT_LUN,'(a)')message(1:80)
-               endif
+               call journal(message)
             enddo
          endif
 
@@ -2687,17 +2669,16 @@ integer           :: itype
    enddo
 
 99 continue
-   if(G_OUTPUT_LUN.ne.STDOUT)flush(unit=G_OUTPUT_LUN,iostat=ios)
+   flush(unit=STDOUT,iostat=ios)
 
 end subroutine mat_print
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
-subroutine mat_formz(lunit,x,y)
+subroutine mat_formz(x,y)
 
-! ident_19="@(#)M_matrix::mat_formz: system dependent routine to print with z format"
+character(len=*),parameter::ident_18="@(#)M_matrix::mat_formz: system dependent routine to print with z format"
 
-integer                    :: lunit
 doubleprecision,intent(in) :: x,y
 
 character(len=36)          :: mline
@@ -2716,23 +2697,16 @@ end subroutine mat_formz
 !==================================================================================================================================!
 subroutine mat_prompt(pause)
 
-! ident_20="@(#)M_matrix::mat_prompt(3f): issue interactive prompt with optional pause"
+character(len=*),parameter::ident_19="@(#)M_matrix::mat_prompt(3f): issue interactive prompt with optional pause"
 
 integer,intent(in) :: pause
 character(len=1)   :: dummy
 
    if(.not.G_PROMPT)return ! in batch mode
-   ! paranoid checks
-   if(G_OUTPUT_LUN.le.0)then
-      call journal('*mat_prompt* internal error: G_OUTPUT_LUN <= 0')
-   elseif(G_INPUT_LUN.lt.0)then
-      call journal('*mat_prompt* internal error: G_INPUT_LUN <= 0')
-   else
-      ! write prompt using format that stays on current line
-      if(G_OUTPUT_LUN.eq.STDOUT)then
-         WRITE(G_OUTPUT_LUN,'(''<>'')',advance='no')   ! write prompt to interactive input
-      endif
-      if (pause .eq. 1) read(G_INPUT_LUN,'(a1)') dummy
+   ! write prompt using format that stays on current line
+   if(G_INPUT_LUN.eq.STDIN)then
+     WRITE(STDOUT,'(''<>'')',advance='no')   ! write prompt to interactive input
+     if (pause .eq. 1) read(G_INPUT_LUN,'(a1)') dummy
    endif
 
 end subroutine mat_prompt
@@ -2741,7 +2715,7 @@ end subroutine mat_prompt
 !==================================================================================================================================!
 subroutine mat_stack1(op)
 
-! ident_21="@(#)M_matrix::mat_stack1(3f): Unary Operations"
+character(len=*),parameter::ident_20="@(#)M_matrix::mat_stack1(3f): Unary Operations"
 
 integer           :: op
 integer           :: i
@@ -2785,7 +2759,7 @@ end subroutine mat_stack1
 !==================================================================================================================================!
 subroutine mat_print_id(id,argcnt)
 
-! ident_22="@(#)M_matrix::mat_print_id(3fp): print table of variable id names (up to) eight per line"
+character(len=*),parameter::ident_21="@(#)M_matrix::mat_print_id(3fp): print table of variable id names (up to) eight per line"
 
 !     ID     Is array of GG_MAX_NAME_LENGTH character IDs to print
 !     ARGCNT is number of IDs to print
@@ -2820,11 +2794,7 @@ character(len=(8*GG_MAX_NAME_LENGTH+2*8+1)) :: mline           ! scratch space f
       endif
 
       call mat_buf2str(mline,linebuf,line_position)       ! write LINEBUF(1:line_position) line to a character variable
-      if(G_OUTPUT_LUN.eq.STDOUT)then
-         call journal(mline)                              ! print the line to stdout
-      else
-         write(G_OUTPUT_LUN,'(a)')trim(mline)             ! print the line to a file
-      endif
+      call journal(mline)                                 ! print the line to stdout
 
       id_counter = id_counter+8                           ! prepare to get up to eight more IDs
       if (id_counter .gt. iabs(argcnt)) exit INFINITE     ! if not done do another line
@@ -2835,7 +2805,7 @@ end subroutine mat_print_id
 !==================================================================================================================================!
 subroutine mat_stack_put(id)
 
-! ident_23="@(#)M_matrix::mat_stack_put(3fp): put variables into storage"
+character(len=*),parameter::ident_22="@(#)M_matrix::mat_stack_put(3fp): put variables into storage"
 
 integer  :: id(GG_MAX_NAME_LENGTH)
 integer  :: i, j, k
@@ -3148,7 +3118,7 @@ end subroutine MAT_STACK_PUT
 !!    STACK subroutines manage the variable memory and perform elementary
 !!    operations, such as matrix addition and transposition.
 !!
-!!    The four subroutines MATFN1 though MATFN4 are called whenever "serious"
+!!    The four subroutines MATFN1 though MATFN4 are called whenever "serious
 !!    matrix computations are required. They are interface routines which
 !!    call the various LINPACK and EISPACK subroutines. MATFN5 primarily
 !!    handles the file access tasks.
@@ -3163,7 +3133,6 @@ integer            :: p
 integer            :: r
 integer            :: i5
 integer            :: ierr
-integer            :: ilen
 integer            :: j
 integer            :: k
 integer            :: location
@@ -3509,9 +3478,8 @@ subroutine mat_comand(id)
 
 character(len=*),intent(in)  :: id
 integer                      :: chr
-integer                      :: i, j, k, ii, jj
+integer                      :: i, k
 integer                      :: l
-integer                      :: ierr
 
 ! a list of names this procedure matches to use for some preliminary tests
 character(len=10),parameter :: cmd(*)=[ character(len=10) :: &
@@ -3708,7 +3676,7 @@ end subroutine mat_comand
 !==================================================================================================================================!
 subroutine sh_command()
 
-! ident_24="@(#)M_matrix::sh_command(3f): start system shell interactively"
+character(len=*),parameter::ident_23="@(#)M_matrix::sh_command(3f): start system shell interactively"
 
 character(len=GG_LINELEN) :: line
 integer                   :: istat
@@ -3726,7 +3694,8 @@ end subroutine sh_command
 !==================================================================================================================================!
 subroutine mat_plot(lplot,x,y,n,p,k)
 
-! ident_25="@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
+character(len=*),parameter::ident_24="&
+&@(#)M_matrix::mat_plot(3fp): Plot X vs. Y on LPLOT.  If K is nonzero, then P(1),...,P(K) are extra parameters"
 
 integer           :: lplot
 integer           :: n
@@ -3810,7 +3779,7 @@ end subroutine mat_plot
 !==================================================================================================================================!
 subroutine mat_matfn1()
 
-! ident_26="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
+character(len=*),parameter::ident_25="@(#)M_matrix::mat_matfn1(3fp): evaluate functions involving gaussian elimination"
 
 doubleprecision   :: dtr(2)
 doubleprecision   :: dti(2)
@@ -4449,7 +4418,7 @@ end subroutine mat_matfn2
 !==================================================================================================================================!
 subroutine mat_matfn3()
 
-! ident_27="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
+character(len=*),parameter::ident_26="@(#)M_matrix::mat_matfn3(3fp): evaluate functions involving singular value decomposition"
 
 integer         :: i
 integer         :: j
@@ -4759,7 +4728,7 @@ end subroutine mat_matfn3
 !==================================================================================================================================!
 SUBROUTINE mat_matfn4()
 
-! ident_28="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
+character(len=*),parameter::ident_27="@(#)M_matrix::mat_matfn4(3fp): evaluate functions involving qr decomposition (least squares)"
 
 integer           :: info
 integer           :: j
@@ -4987,24 +4956,20 @@ END SUBROUTINE mat_matfn4
 !==================================================================================================================================!
 subroutine mat_matfn5()
 
-! ident_29="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
+character(len=*),parameter::ident_28="@(#)M_matrix::mat_matfn5(3fp):file handling and other I/O"
 
 character(len=GG_LINELEN)  :: mline
 character(len=256)         :: errmsg
-character(len=1024)        :: name
-character(len=1)           :: ch_char
-integer                    :: temp_lun
-integer                    :: ios
 integer,save               :: flag=0  ! should be saved or set at each call?
 integer,save               :: lrat=5
 integer,save               :: mrat=100
-integer                    :: ch,top2,ch1(1)
+integer                    :: ch,top2
 integer                    :: id(GG_MAX_NAME_LENGTH)
 doubleprecision            :: eps,b,s,t,tdum(2)
 logical                    :: text
 integer                    :: i, j, k, location, m, n
 integer                    :: img
-integer                    :: job, space_left
+integer                    :: space_left
 integer                    :: l2
 integer                    :: ll
 integer                    :: ls
@@ -5014,7 +4979,6 @@ integer                    :: lw
 integer                    :: lx
 integer                    :: ly
 integer                    :: mn
-logical                    :: isfound
 !
    location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
    m = G_VAR_ROWS(G_ARGUMENT_POINTER)
@@ -5202,16 +5166,13 @@ logical                    :: isfound
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       case(4) ! command::print
-      k = G_OUTPUT_LUN                                ! hold
-      G_OUTPUT_LUN = 7
-      call mat_files(G_OUTPUT_LUN,G_BUF)
+      call mat_files(7,G_BUF)
 
       location = G_LINECOUNT(2)                       ! hold
       G_LINECOUNT(2) = 999999                         ! turn off paging of output
       if (G_RHS .gt. 1) call mat_print(G_SYN,top2)
 
       G_LINECOUNT(2) = location                       ! restore
-      G_OUTPUT_LUN = k                                ! restore
 
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
@@ -5311,7 +5272,7 @@ logical                    :: isfound
          LL = location+I-1
          GM_IMAGS(LL) = dble(I)
       enddo
-      call mat_plot(G_OUTPUT_LUN,GM_IMAGS(location),GM_REALS(location),N,TDUM,0)
+      call mat_plot(STDOUT,GM_IMAGS(location),GM_REALS(location),N,TDUM,0)
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
       exit FUN5
 !. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -5329,7 +5290,7 @@ logical                    :: isfound
       LX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
       LY = G_VAR_DATALOC(G_ARGUMENT_POINTER+1)
       IF (G_RHS .GT. 3) location = G_VAR_DATALOC(G_ARGUMENT_POINTER+2)
-      call mat_plot(G_OUTPUT_LUN,GM_REALS(LX),GM_REALS(LY),N,GM_REALS(location),K)
+      call mat_plot(STDOUT,GM_REALS(LX),GM_REALS(LY),N,GM_REALS(location),K)
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
       case(11) ! COMMAND::RAT
@@ -5378,7 +5339,7 @@ end subroutine mat_matfn5
 !==================================================================================================================================!
 subroutine mat_stack_get(id)
 
-! ident_30="@(#)M_matrix::mat_stack_get(3fp): get variables from storage"
+character(len=*),parameter::ident_29="@(#)M_matrix::mat_stack_get(3fp): get variables from storage"
 
 integer,intent(in)  :: id(GG_MAX_NAME_LENGTH)
 integer             :: i
@@ -5397,7 +5358,6 @@ integer             :: mk
 integer             :: mn
 integer             :: mnk
 integer             :: n
-character(len=GG_MAX_NAME_LENGTH)    :: id_name
 
    call mat_copyid(G_VAR_IDS(1,G_TOP_OF_SAVED-1), ID)    ! copy ID to next blank entry in G_VAR_IDS in case it is not there(?)
 
@@ -5515,7 +5475,7 @@ END SUBROUTINE MAT_STACK_GET
 !==================================================================================================================================!
 subroutine mat_stack2(op)
 
-! ident_31="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
+character(len=*),parameter::ident_30="@(#)M_matrix::ml_stackp(3fp): binary and ternary operations"
 
 integer           :: op
 doubleprecision   :: sr,si,e1,st,e2
@@ -5973,19 +5933,17 @@ end subroutine mat_getlin
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_clause()
-character(len=GG_LINELEN) :: mline
 doubleprecision    :: e1,e2
 integer            :: op
 integer            :: r
-integer,parameter :: for(GG_MAX_NAME_LENGTH)   =  [iachar(['f','o','r',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: while(GG_MAX_NAME_LENGTH) =  [iachar(['w','h','i','l','e',' ',' ']),GG_PAD(8:)]
-integer,parameter :: iff(GG_MAX_NAME_LENGTH)   =  [iachar(['i','f',' ',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: else(GG_MAX_NAME_LENGTH)  =  [iachar(['e','l','s','e',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: ennd(GG_MAX_NAME_LENGTH)  =  [iachar(['e','n','d',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: do(GG_MAX_NAME_LENGTH)    =  [iachar(['d','o',' ',' ',' ',' ',' ']),GG_PAD(8:)]
-integer,parameter :: thenn(GG_MAX_NAME_LENGTH) =  [iachar(['t','h','e','n',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: for(GG_MAX_NAME_LENGTH)   =  [iachar(['f','o','r',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: while(GG_MAX_NAME_LENGTH) =  [iachar(['w','h','i','l','e',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: iff(GG_MAX_NAME_LENGTH)   =  [iachar(['i','f',' ',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: else(GG_MAX_NAME_LENGTH)  =  [iachar(['e','l','s','e',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: ennd(GG_MAX_NAME_LENGTH)  =  [iachar(['e','n','d',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: do(GG_MAX_NAME_LENGTH)    =  [iachar(['d','o',' ',' ',' ',' ',' ']),GG_PAD(8:)]
+integer,parameter  :: thenn(GG_MAX_NAME_LENGTH) =  [iachar(['t','h','e','n',' ',' ',' ']),GG_PAD(8:)]
 
-integer            :: i
 integer            :: j
 integer            :: kount
 integer            :: location
@@ -6572,11 +6530,7 @@ end subroutine mat_factor
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_term()
-
-character(len=GG_LINELEN) :: mline
-integer            :: op
-integer            :: ierr
-integer            :: ilen
+integer                   :: op
 
    select case( G_RSTK(G_PT) )
    case(6,7)
@@ -6640,7 +6594,8 @@ end subroutine mat_term
 !==================================================================================================================================!
 subroutine mat_savlod(lun,id,m,n,img,space_left,xreal,ximag)
 
-! ident_32="@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
+character(len=*),parameter::ident_31="&
+&@(#)M_matrix::mat_savlod(3fp): read next variable from a save file or write next variable to it"
 
 integer,intent(in)                :: lun                                       ! logical unit number
 integer                           :: id(GG_MAX_NAME_LENGTH)                    ! name, format 32a1
@@ -6722,7 +6677,7 @@ end function mat_eqid
 !==================================================================================================================================!
 !>
 !!##NAME
-!!    ifin_laff(3f) - [M_matrix] test if variable name exists in laff()
+!!    ifin_laff(3f) - [M_matrix] test if variable name exists in laff(
 !!    LICENSE(MIT)
 !!##SYNOPSIS
 !!
@@ -6751,7 +6706,7 @@ end function mat_eqid
 !!     unknown  F
 function ifin_laff(varname)
 
-! ident_33="@(#)M_matrix::ifin_laff(3f) :: access LAFF variable stack and see if a variable name exists"
+character(len=*),parameter::ident_32="@(#)M_matrix::ifin_laff(3f) :: access LAFF variable stack and see if a variable name exists"
 
 character(len=*),intent(in)        :: varname
 integer                            :: id(GG_MAX_NAME_LENGTH)
@@ -6785,7 +6740,7 @@ end function ifin_laff
 !==================================================================================================================================!
 !>
 !!##NAME
-!!     get_from_laff(3f) - [M_matrix] return data from laff(3f) to calling program
+!!     get_from_laff(3f) - [M_matrix] return data from laff(3f) to calling progra
 !!     LICENSE(MIT)
 !!##SYNOPSIS
 !!
@@ -6885,7 +6840,8 @@ end function ifin_laff
 !!    > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
 subroutine get_double_from_laff(varname,A,type,IERR)
 
-! ident_34="@(#)M_matrix::get_double_from_laff(3f) :: access LAFF variable stack and get a variable by name and its data from the stack"
+character(len=*),parameter::ident_33="&
+&@(#)M_matrix::get_double_from_laff(3f) :: access LAFF variable stack and get a variable by name and its data from the stack"
 
 character(len=*),intent(in)              :: varname    ! the name of A.
 integer,intent(in)                       :: type       ! type =  0  get REAL A from LAFF, type  = 1  get IMAGINARY A into LAFF,
@@ -6949,7 +6905,7 @@ end function rowpack
 !===================================================================================================================================
 !>
 !!##NAME
-!!     put_from_laff(3f) - [M_matrix] return data from laff(3f) to calling program
+!!     put_from_laff(3f) - [M_matrix] return data from laff(3f) to calling progra
 !!     LICENSE(MIT)
 !!##SYNOPSIS
 !!
@@ -7008,7 +6964,7 @@ end function rowpack
 !!      >This is my title
 subroutine store_double_into_laff(varname,realxx,imagxx,ierr)
 
-! ident_35="@(#)M_matrix:: _store_double_into_laff(3f): put a variable name and its data onto LAFF stack"
+character(len=*),parameter::ident_34="@(#)M_matrix:: _store_double_into_laff(3f): put a variable name and its data onto LAFF stack"
 
 character(len=*),intent(in)          :: varname                ! the name of realxx.
 doubleprecision,intent(in)           :: realxx(:,:)            ! inputarray is an M by N matrix
@@ -7018,9 +6974,8 @@ integer,intent(out)                  :: ierr                   ! return with non
 integer                              :: img
 integer                              :: space_left
 integer                              :: id(GG_MAX_NAME_LENGTH) ! ID = name, in numeric format
-integer                              :: i,j,k,location
+integer                              :: location
 integer                              :: m,n                    ! m, n = dimensions
-integer                              :: size_of_a
 
    if(GM_BIGMEM.LT.0) then
       call laff_init(200000) ! if not initialized initialize
@@ -7087,27 +7042,25 @@ subroutine store_array_into_laff(varname,anything,ierr)
 character(len=*),intent(in)  :: varname
 class(*)                     :: anything(:,:)
 integer,intent(out)          :: ierr
-logical,parameter            :: T=.true.
-integer                      :: i
    select type(anything)
 !!    type is (character(len=*));
 !!       call store_double_into_laff(varname,
 !!       reshape(real(str2ade(anything),kind=dp),[1,len(anything)])
 !!       ,ierr=ierr)
 !!       call store_double_into_laff(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)
-    type is (complex);              call store_double_into_laff(varname,real(anything,kind=dp), &
-                                                                       & real(aimag(anything),kind=dp),ierr=ierr)
-    type is (complex(kind=dp));     call store_double_into_laff(varname,real(anything),aimag(anything),ierr=ierr)
-    type is (integer(kind=int8));   call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
-    type is (integer(kind=int16));  call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
-    type is (integer(kind=int32));  call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
-    type is (integer(kind=int64));  call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
-    type is (real(kind=real32));    call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
-    type is (real(kind=real64));    call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
-    type is (real(kind=real128));   call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
-    ! arbitrarily, 0 is false and not 0 is true, although I prefer the opposite
-    type is (logical);              call store_double_into_laff(varname,merge(0.1d0,0.0d0,anything),ierr=ierr)
-    class default
+   type is (complex);              call store_double_into_laff(varname,real(anything,kind=dp), &
+                                                                     & real(aimag(anything),kind=dp),ierr=ierr)
+   type is (complex(kind=dp));     call store_double_into_laff(varname,real(anything),aimag(anything),ierr=ierr)
+   type is (integer(kind=int8));   call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+   type is (integer(kind=int16));  call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+   type is (integer(kind=int32));  call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+   type is (integer(kind=int64));  call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+   type is (real(kind=real32));    call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+   type is (real(kind=real64));    call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+   type is (real(kind=real128));   call store_double_into_laff(varname,real(anything,kind=dp),ierr=ierr)
+   ! arbitrarily, 0 is false and not 0 is true, although I prefer the opposite
+   type is (logical);              call store_double_into_laff(varname,merge(0.1d0,0.0d0,anything),ierr=ierr)
+   class default
       stop 'crud. store_array_into_laff(1) does not know about this type'
    end select
 end subroutine store_array_into_laff
@@ -7118,7 +7071,6 @@ subroutine store_vector_into_laff(varname,anything,ierr)
 character(len=*),intent(in)  :: varname
 class(*)                     :: anything(:)
 integer,intent(out)          :: ierr
-logical,parameter            :: T=.true.
 integer                      :: i
    select type(anything)
     type is (character(len=*));
@@ -7834,7 +7786,7 @@ function too_much_memory(expression)
 integer,intent(in) :: expression
 logical            :: too_much_memory
 
-! ident_36="@(#)too much memory required"
+character(len=*),parameter::ident_35="@(#)too much memory required"
 
    G_ERR=expression
    if(G_ERR.gt.0)then
@@ -7850,7 +7802,8 @@ end function too_much_memory
 !===================================================================================================================================
 function system_getenv(name,default) result(value)
 
-! ident_37="@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
+character(len=*),parameter::ident_36="&
+&@(#)M_system::system_getenv(3f): call get_environment_variable as a function with a default value(3f)"
 
 character(len=*),intent(in)          :: name
 character(len=*),intent(in),optional :: default
@@ -10978,7 +10931,7 @@ write(*,gen1)'G_LINE_POINTER:',G_LINE_POINTER
 !                                              ! [6]
 write(*,gen1)'G_LHS:',G_LHS,':G_RHS:',G_RHS
 write(*,gen1)'G_FIN:',G_FIN,':G_FUN:',G_FUN,':G_FMT:',G_FMT
-write(*,gen1)'G_RIO:',G_RIO,':G_INPUT_LUN:',G_INPUT_LUN,':G_OUTPUT_LUN:',G_OUTPUT_LUN
+write(*,gen1)'G_RIO:',G_RIO,':G_INPUT_LUN:',G_INPUT_LUN
 write(*,gen1)'G_PTZ:',G_PTZ,':G_SYM:',G_SYM,':G_SYN:',trim(ade2str(G_SYN))
 write(*,gen1)'G_CURRENT_RANDOM_SEED:',G_CURRENT_RANDOM_SEED,':G_CURRENT_RANDOM_TYPE:',G_CURRENT_RANDOM_TYPE
 write(*,gen1)'G_FLOP_COUNTER:',G_FLOP_COUNTER
@@ -11076,7 +11029,7 @@ end subroutine mat_wlog
 !==================================================================================================================================!
 subroutine mat_watan(xr,xi,yr,yi)
 
-! ident_38="@(#)M_LA::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
+character(len=*),parameter::ident_37="@(#)M_LA::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))"
 
 doubleprecision,intent(in)  :: xr, xi
 doubleprecision,intent(out) :: yr, yi
