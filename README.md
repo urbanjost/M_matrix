@@ -1,4 +1,5 @@
 # M_matrix
+[![Build FORD(1) docs](https://github.com/urbanjost/M_matrix/actions/workflows/deploy_api_docs.yml/badge.svg)](https://github.com/urbanjost/M_matrix/actions/workflows/deploy_api_docs.yml)
 
 This module contains the lala(3f) procedure, which allows for interacting
 with a Fortran program using Matlab or Octave-like commands.  It is also
@@ -117,7 +118,7 @@ the fpm.toml project file.
 
  - An [index](https://urbanjost.github.io/M_matrix/man3.html) to HTML versions
    of the manpages included in the distribution.
----
+
 ## DEVELOPER DOCUMENTATION
 <!--
 ### doxygen
@@ -128,11 +129,10 @@ the fpm.toml project file.
 -->
 
 - [ford(1) output](https://urbanjost.github.io/M_matrix/fpm-ford/index.html).
----
-[![Build FORD(1) docs](https://github.com/urbanjost/M_matrix/actions/workflows/deploy_api_docs.yml/badge.svg)](https://github.com/urbanjost/M_matrix/actions/workflows/deploy_api_docs.yml)
----
+
+
 [CHANGELOG](CHANGELOG.md)
----
+
 
 ### Example input files:
 
