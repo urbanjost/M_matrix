@@ -2,11 +2,11 @@
 program demo_user
 use M_matrix
 implicit none
-call set_usersub(laff_user)
-call laff()
+call set_usersub(lala_user)
+call lala()
 contains
 
-subroutine laff_user(a,m,n,s,t)  ! sample usersub_placeholder routine
+subroutine lala_user(a,m,n,s,t)  ! sample usersub_placeholder routine
 implicit none
 integer                    :: m,n
 doubleprecision            :: a(:)
@@ -32,6 +32,6 @@ integer                    :: i, j, k
          a(k)=a(k)*s+t
       enddo
    enddo
-end subroutine laff_user
+end subroutine lala_user
 
 end program demo_user

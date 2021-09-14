@@ -1,11 +1,11 @@
-    program demo_laff
-    use M_matrix, only : laff, put_into_laff, get_from_laff, ifin_laff
+    program demo_lala
+    use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
 
-    call laff("A=10;who")
-    ! read a file containing laff(3f) commands
-    call laff("exec('mycommands');")
-    call laff("exec('mycommands2');")
-    ! interactively interact with laff(3f) interpreter
-    call laff() 
+    call lala("A=10;who")
+    ! read a file containing lala(3f) commands
+    call lala("exec('mycommands');")
+    call lala("exec('mycommands2');")
+    ! interactively interact with lala(3f) interpreter
+    call lala() 
 
-    end program demo_laff
+    end program demo_lala

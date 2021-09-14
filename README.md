@@ -1,21 +1,21 @@
 # M_matrix
 
-This module contains the laff(3f) procedure, which allows for interacting
+This module contains the lala(3f) procedure, which allows for interacting
 with a Fortran program using Matlab or Octave-like commands.  It is also
 usable as a simple one-line language.  It is a WIP (Work In Progress)
 but is already useful.
 
   + You can pass intrinsic-type data between your program and the utility.
-  + blocks of commands may be passed to laff(3f).
-  + external files containing laff(3f) commands may be read.
+  + blocks of commands may be passed to lala(3f).
+  + external files containing lala(3f) commands may be read.
   + you can create a journal of the commands used and replay them.
   + there is a built-in command history utility that lets you recall,
     edit, and save your command history.
   + a built-in help utility describes the many matrix and math functions
     available.
-  + a custom routine may be called via the user(..) function in laff(3f).
+  + a custom routine may be called via the user(..) function in lala(3f).
 
-All together, this allows laff(3f) to be used for self-describing
+All together, this allows lala(3f) to be used for self-describing
 configuration and data files, inspecting data in existing programs,
 transferring small amounts of data between programs or assisting in
 debugging and development, unit testing and macro-level timing.
@@ -47,21 +47,21 @@ and using modern Fortran features to make it more maintainable.
 My primary interest is in making it into a tool for interacting with
 Fortran programs.
 ```fortran
-    program demo_laff
-    use M_matrix, only : laff, put_into_laff, get_from_laff, ifin_laff
+    program demo_lala
+    use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
     !real,allocatable             :: r
     !complex,allocatable          :: cvec(:)
     integer,allocatable          :: iarr(:,:)
     character(len=:),allocatable :: t(:)
     integer                      :: ierr
 
-    ! store some data into laff(3)
-    call put_into_laff('A',[1,2,3,4,5]*10.5,ierr)
-    write(*,*)'is A defined in LAFF?',ifin_laff('A')
-    call laff('A/2.0')
+    ! store some data into lala(3)
+    call put_into_lala('A',[1,2,3,4,5]*10.5,ierr)
+    write(*,*)'is A defined in LALA?',ifin_lala('A')
+    call lala('A/2.0')
  
-    ! pass some commands to laff(3f)
-    call laff([character(len=80) :: &
+    ! pass some commands to lala(3f)
+    call lala([character(len=80) :: &
     &'PI=atan(1)*4               ', &
     &'mytitle="this is my title";', &
     &'littlearray=<              ', &
@@ -75,20 +75,20 @@ Fortran programs.
     &'save("keepB",B)            ', &
     &''])
 
-    ! read a file containing laff(3f) commands
-    call laff('exec("mycommands")')
+    ! read a file containing lala(3f) commands
+    call lala('exec("mycommands")')
 
-    ! interactively interact with laff(3f) interpreter
-    call laff() 
+    ! interactively interact with lala(3f) interpreter
+    call lala() 
 
-    call get_from_laff('littlearray',iarr,ierr)
+    call get_from_lala('littlearray',iarr,ierr)
     write(*,'(a)')'IN CALLING PROGRAM IARR='
     write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
 
-    call get_from_laff('mytitle',t,ierr)
+    call get_from_lala('mytitle',t,ierr)
     write(*,*)'IN CALLING PROGRAM T=',t
 
-    end program demo_laff
+    end program demo_lala
 ```
 
 Installation requires fpm(1):
@@ -112,7 +112,7 @@ the fpm.toml project file.
 
 ## DOCUMENTATION
 
- - call laff(3f) interactively and enter "help manual" to browse the 
+ - call lala(3f) interactively and enter "help manual" to browse the 
  [entire user manual](https://urbanjost.github.io/M_matrix/userguide.txt)
 
  - An [index](https://urbanjost.github.io/M_matrix/man3.html) to HTML versions

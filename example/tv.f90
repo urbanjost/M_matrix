@@ -165,17 +165,17 @@ real               :: val(nx,ny)
 integer            :: i,j,k
 integer            :: ierr
 character(len=1)   :: paws
-call set_usersub(laff_text_viz) ! set user routine
+call set_usersub(lala_text_viz) ! set user routine
 
-! create a dataset in the program to pass to LAFF()
+! create a dataset in the program to pass to LALA()
    do k=1,2000
       do j=1,ny ! fill array with data
          do i=1,nx
             val(i,j) = sin(real(i)*real(k)*0.0001)*sin(real(j)*0.033)
          enddo
       enddo
-      call put_into_laff('val',val,ierr)
-      call laff("user(val,24,80);") ! display using user routine
+      call put_into_lala('val',val,ierr)
+      call lala("user(val,24,80);") ! display using user routine
       !read(*,'(a)')paws
    enddo
 
@@ -184,10 +184,10 @@ call set_usersub(laff_text_viz) ! set user routine
 write(*,*)'user added routine does normalized pixelized text plot'
 write(*,*)'optional parameters give character cell dimensiones'
 write(*,*)'the default is the size of the array'
-call laff()  ! enter interactive mode
+call lala()  ! enter interactive mode
 contains
 
-subroutine laff_text_viz(a,m,n,s,t)  ! sample usersub_placeholder routine
+subroutine lala_text_viz(a,m,n,s,t)  ! sample usersub_placeholder routine
 implicit none
 integer                    :: m,n
 doubleprecision            :: a(:)
@@ -201,6 +201,6 @@ integer                    :: display_cols,display_rows
    call viz_init(display_cols,display_rows) ! initialize package and set size of plot area
    call viz_plot(reshape(real(a),[m,n]),m,n)
    call viz_done
-end subroutine laff_text_viz
+end subroutine lala_text_viz
 
 end program demo_user

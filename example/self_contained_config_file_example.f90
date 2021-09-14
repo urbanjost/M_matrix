@@ -1,5 +1,5 @@
 program config_file
-use M_matrix, only : laff, get_from_laff, put_into_laff, ifin_laff
+use M_matrix, only : lala, get_from_lala, put_into_lala, ifin_lala
 ! create contents for a test file
 character(len=*),parameter:: sample(*)=[character(len=80) :: &
 "// my data definition file                                         ", &
@@ -43,21 +43,21 @@ integer :: ierr
    close(lun)
 
 
-   ! preset a LAFF variable using a command
-   call laff( 'title2="set with a command";')
-   ! preset a LAFF variable using a PUT
-   call put_into_laff('set with a PUT','from a put',ierr=ierr)
+   ! preset a LALA variable using a command
+   call lala( 'title2="set with a command";')
+   ! preset a LALA variable using a PUT
+   call put_into_lala('set with a PUT','from a put',ierr=ierr)
    write(*,*)'IERR=',ierr
 
    ! load file. Note the "return" is currently required
-   call laff(" exec('scr_test2.mat');return;")
+   call lala(" exec('scr_test2.mat');return;")
 
-   ! get some data now set in laff()
-   call get_from_laff('title',mytitle,ierr=ierr)
+   ! get some data now set in lala()
+   call get_from_lala('title',mytitle,ierr=ierr)
    write(*,*)'In program title is now ['//trim(mytitle)//']'
 
-   ! interactively enter LAFF
-   call laff()
+   ! interactively enter LALA
+   call lala()
 
    open(file='scr_test2.mat',newunit=lun)
    close(lun,status='delete')

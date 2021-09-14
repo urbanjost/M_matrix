@@ -1,9 +1,9 @@
 ================================================================================
-LAFF USERS' GUIDE
+LALA USERS' GUIDE
 
-                        LAFF (May, 1981 - Apr, 2021)
+                        LALA (May, 1981 - Apr, 2021)
 
-   The Linear Algebra Fortran Facility (LAFF) is a collection of Fortran
+   The Linear Algebra Fortran Facility (LALA) is a collection of Fortran
    procedures that serves as a convenient tool for Fortran programs to
    interact with their data (interactively or in batch mode) with a
    tool that acts as a basic "laboratory" for computations involving
@@ -18,7 +18,7 @@ LAFF USERS' GUIDE
                             CONTENTS
 
           -  Elementary operations
-          -  LAFF functions
+          -  LALA functions
           -  Rows, columns and submatrices
           -  "for", "while" and "if"
           -  Characters, text, files and macros
@@ -35,11 +35,11 @@ LAFF USERS' GUIDE
    nonsymmetric eigenvalue problems, to fairly sophisticated matrix
    tools such as the singular value decomposition.
 
-   LAFF should be useful in applied linear algebra, as well as more
+   LALA should be useful in applied linear algebra, as well as more
    general numerical analysis, matrix theory, statistics and applications
    of matrices to other disciplines.
 
-   LAFF can serve as a "desk calculator" for the quick solution of small
+   LALA can serve as a "desk calculator" for the quick solution of small
    problems involving matrices.
 
    The program is written in Fortran and is designed to be readily
@@ -47,15 +47,15 @@ LAFF USERS' GUIDE
    execution of Fortran programs. The resources required are fairly
    modest.
 
-   The size of the matrices that can be handled in LAFF depends upon the
+   The size of the matrices that can be handled in LALA depends upon the
    amount of storage available on the supporting platform and the optional
-   word count that can be supplied on an initial call to LAFF(3f).
+   word count that can be supplied on an initial call to LALA(3f).
 
-   In some ways, LAFF resembles SPEAKEASY [4] and, to a lesser extent,
+   In some ways, LALA resembles SPEAKEASY [4] and, to a lesser extent,
    APL. All are interactive terminal languages that ordinarily accept
    single-line commands or statements, process them immediately, and print
    the results. All have arrays or matrices as principal data types. But
-   for LAFF, the matrix is the only data type (although scalars, vectors
+   for LALA, the matrix is the only data type (although scalars, vectors
    and text are special cases), the underlying system is portable and
    requires fewer resources, and the supporting subroutines are more
    powerful and in some cases, have better numerical properties.
@@ -66,41 +66,41 @@ LAFF USERS' GUIDE
    part on Algol procedures published by Wilkinson, Reinsch and their
    colleagues [5]. LINPACK is a package of 40 Fortran subroutines (in
    each of four data types) for solving and analyzing simultaneous linear
-   equations and related matrix problems. Since LAFF is not primarily
+   equations and related matrix problems. Since LALA is not primarily
    concerned with either execution time efficiency or storage savings,
    it ignores most of the special matrix properties that LINPACK and
    EISPACK subroutines use to advantage. Consequently, only 8 subroutines
    from LINPACK and 5 from EISPACK are actually involved.
 
-   In more advanced applications, LAFF can be used in conjunction with
-   other programs in several ways. It is possible to define new LAFF
+   In more advanced applications, LALA can be used in conjunction with
+   other programs in several ways. It is possible to define new LALA
    functions and add them to the system.  it is possible to use the local
-   file system to pass matrices between LAFF and other programs. LAFF
+   file system to pass matrices between LALA and other programs. LALA
    command and statement input can be obtained from a local file instead
    of from the terminal. The most power and flexibility is obtained by
-   using LAFF as a subroutine which is called by other programs.
+   using LALA as a subroutine which is called by other programs.
 
-   This document first gives an overview of LAFF from the user's
+   This document first gives an overview of LALA from the user's
    point of view. Several extended examples involving data fitting,
    partial differential equations, eigenvalue sensitivity and other
    topics are included.  The system was designed and programmed using
    techniques described by Wirth [6], implemented in nonrecursive,
    portable Fortran. There is a brief discussion of some of the matrix
    algorithms and of their numerical properties. A final section describes
-   how LAFF can be used with other programs. The appendix includes the
+   how LALA can be used with other programs. The appendix includes the
    HELP documentation available on-line.
 
 ================================================================================
 ELEMENTARY OPERATIONS
 
-   LAFF works with essentially only one kind of object, a rectangular
+   LALA works with essentially only one kind of object, a rectangular
    matrix with complex elements. If the imaginary parts of the elements
    are all zero, they are not printed, but they still occupy storage. In
    some situations, special meaning is attached to 1 by 1 matrices,
    that is scalars, and to 1 by n and m by 1 matrices, that is row and
    column vectors.
 
-   Matrices can be introduced into LAFF in four different
+   Matrices can be introduced into LALA in four different
    ways:
 
            --  Explicit list of elements,
@@ -123,7 +123,7 @@ ELEMENTARY OPERATIONS
           7.    8.   9.
 
    The matrix A will be saved for later use. The individual elements
-   are separated by commas or blanks and can be any LAFF expressions,
+   are separated by commas or blanks and can be any LALA expressions,
    for example
 
       x = < -1.3, 4/5, 4*atan(1) >
@@ -154,7 +154,7 @@ ELEMENTARY OPERATIONS
       7 8 9
       >;
 
-   then the LAFF statement exec('xyz') reads the matrix and assigns it
+   then the LALA statement exec('xyz') reads the matrix and assigns it
    to A .
 
    The "for" statement allows the generation of matrices whose elements
@@ -225,7 +225,7 @@ ELEMENTARY OPERATIONS
    Note that both upper and lower case letters are allowed for input
    (on those systems which have both).
 
-   There are two "matrix division" symbols in LAFF, \ and / .  If A and
+   There are two "matrix division" symbols in LALA, \ and / .  If A and
    B are matrices, then A\B and B/A correspond formally to left and right
    multiplication of B by the inverse of A, that is inv(A)*B and B*inv(A),
    but the result is obtained directly without the computation of the
@@ -347,7 +347,7 @@ ELEMENTARY OPERATIONS
 
       X = eye/A
 
-   is one of several ways in LAFF to invert a matrix.
+   is one of several ways in LALA to invert a matrix.
 
    "flop" provides a measure of the number of floating point operations,
    or "flops", required for each calculation by reporting the CPU time
@@ -374,7 +374,7 @@ ELEMENTARY OPERATIONS
 ================================================================================
 FUNCTIONS
 
-   Much of LAFF's computational power comes from the various
+   Much of LALA's computational power comes from the various
    matrix functions available. The current list includes:
 
       inv(A)          - Inverse.
@@ -440,7 +440,7 @@ FUNCTIONS
 
    simply computes the eigenvalues and stores them in "ans".
 
-   Future versions of LAFF will probably include additional functions,
+   Future versions of LALA will probably include additional functions,
    since they can easily be added to the system.
 
 ================================================================================
@@ -458,7 +458,7 @@ ROWS COLUMNS AND SUBMATRICES
 
    adds c times the k-th row of A to the i-th row.
 
-   The colon is used in several other ways in LAFF, but all of the uses
+   The colon is used in several other ways in LALA, but all of the uses
    are based on the following definition.
 
       j:k    is the same as  <j, j+1, ..., k>
@@ -556,7 +556,7 @@ FOR WHILE AND IF
 ================================================================================
 CHARACTERS AND TEXTFILES AND MACROS
 
-   LAFF has several commands which control the output format and the
+   LALA has several commands which control the output format and the
    overall execution of the system.
 
    The "help" command allows on-line access to short portions of text
@@ -579,7 +579,7 @@ CHARACTERS AND TEXTFILES AND MACROS
    The "quit" and "exit" commands cause return to the underlying operating
    system through the Fortran RETURN statement.
 
-   LAFF has a limited facility for handling text. Any string of characters
+   LALA has a limited facility for handling text. Any string of characters
    delineated by quotes (with two quotes used to allow one quote within
    the string) is saved as a vector of integer values that are the ADE
    (Ascii Decimal Equivalent) value of the character, with special
@@ -597,15 +597,15 @@ CHARACTERS AND TEXTFILES AND MACROS
 
       norm(A,'inf')    computes the infinity norm of A .
       display(T)       prints the text stored in T .
-      exec('file')     obtains LAFF input from an external file.
+      exec('file')     obtains LALA input from an external file.
       save('file')     stores all the current variables in a file.
       load('file')     retrieves all the variables from a file.
       print('file',X)  prints X on a file.
-      diary('file')    makes a copy of the complete LAFF session.
+      diary('file')    makes a copy of the complete LALA session.
 
    The text can also be used in a limited string substitution
    macro facility. If a variable, say T, contains the source text
-   for a LAFF statement or expression, then the construction
+   for a LALA statement or expression, then the construction
 
       > T <
 
@@ -624,12 +624,12 @@ CHARACTERS AND TEXTFILES AND MACROS
 
    Some other examples are given under MACROS in the appendix. This
    facility is useful for fairly short statements and expressions.
-   More complicated LAFF "programs" should use the "exec" facility.
+   More complicated LALA "programs" should use the "exec" facility.
 
 ================================================================================
 NUMERICAL ALGORITHMS
 
-   The algorithms underlying the basic LAFF functions are described in
+   The algorithms underlying the basic LALA functions are described in
    the LINPACK and EISPACK guides [1-3]. The following list gives the
    subroutines used by these functions.
 
@@ -683,7 +683,7 @@ NUMERICAL ALGORITHMS
 
          det(z*eye-A) = C(1)*z**n + ... + C(n)*z + C(n+1) .
 
-   The algorithm can be expressed compactly using LAFF:
+   The algorithm can be expressed compactly using LALA:
 
          Z = eig(A);
          C = 0*ones(n+1,1);  C(1) = 1;
@@ -761,11 +761,11 @@ NUMERICAL ALGORITHMS
 
    "rref", the reduced row echelon form, is of some interest in
    theoretical linear algebra, although it has little computational
-   value. It is included in LAFF for pedagogical reasons. The algorithm
+   value. It is included in LALA for pedagogical reasons. The algorithm
    is essentially Gauss-Jordan elimination with detection of negligible
    columns applied to rectangular matrices.
 
-   There are three separate places in LAFF where the rank of a matrix
+   There are three separate places in LALA where the rank of a matrix
    is implicitly computed: in rref(A), in A\B for non-square A, and
    in the pseudoinverse pinv(A). Three different algorithms with three
    different criteria for negligibility are used and so it is possible
@@ -795,7 +795,7 @@ NUMERICAL ALGORITHMS
    described by Moler and Morrison [10]. It is a cubically convergent
    algorithm which starts with a and b , rather than with their squares,
    and thereby avoids destructive arithmetic underflows and overflows. In
-   LAFF, the algorithm is used for complex modulus, Euclidean vector
+   LALA, the algorithm is used for complex modulus, Euclidean vector
    norm, plane rotations, and the shift calculation in the eigenvalue
    and singular value iterations.
 
@@ -818,7 +818,7 @@ FLOP AND CHOP
    together with one floating point addition and the associated
    indexing and storage reference operations.
 
-   LAFF will print the CPU time required for a particular
+   LALA will print the CPU time required for a particular
    statement when the statement is terminated by an extra comma. For
    example, the line
 
@@ -847,7 +847,7 @@ FLOP AND CHOP
              1.1000
 
    "flop(2)" is the cumulative total of all the flops used since
-   the beginning of the LAFF session. The statement
+   the beginning of the LALA session. The statement
 
          flop = <0 0>
 
@@ -892,7 +892,7 @@ FLOP AND CHOP
 
    The following Fortran subprograms illustrate more details of
    "flop" and "chop". The first subprogram is a simplified example of a
-   system-dependent function used within LAFF itself. The common variable
+   system-dependent function used within LALA itself. The common variable
    G_FLOP_COUNTER is essentially the first component of the variable
    FLOP. The common variable CHP is initially zero, but it is set to p
    by the statement "chop(p)". To shorten the DATA statement, we assume
@@ -913,7 +913,7 @@ FLOP AND CHOP
          END REAL FUNCTION FLOP
 
    The following subroutine illustrates a typical use of the
-   previous function within LAFF. It is a simplified version of
+   previous function within LALA. It is a simplified version of
    the Basic Linear Algebra Subprogram that adds a scalar multiple
    of one vector to another. We assume here that the vectors are
    stored with a memory increment of one.
@@ -937,7 +937,7 @@ FLOP AND CHOP
    between n and 2*n flops if the vectors have nonzero imaginary
    components.
 
-   The permanent LAFF variable "eps" is reset by the statement
+   The permanent LALA variable "eps" is reset by the statement
    CHOP(p). Its new value is usually the smallest inverse power of
    two that satisfies the Fortran logical test
 
@@ -952,7 +952,7 @@ CENSUS EXAMPLE
    Our first extended example involves predicting the population of the
    United States in 1980 using extrapolation of various fits to the
    census data from 1900 through 1970. There are eight observations,
-   so we begin with the LAFF statement
+   so we begin with the LALA statement
 
       n = 8
 
@@ -1299,7 +1299,7 @@ PARTIAL DIFFERENTIAL EQUATION EXAMPLE
               sigma =  sum  (-1)   c
                        j=1          j
 
-   To use LAFF for this problem, the following "program" is first stored
+   To use LALA for this problem, the following "program" is first stored
    in the local computer file system, say under the name "PDE".
 
       //Conductivity example.
@@ -1343,7 +1343,7 @@ PARTIAL DIFFERENTIAL EQUATION EXAMPLE
       //output total operation count
          ops = flop(2)
 
-   The program can be used within LAFF by setting the three parameters
+   The program can be used within LALA by setting the three parameters
    and then accessing the file. For example,
 
       rho = .9;
@@ -1641,35 +1641,35 @@ EIGENVALUE SENSITIVITY EXAMPLE
 ================================================================================
 COMMUNICATING WITH OTHER PROGRAMS
 
-   There are four different ways LAFF can be used in
+   There are four different ways LALA can be used in
    conjunction with other programs:
 
       -- user() - a user-supplied subroutine
       -- exec() - reading commands from a file
       -- save() and load() -- reading specially formatted data files.
-      -- laff() - call the interpreter with a CHARACTER array of
+      -- lala() - call the interpreter with a CHARACTER array of
                   commands or interactively.
 
    Let us illustrate each of these by equivalents of the following
    simple example.
 
-   You can start the laff(1) program up and simply enter:
+   You can start the lala(1) program up and simply enter:
 
          n = 6
          for i = 1:n, for j = 1:n, a(i,j) = abs(i-j);
          a
          x = inv(a)
 
-   An example user routine could be introduced into LAFF that
+   An example user routine could be introduced into LALA that
    does the same thing as the "for" statement by compiling and
    linking the following subroutine into the calling program.
 
          program demo_user
          implicit none
          use M_matrix
-         call set_usersub(laff_user)
-         call laff()
-         subroutine laff_user(a,m,n,s,t)
+         call set_usersub(lala_user)
+         call lala()
+         subroutine lala_user(a,m,n,s,t)
             implicit none
             doubleprecision a(:),s,t
             integer m,n
@@ -1681,7 +1681,7 @@ COMMUNICATING WITH OTHER PROGRAMS
                   a(k) = iabs(i-j)
                enddo
             enddo
-            end subroutine laff_user
+            end subroutine lala_user
          end program demo_user
 
    A user-defined function can then be registered with the program
@@ -1692,7 +1692,7 @@ COMMUNICATING WITH OTHER PROGRAMS
    Note the routine must be defined with an explicit interface
    available in the calling unit.
 
-   Then the LAFF statements
+   Then the LALA statements
 
          n = 6
          a = user(n)
@@ -1705,7 +1705,7 @@ COMMUNICATING WITH OTHER PROGRAMS
 
          for i = 1:n, for j = 1:n, a(i,j) = abs(i-j);
 
-   Then the LAFF statements
+   Then the LALA statements
 
          n = 6
          exec('EXAMPLE',0)
@@ -1740,9 +1740,9 @@ COMMUNICATING WITH OTHER PROGRAMS
    The FORMAT number 102 may also be system dependent. This
    particular one is appropriate for hexadecimal computers with an 8
    byte double precision floating point word. Check, or modify,
-   LAFF subroutine SAVLOD.
+   LALA subroutine SAVLOD.
 
-   After this program is executed, enter LAFF and give the
+   After this program is executed, enter LALA and give the
    following statements:
 
          load('A')
@@ -1765,9 +1765,9 @@ COMMUNICATING WITH OTHER PROGRAMS
             ...
 
 
-   The most elaborate mechanism involves using LAFF as a subroutine
-   within another program. Communication with the LAFF stack is
-   accomplished using subroutine laff().
+   The most elaborate mechanism involves using LALA as a subroutine
+   within another program. Communication with the LALA stack is
+   accomplished using subroutine lala().
     The preamble of MATZ is:
 
          SUBROUTINE MATZ(A,LDA,M,N,ID,JOB,IERR)
@@ -1775,21 +1775,21 @@ COMMUNICATING WITH OTHER PROGRAMS
          character(len=*) :: id
          DOUBLEPRECISION A(LDA,N)
 
-         ! ACCESS LAFF VARIABLE STACK
+         ! ACCESS LALA VARIABLE STACK
          ! A IS AN M BY N MATRIX, STORED IN AN ARRAY WITH
          !     LEADING DIMENSION LDA.
          ! ID IS THE NAME OF A. ID IS UP TO FOUR CHARACTERS.
-         ! JOB =  0  GET REAL A FROM LAFF,
-         !     =  1  PUT REAL A INTO LAFF,
-         !     = 10  GET IMAG PART OF A FROM LAFF,
-         !     = 11  PUT IMAG PART OF A INTO LAFF.
-         ! RETURN WITH NONZERO IERR AFTER LAFF ERROR MESSAGE.
+         ! JOB =  0  GET REAL A FROM LALA,
+         !     =  1  PUT REAL A INTO LALA,
+         !     = 10  GET IMAG PART OF A FROM LALA,
+         !     = 11  PUT IMAG PART OF A INTO LALA.
+         ! RETURN WITH NONZERO IERR AFTER LALA ERROR MESSAGE.
          !
-         ! USES LAFF ROUTINES STACKG, STACKP AND ERROR
+         ! USES LALA ROUTINES STACKG, STACKP AND ERROR
 
-        The preamble of subroutine LAFF is:
+        The preamble of subroutine LALA is:
 
-         SUBROUTINE LAFF(INIT)
+         SUBROUTINE LALA(INIT)
          ! INIT = 0 FOR FIRST ENTRY, NONZERO FOR SUBSEQUENT ENTRIES
 
         To do our example, write the following program:
@@ -1805,20 +1805,20 @@ COMMUNICATING WITH OTHER PROGRAMS
             enddo
             call MATZ(A,LDA,N,N,'A',1,IERR)
             IF (IERR .NE. 0) GO TO ...
-            call LAFF(1,'')
+            call LALA(1,'')
             call MATZ(X,LDA,N,N,'X',0,IERR)
             IF (IERR .NE. 0) GO TO ...
             ...
             ...
 
-   When this program is executed, the call to LAFF(0) produces the
-   LAFF greeting, then waits for input. The command
+   When this program is executed, the call to LALA(0) produces the
+   LALA greeting, then waits for input. The command
 
             quit
 
    sends control back to our example program. The matrix A is
    generated by the program and sent to the stack by the first call
-   to MATZ. The call to LAFF(1) produces the LAFF(1) prompt. Then
+   to MATZ. The call to LALA(1) produces the LALA(1) prompt. Then
    the statements
 
             X = inv(A)
@@ -1833,7 +1833,7 @@ COMMUNICATING WITH OTHER PROGRAMS
 ================================================================================
 ACKNOWLEDGEMENT
 
-   LAFF was inspired by the MATLAB subroutine.  Most of the work on
+   LALA was inspired by the MATLAB subroutine.  Most of the work on
    MATLAB was carried out at the University of New Mexico, where it was
    being supported by the National Science Foundation. Additional work
    has been done during visits to Stanford Linear Accelerator Center,
@@ -1921,7 +1921,7 @@ SAMPLE
        help \ , help eig
        exec('demo',7)
 
-      For more information, generate the LAFF Users' Guide
+      For more information, generate the LALA Users' Guide
       using
 
         help manual
@@ -1966,7 +1966,7 @@ help  topic|SECTION_NAME
       Alternatively, To place all the documenation in a file, use
       "help manual" and enter "w help.txt" at the "continue .." prompt.
 NEWS
-      LAFF is intended to be used primarily by families of FORTRAN
+      LALA is intended to be used primarily by families of FORTRAN
       programs that wish to add a consistent interactive "calculator"
       mode for interactively inspecting and modifying data.
 
@@ -2122,7 +2122,7 @@ SYNTAX
 '     Transpose. X' is the complex conjugate transpose of X .
 
       A quote is also use to delmit text. 'ANY TEXT' is a vector whose
-      components are the LAFF internal codes for the characters. A
+      components are the LALA internal codes for the characters. A
       quote within the text is indicated by two quotes. See "display"
       and "FILE" .
 
@@ -2177,7 +2177,7 @@ who   Lists current variables.
 MACROS
 
        The macro facility involves text and inward pointing angle
-       brackets. If "STRING" is the source text for any LAFF
+       brackets. If "STRING" is the source text for any LALA
        expression or statement, then
 
              t = 'STRING';
@@ -2327,7 +2327,7 @@ kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It
             T = diag(ones(n-1,1),1);  T = T + T';  I = eye(T);
             A = T.*.I + I.*.T - 4*eye;
 
-      Just in case they might be useful, LAFF includes
+      Just in case they might be useful, LALA includes
       constructions called Kronecker tensor quotients, denoted by
       X ./. Y and X .\. Y . They are obtained by replacing the
       element-wise multiplications in X .*. Y with divisions.
@@ -2429,7 +2429,7 @@ rand  Random numbers and matrices. "rand(N)" is an N by N matrix
       "rand('uniform')" switches back to the uniform distribution.
       "rand('seed')" returns the current value of the seed for the
       generator. "rand('seed',n)" sets the seed to n.
-      "rand('seed',0)" resets the seed to 0, its value when LAFF
+      "rand('seed',0)" resets the seed to 0, its value when LALA
       is first entered.
 
 rank  Rank. "K = rank(X)" is the number of singular values of X
@@ -2529,12 +2529,12 @@ triu  Upper triangle. "triu(X)" is the upper triangular part of X.
       0 is below the main diagonal.
 
 user  Allows personal Fortran subroutines to be linked into
-      LAFF. The subroutine should have the heading
+      LALA. The subroutine should have the heading
 
          SUBROUTINE USER(A,M,N,S,T)
          REAL or DOUBLEPRECISION A(M,N),S,T
 
-      The LAFF statement "Y = user(X,s,t)" results in a call to the
+      The LALA statement "Y = user(X,s,t)" results in a call to the
       subroutine with a copy of the matrix X stored in the argument A,
       its column and row dimensions in M and N, and the scalar parameters
       s and t stored in S and T. If s and t are omitted, they are set
@@ -2542,7 +2542,7 @@ user  Allows personal Fortran subroutines to be linked into
       N may be reset within the subroutine. The statement Y = "user(K)"
       results in a call with M = 1, N = 1 and A(1,1) = "float(K)". After
       the subroutine has been written, it must be compiled and linked
-      to the LAFF object code within the local operating system.
+      to the LALA object code within the local operating system.
 
 zeros
       Returns a matrix of all zeros.
@@ -2571,7 +2571,7 @@ end   Terminates the scope of "for", "while" and "if" statements.
       will lead to only the final printing of A.
       Similar considerations apply to "while".
 
-      See "exit" (terminates execution of loops or of LAFF itself).
+      See "exit" (terminates execution of loops or of LALA itself).
 
 if    Conditionally execute statements
 
@@ -2645,11 +2645,11 @@ while  Repeat statements an indefinite number of times.
         E
 
 exit  Causes termination of a "for" or "while" loop.
-      If not in a loop, terminates execution of LAFF.
+      If not in a loop, terminates execution of LALA.
       Also see "quit".
 
 quit  From the terminal, causes return to the operating system
-      or other program which invoked LAFF. From inside an
+      or other program which invoked LALA. From inside an
       "exec", causes return to the invoking "exec", or to the
       terminal.
 ================================================================================
@@ -2659,7 +2659,7 @@ FILE ACCESS
       functions access files.  The 'file' parameter takes different
       forms for different operating systems. On most systems, 'file'
       may be a string of up to 1024 characters in quotes. For example,
-      "save('A')" or "exec('LAFF/demo.exec')" . The string will be used
+      "save('A')" or "exec('LALA/demo.exec')" . The string will be used
       as the name of a file in the local operating system.
 
       Check your local installation for details.  The filename must be
@@ -2669,13 +2669,13 @@ FILE ACCESS
 
 delete  "delete('filename')" deletes the given file.
 
-exec  "exec('file',k)" obtains subsequent LAFF input from an
+exec  "exec('file',k)" obtains subsequent LALA input from an
       external file. The printing of input is controlled by the
       optional parameter k .
 
       Files are searched for by the given name. If not found, it is searched
       for in the colon-separated directory names in the environment variable
-      LAFF_PATH. It is looked for first literally by the given name, and then
+      LALA_PATH. It is looked for first literally by the given name, and then
       by the name suffixed with ".la".
 
       "include" is an alias for "exec".
@@ -2683,11 +2683,11 @@ exec  "exec('file',k)" obtains subsequent LAFF input from an
          If k = 0 , there is no echo, prompt or pause. This is the
                     default if the exec command is followed by a semicolon.
          If k = 1 , the input is echoed.
-         If k = 2 , the LAFF prompt <> is printed.
+         If k = 2 , the LALA prompt <> is printed.
          If k = 3 , there will be echos and prompts, but no pauses.
                     This is the the default if the exec command is not
                     followed by a semicolon.
-         If k = 4 , LAFF pauses before each prompt and waits for a
+         If k = 4 , LALA pauses before each prompt and waits for a
                     null line to continue.
          If k = 7 , there will be echos, prompts and pauses. This is
                     useful for demonstrations on video terminals.
@@ -2731,7 +2731,7 @@ save  "save('file')" stores all the current variables in a file.
         > enddo
         > ! The formats used are system dependent. These are typical.
         > ! See SUBROUTINE mat_savlod(3f) in your local implementation
-        > ! of LAFF.
+        > ! of LALA.
 
 ================================================================================
 OUTPUT OPTIONS
@@ -2777,12 +2777,12 @@ display  "display(X)" prints X in a compact format.
            display(0:10,2 )  // display values as binary numbers
 
       If no base is specified and all the elements of X are integers
-      between 0 and 255, then X is interpreted as LAFF text and printed
+      between 0 and 255, then X is interpreted as LALA text and printed
       accordingly.
 
          <>display('the analysis is complete')
            the analysis is complete
-         display(32:126) // print the printable default LAFF characters
+         display(32:126) // print the printable default LALA characters
 
       Otherwise or if the base is one, + , - and blank are printed for
       positive, negative and zero elements.
@@ -2844,7 +2844,7 @@ MISCELLANEOUS
 
 CHAR  special issues regarding strings
 
-   LAFF has a limited facility for handling text. Any string of
+   LALA has a limited facility for handling text. Any string of
    characters delineated by quotes (with two quotes used to allow one
    quote within the string) is saved as a vector of integer values that
    are the ADE (Ascii Decimal Equivalent) value of the character.
@@ -2853,7 +2853,7 @@ CHAR  special issues regarding strings
 
    When defining an array [ and ] or < and > may be used as the delimiters.
 
-   laff(3f)  is too flexible about that and lets them be interchanged freely
+   lala(3f)  is too flexible about that and lets them be interchanged freely
    instead of being matched but that will probably change to be more strictly
    enforced.
 
@@ -2913,7 +2913,7 @@ EDIT
       A command line consisting of two question marks("??") will cause a
       small line-based editor to be called (very similar to the CDC NOS
       editor "xedit") with a copy of the previous input lines. When the
-      editor returns control to LAFF, it will execute the edited command
+      editor returns control to LALA, it will execute the edited command
       (by default).
 
       In editor mode the command to be edited is shifted over one and the
@@ -2959,7 +2959,7 @@ eps   Floating point relative accuracy. A permanent variable
       values may be assigned. "eps" is used as a default tolerance by "pinv"
       and "rank".
 
-laff  A placeholder for a new command.
+lala  A placeholder for a new command.
 
 debug  "debu(1)" turns on verbose low-level debugging for the developer,
        "debu(0)" turns it back off.

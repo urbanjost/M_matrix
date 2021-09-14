@@ -2,14 +2,14 @@
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 program bigmat
-use M_matrix, only  : laff
+use M_matrix, only  : lala
 use M_CLI2, only : set_args, lget, sget, iget          ! add command-line parser module
 implicit none
 character(len=:),allocatable :: help_text(:)
 character(len=:),allocatable :: version_text(:)
    call setup()
    call set_args('mat',help_text,version_text )        ! define command arguments,default values and crack command line
-   call laff(0,' ')                                   ! CALL MATLAB
+   call lala(0,' ')                                   ! CALL MATLAB
    stop
 contains
 subroutine setup()

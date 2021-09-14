@@ -1,4 +1,4 @@
 program bigmat
-use m_matrix, only : laff
-   call laff()
+use m_matrix, only : lala
+   call lala()
 end

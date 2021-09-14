@@ -6,6 +6,13 @@ list of notable changes including`records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
+**2021-08-20**  John S. Urban  <https://github.com/urbanjost>
+
+### :green_circle: DIFF:
+  +  renamed "laff" to "lala".
+
+<!-- ======================================================================== -->
+---
 **2021-05-20**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: DIFF:
