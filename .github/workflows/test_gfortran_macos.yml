@@ -36,11 +36,13 @@ jobs:
 
     - name: Display environment
       run: |
+        uname -a
         #make -k -p -fNOTTHERE
         echo "end" > foo.f90
         gfortran -cpp -E -dM foo.f90
         gfortran --version
         fpm --version
+        limit
 
     - name: tests MacOS (debug)
       run: fpm test --profile debug

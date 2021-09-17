@@ -5,7 +5,7 @@ src_dir: src
          test
 output_dir: docs/fpm-ford
 project: M_strings
-summary: string operations
+summary: embeddable command-line matrix utility
 project_github: https://github.com/urbanjost/M_strings
 project_download:
 author: John S. Urban
