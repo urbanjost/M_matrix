@@ -43,7 +43,7 @@ jobs:
         gfortran --version
         fpm --version
         ulimit -a
-	free -h
+        free -h
 
     - name: tests MacOS (debug)
       run: fpm test --profile debug
