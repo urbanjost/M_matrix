@@ -1,0 +1,78 @@
+abs(A)          - Absolute value of the elements.
+atan(A)         - Arctangent.
+chol(A)         - Factor from Cholesky factorization.
+cond(A)         - Condition number.
+conjg(A)        - Complex conjugate.
+cos(A)          - Cosine.
+det(A)          - Determinant.
+diag(A)         - Extract or create diagonal matrices.
+eig(A)          - Eigenvalues and eigenvectors.
+exp(A)          - e to the A.
+eye(m,n)        - Portion of identity matrix.
+hess(A)         - Hessenberg or tridiagonal form.
+imag(A)         - Imaginary parts of the elements.
+inv(A)          - Inverse.
+invh(n)         - Inverse Hilbert matrices.
+kron(A,B)       - Kronecker tensor product of A and B.
+log(A)          - Natural logarithm.
+lu(A)           - Factors from Gaussian elimination.
+magic(n)        - Interesting test matrices.
+norm(A,p)       - Norm with p = 1, 2 or 'Infinity'.
+ones(m,n)       - Matrix of all ones.
+orth(A)         - Orthogonal vectors spanning range of A.
+pinv(A,eps)     - Pseudo-inverse with optional tolerance.
+plot(X,Y)       - Plot Y as a function of X .
+poly(A)         - Characteristic polynomial.
+prod(A)         - Product of the elements.
+qr(A)           - Factors from Householder orthogonalization.
+rand(m,n)       - Matrix with random elements.
+rank(A,eps)     - Matrix rank with optional tolerance.
+rat(A)          - Find "simple" rational approximation to A.
+rcond(A)        - A measure of nearness to singularity.
+real(A)         - Real parts of the elements.
+roots(C)        - Roots of polynomial with coefficients C.
+round(A)        - Round the elements to nearest integers.
+rref(A)         - Reduced row echelon form.
+schur(A)        - Schur triangular form.
+sin(A)          - Trigonometric sine.
+sqrt(A)         - Square root.
+sum(A)          - Sum of the elements.
+svd(A)          - Singular value decomposition.
+tril(A)         - Lower triangular part of A.
+triu(A)         - Upper triangular part of A.
+user(A)         - Function defined by external program.
+
+base  base(X,B) is a vector containing the base B representation
+chop  Truncate arithmetic. "chop(P)" causes P places to be chopped
+clear  Erases all variables, except "eps", "flop", "eye" and "rand".
+debug  "debu(1)" turns on verbose low-level debugging for the developer,
+delete  "delete('filename')" deletes the given file.
+diary  "diary('file')" causes a copy of all subsequent terminal input and
+display(A,p)    - Print base p representation of A.
+doc   does nothing at the moment
+else  Used with "if".
+end   Terminates the scope of "for", "while" and "if" statements.
+eps   Floating point relative accuracy. A permanent variable
+exec  "exec('file',k)" obtains subsequent LAFF input from an
+exit  Causes termination of a "for" or "while" loop.
+flops  Count of floating point operations.
+for   Repeat statements a specific number of times.
+getenv   get environment variable or return a space
+help  topic|SECTION_NAME
+if    Conditionally execute statements
+include  "include" is an alias for "exec".
+laff  A placeholder for a new command.
+lines  An internal count is kept of the number of lines of output
+load  "load('file')" retrieves all the variables from the file .
+long   See "short" also.
+print  "print('file',X)" prints X on the file using the current
+quit  From the terminal, causes return to the operating system
+save  "save('file')" stores all the current variables in a file.
+semi  "semi" toggles the action of semicolons at the end of lines.
+short  See "long" also.
+sh    Starts the command shell interactively, using the command defined by
+size  If X is an M by N matrix, then size(X) is <M, N> .
+what  does nothing for now
+while  Repeat statements an indefinite number of times.
+who   Lists current variables.
+zeros

@@ -1,5 +1,4 @@
 # M_matrix
-[![Build FORD(1) docs](https://github.com/urbanjost/M_matrix/actions/workflows/deploy_api_docs.yml/badge.svg)](https://github.com/urbanjost/M_matrix/actions/workflows/deploy_api_docs.yml)
 
 This module contains the lala(3f) procedure, which allows for interacting
 with a Fortran program using Matlab or Octave-like commands.  It is also
