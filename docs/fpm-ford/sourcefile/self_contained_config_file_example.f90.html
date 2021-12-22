@@ -74,11 +74,8 @@
         
         
             <li><a href="../lists/programs.html">Programs</a></li>
-               
-        
         
             </ul>
-        
             </li>
 
 
@@ -99,8 +96,6 @@
 
 
 <li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
-
-
 
           </ul>
         
@@ -130,7 +125,6 @@
   <div class="col-lg-12">
 <div class="well well-sm">
   <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     
      
      
      
@@ -275,71 +269,71 @@
 
     <section>
       <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl"><pre><span></span><a id="ln-1" name="ln-1"></a><span class="k">program </span><span class="n">config_file</span>
-<a id="ln-2" name="ln-2"></a><span class="k">use </span><span class="n">M_matrix</span><span class="p">,</span> <span class="k">only</span> <span class="p">:</span> <span class="n">lala</span><span class="p">,</span> <span class="n">get_from_lala</span><span class="p">,</span> <span class="n">put_into_lala</span><span class="p">,</span> <span class="n">ifin_lala</span>
-<a id="ln-3" name="ln-3"></a><span class="c">! create contents for a test file</span>
-<a id="ln-4" name="ln-4"></a><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">parameter</span><span class="kd">::</span> <span class="n">sample</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="o">=</span><span class="p">[</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span> <span class="kd">::</span> <span class="p">&amp;</span>
-<a id="ln-5" name="ln-5"></a><span class="s2">&quot;// my data definition file                                         &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-6" name="ln-6"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-7" name="ln-7"></a><span class="s2">&quot;title=&#39;this is my title from the file&#39;;                            &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-8" name="ln-8"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-9" name="ln-9"></a><span class="s2">&quot;A=[1 2 3; 4 5 6; 7 8 9];                                           &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-10" name="ln-10"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-11" name="ln-11"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-12" name="ln-12"></a><span class="s2">&quot;// sin table                                                       &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-13" name="ln-13"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-14" name="ln-14"></a><span class="s2">&quot;PI=atan(1)*4;                                                      &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-15" name="ln-15"></a><span class="s2">&quot;step=0.05; myarray=[sin(0)];                                       &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-16" name="ln-16"></a><span class="s2">&quot;for I=step:step:(2*PI), myarray=[myarray,sin(I)];                  &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-17" name="ln-17"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-18" name="ln-18"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-19" name="ln-19"></a><span class="s2">&quot;// read file if environment variable is set                        &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-20" name="ln-20"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-21" name="ln-21"></a><span class="s2">&quot;MATRC=getenv(&#39;MATRC&#39;)                                              &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-22" name="ln-22"></a><span class="s2">&quot;if MATRC &lt;&gt; &#39; &#39;, ...                                               &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-23" name="ln-23"></a><span class="s2">&quot;   display(&#39;reading your personal configuration file&#39;), ...        &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-24" name="ln-24"></a><span class="s2">&quot;   exec(getenv(&#39;MATRC&#39;)), ...                                      &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-25" name="ln-25"></a><span class="s2">&quot;end;                                                               &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-26" name="ln-26"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-27" name="ln-27"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-28" name="ln-28"></a><span class="s2">&quot;// display information if environment variable VERBOSE=&#39;TRUE&#39;      &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-29" name="ln-29"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-30" name="ln-30"></a><span class="s2">&quot;if getenv(&#39;VERBOSE&#39;) = &#39;TRUE&#39;, ...                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-31" name="ln-31"></a><span class="s2">&quot;   plot(myarray);                                                  &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-32" name="ln-32"></a><span class="s2">&quot;   display([&#39;TITLE IS &#39; title]); ...                               &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-33" name="ln-33"></a><span class="s2">&quot;   display([&#39;HOME IS  &#39; getenv(&#39;HOME&#39;)]); ...                      &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-34" name="ln-34"></a><span class="s2">&quot;   A, myarray, long; PI, short; ...                                &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-35" name="ln-35"></a><span class="s2">&quot;   who ...                                                         &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-36" name="ln-36"></a><span class="s2">&quot;end                                                                &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a id="ln-37" name="ln-37"></a><span class="s2">&quot;&quot;</span><span class="p">]</span>
-<a id="ln-38" name="ln-38"></a><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">mytitle</span>
-<a id="ln-39" name="ln-39"></a><span class="kt">integer</span> <span class="kd">::</span> <span class="n">ierr</span>
-<a id="ln-40" name="ln-40"></a>
-<a id="ln-41" name="ln-41"></a>   <span class="k">open</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;scr_test2.mat&#39;</span><span class="p">,</span><span class="n">newunit</span><span class="o">=</span><span class="n">lun</span><span class="p">)</span>
-<a id="ln-42" name="ln-42"></a>   <span class="k">write</span><span class="p">(</span><span class="n">lun</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="n">sample</span>
-<a id="ln-43" name="ln-43"></a>   <span class="k">close</span><span class="p">(</span><span class="n">lun</span><span class="p">)</span>
-<a id="ln-44" name="ln-44"></a>
-<a id="ln-45" name="ln-45"></a>
-<a id="ln-46" name="ln-46"></a>   <span class="c">! preset a LALA variable using a command</span>
-<a id="ln-47" name="ln-47"></a>   <span class="k">call </span><span class="n">lala</span><span class="p">(</span> <span class="s1">&#39;title2=&quot;set with a command&quot;;&#39;</span><span class="p">)</span>
-<a id="ln-48" name="ln-48"></a>   <span class="c">! preset a LALA variable using a PUT</span>
-<a id="ln-49" name="ln-49"></a>   <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;set with a PUT&#39;</span><span class="p">,</span><span class="s1">&#39;from a put&#39;</span><span class="p">,</span><span class="n">ierr</span><span class="o">=</span><span class="n">ierr</span><span class="p">)</span>
-<a id="ln-50" name="ln-50"></a>   <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;IERR=&#39;</span><span class="p">,</span><span class="n">ierr</span>
-<a id="ln-51" name="ln-51"></a>
-<a id="ln-52" name="ln-52"></a>   <span class="c">! load file. Note the &quot;return&quot; is currently required</span>
-<a id="ln-53" name="ln-53"></a>   <span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="s2">&quot; exec(&#39;scr_test2.mat&#39;);return;&quot;</span><span class="p">)</span>
-<a id="ln-54" name="ln-54"></a>
-<a id="ln-55" name="ln-55"></a>   <span class="c">! get some data now set in lala()</span>
-<a id="ln-56" name="ln-56"></a>   <span class="k">call </span><span class="n">get_from_lala</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="n">mytitle</span><span class="p">,</span><span class="n">ierr</span><span class="o">=</span><span class="n">ierr</span><span class="p">)</span>
-<a id="ln-57" name="ln-57"></a>   <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;In program title is now [&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">mytitle</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;]&#39;</span>
-<a id="ln-58" name="ln-58"></a>
-<a id="ln-59" name="ln-59"></a>   <span class="c">! interactively enter LALA</span>
-<a id="ln-60" name="ln-60"></a>   <span class="k">call </span><span class="n">lala</span><span class="p">()</span>
-<a id="ln-61" name="ln-61"></a>
-<a id="ln-62" name="ln-62"></a>   <span class="k">open</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;scr_test2.mat&#39;</span><span class="p">,</span><span class="n">newunit</span><span class="o">=</span><span class="n">lun</span><span class="p">)</span>
-<a id="ln-63" name="ln-63"></a>   <span class="k">close</span><span class="p">(</span><span class="n">lun</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span>
-<a id="ln-64" name="ln-64"></a>
-<a id="ln-65" name="ln-65"></a><span class="k">end program </span><span class="n">config_file</span>
+    <div class="hl"><pre><span></span><a name="ln-1"></a><span class="k">program </span><span class="n">config_file</span>
+<a name="ln-2"></a><span class="k">use </span><span class="n">M_matrix</span><span class="p">,</span> <span class="k">only</span> <span class="p">:</span> <span class="n">lala</span><span class="p">,</span> <span class="n">get_from_lala</span><span class="p">,</span> <span class="n">put_into_lala</span><span class="p">,</span> <span class="n">ifin_lala</span>
+<a name="ln-3"></a><span class="c">! create contents for a test file</span>
+<a name="ln-4"></a><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">parameter</span><span class="kd">::</span> <span class="n">sample</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="o">=</span><span class="p">[</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span> <span class="kd">::</span> <span class="p">&amp;</span>
+<a name="ln-5"></a><span class="s2">&quot;// my data definition file                                         &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-6"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-7"></a><span class="s2">&quot;title=&#39;this is my title from the file&#39;;                            &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-8"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-9"></a><span class="s2">&quot;A=[1 2 3; 4 5 6; 7 8 9];                                           &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-10"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-11"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-12"></a><span class="s2">&quot;// sin table                                                       &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-13"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-14"></a><span class="s2">&quot;PI=atan(1)*4;                                                      &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-15"></a><span class="s2">&quot;step=0.05; myarray=[sin(0)];                                       &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-16"></a><span class="s2">&quot;for I=step:step:(2*PI), myarray=[myarray,sin(I)];                  &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-17"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-18"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-19"></a><span class="s2">&quot;// read file if environment variable is set                        &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-20"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-21"></a><span class="s2">&quot;MATRC=getenv(&#39;MATRC&#39;)                                              &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-22"></a><span class="s2">&quot;if MATRC &lt;&gt; &#39; &#39;, ...                                               &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-23"></a><span class="s2">&quot;   display(&#39;reading your personal configuration file&#39;), ...        &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-24"></a><span class="s2">&quot;   exec(getenv(&#39;MATRC&#39;)), ...                                      &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-25"></a><span class="s2">&quot;end;                                                               &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-26"></a><span class="s2">&quot;                                                                   &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-27"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-28"></a><span class="s2">&quot;// display information if environment variable VERBOSE=&#39;TRUE&#39;      &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-29"></a><span class="s2">&quot;//                                                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-30"></a><span class="s2">&quot;if getenv(&#39;VERBOSE&#39;) = &#39;TRUE&#39;, ...                                 &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-31"></a><span class="s2">&quot;   plot(myarray);                                                  &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-32"></a><span class="s2">&quot;   display([&#39;TITLE IS &#39; title]); ...                               &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-33"></a><span class="s2">&quot;   display([&#39;HOME IS  &#39; getenv(&#39;HOME&#39;)]); ...                      &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-34"></a><span class="s2">&quot;   A, myarray, long; PI, short; ...                                &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-35"></a><span class="s2">&quot;   who ...                                                         &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-36"></a><span class="s2">&quot;end                                                                &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-37"></a><span class="s2">&quot;&quot;</span><span class="p">]</span>
+<a name="ln-38"></a><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">mytitle</span>
+<a name="ln-39"></a><span class="kt">integer</span> <span class="kd">::</span> <span class="n">ierr</span>
+<a name="ln-40"></a>
+<a name="ln-41"></a>   <span class="k">open</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;scr_test2.mat&#39;</span><span class="p">,</span><span class="n">newunit</span><span class="o">=</span><span class="n">lun</span><span class="p">)</span>
+<a name="ln-42"></a>   <span class="k">write</span><span class="p">(</span><span class="n">lun</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="n">sample</span>
+<a name="ln-43"></a>   <span class="k">close</span><span class="p">(</span><span class="n">lun</span><span class="p">)</span>
+<a name="ln-44"></a>
+<a name="ln-45"></a>
+<a name="ln-46"></a>   <span class="c">! preset a LALA variable using a command</span>
+<a name="ln-47"></a>   <span class="k">call </span><span class="n">lala</span><span class="p">(</span> <span class="s1">&#39;title2=&quot;set with a command&quot;;&#39;</span><span class="p">)</span>
+<a name="ln-48"></a>   <span class="c">! preset a LALA variable using a PUT</span>
+<a name="ln-49"></a>   <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;set with a PUT&#39;</span><span class="p">,</span><span class="s1">&#39;from a put&#39;</span><span class="p">,</span><span class="n">ierr</span><span class="o">=</span><span class="n">ierr</span><span class="p">)</span>
+<a name="ln-50"></a>   <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;IERR=&#39;</span><span class="p">,</span><span class="n">ierr</span>
+<a name="ln-51"></a>
+<a name="ln-52"></a>   <span class="c">! load file. Note the &quot;return&quot; is currently required</span>
+<a name="ln-53"></a>   <span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="s2">&quot; exec(&#39;scr_test2.mat&#39;);return;&quot;</span><span class="p">)</span>
+<a name="ln-54"></a>
+<a name="ln-55"></a>   <span class="c">! get some data now set in lala()</span>
+<a name="ln-56"></a>   <span class="k">call </span><span class="n">get_from_lala</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="n">mytitle</span><span class="p">,</span><span class="n">ierr</span><span class="o">=</span><span class="n">ierr</span><span class="p">)</span>
+<a name="ln-57"></a>   <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;In program title is now [&#39;</span><span class="o">//</span><span class="nb">trim</span><span class="p">(</span><span class="n">mytitle</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;]&#39;</span>
+<a name="ln-58"></a>
+<a name="ln-59"></a>   <span class="c">! interactively enter LALA</span>
+<a name="ln-60"></a>   <span class="k">call </span><span class="n">lala</span><span class="p">()</span>
+<a name="ln-61"></a>
+<a name="ln-62"></a>   <span class="k">open</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="s1">&#39;scr_test2.mat&#39;</span><span class="p">,</span><span class="n">newunit</span><span class="o">=</span><span class="n">lun</span><span class="p">)</span>
+<a name="ln-63"></a>   <span class="k">close</span><span class="p">(</span><span class="n">lun</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span>
+<a name="ln-64"></a>
+<a name="ln-65"></a><span class="k">end program </span><span class="n">config_file</span>
 </pre></div>
 
     </section>
@@ -352,17 +346,16 @@
     <footer>
       <div class="container">
       <div class="row">
-        <div class="col-xs-6 col-md-6"><p>M_strings was developed by John S. Urban<br>&copy; 2021 
-                                          </p>
-        </div>
-        <div class="col-xs-6 col-md-6">
+        <div class="col-xs-6 col-md-4"><p>&copy; 2021 
+                                          </p></div>
+        <div class="col-xs-6 col-md-4 col-md-push-4">
           <p class="text-right">
             Documentation generated by 
-            <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
-             on 2021-09-17 19:42  
-            
+            <a href="https://github.com/cmacmackin/ford">FORD</a>
+             on 2021-09-17 18:10  
           </p>
         </div>
+        <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> M_strings was developed by John S. Urban</p></div>
       </div>
       <br>
       </div> <!-- /container -->    
