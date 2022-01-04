@@ -133,7 +133,7 @@ the fpm.toml project file.
 [CHANGELOG](CHANGELOG.md)
 
 
-### Example input files:
+### Example input files![demos](docs/images/demo.gif)
 
 #### avg
 ```text
