@@ -11,7 +11,7 @@ keywords = ["fortran", "expression parsing", "matlab"]
 homepage = "https://github.com/urbanjost/M_matrix.git"
 
 #[install]
-#library="true"
+#library=true
 
 #[[test]]
 #name="test_suite"

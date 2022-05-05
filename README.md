@@ -110,15 +110,17 @@ the fpm.toml project file.
         M_matrix        = { git = "https://github.com/urbanjost/M_matrix.git" }
 ```
 
-## DOCUMENTATION
+## DOCUMENTATION   ![docs](docs/images/docs.gif)
+
+### USER
 
  - call lala(3f) interactively and enter "help manual" to browse the 
  [entire user manual](https://urbanjost.github.io/M_matrix/userguide.txt)
 
  - An [index](https://urbanjost.github.io/M_matrix/man3.html) to HTML versions
-   of the manpages included in the distribution.
+   of the man-pages included in the distribution.
 
-## DEVELOPER DOCUMENTATION
+### DEVELOPER DOCUMENTATION
 <!--
 ### doxygen
 
