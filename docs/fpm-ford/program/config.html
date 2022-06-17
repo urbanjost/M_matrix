@@ -10,7 +10,7 @@
     <meta name="author" content="John S. Urban" >
     <link rel="icon" href="../favicon.png">
 
-    <title>get_array_from_lala_dpcmplx &ndash; M_strings</title>
+    <title>config &ndash; M_strings</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
@@ -116,8 +116,8 @@
     
   
   <div class="row">
-    <h1>get_array_from_lala_dpcmplx
-      <small>Subroutine</small>
+    <h1>config
+    <small>Program</small>
     
     </h1>
     
@@ -134,24 +134,22 @@
      <li><i class="fa fa-list-ol"></i>
        <a data-toggle="tooltip"
     data-placement="bottom" data-html="true"
-    title=" 0.2% of total for procedures.">11 statements</a>
+    title=" 1.9% of total for programs.">18 statements</a>
      </li> 
      
      
      
-    <li><i class="fa fa-code"></i><a href="../src/M_matrix.f90"> Source File</a></li>
+    <li><i class="fa fa-code"></i><a href="../src/config.f90"> Source File</a></li>
      
      
   </ul>
   <ol class="breadcrumb in-well text-right">
   
     
-     <li><a href='../sourcefile/m_matrix.f90.html'>M_matrix.f90</a></li>
-    
-     <li><a href='../module/m_matrix.html'>M_matrix</a></li>
+     <li><a href='../sourcefile/config.f90.html'>config.f90</a></li>
     
   
-     <li class="active">get_array_from_lala_dpcmplx</li>
+     <li class="active">config</li>
   </ol>
 </div>
 </div>
@@ -179,9 +177,17 @@
   <div id="vars-0" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/get_array_from_lala_dpcmplx.html#variable-double~2">double</a>
+      <a class="list-group-item" href="../program/config.html#variable-gen~2">gen</a>
       
-      <a class="list-group-item" href="../proc/get_array_from_lala_dpcmplx.html#variable-doublei~2">doublei</a>
+      <a class="list-group-item" href="../program/config.html#variable-i~40">i</a>
+      
+      <a class="list-group-item" href="../program/config.html#variable-ierr~67">ierr</a>
+      
+      <a class="list-group-item" href="../program/config.html#variable-pi~2">pi</a>
+      
+      <a class="list-group-item" href="../program/config.html#variable-table">table</a>
+      
+      <a class="list-group-item" href="../program/config.html#variable-title">title</a>
       
     </div>
   </div>
@@ -209,7 +215,7 @@
 <div class="panel panel-primary">
   <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
   <div class="list-group">
-    <a class="list-group-item" href="../proc/get_array_from_lala_dpcmplx.html#src">get_array_from_lala_dpcmplx</a>
+    <a class="list-group-item" href="../program/config.html#src">config</a>
   </div>
 </div>
 
@@ -220,87 +226,34 @@
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>
-public subroutine get_array_from_lala_dpcmplx(varname, out, ierr)
-    
-    
-   
-</h2>
     
   
-
-
-    
-
-    <h3>Arguments</h3>
-    
+    <div class="panel panel-default">
+      <div class="panel-heading">
+  <h3 class="panel-title">Uses</h3>
+      </div>
+      <ul class="list-group">
       
-<table class="table table-striped varlist">
-<thead><tr><th>Type</th>
-<th>Intent</th><th>Optional</th>
-<th>Attributes</th><th></th><th>Name</th><th></th></thead>
-
-
-
-<tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-varname~3"></span>character(len=*),</td>
-  <td>intent(in)</td>
-  <td></td>
-  
-  <td></td><td>::</td>
-  <td><strong>varname</strong></td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-out~2"></span>complex(kind=dp),</td>
-  <td>intent(out),</td>
-  <td></td>
-  
-  <td>allocatable</td><td>::</td>
-  <td><strong>out</strong>(:,:)</td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-ierr~2"></span>integer,</td>
-  <td>intent(out)</td>
-  <td></td>
-  
-  <td></td><td>::</td>
-  <td><strong>ierr</strong></td><td></td>
-  
-</tr>
-
-</tbody>
-</table>
-
+      <li class="list-group-item">
+  <ul class="list-inline">
     
+    <li><a href='../module/m_matrix.html'>M_matrix</a></li>
     
-    
-    
-     
-    <br>
-
-    <section class="visible-xs visible-sm hidden-md">
+  </ul>
+      </li>
       
+      
+      
+      </ul>
+    </div>
+    
+
+    
+    
+    
+
+     <section class="visible-xs visible-sm hidden-md">
+       
 <h3>Contents</h3>
  
 
@@ -311,9 +264,17 @@ public subroutine get_array_from_lala_dpcmplx(varname, out, ierr)
   <div id="vars-1" class="panel-collapse collapse">
     <div class="list-group">
       
-      <a class="list-group-item" href="../proc/get_array_from_lala_dpcmplx.html#variable-double~2">double</a>
+      <a class="list-group-item" href="../program/config.html#variable-gen~2">gen</a>
       
-      <a class="list-group-item" href="../proc/get_array_from_lala_dpcmplx.html#variable-doublei~2">doublei</a>
+      <a class="list-group-item" href="../program/config.html#variable-i~40">i</a>
+      
+      <a class="list-group-item" href="../program/config.html#variable-ierr~67">ierr</a>
+      
+      <a class="list-group-item" href="../program/config.html#variable-pi~2">pi</a>
+      
+      <a class="list-group-item" href="../program/config.html#variable-table">table</a>
+      
+      <a class="list-group-item" href="../program/config.html#variable-title">title</a>
       
     </div>
   </div>
@@ -341,23 +302,23 @@ public subroutine get_array_from_lala_dpcmplx(varname, out, ierr)
 <div class="panel panel-primary">
   <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
   <div class="list-group">
-    <a class="list-group-item" href="../proc/get_array_from_lala_dpcmplx.html#src">get_array_from_lala_dpcmplx</a>
+    <a class="list-group-item" href="../program/config.html#src">config</a>
   </div>
 </div>
 
 
 
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
+     </section>
+     <br class="visible-xs visible-sm hidden-md">
+
+     
 
     
-
-    
-    <section>    
-      <h2>Variables</h2>
+    <section>
+    <h2>Variables</h2>
     
 <table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Visibility</th>
+<thead><tr><th>Type</th>
 
 <th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
 
@@ -371,11 +332,11 @@ public subroutine get_array_from_lala_dpcmplx(varname, out, ierr)
   
 <tr>
   
-  <td><span class="anchor" id="variable-double~2"></span>doubleprecision,</td>
+  <td><span class="anchor" id="variable-gen~2"></span>character(len=*),</td>
   
-  <td>public,</td>
-  <td>allocatable</td><td>::</td>
-  <td><strong>double</strong>(:,:)</td><td></td><td></td><td></td>
+  
+  <td>parameter</td><td>::</td>
+  <td><strong>gen</strong></td><td> =</td><td>'(*(g0,1x))'</td><td></td>
   
 </tr>
 
@@ -385,11 +346,67 @@ public subroutine get_array_from_lala_dpcmplx(varname, out, ierr)
   
 <tr>
   
-  <td><span class="anchor" id="variable-doublei~2"></span>doubleprecision,</td>
+  <td><span class="anchor" id="variable-i~40"></span>integer</td>
   
-  <td>public,</td>
+  
+  <td></td><td>::</td>
+  <td><strong>i</strong></td><td></td><td></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-ierr~67"></span>integer</td>
+  
+  
+  <td></td><td>::</td>
+  <td><strong>ierr</strong></td><td></td><td></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-pi~2"></span>real</td>
+  
+  
+  <td></td><td>::</td>
+  <td><strong>pi</strong></td><td></td><td></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-table"></span>real,</td>
+  
+  
   <td>allocatable</td><td>::</td>
-  <td><strong>doublei</strong>(:,:)</td><td></td><td></td><td></td>
+  <td><strong>table</strong>(:,:)</td><td></td><td></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-title"></span>character(len=:),</td>
+  
+  
+  <td>allocatable</td><td>::</td>
+  <td><strong>title</strong></td><td></td><td></td><td></td>
   
 </tr>
 
@@ -403,9 +420,9 @@ public subroutine get_array_from_lala_dpcmplx(varname, out, ierr)
     
     
     
+    
+    
 
-    
-    
     
     
     
@@ -415,28 +432,41 @@ public subroutine get_array_from_lala_dpcmplx(varname, out, ierr)
     
     
     <section>
-    <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">get_array_from_lala_dpcmplx</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="n">out</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span>               <span class="kd">::</span> <span class="n">varname</span>
-<span class="kt">complex</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">dp</span><span class="p">),</span><span class="k">allocatable</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>  <span class="kd">::</span> <span class="n">out</span><span class="p">(:,:)</span>
-<span class="n">doubleprecision</span><span class="p">,</span><span class="k">allocatable</span>               <span class="kd">::</span> <span class="n">double</span><span class="p">(:,:),</span> <span class="n">doublei</span><span class="p">(:,:)</span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>                       <span class="kd">::</span> <span class="n">ierr</span>
-   <span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">out</span><span class="p">))</span><span class="k">deallocate</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
-   <span class="k">call </span><span class="n">get_double_from_lala</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="n">double</span><span class="p">,</span><span class="k">type</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ierr</span><span class="o">=</span><span class="n">ierr</span><span class="p">)</span>
-   <span class="k">call </span><span class="n">get_double_from_lala</span><span class="p">(</span><span class="n">varname</span><span class="p">,</span><span class="n">doublei</span><span class="p">,</span><span class="k">type</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">ierr</span><span class="o">=</span><span class="n">ierr</span><span class="p">)</span>
-   <span class="k">if</span><span class="p">(</span><span class="n">ierr</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">return</span>
-<span class="k">   </span><span class="n">out</span><span class="o">=</span><span class="nb">cmplx</span><span class="p">(</span><span class="n">double</span><span class="p">,</span><span class="n">doublei</span><span class="p">,</span><span class="nb">kind</span><span class="o">=</span><span class="n">sp</span><span class="p">)</span>
-<span class="k">end subroutine </span><span class="n">get_array_from_lala_dpcmplx</span>
+    <h2 id="src">Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="k">program </span><span class="n">config</span>
+<span class="k">use </span><span class="n">M_matrix</span><span class="p">,</span> <span class="k">only</span> <span class="p">:</span> <span class="n">lala</span><span class="p">,</span> <span class="n">get_from_lala</span><span class="p">,</span> <span class="n">put_into_lala</span>
+<span class="k">implicit none</span>
+
+<span class="c">! variables to read from config file</span>
+<span class="kt">real</span><span class="p">,</span><span class="k">allocatable</span>             <span class="kd">::</span> <span class="n">table</span><span class="p">(:,:)</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">title</span>
+<span class="kt">real</span>                         <span class="kd">::</span> <span class="n">pi</span>
+
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=*</span><span class="p">),</span><span class="k">parameter</span>   <span class="kd">::</span> <span class="n">gen</span><span class="o">=</span><span class="s1">&#39;(*(g0,1x))&#39;</span>
+<span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">i</span>
+<span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">ierr</span>
+
+   <span class="c">! read config file</span>
+   <span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="s2">&quot;semi;exec(&#39;data/xin&#39;);return&quot;</span><span class="p">)</span>
+
+   <span class="k">call </span><span class="n">get_from_lala</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">,</span><span class="n">table</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span> <span class="c">! get the array as a REAL array</span>
+   <span class="k">call </span><span class="n">get_from_lala</span><span class="p">(</span><span class="s1">&#39;pi&#39;</span><span class="p">,</span><span class="n">pi</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+   <span class="k">call </span><span class="n">get_from_lala</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span><span class="n">title</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+
+   <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="n">gen</span><span class="p">)</span><span class="s1">&#39;in calling program table shape =&#39;</span><span class="p">,</span><span class="nb">shape</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+   <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="n">gen</span><span class="p">)(</span><span class="n">table</span><span class="p">(</span><span class="n">i</span><span class="p">,:),</span><span class="nb">new_line</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">table</span><span class="p">,</span><span class="nb">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+   <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;title=&#39;</span><span class="p">,</span><span class="n">title</span>
+   <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;pi=&#39;</span><span class="p">,</span><span class="n">PI</span>
+<span class="k">end program </span><span class="n">config</span>
 </pre></div>
 
     </section>
-    <br>
     
     
     </div>
   </div>
 
-
+  
     <hr>    
     </div> <!-- /container -->
     <footer>

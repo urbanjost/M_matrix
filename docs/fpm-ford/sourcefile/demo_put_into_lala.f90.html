@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
    
-   <meta name="description" content="string operations">
+   <meta name="description" content="embeddable command-line matrix utility">
     
     <meta name="author" content="John S. Urban" >
     <link rel="icon" href="../favicon.png">
@@ -269,24 +269,24 @@
 
     <section>
       <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl"><pre><span></span><a name="ln-1"></a>          <span class="k">program </span><span class="n">demo_put_into_lala</span>
-<a name="ln-2"></a>          <span class="k">use </span><span class="n">M_matrix</span><span class="p">,</span> <span class="k">only</span> <span class="p">:</span> <span class="n">lala</span><span class="p">,</span> <span class="n">get_from_lala</span><span class="p">,</span> <span class="n">put_into_lala</span>
-<a name="ln-3"></a>          <span class="k">implicit none</span>
-<a name="ln-4"></a><span class="k">          </span><span class="kt">integer</span> <span class="kd">::</span> <span class="n">ierr</span>
+    <div class="hl"><pre><span></span><a name="ln-1"></a>     <span class="k">program </span><span class="n">demo_put_into_lala</span>
+<a name="ln-2"></a>     <span class="k">use </span><span class="n">M_matrix</span><span class="p">,</span> <span class="k">only</span> <span class="p">:</span> <span class="n">lala</span><span class="p">,</span> <span class="n">get_from_lala</span><span class="p">,</span> <span class="n">put_into_lala</span>
+<a name="ln-3"></a>     <span class="k">implicit none</span>
+<a name="ln-4"></a><span class="k">     </span><span class="kt">integer</span> <span class="kd">::</span> <span class="n">ierr</span>
 <a name="ln-5"></a>
-<a name="ln-6"></a>             <span class="c">! store some data from the program into lala(3f)</span>
-<a name="ln-7"></a>             <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span><span class="n">ierr</span><span class="p">)</span>
-<a name="ln-8"></a>             <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,[</span><span class="mf">1.1</span><span class="p">,</span><span class="mf">2.2</span><span class="p">,</span><span class="mf">3.3</span><span class="p">],</span><span class="n">ierr</span><span class="p">)</span>
-<a name="ln-9"></a>             <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span><span class="s2">&quot;This is my title&quot;</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<a name="ln-6"></a>        <span class="c">! store some data from the program into lala(3f)</span>
+<a name="ln-7"></a>        <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span><span class="n">ierr</span><span class="p">)</span>
+<a name="ln-8"></a>        <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,[</span><span class="mf">1.1</span><span class="p">,</span><span class="mf">2.2</span><span class="p">,</span><span class="mf">3.3</span><span class="p">],</span><span class="n">ierr</span><span class="p">)</span>
+<a name="ln-9"></a>        <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span><span class="s2">&quot;This is my title&quot;</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
 <a name="ln-10"></a>
-<a name="ln-11"></a>             <span class="c">! call lala(3f) and display the values</span>
-<a name="ln-12"></a>             <span class="k">call </span><span class="n">lala</span><span class="p">([</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span> <span class="kd">::</span> <span class="p">&amp;</span>
-<a name="ln-13"></a>             <span class="p">&amp;</span> <span class="s1">&#39;who,A,B&#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-14"></a>             <span class="p">&amp;</span> <span class="s1">&#39;display(C);&#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-15"></a>             <span class="p">&amp;</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-16"></a>             <span class="p">&amp;</span> <span class="s1">&#39;&#39;</span><span class="p">])</span>
+<a name="ln-11"></a>        <span class="c">! call lala(3f) and display the values</span>
+<a name="ln-12"></a>        <span class="k">call </span><span class="n">lala</span><span class="p">([</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span> <span class="kd">::</span> <span class="p">&amp;</span>
+<a name="ln-13"></a>        <span class="p">&amp;</span> <span class="s1">&#39;who,A,B&#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-14"></a>        <span class="p">&amp;</span> <span class="s1">&#39;display(C);&#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-15"></a>        <span class="p">&amp;</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-16"></a>        <span class="p">&amp;</span> <span class="s1">&#39;&#39;</span><span class="p">])</span>
 <a name="ln-17"></a>
-<a name="ln-18"></a>              <span class="k">end program </span><span class="n">demo_put_into_lala</span>
+<a name="ln-18"></a>    <span class="k">end program </span><span class="n">demo_put_into_lala</span>
 </pre></div>
 
     </section>
@@ -299,13 +299,13 @@
     <footer>
       <div class="container">
       <div class="row">
-        <div class="col-xs-6 col-md-4"><p>&copy; 2021 
+        <div class="col-xs-6 col-md-4"><p>&copy; 2022 
                                           </p></div>
         <div class="col-xs-6 col-md-4 col-md-push-4">
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2021-09-17 18:10  
+             on 2022-06-17 19:07  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> M_strings was developed by John S. Urban</p></div>
