@@ -8,12 +8,12 @@ It is a still being modernized, but is already useful.
 lala(3f) is used for 
   + self-describing configuration files that can contain conditional branches
   + data files that can contain expressions
-  + adding points in programs where data can be interactively inspected and 
+  + adding points to programs where data can be interactively inspected and 
     changed.
-  + transferring small amounts of data between programs 
+  + transferring data between programs 
   + as a unit testing and macro-level timing tool.
 
-It is usable as a simple embedded language. Additionally,
+In fact, It is usable as a simple embedded language. Additionally,
 
   + external files containing lala(3f) commands may be read.
 
