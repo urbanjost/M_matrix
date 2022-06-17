@@ -56,7 +56,7 @@ My primary interest is in making it into a tool for interacting with
 Fortran programs.
 ## SIMPLE CONFIGURATION FILES
 Given a simple configuration file similiar to a NAMELIST, YAML, JSON,
-or TOML file ...
+INI, CUE, XML or TOML file ...
 ```text
 // a simple string
 title='this is my title'
@@ -127,6 +127,11 @@ in calling program table shape = 11 3
 The biggest advantage lala(3f) provides over most other configuration file processors
 is that expressions, conditionals, and inclusion of other files are supported.
 Basically, your configuration files become embeddable code.
+
+Additionally, the included lala(1) program can read any such configuration file and
+then let you inspect the values.
+
+It is not intrinsically hierarchial nor directly support compound types, however. 
 
 ## INTERACTING WITH PROGRAM DATA
 
