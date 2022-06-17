@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
    
-   <meta name="description" content="string operations">
+   <meta name="description" content="embeddable command-line matrix utility">
     
     <meta name="author" content="John S. Urban" >
     <link rel="icon" href="../favicon.png">
@@ -269,49 +269,49 @@
 
     <section>
       <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl"><pre><span></span><a name="ln-1"></a>           <span class="k">program </span><span class="n">demo_M_matrix</span>
-<a name="ln-2"></a>           <span class="k">use </span><span class="n">M_matrix</span><span class="p">,</span> <span class="k">only</span> <span class="p">:</span> <span class="n">lala</span><span class="p">,</span> <span class="n">put_into_lala</span><span class="p">,</span> <span class="n">get_from_lala</span><span class="p">,</span> <span class="n">ifin_lala</span>
-<a name="ln-3"></a>           <span class="c">!real,allocatable             :: r</span>
-<a name="ln-4"></a>           <span class="c">!complex,allocatable          :: cvec(:)</span>
-<a name="ln-5"></a>           <span class="kt">integer</span><span class="p">,</span><span class="k">allocatable</span>          <span class="kd">::</span> <span class="n">iarr</span><span class="p">(:,:)</span>
-<a name="ln-6"></a>           <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">t</span><span class="p">(:)</span>
-<a name="ln-7"></a>           <span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">ierr</span>
+    <div class="hl"><pre><span></span><a name="ln-1"></a>      <span class="k">program </span><span class="n">demo_M_matrix</span>
+<a name="ln-2"></a>      <span class="k">use </span><span class="n">M_matrix</span><span class="p">,</span> <span class="k">only</span> <span class="p">:</span> <span class="n">lala</span><span class="p">,</span> <span class="n">put_into_lala</span><span class="p">,</span> <span class="n">get_from_lala</span><span class="p">,</span> <span class="n">ifin_lala</span>
+<a name="ln-3"></a>      <span class="c">!real,allocatable             :: r</span>
+<a name="ln-4"></a>      <span class="c">!complex,allocatable          :: cvec(:)</span>
+<a name="ln-5"></a>      <span class="kt">integer</span><span class="p">,</span><span class="k">allocatable</span>          <span class="kd">::</span> <span class="n">iarr</span><span class="p">(:,:)</span>
+<a name="ln-6"></a>      <span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span> <span class="kd">::</span> <span class="n">t</span><span class="p">(:)</span>
+<a name="ln-7"></a>      <span class="kt">integer</span>                      <span class="kd">::</span> <span class="n">ierr</span>
 <a name="ln-8"></a>
-<a name="ln-9"></a>           <span class="c">! store some data into lala(3)</span>
-<a name="ln-10"></a>           <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span><span class="o">*</span><span class="mi">1</span><span class="mf">0.5</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
-<a name="ln-11"></a>           <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;is A defined in LALA?&#39;</span><span class="p">,</span><span class="n">ifin_lala</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
-<a name="ln-12"></a>           <span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="s1">&#39;A/2.0&#39;</span><span class="p">)</span>
+<a name="ln-9"></a>      <span class="c">! store some data into lala(3)</span>
+<a name="ln-10"></a>      <span class="k">call </span><span class="n">put_into_lala</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span><span class="o">*</span><span class="mi">1</span><span class="mf">0.5</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<a name="ln-11"></a>      <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;is A defined in LALA?&#39;</span><span class="p">,</span><span class="n">ifin_lala</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<a name="ln-12"></a>      <span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="s1">&#39;A/2.0&#39;</span><span class="p">)</span>
 <a name="ln-13"></a>
-<a name="ln-14"></a>           <span class="c">! pass some commands to lala(3f)</span>
-<a name="ln-15"></a>           <span class="k">call </span><span class="n">lala</span><span class="p">([</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span> <span class="kd">::</span> <span class="p">&amp;</span>
-<a name="ln-16"></a>           <span class="p">&amp;</span><span class="s1">&#39;PI=atan(1)*4               &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-17"></a>           <span class="p">&amp;</span><span class="s2">&quot;mytitle=&#39;this is my title&#39;;&quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-18"></a>           <span class="p">&amp;</span><span class="s1">&#39;littlearray=&lt;              &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-19"></a>           <span class="p">&amp;</span><span class="s1">&#39;   1 2 3;                  &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-20"></a>           <span class="p">&amp;</span><span class="s1">&#39;   4 5 6;                  &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-21"></a>           <span class="p">&amp;</span><span class="s1">&#39;   7 8 9;                  &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-22"></a>           <span class="p">&amp;</span><span class="s1">&#39;&gt;                          &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-23"></a>           <span class="p">&amp;</span><span class="s1">&#39;S=sum(A)                   &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-24"></a>           <span class="p">&amp;</span><span class="s1">&#39;I=inv(littlearray);        &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-25"></a>           <span class="p">&amp;</span><span class="s1">&#39;B=littlearray*sin(PI/3)    &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-26"></a>           <span class="p">&amp;</span><span class="s2">&quot;save(&#39;keepB&#39;,B)            &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
-<a name="ln-27"></a>           <span class="p">&amp;</span><span class="s1">&#39;&#39;</span><span class="p">])</span>
+<a name="ln-14"></a>      <span class="c">! pass some commands to lala(3f)</span>
+<a name="ln-15"></a>      <span class="k">call </span><span class="n">lala</span><span class="p">([</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span> <span class="kd">::</span> <span class="p">&amp;</span>
+<a name="ln-16"></a>      <span class="p">&amp;</span><span class="s1">&#39;PI=atan(1)*4               &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-17"></a>      <span class="p">&amp;</span><span class="s2">&quot;mytitle=&#39;this is my title&#39;;&quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-18"></a>      <span class="p">&amp;</span><span class="s1">&#39;littlearray=&lt;              &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-19"></a>      <span class="p">&amp;</span><span class="s1">&#39;   1 2 3;                  &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-20"></a>      <span class="p">&amp;</span><span class="s1">&#39;   4 5 6;                  &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-21"></a>      <span class="p">&amp;</span><span class="s1">&#39;   7 8 9;                  &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-22"></a>      <span class="p">&amp;</span><span class="s1">&#39;&gt;                          &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-23"></a>      <span class="p">&amp;</span><span class="s1">&#39;S=sum(A)                   &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-24"></a>      <span class="p">&amp;</span><span class="s1">&#39;I=inv(littlearray);        &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-25"></a>      <span class="p">&amp;</span><span class="s1">&#39;B=littlearray*sin(PI/3)    &#39;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-26"></a>      <span class="p">&amp;</span><span class="s2">&quot;save(&#39;keepB&#39;,B)            &quot;</span><span class="p">,</span> <span class="p">&amp;</span>
+<a name="ln-27"></a>      <span class="p">&amp;</span><span class="s1">&#39;&#39;</span><span class="p">])</span>
 <a name="ln-28"></a>
-<a name="ln-29"></a>           <span class="c">! read a file containing lala(3f) commands</span>
-<a name="ln-30"></a>           <span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="s2">&quot;exec(&#39;mycommands&#39;);&quot;</span><span class="p">)</span>
+<a name="ln-29"></a>      <span class="c">! read a file containing lala(3f) commands</span>
+<a name="ln-30"></a>      <span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="s2">&quot;exec(&#39;mycommands&#39;);&quot;</span><span class="p">)</span>
 <a name="ln-31"></a>
-<a name="ln-32"></a>           <span class="c">! interactively interact with lala(3f) interpreter</span>
-<a name="ln-33"></a>           <span class="k">call </span><span class="n">lala</span><span class="p">()</span>
+<a name="ln-32"></a>      <span class="c">! interactively interact with lala(3f) interpreter</span>
+<a name="ln-33"></a>      <span class="k">call </span><span class="n">lala</span><span class="p">()</span>
 <a name="ln-34"></a>
-<a name="ln-35"></a>           <span class="c">! get some data from LALA into the calling program</span>
-<a name="ln-36"></a>           <span class="k">call </span><span class="n">get_from_lala</span><span class="p">(</span><span class="s1">&#39;littlearray&#39;</span><span class="p">,</span><span class="n">iarr</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
-<a name="ln-37"></a>           <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;IN CALLING PROGRAM IARR=&#39;</span>
-<a name="ln-38"></a>           <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(1x,*(g0,1x))&#39;</span><span class="p">)(</span><span class="n">IARR</span><span class="p">(</span><span class="n">i</span><span class="p">,:),</span><span class="nb">new_line</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">iarr</span><span class="p">,</span><span class="nb">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<a name="ln-35"></a>      <span class="c">! get some data from LALA into the calling program</span>
+<a name="ln-36"></a>      <span class="k">call </span><span class="n">get_from_lala</span><span class="p">(</span><span class="s1">&#39;littlearray&#39;</span><span class="p">,</span><span class="n">iarr</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<a name="ln-37"></a>      <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">)</span><span class="s1">&#39;IN CALLING PROGRAM IARR=&#39;</span>
+<a name="ln-38"></a>      <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(1x,*(g0,1x))&#39;</span><span class="p">)(</span><span class="n">IARR</span><span class="p">(</span><span class="n">i</span><span class="p">,:),</span><span class="nb">new_line</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">size</span><span class="p">(</span><span class="n">iarr</span><span class="p">,</span><span class="nb">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 <a name="ln-39"></a>
-<a name="ln-40"></a>           <span class="k">call </span><span class="n">get_from_lala</span><span class="p">(</span><span class="s1">&#39;mytitle&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
-<a name="ln-41"></a>           <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;IN CALLING PROGRAM T=&#39;</span><span class="p">,</span><span class="n">t</span>
+<a name="ln-40"></a>      <span class="k">call </span><span class="n">get_from_lala</span><span class="p">(</span><span class="s1">&#39;mytitle&#39;</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<a name="ln-41"></a>      <span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="o">*</span><span class="p">)</span><span class="s1">&#39;IN CALLING PROGRAM T=&#39;</span><span class="p">,</span><span class="n">t</span>
 <a name="ln-42"></a>
-<a name="ln-43"></a>           <span class="k">end program </span><span class="n">demo_M_matrix</span>
+<a name="ln-43"></a>      <span class="k">end program </span><span class="n">demo_M_matrix</span>
 </pre></div>
 
     </section>
@@ -324,13 +324,13 @@
     <footer>
       <div class="container">
       <div class="row">
-        <div class="col-xs-6 col-md-4"><p>&copy; 2021 
+        <div class="col-xs-6 col-md-4"><p>&copy; 2022 
                                           </p></div>
         <div class="col-xs-6 col-md-4 col-md-push-4">
           <p class="text-right">
             Documentation generated by 
             <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2021-09-17 18:10  
+             on 2022-06-17 19:07  
           </p>
         </div>
         <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> M_strings was developed by John S. Urban</p></div>
