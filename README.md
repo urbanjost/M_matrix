@@ -1,29 +1,37 @@
 # M_matrix
 
-This module contains the lala(3f) procedure, which allows for interacting
-with a Fortran program using Matlab or Octave-like commands.  It is also
-usable as a simple one-line language.  It is a WIP (Work In Progress)
-but is already useful.
+This module contains the lala(Los Alamos Linear Algebra) procedure,
+which allows for interacting with a Fortran program using Matlab or
+Octave-like commands.  It is also usable as a simple one-line language.
+It is a still being modernized, but is already useful.
 
-  + You can pass intrinsic-type data between your program and the utility.
-  + blocks of commands may be passed to lala(3f).
+lala(3f) is used for 
+  + self-describing configuration files that can contain conditional branches
+  + data files that can contain expressions
+  + adding points in programs where data can be interactively inspected and 
+    changed.
+  + transferring small amounts of data between programs 
+  + as a unit testing and macro-level timing tool.
+
+It is usable as a simple embedded language. Additionally,
+
   + external files containing lala(3f) commands may be read.
+
   + you can create a journal of the commands used and replay them.
+
   + there is a built-in command history utility that lets you recall,
     edit, and save your command history.
+
   + a built-in help utility describes the many matrix and math functions
     available.
+
   + a custom routine may be called via the user(..) function in lala(3f).
 
-All together, this allows lala(3f) to be used for self-describing
-configuration and data files, inspecting data in existing programs,
-transferring small amounts of data between programs or assisting in
-debugging and development, unit testing and macro-level timing.
 
-A stand-alone program is included that lets you use it as a calculator
-and to test and create input files as well. In interactive mode you can
-browse the user manual via the "help" command and even view Fortran
-intrinsic documentation via the "fhelp" command.
+A stand-alone program is included that lets you use lala(3f) as a
+calculator and to test and create input files as well. In interactive
+mode you can browse the user manual via the "help" command and even view
+Fortran intrinsic documentation via the "fhelp" command.
 
 It was originally based on some **very** old code that still requires
 some major refactoring, but if anyone else is interested or finds it
@@ -46,6 +54,85 @@ and using modern Fortran features to make it more maintainable.
 
 My primary interest is in making it into a tool for interacting with
 Fortran programs.
+## SIMPLE CONFIGURATION FILES
+Given a simple configuration file similiar to a NAMELIST, YAML, JSON,
+or TOML file ...
+```text
+// a simple string
+title='this is my title'
+// a numeric value (note use of expression)
+pi=4*atan(1)
+// a table of numeric values
+table=[ 
+1.0000  5.0000     3.0000000   ;
+4.0000  2.0000     6.0000000   ;
+1.0000  10.000     45.000000   ;
+10.000  20.000     45.000000   ;
+2.0000  2.0e2     15.000000    ;
+20.345  20.000     15.000000   ;
+30.000  30000.     0.00000000  ;
+4.0000  30.044400  -10.000     ;
+40.000  30.555500  -10.000     ;
+4.0000  30.044400  -10.000     ;
+40.000  30.555500  -10.000     ;
+]
+```
+A simple program can read the config file, and then transfer
+values to the calling program:
+```fortran
+program config
+use M_matrix, only : lala, get_from_lala, put_into_lala
+implicit none
+
+! variables to read from config file
+real,allocatable             :: table(:,:)
+character(len=:),allocatable :: title
+real                         :: pi
+
+character(len=*),parameter   :: gen='(*(g0,1x))'
+integer                      :: i
+integer                      :: ierr
+
+   ! read config file
+   call lala("semi;exec('data/xin');return")
+
+   call get_from_lala('table',table,ierr) ! get the array as a REAL array
+   call get_from_lala('pi',pi,ierr)
+   call get_from_lala('title',title,ierr)
+
+   write(*,gen)'in calling program table shape =',shape(table)
+   write(*,gen)(table(i,:),new_line('A'),i=1,size(table,dim=1))
+   write(*,*)'title=',title
+   write(*,*)'pi=',PI
+end program config
+```
+Expected output:
+```text
+in calling program table shape = 11 3
+1.00000000 5.00000000 3.00000000 
+ 4.00000000 2.00000000 6.00000000 
+ 1.00000000 10.0000000 45.0000000 
+ 10.0000000 20.0000000 45.0000000 
+ 2.00000000 200.000000 15.0000000 
+ 20.3449993 20.0000000 15.0000000 
+ 30.0000000 30000.0000 0.00000000 
+ 4.00000000 30.0443993 -10.0000000 
+ 40.0000000 30.5555000 -10.0000000 
+ 4.00000000 30.0443993 -10.0000000 
+ 40.0000000 30.5555000 -10.0000000 
+
+ title=this is my title
+ pi=   3.14159274    
+```
+The biggest advantage lala(3f) provides over most other configuration file processors
+is that expressions, conditionals, and inclusion of other files are supported.
+Basically, your configuration files become embeddable code.
+
+## INTERACTING WITH PROGRAM DATA
+
+A program can pass data back and forth to lala(3f), execute files, and allow the
+user to interactively exam, save, and change and reload data back to the calling
+program ...
 ```fortran
     program demo_lala
     use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
@@ -81,6 +168,7 @@ Fortran programs.
     ! interactively interact with lala(3f) interpreter
     call lala() 
 
+    ! return values to calling program
     call get_from_lala('littlearray',iarr,ierr)
     write(*,'(a)')'IN CALLING PROGRAM IARR='
     write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
