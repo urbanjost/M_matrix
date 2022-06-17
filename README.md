@@ -131,7 +131,7 @@ Basically, your configuration files become embeddable code.
 ## INTERACTING WITH PROGRAM DATA
 
 A program can pass data back and forth to lala(3f), execute files, and allow the
-user to interactively exam, save, and change and reload data back to the calling
+user to interactively examine, save, and change and reload data back to the calling
 program ...
 ```fortran
     program demo_lala
