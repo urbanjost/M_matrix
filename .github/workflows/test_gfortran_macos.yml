@@ -52,14 +52,14 @@ jobs:
           ulimit -c unlimited -d unlimited -f unlimited -m unlimited -t unlimited -v unlimited
           exec 2>&1
           set -x
-          fpm test --profile debug --verbose -fno-automatic
+          fpm test --profile debug --verbose --flag -fno-automatic
 
     - name: tests MacOS (release)
       run: |
           ulimit -c unlimited -d unlimited -f unlimited -m unlimited -t unlimited -v unlimited
           exec 2>&1
           set -x
-          fpm test --profile release --verbose -fno-automatic
+          fpm test --profile release --verbose --flag -fno-automatic
 
     - name: cleanup MacOS
       run: ls -ltras
