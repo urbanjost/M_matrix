@@ -202,8 +202,11 @@ the fpm.toml project file.
         [dependencies]
         M_matrix        = { git = "https://github.com/urbanjost/M_matrix.git" }
 ```
+---
+![docs](docs/images/docs.gif)
+---
 
-## DOCUMENTATION   ![docs](docs/images/docs.gif)
+## DOCUMENTATION 
 
 ### USER
 
@@ -227,8 +230,11 @@ the fpm.toml project file.
 
 [CHANGELOG](CHANGELOG.md)
 
+--
+![demos](docs/images/demo.gif)
+---
 
-### Example input files![demos](docs/images/demo.gif)
+### Example input files
 
 #### avg
 ```text
