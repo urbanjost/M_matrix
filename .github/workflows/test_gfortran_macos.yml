@@ -45,17 +45,18 @@ jobs:
         gfortran -cpp -E -dM foo.f90
         gfortran --version
         fpm --version
+        ulimit -a
 
     - name: tests MacOS (debug)
       run: |
-          ulimit -c unlimited -d unlimited -f unlimited -m unlimited -s unlimited -t unlimited -v unlimited -x unlimited
+          ulimit -c unlimited -d unlimited -f unlimited -m unlimited -s unlimited -t unlimited -v unlimited 
           exec 2>&1
           set -x
           fpm test --profile debug --verbose
 
     - name: tests MacOS (release)
       run: |
-          ulimit -c unlimited -d unlimited -f unlimited -m unlimited -s unlimited -t unlimited -v unlimited -x unlimited
+          ulimit -c unlimited -d unlimited -f unlimited -m unlimited -s unlimited -t unlimited -v unlimited 
           exec 2>&1
           set -x
           fpm test --profile release --verbose
