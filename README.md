@@ -5,44 +5,46 @@ which allows for interacting with a Fortran program using Matlab or
 Octave-like commands.  It is also usable as a simple one-line language.
 It is a still being modernized, but is already useful.
 
-lala(3f) is used for 
-  + self-describing configuration files that can contain conditional branches
-  + data files that can contain expressions
-  + adding points to programs where data can be interactively inspected and 
+lala(3f) is usable as a simple embedded language. In addition it
+provides a common interface for 
+
+  + self-describing configuration files including expressions,
+    conditional branches and loops
+  + creating points in programs where data can be interactively inspected and 
     changed.
+  + data files that can contain expressions
   + transferring data between programs 
-  + as a unit testing and macro-level timing tool.
+  + a unit testing and macro-level timing tool.
 
-In fact, It is usable as a simple embedded language. Additionally,
+Supporting functionality includes
 
-  + external files containing lala(3f) commands may be read.
+  + input files may call additional external files 
 
   + you can create a journal of the commands used and replay them.
 
   + there is a built-in command history utility that lets you recall,
-    edit, and save your command history.
+    edit, and save your command history when using interactive mode.
 
   + a built-in help utility describes the many matrix and math functions
     available.
 
   + a custom routine may be called via the user(..) function in lala(3f).
 
+A stand-alone program is included that lets you use lala(3f) as a powerful
+journaling calculator and to test and create input files.
 
-A stand-alone program is included that lets you use lala(3f) as a
-calculator and to test and create input files as well. In interactive
-mode you can browse the user manual via the "help" command and even view
-Fortran intrinsic documentation via the "fhelp" command.
+In interactive mode you can browse the user manual via the "help" command
+and even view Fortran intrinsic documentation via the "fhelp" command.
 
 It was originally based on some **very** old code that still requires
-some major refactoring, but if anyone else is interested or finds it
-useful let me know.
+some major refactoring, Participants in modernizing the code are welcome.
 
-Perhaps it could be useful for creating a testing framework for Linear
-Algebra libraries and other routines in the growing Fortran stdlib effort
-or `fpm` packages as well.
+lala(1) is quite flexible as a testing framework for Linear Algebra
+libraries in particular.
 
-Any feedback would be appreciated. 
+Any and all feedback is appreciated.
 
+<!--
  + How important is it to be compatible with Matlab or Octave or Fortran? 
  + would a pure functional version be preferred?
  + would dynamic loading of external routines be an important addition?
@@ -54,7 +56,12 @@ and using modern Fortran features to make it more maintainable.
 
 My primary interest is in making it into a tool for interacting with
 Fortran programs.
-## SIMPLE CONFIGURATION FILES
+
+lala(1) is not intrinsically hierarchial nor does it directly support
+compound types
+ -->
+## Simple Configuration File Example
+
 Given a simple configuration file similiar to a NAMELIST, YAML, JSON,
 INI, CUE, XML or TOML file ...
 ```text
@@ -77,6 +84,8 @@ table=[
 40.000  30.555500  -10.000     ;
 ]
 ```
+## Loading a Configuration File
+
 A simple program can read the config file, and then transfer
 values to the calling program:
 ```fortran
@@ -96,10 +105,12 @@ integer                      :: ierr
    ! read config file
    call lala("semi;exec('data/xin');return")
 
+   ! transfer LALA values to the program
    call get_from_lala('table',table,ierr) ! get the array as a REAL array
    call get_from_lala('pi',pi,ierr)
    call get_from_lala('title',title,ierr)
 
+   ! use values in user program
    write(*,gen)'in calling program table shape =',shape(table)
    write(*,gen)(table(i,:),new_line('A'),i=1,size(table,dim=1))
    write(*,*)'title=',title
@@ -124,20 +135,20 @@ in calling program table shape = 11 3
  title=this is my title
  pi=   3.14159274    
 ```
-The biggest advantage lala(3f) provides over most other configuration file processors
+The biggest advantage lala(3f) provides over most other configuration files
 is that expressions, conditionals, and inclusion of other files are supported.
-Basically, your configuration files become embeddable code.
+Basically, your configuration file becomes embeddable code.
 
-Additionally, the included lala(1) program can read any such configuration file and
-then let you inspect the values.
+Note the (included) lala(1) program can read any such configuration file and
+let you inspect the values.
 
-It is not intrinsically hierarchial nor directly support compound types, however. 
 
-## INTERACTING WITH PROGRAM DATA
+## Interacting With User Programs
 
-A program can pass data back and forth to lala(3f), execute files, and allow the
-user to interactively examine, save, and change and reload data back to the calling
-program ...
+A program can pass data back and forth to lala(3f), execute files, and
+allow the user to interactively examine, save, change and reload data
+back to the calling program ...
+
 ```fortran
     program demo_lala
     use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
@@ -195,8 +206,7 @@ fpm ( as described at [Fortran Package Manager](https://github.com/fortran-lang/
    fpm run
 ```
    
-or if calling it from your `fpm` project just list it as a dependency in
-the fpm.toml project file.
+or list it as a dependency in the fpm.toml project file ...
    
 ```toml
         [dependencies]
@@ -206,9 +216,9 @@ the fpm.toml project file.
 ![docs](docs/images/docs.gif)
 ---
 
-## DOCUMENTATION 
+## Documentation 
 
-### USER
+### User
 
  - call lala(3f) interactively and enter "help manual" to browse the 
  [entire user manual](https://urbanjost.github.io/M_matrix/userguide.txt)
@@ -216,7 +226,7 @@ the fpm.toml project file.
  - An [index](https://urbanjost.github.io/M_matrix/man3.html) to HTML versions
    of the man-pages included in the distribution.
 
-### DEVELOPER DOCUMENTATION
+### Developer Documentation
 <!--
 ### doxygen
 
