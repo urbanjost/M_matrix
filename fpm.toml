@@ -10,6 +10,14 @@ categories = ["expression parsing"]
 keywords = ["fortran", "expression parsing", "matlab"]
 homepage = "https://github.com/urbanjost/M_matrix.git"
 
+#######################################
+# pre-version8 compatibility
+[fortran]
+implicit-typing = true
+implicit-external = true
+source-form = "default"
+#######################################
+
 #[install]
 #library=true
 
