@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   
+   <meta name="description" content="embeddable command-line matrix utility">
+    
+    <meta name="author" content="John S. Urban" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>mat_err &ndash; M_strings</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+    
+    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+    
+    
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script src="../js/jquery-2.1.3.min.js"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">M_strings </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+        
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+              data-toggle="dropdown" role="button"
+              aria-haspopup="true"
+     aria-expanded="false">Contents <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          
+              
+            <li><a href="../lists/files.html">Source Files</a></li>
+        
+        
+        
+            <li><a href="../lists/modules.html">Modules</a></li>
+        
+            
+                                
+            <li><a href="../lists/procedures.html">Procedures</a></li>
+        
+        
+            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+               
+            <li><a href="../lists/types.html">Derived Types</a></li>
+        
+        
+            <li><a href="../lists/programs.html">Programs</a></li>
+        
+            </ul>
+            </li>
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
+
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
+
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                             
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
+
+
+<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
+
+          </ul>
+        
+        <form action="../search.html" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+        </div>
+<!--
+        <button type="submit" class="btn btn-default">Submit</button>
+-->
+        </form>
+        
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+    
+  
+  <div class="row">
+    <h1>mat_err
+      <small>Subroutine</small>
+    
+    </h1>
+    
+<div class="row">
+  <div class="col-lg-12">
+<div class="well well-sm">
+  <ul class="list-inline" style="margin-bottom:0px;display:inline">
+     
+     
+     
+     
+    
+    
+     <li><i class="fa fa-list-ol"></i>
+       <a data-toggle="tooltip"
+    data-placement="bottom" data-html="true"
+    title=" 1.6% of total for procedures.">99 statements</a>
+     </li> 
+     
+     
+     
+    <li><i class="fa fa-code"></i><a href="../src/M_matrix.f90"> Source File</a></li>
+     
+     
+  </ul>
+  <ol class="breadcrumb in-well text-right">
+  
+    
+     <li><a href='../sourcefile/m_matrix.f90.html'>M_matrix.f90</a></li>
+    
+     <li><a href='../module/m_matrix.html'>M_matrix</a></li>
+    
+  
+     <li class="active">mat_err</li>
+  </ol>
+</div>
+</div>
+</div>
+<script>
+  $(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+    
+<div id="sidebar">
+  
+<h3>Contents</h3>
+ 
+
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
+  <div id="vars-0" class="panel-collapse collapse">
+    <div class="list-group">
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-i~14">i</a>
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-k~7">k</a>
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-lb">lb</a>
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-lt">lt</a>
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-msg">msg</a>
+      
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../proc/mat_err.html#src">mat_err</a>
+  </div>
+</div>
+
+
+
+</div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>
+public subroutine mat_err(n)
+    
+    
+   
+</h2>
+    
+  
+
+
+    
+
+    <h3>Arguments</h3>
+    
+      
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th>
+<th>Intent</th><th>Optional</th>
+<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-n~5"></span>integer,</td>
+  <td>intent(in)</td>
+  <td></td>
+  
+  <td></td><td>::</td>
+  <td><strong>n</strong></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+    
+    
+    
+    
+     
+    <br>
+
+    <section class="visible-xs visible-sm hidden-md">
+      
+<h3>Contents</h3>
+ 
+
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
+  <div id="vars-1" class="panel-collapse collapse">
+    <div class="list-group">
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-i~14">i</a>
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-k~7">k</a>
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-lb">lb</a>
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-lt">lt</a>
+      
+      <a class="list-group-item" href="../proc/mat_err.html#variable-msg">msg</a>
+      
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  <div class="list-group">
+    <a class="list-group-item" href="../proc/mat_err.html#src">mat_err</a>
+  </div>
+</div>
+
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
+    
+
+    
+    <section>    
+      <h2>Variables</h2>
+    
+<table class="table table-striped varlist">
+<thead><tr><th>Type</th><th>Visibility</th>
+
+<th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
+
+
+
+<tbody>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-i~14"></span>integer,</td>
+  
+  <td>public</td>
+  <td></td><td>::</td>
+  <td><strong>i</strong></td><td></td><td></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-k~7"></span>integer,</td>
+  
+  <td>public</td>
+  <td></td><td>::</td>
+  <td><strong>k</strong></td><td></td><td></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-lb"></span>integer,</td>
+  
+  <td>public</td>
+  <td></td><td>::</td>
+  <td><strong>lb</strong></td><td></td><td></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-lt"></span>integer,</td>
+  
+  <td>public</td>
+  <td></td><td>::</td>
+  <td><strong>lt</strong></td><td></td><td></td><td></td>
+  
+</tr>
+
+  
+  
+  
+  
+<tr>
+  
+  <td><span class="anchor" id="variable-msg"></span>character(len=255),</td>
+  
+  <td>public</td>
+  <td></td><td>::</td>
+  <td><strong>msg</strong></td><td></td><td></td><td></td>
+  
+</tr>
+
+</tbody>
+</table>
+
+    </section>
+    <br>
+    
+    
+    
+    
+    
+
+    
+    
+    
+    
+    
+
+
+    
+    
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">mat_err</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<span class="c">! ident_4=&quot;@(#)M_matrix::mat_err(3fp): given error number, write associated error message and set G_ERR&quot;</span>
+
+<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span>   <span class="kd">::</span> <span class="n">n</span>
+
+<span class="kt">integer</span>              <span class="kd">::</span> <span class="n">i</span>
+<span class="kt">integer</span>              <span class="kd">::</span> <span class="n">k</span>
+<span class="kt">integer</span>              <span class="kd">::</span> <span class="n">lb</span>
+<span class="kt">integer</span>              <span class="kd">::</span> <span class="n">lt</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>   <span class="kd">::</span> <span class="n">msg</span>
+
+   <span class="n">G_ERR</span> <span class="o">=</span> <span class="n">n</span>
+   <span class="k">select case</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>  <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper multiple assignment&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>  <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper factor&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>  <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Expected right parenthesis&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>  <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Undefined variable: &#39;</span><span class="o">//</span><span class="n">ade2str</span><span class="p">(</span><span class="n">G_IDS</span><span class="p">(:,</span><span class="n">G_PT</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span> <span class="c">! extract variable name into buffer</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>  <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Column lengths do not match&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">6</span><span class="p">);</span>  <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Row lengths do not match&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">7</span><span class="p">);</span>  <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Text too long&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span>  <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Incompatible for ADDITION&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">9</span><span class="p">);</span>  <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Incompatible for SUBTRACTION&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Incompatible for MULTIPLICATION&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">11</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Incompatible for RIGHT DIVISION&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Incompatible for LEFT DIVISION&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">13</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper assignment to PERMANENT VARIABLE&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">14</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;EYE-dentity undefined by CONTEXT&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">15</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper assignment to submatrix&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">16</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper command&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">17</span><span class="p">)</span>
+      <span class="n">lb</span> <span class="o">=</span> <span class="n">GM_BIGMEM</span> <span class="o">-</span> <span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+      <span class="n">lt</span> <span class="o">=</span> <span class="n">g_err</span> <span class="o">+</span> <span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span>
+      <span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39; Too much memory required&#39;</span><span class="p">)</span>
+      <span class="k">write</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span><span class="s1">&#39;(1X,I7,&#39;&#39; Variables,&#39;&#39;,I7,&#39;&#39; Temporaries,&#39;&#39;,I7,&#39;&#39; Available.&#39;&#39;)&#39;</span><span class="p">)</span> <span class="n">lb</span><span class="p">,</span><span class="n">lt</span><span class="p">,</span><span class="n">GM_BIGMEM</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">18</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Too many names&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">19</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Matrix is singular to working precision&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">20</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Matrix must be square&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">21</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Subscript out of range&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">22</span><span class="p">);</span> <span class="k">write</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="s1">&#39;(1x,&quot;Recursion difficulties&quot;,*(i4))&#39;</span><span class="p">)</span> <span class="p">(</span><span class="n">G_RSTK</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">G_PT</span><span class="p">)</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">23</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Only 1, 2 or INF norm of matrix&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">24</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;No convergence&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">25</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Can not use function name as variable&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">26</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Too complicated (STACK OVERFLOW)&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">27</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Division by zero is a NO-NO&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">28</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Empty macro&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">29</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Not positive definite&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper exponent&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">31</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper string&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">32</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Singularity of LOG or ATAN&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">33</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Too many colons&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">34</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper FOR clause&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">35</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper WHILE or IF clause&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">36</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Argument out of range&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">37</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper MACROS&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">38</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper file name&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">39</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Incorrect number of arguments&#39;</span>
+    <span class="k">case</span><span class="p">(</span><span class="mi">40</span><span class="p">);</span> <span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Expecting statement terminator&#39;</span>
+    <span class="k">case </span><span class="n">default</span>
+       <span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39;*mat_err* internal error: unknown error code=&#39;</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+       <span class="k">return</span>
+<span class="k">   end select</span>
+
+<span class="k">   </span><span class="n">k</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">-</span> <span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="c">! number of spaces to shift arrow by</span>
+   <span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">//</span><span class="nb">repeat</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;/\--ERROR:&#39;</span><span class="o">//</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="k">end subroutine </span><span class="n">mat_err</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    
+    </div>
+  </div>
+
+
+    <hr>    
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+      <div class="row">
+        <div class="col-xs-6 col-md-4"><p>&copy; 2022 
+                                          </p></div>
+        <div class="col-xs-6 col-md-4 col-md-push-4">
+          <p class="text-right">
+            Documentation generated by 
+            <a href="https://github.com/cmacmackin/ford">FORD</a>
+             on 2022-06-17 19:07  
+          </p>
+        </div>
+        <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> M_strings was developed by John S. Urban</p></div>
+      </div>
+      <br>
+      </div> <!-- /container -->    
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+-->
+    <script src="../js/bootstrap.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- MathJax JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+      });
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    
+    <script src="../tipuesearch/tipuesearch_content.js"></script>
+    <script src="../tipuesearch/tipuesearch_set.js"></script>
+    <script src="../tipuesearch/tipuesearch.js"></script>
+    
+    
+  </body>
+</html>
