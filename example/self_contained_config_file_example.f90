@@ -37,6 +37,7 @@ character(len=*),parameter:: sample(*)=[character(len=80) :: &
 ""]
 character(len=:),allocatable :: mytitle
 integer :: ierr
+integer :: lun
 
    open(file='scr_test2.mat',newunit=lun)
    write(lun,'(a)')sample

@@ -1,4 +1,4 @@
-# TOML file for fpm as described at https://github.com/fortran-lang/fpm/blob/master/manifest-reference.md
+# TOML file for fpm as described at https://fpm.fortran-lang.org/en/spec/manifest.html
 name = "M_matrix"
 version = "0.1.0"
 license = "Public Domain"
@@ -13,7 +13,7 @@ homepage = "https://github.com/urbanjost/M_matrix.git"
 #######################################
 # pre-version8 compatibility
 [fortran]
-implicit-typing = true
+#implicit-typing = true
 implicit-external = true
 source-form = "default"
 #######################################
@@ -26,7 +26,7 @@ source-form = "default"
 #source-dir="test"
 #main="test_suite_M_matrix.f90"
 #[test.dependencies]
-#M_msg          = { git = "https://github.com/urbanjost/M_msg.git" }
+#M_framework          = { git = "https://github.com/urbanjost/M_framework.git" }
 
 #[[executable]]
 #name="mat"
@@ -34,7 +34,7 @@ source-form = "default"
 #main="mat.f90"
 
 [dependencies]
-M_msg          = { git = "https://github.com/urbanjost/M_msg.git" }
+M_framework          = { git = "https://github.com/urbanjost/M_framework.git" }
 M_strings      = { git = "https://github.com/urbanjost/M_strings.git" }
 M_history      = { git = "https://github.com/urbanjost/M_history.git" }
 M_CLI2         = { git = "https://github.com/urbanjost/M_CLI2.git" }
