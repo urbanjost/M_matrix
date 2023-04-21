@@ -4,7 +4,7 @@
 ! v0.1 2013-06-22, initial public version
 ! v0.2 2013-06-24, better autoscale and overflow protection
 
-module text_viz
+module M_matrix__text_viz
 implicit none
 private
 public                      :: viz_init, viz_pos, viz_plot, viz_done
@@ -153,7 +153,7 @@ real                      :: vmax, scalef, tmp
     enddo
 
 end subroutine viz_plot
-end module text_viz
+end module M_matrix__text_viz
 
 
 program demo_user
