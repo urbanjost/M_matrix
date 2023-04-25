@@ -158,7 +158,7 @@ end module M_matrix__text_viz
 
 program demo_user
 use M_matrix
-use text_viz
+use M_matrix__text_viz
 implicit none
 integer, parameter :: nx = 200, ny = 200
 real               :: val(nx,ny)
