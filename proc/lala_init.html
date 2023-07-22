@@ -4,31 +4,26 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-   
-   <meta name="description" content="embeddable command-line matrix utility">
-    
+      <meta name="description" content="embeddable command-line matrix utility">
     <meta name="author" content="John S. Urban" >
     <link rel="icon" href="../favicon.png">
 
-    <title>LALA_init &ndash; M_strings</title>
+    <title>LALA_init &ndash; M_matrix</title>
 
     <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
-    
-    <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
-    
-    
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    
-    <script src="../js/jquery-2.1.3.min.js"></script>
-    <script src="../js/svg-pan-zoom.min.js"></script>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
 
   </head>
 
@@ -44,201 +39,152 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="../index.html">M_strings </a>
+          <a class="navbar-brand" href="../index.html">M_matrix </a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-        
             <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
               <a href="#" class="dropdown-toggle"
-              data-toggle="dropdown" role="button"
-              aria-haspopup="true"
-     aria-expanded="false">Contents <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          
-              
-            <li><a href="../lists/files.html">Source Files</a></li>
-        
-        
-        
-            <li><a href="../lists/modules.html">Modules</a></li>
-        
-            
-                                
-            <li><a href="../lists/procedures.html">Procedures</a></li>
-        
-        
-            <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-               
-            <li><a href="../lists/types.html">Derived Types</a></li>
-        
-        
-            <li><a href="../lists/programs.html">Programs</a></li>
-        
-            </ul>
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
             </li>
-
-
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/files.html">Source Files</a></li>
-
-
-
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/modules.html">Modules</a></li>
-
-
-
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/procedures.html">Procedures</a></li>
-
-
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                             
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/types.html">Derived Types</a></li>
-
-
-<li class="visible-xs hidden-sm visible-lg"><a href="../lists/programs.html">Programs</a></li>
-
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
           </ul>
-        
-        <form action="../search.html" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-        </div>
-<!--
-        <button type="submit" class="btn btn-default">Submit</button>
--->
-        </form>
-        
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
 
     <div class="container">
-    
-  
   <div class="row">
     <h1>LALA_init
       <small>Subroutine</small>
-    
+      
     </h1>
-    
-<div class="row">
-  <div class="col-lg-12">
-<div class="well well-sm">
-  <ul class="list-inline" style="margin-bottom:0px;display:inline">
-     
-     
-     
-     
-    
-    
-     <li><i class="fa fa-list-ol"></i>
-       <a data-toggle="tooltip"
-    data-placement="bottom" data-html="true"
-    title=" 1.1% of total for procedures.">66 statements</a>
-     </li> 
-     
-     
-     
-    <li><i class="fa fa-code"></i><a href="../src/M_matrix.f90"> Source File</a></li>
-     
-     
-  </ul>
-  <ol class="breadcrumb in-well text-right">
-  
-    
-     <li><a href='../sourcefile/m_matrix.f90.html'>M_matrix.f90</a></li>
-    
-     <li><a href='../module/m_matrix.html'>M_matrix</a></li>
-    
-  
-     <li class="active">LALA_init</li>
-  </ol>
-</div>
-</div>
-</div>
-<script>
-  $(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 1.1% of total for procedures.">66 statements</a>
+          </li>
+
+            <li id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/M_matrix.F90"> Source File</a>
+            </li>
+        </ul>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/m_matrix.f90.html'>M_matrix.F90</a></li>
+              <li><a href='../module/m_matrix.html'>M_matrix</a></li>
+          <li class="active">LALA_init</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <script>
+    $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
 
   </div>
   
   <div class="row">
     <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
-    
-<div id="sidebar">
+      <div id="sidebar">
+      <h3>Contents</h3>
   
-<h3>Contents</h3>
- 
-
-
-
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-0">Variables</a></h3></div>
-  <div id="vars-0" class="panel-collapse collapse">
-    <div class="list-group">
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-eps">EPS</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-eye">EYE</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-flops">FLOPS</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-rand">RAND</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-s~2">s</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-t~2">t</a>
-      
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-0">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-0" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../proc/lala_init.html#variable-eps">EPS</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-eye">EYE</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-flops">FLOPS</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-rand">RAND</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-s~2">s</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-t~2">t</a>
+        </div>
+      </div>
     </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/lala_init.html#src">LALA_init</a>
+      </div>
+    </div>
+
+
   </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-  <div class="list-group">
-    <a class="list-group-item" href="../proc/lala_init.html#src">LALA_init</a>
-  </div>
-</div>
-
-
-
-</div>
 
     </div>
     
     <div class="col-md-9" id='text'>
-    <h2>
-public subroutine LALA_init(init, echo)
-    
-    
-   
+    <h2>public  subroutine LALA_init(init, echo)  
 </h2>
     
-  
 
-
-    
     <h2 id="name">NAME</h2>
 <div class="codehilite"><pre><span></span><code><span class="n">LALA</span><span class="p">(</span><span class="mi">3</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="o">[</span><span class="n">M_matrix</span><span class="o">]</span><span class="w"> </span><span class="k">initialize</span><span class="w"> </span><span class="ow">and</span><span class="o">/</span><span class="ow">or</span><span class="w"> </span><span class="n">pass</span><span class="w"> </span><span class="n">commands</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">matrix</span><span class="w"></span>
 <span class="n">laboratory</span><span class="w"> </span><span class="n">interpreter</span><span class="w"></span>
@@ -255,50 +201,50 @@ public subroutine LALA_init(init, echo)
 </code></pre></div>
 
 <h2 id="description">DESCRIPTION</h2>
-<div class="codehilite"><pre><span></span><code><span class="n">LALA</span><span class="p">(</span><span class="mi">3</span><span class="n">f</span><span class="p">)</span> <span class="k">is</span> <span class="n">modeled</span> <span class="n">on</span> <span class="n">MATLAB</span><span class="p">(</span><span class="mi">3</span><span class="n">f</span><span class="p">)</span> <span class="p">(</span><span class="n">MATrix</span> <span class="n">LABoratory</span><span class="p">),</span> <span class="n">a</span> <span class="n">FORTRAN</span>
-<span class="n">package</span> <span class="n">developed</span> <span class="n">by</span> <span class="n">Argonne</span> <span class="n">National</span> <span class="n">Laboratories</span> <span class="k">for</span> <span class="ow">in</span><span class="o">-</span><span class="n">house</span> <span class="n">use</span><span class="o">.</span>
-<span class="n">It</span> <span class="n">provides</span> <span class="n">comprehensive</span> <span class="n">vector</span> <span class="ow">and</span> <span class="n">tensor</span> <span class="n">operations</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">package</span>
-<span class="n">which</span> <span class="n">may</span> <span class="n">be</span> <span class="n">programmed</span><span class="p">,</span> <span class="n">either</span> <span class="n">through</span> <span class="n">a</span> <span class="n">macro</span> <span class="n">language</span> <span class="ow">or</span> <span class="n">through</span>
-<span class="n">execution</span> <span class="n">of</span> <span class="n">script</span> <span class="n">files</span><span class="o">.</span>
+<div class="codehilite"><pre><span></span><code><span class="n">LALA</span><span class="p">(</span><span class="mi">3</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">modeled</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">MATLAB</span><span class="p">(</span><span class="mi">3</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">MATrix</span><span class="w"> </span><span class="n">LABoratory</span><span class="p">),</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">FORTRAN</span><span class="w"></span>
+<span class="n">package</span><span class="w"> </span><span class="n">developed</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">Argonne</span><span class="w"> </span><span class="n">National</span><span class="w"> </span><span class="n">Laboratories</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="ow">in</span><span class="o">-</span><span class="n">house</span><span class="w"> </span><span class="n">use</span><span class="o">.</span><span class="w"></span>
+<span class="n">It</span><span class="w"> </span><span class="n">provides</span><span class="w"> </span><span class="n">comprehensive</span><span class="w"> </span><span class="n">vector</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">tensor</span><span class="w"> </span><span class="n">operations</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">package</span><span class="w"></span>
+<span class="n">which</span><span class="w"> </span><span class="n">may</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">programmed</span><span class="p">,</span><span class="w"> </span><span class="n">either</span><span class="w"> </span><span class="n">through</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">macro</span><span class="w"> </span><span class="n">language</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">through</span><span class="w"></span>
+<span class="n">execution</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">script</span><span class="w"> </span><span class="n">files</span><span class="o">.</span><span class="w"></span>
 
-<span class="n">LALA</span><span class="p">(</span><span class="mi">3</span><span class="n">f</span><span class="p">)</span> <span class="n">Functions</span> <span class="n">supported</span> <span class="n">include</span> <span class="p">(</span><span class="n">but</span> <span class="n">are</span> <span class="ow">not</span> <span class="n">by</span> <span class="n">any</span> <span class="n">means</span> <span class="n">limited</span>
-<span class="n">to</span><span class="p">)</span> <span class="nb">sin</span><span class="p">,</span> <span class="nb">cos</span><span class="p">,</span> <span class="nb">tan</span><span class="p">,</span> <span class="n">arcfunctions</span><span class="p">,</span> <span class="n">upper</span> <span class="n">triangular</span><span class="p">,</span> <span class="n">lower</span> <span class="n">triangular</span><span class="p">,</span>
-<span class="n">determinants</span><span class="p">,</span> <span class="n">matrix</span> <span class="n">multiplication</span><span class="p">,</span> <span class="n">identity</span><span class="p">,</span> <span class="n">Hilbert</span> <span class="n">matrices</span><span class="p">,</span>
-<span class="n">eigenvalues</span> <span class="ow">and</span> <span class="n">eigenvectors</span><span class="p">,</span> <span class="n">matrix</span> <span class="n">roots</span> <span class="ow">and</span> <span class="n">products</span><span class="p">,</span> <span class="n">inversion</span>
-<span class="ow">and</span> <span class="n">so</span> <span class="n">on</span> <span class="ow">and</span> <span class="n">so</span> <span class="n">forth</span><span class="o">.</span>
+<span class="n">LALA</span><span class="p">(</span><span class="mi">3</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="n">Functions</span><span class="w"> </span><span class="n">supported</span><span class="w"> </span><span class="n">include</span><span class="w"> </span><span class="p">(</span><span class="n">but</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="n">means</span><span class="w"> </span><span class="n">limited</span><span class="w"></span>
+<span class="n">to</span><span class="p">)</span><span class="w"> </span><span class="nb">sin</span><span class="p">,</span><span class="w"> </span><span class="nb">cos</span><span class="p">,</span><span class="w"> </span><span class="nb">tan</span><span class="p">,</span><span class="w"> </span><span class="n">arcfunctions</span><span class="p">,</span><span class="w"> </span><span class="n">upper</span><span class="w"> </span><span class="n">triangular</span><span class="p">,</span><span class="w"> </span><span class="n">lower</span><span class="w"> </span><span class="n">triangular</span><span class="p">,</span><span class="w"></span>
+<span class="n">determinants</span><span class="p">,</span><span class="w"> </span><span class="n">matrix</span><span class="w"> </span><span class="n">multiplication</span><span class="p">,</span><span class="w"> </span><span class="n">identity</span><span class="p">,</span><span class="w"> </span><span class="n">Hilbert</span><span class="w"> </span><span class="n">matrices</span><span class="p">,</span><span class="w"></span>
+<span class="n">eigenvalues</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">eigenvectors</span><span class="p">,</span><span class="w"> </span><span class="n">matrix</span><span class="w"> </span><span class="n">roots</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">products</span><span class="p">,</span><span class="w"> </span><span class="n">inversion</span><span class="w"></span>
+<span class="ow">and</span><span class="w"> </span><span class="n">so</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">so</span><span class="w"> </span><span class="n">forth</span><span class="o">.</span><span class="w"></span>
 
-<span class="n">LALA</span><span class="p">()</span> <span class="n">can</span> <span class="n">be</span> <span class="n">used</span>
-   <span class="o">+</span> <span class="k">as</span> <span class="n">a</span> <span class="n">stand</span><span class="o">-</span><span class="n">alone</span> <span class="n">utility</span> <span class="k">for</span> <span class="n">working</span> <span class="n">with</span> <span class="n">lala</span><span class="p">()</span> <span class="n">files</span> <span class="ow">and</span>
-     <span class="k">for</span> <span class="n">basic</span> <span class="n">computations</span><span class="o">.</span>
-   <span class="o">+</span> <span class="n">embedded</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">Fortran</span> <span class="n">program</span><span class="p">,</span> <span class="n">passing</span> <span class="n">variables</span> <span class="n">back</span> <span class="ow">and</span> <span class="n">forth</span>
-     <span class="n">between</span> <span class="n">the</span> <span class="n">calling</span> <span class="n">program</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">utility</span><span class="o">.</span>
-   <span class="o">+</span> <span class="n">to</span> <span class="n">read</span> <span class="n">configuration</span> <span class="ow">and</span> <span class="n">data</span> <span class="n">files</span> <span class="n">that</span> <span class="n">contain</span> <span class="n">expressions</span>
-     <span class="ow">and</span> <span class="n">conditionally</span> <span class="n">selected</span> <span class="n">values</span><span class="o">.</span>
-   <span class="o">+</span> <span class="k">for</span> <span class="n">interactively</span> <span class="n">inspecting</span> <span class="n">data</span> <span class="n">generated</span> <span class="n">by</span> <span class="n">the</span> <span class="n">calling</span> <span class="n">program</span><span class="o">.</span>
-   <span class="o">+</span> <span class="k">for</span> <span class="n">creating</span> <span class="n">unit</span> <span class="n">tests</span> <span class="n">that</span> <span class="n">allow</span> <span class="k">for</span> <span class="n">further</span> <span class="n">interactive</span> <span class="n">examination</span><span class="o">.</span>
+<span class="n">LALA</span><span class="p">()</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">used</span><span class="w"></span>
+<span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">stand</span><span class="o">-</span><span class="n">alone</span><span class="w"> </span><span class="n">utility</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">working</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">lala</span><span class="p">()</span><span class="w"> </span><span class="n">files</span><span class="w"> </span><span class="ow">and</span><span class="w"></span>
+<span class="w">     </span><span class="k">for</span><span class="w"> </span><span class="n">basic</span><span class="w"> </span><span class="n">computations</span><span class="o">.</span><span class="w"></span>
+<span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="n">embedded</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">Fortran</span><span class="w"> </span><span class="n">program</span><span class="p">,</span><span class="w"> </span><span class="n">passing</span><span class="w"> </span><span class="n">variables</span><span class="w"> </span><span class="n">back</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">forth</span><span class="w"></span>
+<span class="w">     </span><span class="n">between</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">calling</span><span class="w"> </span><span class="n">program</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">utility</span><span class="o">.</span><span class="w"></span>
+<span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">read</span><span class="w"> </span><span class="n">configuration</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">files</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">contain</span><span class="w"> </span><span class="n">expressions</span><span class="w"></span>
+<span class="w">     </span><span class="ow">and</span><span class="w"> </span><span class="n">conditionally</span><span class="w"> </span><span class="n">selected</span><span class="w"> </span><span class="n">values</span><span class="o">.</span><span class="w"></span>
+<span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">interactively</span><span class="w"> </span><span class="n">inspecting</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="n">generated</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">calling</span><span class="w"> </span><span class="n">program</span><span class="o">.</span><span class="w"></span>
+<span class="w">   </span><span class="o">+</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">creating</span><span class="w"> </span><span class="n">unit</span><span class="w"> </span><span class="n">tests</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">allow</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">further</span><span class="w"> </span><span class="n">interactive</span><span class="w"> </span><span class="n">examination</span><span class="o">.</span><span class="w"></span>
 
-<span class="n">The</span> <span class="n">HELP</span> <span class="n">command</span> <span class="n">describes</span> <span class="n">using</span> <span class="n">the</span> <span class="n">interpreter</span><span class="o">.</span>
+<span class="n">The</span><span class="w"> </span><span class="n">HELP</span><span class="w"> </span><span class="n">command</span><span class="w"> </span><span class="n">describes</span><span class="w"> </span><span class="n">using</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">interpreter</span><span class="o">.</span><span class="w"></span>
 </code></pre></div>
 
 <h2 id="options">OPTIONS</h2>
-<div class="codehilite"><pre><span></span><code><span class="n">INIT</span>    <span class="n">indicate</span> <span class="n">size</span> <span class="n">of</span> <span class="n">scratch</span> <span class="n">space</span> <span class="n">to</span> <span class="n">allocate</span> <span class="ow">and</span> <span class="p">(</span><span class="n">re</span><span class="p">)</span><span class="n">initialize</span>
-        <span class="n">LALA</span><span class="o">.</span>
+<div class="codehilite"><pre><span></span><code><span class="n">INIT</span><span class="w">    </span><span class="n">indicate</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">scratch</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">allocate</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="p">(</span><span class="n">re</span><span class="p">)</span><span class="n">initialize</span><span class="w"></span>
+<span class="w">        </span><span class="n">LALA</span><span class="o">.</span><span class="w"></span>
 
-<span class="n">CMD</span>     <span class="n">LALA</span> <span class="n">command</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="n">to</span> <span class="n">perform</span><span class="o">.</span> <span class="n">May</span> <span class="n">be</span> <span class="n">CHARACTER</span> <span class="n">scalar</span> <span class="ow">or</span> <span class="n">vector</span>
+<span class="n">CMD</span><span class="w">     </span><span class="n">LALA</span><span class="w"> </span><span class="n">command</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">perform</span><span class="o">.</span><span class="w"> </span><span class="n">May</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">CHARACTER</span><span class="w"> </span><span class="n">scalar</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">vector</span><span class="w"></span>
 
-<span class="n">INIT</span> <span class="ow">and</span> <span class="n">CMD</span> <span class="n">cannot</span> <span class="n">be</span> <span class="n">combined</span> <span class="n">on</span> <span class="n">a</span> <span class="n">single</span> <span class="n">call</span><span class="o">.</span>
+<span class="n">INIT</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">CMD</span><span class="w"> </span><span class="n">cannot</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">combined</span><span class="w"> </span><span class="n">on</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">single</span><span class="w"> </span><span class="n">call</span><span class="o">.</span><span class="w"></span>
 
-<span class="n">The</span> <span class="n">first</span> <span class="n">call</span> <span class="n">may</span> <span class="n">be</span> <span class="n">an</span> <span class="n">initialization</span> <span class="n">declaring</span> <span class="n">the</span> <span class="n">number</span> <span class="n">of</span>
-<span class="n">doubleprecision</span> <span class="n">complex</span> <span class="n">values</span> <span class="n">to</span> <span class="n">allocate</span> <span class="k">for</span> <span class="n">the</span> <span class="n">combined</span> <span class="n">scratch</span>
-<span class="ow">and</span> <span class="n">variable</span> <span class="n">storage</span> <span class="n">area</span><span class="o">.</span> <span class="n">This</span> <span class="n">form</span> <span class="n">may</span> <span class="n">be</span> <span class="n">repeated</span> <span class="ow">and</span> <span class="n">reinitializes</span>
-<span class="n">the</span> <span class="n">utility</span> <span class="n">at</span> <span class="n">each</span> <span class="n">call</span><span class="o">.</span> <span class="n">A</span> <span class="n">size</span> <span class="n">of</span> <span class="n">zero</span> <span class="n">will</span> <span class="n">deallocate</span> <span class="n">any</span> <span class="n">allocated</span>
-<span class="n">storage</span> <span class="p">(</span><span class="n">after</span> <span class="n">which</span> <span class="n">the</span> <span class="n">routine</span> <span class="n">cannot</span> <span class="n">be</span> <span class="n">called</span> <span class="n">with</span> <span class="n">commands</span> <span class="n">until</span>
-<span class="n">reallocated</span> <span class="n">by</span> <span class="n">another</span> <span class="n">call</span> <span class="n">to</span> <span class="n">lala</span><span class="p">())</span><span class="o">.</span>
+<span class="n">The</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="n">may</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">initialization</span><span class="w"> </span><span class="n">declaring</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">number</span><span class="w"> </span><span class="n">of</span><span class="w"></span>
+<span class="n">doubleprecision</span><span class="w"> </span><span class="n">complex</span><span class="w"> </span><span class="n">values</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">allocate</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">combined</span><span class="w"> </span><span class="n">scratch</span><span class="w"></span>
+<span class="ow">and</span><span class="w"> </span><span class="n">variable</span><span class="w"> </span><span class="n">storage</span><span class="w"> </span><span class="n">area</span><span class="o">.</span><span class="w"> </span><span class="n">This</span><span class="w"> </span><span class="n">form</span><span class="w"> </span><span class="n">may</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">repeated</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">reinitializes</span><span class="w"></span>
+<span class="n">the</span><span class="w"> </span><span class="n">utility</span><span class="w"> </span><span class="n">at</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="n">call</span><span class="o">.</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="n">of</span><span class="w"> </span><span class="n">zero</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">deallocate</span><span class="w"> </span><span class="n">any</span><span class="w"> </span><span class="n">allocated</span><span class="w"></span>
+<span class="n">storage</span><span class="w"> </span><span class="p">(</span><span class="n">after</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">routine</span><span class="w"> </span><span class="n">cannot</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">called</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">commands</span><span class="w"> </span><span class="n">until</span><span class="w"></span>
+<span class="n">reallocated</span><span class="w"> </span><span class="n">by</span><span class="w"> </span><span class="n">another</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">lala</span><span class="p">())</span><span class="o">.</span><span class="w"></span>
 
-<span class="n">If</span> <span class="n">no</span> <span class="n">parameters</span> <span class="n">are</span> <span class="n">supplied</span> <span class="n">interactive</span> <span class="n">mode</span> <span class="k">is</span> <span class="n">entered</span><span class="o">.</span>
+<span class="n">If</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">parameters</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">supplied</span><span class="w"> </span><span class="n">interactive</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">entered</span><span class="o">.</span><span class="w"></span>
 
-<span class="n">If</span> <span class="n">a</span> <span class="n">CMD</span> <span class="k">is</span> <span class="n">passed</span> <span class="ow">and</span> <span class="n">no</span> <span class="n">previous</span> <span class="n">initialization</span> <span class="n">call</span> <span class="n">was</span> <span class="n">made</span> <span class="n">the</span>
-<span class="n">scratch</span> <span class="n">space</span> <span class="n">will</span> <span class="n">be</span> <span class="n">allocated</span> <span class="n">to</span> <span class="mf">200000.</span>
+<span class="n">If</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">CMD</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">passed</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">no</span><span class="w"> </span><span class="n">previous</span><span class="w"> </span><span class="n">initialization</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="n">was</span><span class="w"> </span><span class="n">made</span><span class="w"> </span><span class="n">the</span><span class="w"></span>
+<span class="n">scratch</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="n">will</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">allocated</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="mf">200000.</span><span class="w"></span>
 </code></pre></div>
 
 <h2 id="example">EXAMPLE</h2>
@@ -327,24 +273,24 @@ public subroutine LALA_init(init, echo)
 </code></pre></div>
 
 <p>Example 2:</p>
-<div class="codehilite"><pre><span></span><code><span class="n">program</span> <span class="n">bigmat</span>
-<span class="n">use</span> <span class="n">M_matrix</span><span class="p">,</span> <span class="n">only</span> <span class="p">:</span> <span class="n">lala</span>
-   <span class="o">!</span> <span class="k">pass</span> <span class="n">strings</span> <span class="n">to</span> <span class="n">LALA</span> <span class="n">but</span> <span class="n">do</span> <span class="ow">not</span> <span class="n">enter</span> <span class="n">interactive</span> <span class="n">mode</span>
-   <span class="n">call</span> <span class="n">lala</span><span class="p">(</span><span class="mi">20000</span><span class="p">)</span>                  <span class="o">!</span> <span class="n">initialize</span> <span class="n">silently</span>
-   <span class="n">call</span> <span class="n">lala</span><span class="p">(</span> <span class="s1">&#39;a=[1 2 3 4; 5 6 7 8]&#39;</span><span class="p">)</span>
-   <span class="n">call</span> <span class="n">lala</span><span class="p">(</span> <span class="p">[</span><span class="n">character</span><span class="p">(</span><span class="n">len</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span> <span class="p">::</span> <span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s1">&#39;semi;lines(999999)                                    &#39;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s1">&#39;// create a magic square and add 100 to all the values&#39;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s1">&#39;A=magic(4),&lt;X,Y&gt;=shape(A)                             &#39;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s1">&#39;B=A+ones(X,Y)*100                                     &#39;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s1">&#39;// save all current values to a file                  &#39;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s2">&quot;save(&#39;sample.laf&#39;)                                    &quot;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s1">&#39;// clear all user values                              &#39;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s1">&#39;clear                                                 &#39;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s1">&#39;// show variable names, load values from file         &#39;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s1">&#39;// and show again to show the variables are restored  &#39;</span><span class="p">,</span><span class="o">&amp;</span>
-    <span class="o">&amp;</span> <span class="s2">&quot;who;load(&#39;sample.laf&#39;);who                            &quot;</span><span class="p">])</span>
-<span class="n">end</span> <span class="n">program</span> <span class="n">bigmat</span>
+<div class="codehilite"><pre><span></span><code><span class="n">program</span><span class="w"> </span><span class="n">bigmat</span><span class="w"></span>
+<span class="n">use</span><span class="w"> </span><span class="n">M_matrix</span><span class="p">,</span><span class="w"> </span><span class="n">only</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">lala</span><span class="w"></span>
+<span class="w">   </span><span class="o">!</span><span class="w"> </span><span class="k">pass</span><span class="w"> </span><span class="n">strings</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">LALA</span><span class="w"> </span><span class="n">but</span><span class="w"> </span><span class="n">do</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">enter</span><span class="w"> </span><span class="n">interactive</span><span class="w"> </span><span class="n">mode</span><span class="w"></span>
+<span class="w">   </span><span class="n">call</span><span class="w"> </span><span class="n">lala</span><span class="p">(</span><span class="mi">20000</span><span class="p">)</span><span class="w">                  </span><span class="o">!</span><span class="w"> </span><span class="n">initialize</span><span class="w"> </span><span class="n">silently</span><span class="w"></span>
+<span class="w">   </span><span class="n">call</span><span class="w"> </span><span class="n">lala</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;a=[1 2 3 4; 5 6 7 8]&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="n">call</span><span class="w"> </span><span class="n">lala</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="n">character</span><span class="p">(</span><span class="n">len</span><span class="o">=</span><span class="mi">80</span><span class="p">)</span><span class="w"> </span><span class="p">::</span><span class="w"> </span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s1">&#39;semi;lines(999999)                                    &#39;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s1">&#39;// create a magic square and add 100 to all the values&#39;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s1">&#39;A=magic(4),&lt;X,Y&gt;=shape(A)                             &#39;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s1">&#39;B=A+ones(X,Y)*100                                     &#39;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s1">&#39;// save all current values to a file                  &#39;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s2">&quot;save(&#39;sample.laf&#39;)                                    &quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s1">&#39;// clear all user values                              &#39;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s1">&#39;clear                                                 &#39;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s1">&#39;// show variable names, load values from file         &#39;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s1">&#39;// and show again to show the variables are restored  &#39;</span><span class="p">,</span><span class="o">&amp;</span><span class="w"></span>
+<span class="w">    </span><span class="o">&amp;</span><span class="w"> </span><span class="s2">&quot;who;load(&#39;sample.laf&#39;);who                            &quot;</span><span class="p">])</span><span class="w"></span>
+<span class="n">end</span><span class="w"> </span><span class="n">program</span><span class="w"> </span><span class="n">bigmat</span><span class="w"></span>
 </code></pre></div>
 
 <p>Example 3: Sample program with custom user function</p>
@@ -405,12 +351,12 @@ public subroutine LALA_init(init, echo)
 </code></pre></div>
 
 <p>Example inputs</p>
-<div class="codehilite"><pre><span></span><code>  <span class="s s-Atom">&gt;:</span><span class="nn">avg</span><span class="p">:</span>
+<div class="codehilite"><pre><span></span><code>  <span class="s s-Atom">&gt;:avg</span><span class="p">:</span>
 
-  <span class="o">&gt;</span><span class="s s-Atom">for</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="mi">2</span><span class="s s-Atom">:</span><span class="mi">2</span><span class="s s-Atom">:n</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">2</span><span class="s s-Atom">:</span><span class="mi">2</span><span class="s s-Atom">:n</span><span class="p">,</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="p">(</span><span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span><span class="o">+</span><span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">))</span><span class="o">/</span><span class="mi">4</span><span class="p">;</span> <span class="p">...</span>
+  <span class="o">&gt;</span><span class="s s-Atom">for</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="mi">2</span><span class="o">:</span><span class="mi">2</span><span class="o">:</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">2</span><span class="o">:</span><span class="mi">2</span><span class="o">:</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="p">(</span><span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span><span class="o">+</span><span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">+</span><span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">))</span><span class="o">/</span><span class="mi">4</span><span class="p">;</span> <span class="p">...</span>
   <span class="o">&gt;</span><span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">t</span><span class="p">;</span> <span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">t</span><span class="p">;</span> <span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">t</span><span class="p">;</span> <span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">t</span><span class="p">;</span>
 
-  <span class="s s-Atom">&gt;:</span><span class="nn">cdiv</span><span class="p">:</span>
+  <span class="s s-Atom">&gt;:cdiv</span><span class="p">:</span>
 
   <span class="s s-Atom">&gt;//</span> <span class="s s-Atom">======================================================</span>
   <span class="s s-Atom">&gt;//</span> <span class="s s-Atom">cdiv</span>
@@ -435,18 +381,18 @@ public subroutine LALA_init(init, echo)
   <span class="o">&gt;</span><span class="p">[</span><span class="s s-Atom">cr</span> <span class="s s-Atom">ci</span><span class="p">;</span> <span class="s s-Atom">cr2</span> <span class="s s-Atom">ci2</span><span class="p">;</span> <span class="s s-Atom">cr3</span> <span class="s s-Atom">ci3</span><span class="p">]</span>
   <span class="s s-Atom">&gt;//</span> <span class="s s-Atom">======================================================</span>
 
-  <span class="s s-Atom">&gt;:</span><span class="nn">exp</span><span class="p">:</span>
+  <span class="s s-Atom">&gt;:exp</span><span class="p">:</span>
 
   <span class="o">&gt;</span><span class="s s-Atom">t</span> <span class="o">=</span> <span class="mi">0</span><span class="o">*</span><span class="s s-Atom">x</span> <span class="o">+</span> <span class="s s-Atom">eye</span><span class="p">;</span> <span class="s s-Atom">s</span> <span class="o">=</span> <span class="mi">0</span><span class="o">*</span><span class="nf">eye</span><span class="p">(</span><span class="s s-Atom">x</span><span class="p">);</span> <span class="s s-Atom">n</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
   <span class="o">&gt;</span><span class="s s-Atom">while</span> <span class="nf">abs</span><span class="p">(</span><span class="s s-Atom">s</span><span class="o">+</span><span class="s s-Atom">t</span><span class="o">-</span><span class="s s-Atom">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s s-Atom">s</span> <span class="o">=</span> <span class="s s-Atom">s</span><span class="o">+</span><span class="s s-Atom">t</span><span class="p">,</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="s s-Atom">x</span><span class="o">*</span><span class="s s-Atom">t</span><span class="o">/</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="s s-Atom">n</span> <span class="o">=</span> <span class="s s-Atom">n</span> <span class="o">+</span> <span class="mi">1</span>
 
-  <span class="s s-Atom">&gt;:</span><span class="nn">four</span><span class="p">:</span>
+  <span class="s s-Atom">&gt;:four</span><span class="p">:</span>
   <span class="o">&gt;</span> <span class="s s-Atom">n</span>
   <span class="o">&gt;</span> <span class="s s-Atom">pi</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="nf">atan</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
   <span class="o">&gt;</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="nf">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
   <span class="o">&gt;</span> <span class="s s-Atom">w</span> <span class="o">=</span> <span class="nf">exp</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="s s-Atom">pi</span><span class="o">*</span><span class="s s-Atom">i</span><span class="o">/</span><span class="s s-Atom">n</span><span class="p">);</span>
   <span class="o">&gt;</span> <span class="nv">F</span> <span class="o">=</span> <span class="p">[];</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">k</span> <span class="o">=</span> <span class="mi">1</span><span class="s s-Atom">:n</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">1</span><span class="s s-Atom">:n</span><span class="p">,</span> <span class="nv">F</span><span class="p">(</span><span class="s s-Atom">k</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">w**</span><span class="p">((</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="s s-Atom">*</span><span class="p">(</span><span class="s s-Atom">k</span><span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">k</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="nv">F</span><span class="p">(</span><span class="s s-Atom">k</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">w**</span><span class="p">((</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="s s-Atom">*</span><span class="p">(</span><span class="s s-Atom">k</span><span class="o">-</span><span class="mi">1</span><span class="p">));</span>
   <span class="o">&gt;</span> <span class="nv">F</span> <span class="o">=</span> <span class="nv">F</span><span class="o">/</span><span class="nf">sqrt</span><span class="p">(</span><span class="s s-Atom">n</span><span class="p">);</span>
   <span class="o">&gt;</span> <span class="s s-Atom">alpha</span> <span class="o">=</span> <span class="s s-Atom">r</span><span class="o">*</span><span class="s s-Atom">pi</span><span class="p">;</span>
   <span class="o">&gt;</span> <span class="s s-Atom">rho</span> <span class="o">=</span> <span class="nf">exp</span><span class="p">(</span><span class="s s-Atom">i</span><span class="o">*</span><span class="s s-Atom">alpha</span><span class="p">);</span>
@@ -457,8 +403,8 @@ public subroutine LALA_init(init, echo)
 <span class="s s-Atom">  &gt; S = (S + S&#39;</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
   <span class="o">&gt;</span> <span class="s s-Atom">ferr</span> <span class="o">=</span> <span class="nf">norm</span><span class="p">(</span><span class="nv">F</span><span class="o">-</span><span class="nf">exp</span><span class="p">(</span><span class="s s-Atom">i</span><span class="o">*</span><span class="nv">S</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:</span><span class="nn">gs</span><span class="p">:</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">k</span> <span class="o">=</span> <span class="mi">1</span><span class="s s-Atom">:n</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">1</span><span class="s s-Atom">:k</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s s-Atom">d</span> <span class="o">=</span> <span class="nf">x</span><span class="p">(</span><span class="s s-Atom">k</span><span class="p">,</span><span class="s s-Atom">:</span><span class="p">)</span><span class="o">*</span><span class="nf">x</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">,</span><span class="s s-Atom">:</span><span class="p">)</span><span class="s s-Atom">&#39;; x(k,:) = x(k,:) - d*x(j,:); ...</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">gs</span><span class="p">:</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">k</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="s s-Atom">k</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s s-Atom">d</span> <span class="o">=</span> <span class="nf">x</span><span class="p">(</span><span class="s s-Atom">k</span><span class="p">,</span><span class="o">:</span><span class="p">)</span><span class="o">*</span><span class="nf">x</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">,</span><span class="o">:</span><span class="p">)</span><span class="s s-Atom">&#39;; x(k,:) = x(k,:) - d*x(j,:); ...</span>
 <span class="s s-Atom">  &gt; end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;</span>
 
 <span class="s s-Atom">  &gt; :jacobi:</span>
@@ -489,40 +435,40 @@ public subroutine LALA_init(init, echo)
 <span class="s s-Atom">  &gt; X = X*R;</span>
 <span class="s s-Atom">  &gt; A = R&#39;</span><span class="o">*</span><span class="nv">A</span><span class="o">*</span><span class="nv">R</span><span class="p">;</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:</span><span class="nn">kron</span><span class="p">:</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">kron</span><span class="p">:</span>
 
   <span class="o">&gt;</span> <span class="o">//</span>  <span class="nv">C</span> <span class="o">=</span> <span class="nv">Kronecker</span> <span class="s s-Atom">product</span> <span class="s s-Atom">of</span> <span class="nv">A</span> <span class="s s-Atom">and</span> <span class="nv">B</span>
   <span class="o">&gt;</span> <span class="p">[</span><span class="s s-Atom">m</span><span class="p">,</span> <span class="s s-Atom">n</span><span class="p">]</span> <span class="o">=</span> <span class="nf">shape</span><span class="p">(</span><span class="nv">A</span><span class="p">);</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="mi">1</span><span class="s s-Atom">:m</span><span class="p">,</span> <span class="p">...</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="s s-Atom">m</span><span class="p">,</span> <span class="p">...</span>
   <span class="o">&gt;</span>    <span class="s s-Atom">ci</span> <span class="o">=</span> <span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nv">B</span><span class="p">;</span> <span class="p">...</span>
-  <span class="o">&gt;</span>    <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">2</span><span class="s s-Atom">:n</span><span class="p">,</span> <span class="s s-Atom">ci</span> <span class="o">=</span> <span class="p">[</span><span class="s s-Atom">ci</span> <span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span><span class="o">*</span><span class="nv">B</span><span class="p">];</span> <span class="s s-Atom">end</span> <span class="p">...</span>
+  <span class="o">&gt;</span>    <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">2</span><span class="o">:</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="s s-Atom">ci</span> <span class="o">=</span> <span class="p">[</span><span class="s s-Atom">ci</span> <span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span><span class="o">*</span><span class="nv">B</span><span class="p">];</span> <span class="s s-Atom">end</span> <span class="p">...</span>
   <span class="o">&gt;</span>    <span class="s s-Atom">if</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">C</span> <span class="o">=</span> <span class="s s-Atom">ci</span><span class="p">;</span> <span class="s s-Atom">else</span><span class="p">,</span> <span class="nv">C</span> <span class="o">=</span> <span class="p">[</span><span class="nv">C</span><span class="p">;</span> <span class="s s-Atom">ci</span><span class="p">];</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:</span><span class="nn">lanczos</span><span class="p">:</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">lanczos</span><span class="p">:</span>
 
   <span class="o">&gt;</span> <span class="p">[</span><span class="s s-Atom">n</span><span class="p">,</span><span class="s s-Atom">n</span><span class="p">]</span> <span class="o">=</span> <span class="nf">shape</span><span class="p">(</span><span class="nv">A</span><span class="p">);</span>
   <span class="o">&gt;</span> <span class="s s-Atom">q1</span> <span class="o">=</span> <span class="nf">rand</span><span class="p">(</span><span class="s s-Atom">n</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
   <span class="o">&gt;</span> <span class="s s-Atom">ort</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">alpha</span> <span class="o">=</span> <span class="p">[];</span> <span class="s s-Atom">beta</span> <span class="o">=</span> <span class="p">[];</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">q</span> <span class="o">=</span> <span class="s s-Atom">q1</span><span class="o">/</span><span class="nf">norm</span><span class="p">(</span><span class="s s-Atom">q1</span><span class="p">);</span> <span class="s s-Atom">r</span> <span class="o">=</span> <span class="nv">A</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">1</span><span class="s s-Atom">:n</span><span class="p">,</span> <span class="nf">exec</span><span class="p">(</span><span class="s s-Atom">&#39;lanstep&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">alpha</span> <span class="o">=</span> <span class="p">[];</span> <span class="nb">beta</span> <span class="o">=</span> <span class="p">[];</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">q</span> <span class="o">=</span> <span class="s s-Atom">q1</span><span class="o">/</span><span class="nf">norm</span><span class="p">(</span><span class="s s-Atom">q1</span><span class="p">);</span> <span class="s s-Atom">r</span> <span class="o">=</span> <span class="nv">A</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="nf">exec</span><span class="p">(</span><span class="s s-Atom">&#39;lanstep&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:</span><span class="nn">lanstep</span><span class="p">:</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">lanstep</span><span class="p">:</span>
 
-  <span class="o">&gt;</span> <span class="nf">alpha</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">=</span> <span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span><span class="s s-Atom">&#39;*r;</span>
+  <span class="o">&gt;</span> <span class="nf">alpha</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">=</span> <span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span><span class="s s-Atom">&#39;*r;</span>
 <span class="s s-Atom">  &gt; r = r - alpha(j)*q(:,j);</span>
-<span class="s s-Atom">  &gt; if ort &lt;&gt; 0, for k = 1:j-1, r = r - r&#39;</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">k</span><span class="p">)</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">k</span><span class="p">);</span>
-  <span class="o">&gt;</span> <span class="nf">beta</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">=</span> <span class="nf">norm</span><span class="p">(</span><span class="s s-Atom">r</span><span class="p">);</span>
-  <span class="o">&gt;</span> <span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">r</span><span class="o">/</span><span class="nf">beta</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">);</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">r</span> <span class="o">=</span> <span class="nv">A</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="nf">beta</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">)</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">);</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">if</span> <span class="s s-Atom">j</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">T</span> <span class="o">=</span> <span class="nf">diag</span><span class="p">(</span><span class="nf">beta</span><span class="p">(</span><span class="mi">1</span><span class="s s-Atom">:j</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">);</span> <span class="nv">T</span> <span class="o">=</span> <span class="nf">diag</span><span class="p">(</span><span class="s s-Atom">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="nv">T</span> <span class="o">+</span> <span class="nv">T</span><span class="s s-Atom">&#39;; eig(T)</span>
+<span class="s s-Atom">  &gt; if ort &lt;&gt; 0, for k = 1:j-1, r = r - r&#39;</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">k</span><span class="p">)</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">k</span><span class="p">);</span>
+  <span class="o">&gt;</span> <span class="nb">beta</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">=</span> <span class="nf">norm</span><span class="p">(</span><span class="s s-Atom">r</span><span class="p">);</span>
+  <span class="o">&gt;</span> <span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">r</span><span class="o">/</span><span class="nb">beta</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">);</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">r</span> <span class="o">=</span> <span class="nv">A</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="nb">beta</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">)</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">);</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">if</span> <span class="s s-Atom">j</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">T</span> <span class="o">=</span> <span class="nf">diag</span><span class="p">(</span><span class="nb">beta</span><span class="p">(</span><span class="mi">1</span><span class="o">:</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">);</span> <span class="nv">T</span> <span class="o">=</span> <span class="nf">diag</span><span class="p">(</span><span class="s s-Atom">alpha</span><span class="p">)</span> <span class="o">+</span> <span class="nv">T</span> <span class="o">+</span> <span class="nv">T</span><span class="s s-Atom">&#39;; eig(T)</span>
 
 <span class="s s-Atom">  &gt; :mgs:</span>
 
 <span class="s s-Atom">  &gt; for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; ...</span>
-<span class="s s-Atom">  &gt;    for j = k+1:n, d = x(j,:)*x(k,:)&#39;</span><span class="p">;</span> <span class="nf">x</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">,</span><span class="s s-Atom">:</span><span class="p">)</span> <span class="o">=</span> <span class="nf">x</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">,</span><span class="s s-Atom">:</span><span class="p">)</span> <span class="o">-</span> <span class="s s-Atom">d</span><span class="o">*</span><span class="nf">x</span><span class="p">(</span><span class="s s-Atom">k</span><span class="p">,</span><span class="s s-Atom">:</span><span class="p">);</span>
+<span class="s s-Atom">  &gt;    for j = k+1:n, d = x(j,:)*x(k,:)&#39;</span><span class="p">;</span> <span class="nf">x</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">,</span><span class="o">:</span><span class="p">)</span> <span class="o">=</span> <span class="nf">x</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">,</span><span class="o">:</span><span class="p">)</span> <span class="o">-</span> <span class="s s-Atom">d</span><span class="o">*</span><span class="nf">x</span><span class="p">(</span><span class="s s-Atom">k</span><span class="p">,</span><span class="o">:</span><span class="p">);</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:</span><span class="nn">net</span><span class="p">:</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">net</span><span class="p">:</span>
 
   <span class="o">&gt;</span> <span class="nv">C</span> <span class="o">=</span> <span class="p">[</span>
   <span class="o">&gt;</span> <span class="mi">1</span>   <span class="mi">2</span>   <span class="mi">15</span>  <span class="p">.</span>   <span class="p">.</span>   <span class="p">.</span>
@@ -567,7 +513,7 @@ public subroutine LALA_init(init, echo)
   <span class="o">&gt;</span> <span class="p">];</span>
   <span class="o">&gt;</span> <span class="p">[</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="s s-Atom">m</span><span class="p">]</span> <span class="o">=</span> <span class="nf">shape</span><span class="p">(</span><span class="nv">C</span><span class="p">);</span>
   <span class="o">&gt;</span> <span class="nv">A</span> <span class="o">=</span> <span class="mi">0</span><span class="o">*</span><span class="nf">ones</span><span class="p">(</span><span class="s s-Atom">n</span><span class="p">,</span><span class="s s-Atom">n</span><span class="p">);</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">i</span><span class="o">=</span><span class="mi">1</span><span class="s s-Atom">:n</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span><span class="o">=</span><span class="mi">2</span><span class="s s-Atom">:m</span><span class="p">,</span> <span class="s s-Atom">k</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">);</span> <span class="s s-Atom">if</span> <span class="s s-Atom">k</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">k</span><span class="p">)</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">for</span> <span class="s s-Atom">i</span><span class="o">=</span><span class="mi">1</span><span class="o">:</span><span class="s s-Atom">n</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">j</span><span class="o">=</span><span class="mi">2</span><span class="o">:</span><span class="s s-Atom">m</span><span class="p">,</span> <span class="s s-Atom">k</span><span class="o">=</span><span class="nf">c</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">);</span> <span class="s s-Atom">if</span> <span class="s s-Atom">k</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="nf">a</span><span class="p">(</span><span class="s s-Atom">i</span><span class="p">,</span><span class="s s-Atom">k</span><span class="p">)</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
   <span class="o">&gt;</span> <span class="s s-Atom">check</span> <span class="o">=</span> <span class="nf">norm</span><span class="p">(</span><span class="nv">A</span><span class="o">-</span><span class="nv">A</span><span class="s s-Atom">&#39;,1), if check &gt; 0, quit</span>
 <span class="s s-Atom">  &gt; [X,D] = eig(A+eye);</span>
 <span class="s s-Atom">  &gt; D = diag(D);  D = D(n:-1:1)</span>
@@ -584,23 +530,23 @@ public subroutine LALA_init(init, echo)
 <span class="s s-Atom">  &gt; :pdq:</span>
 
 <span class="s s-Atom">  &gt; alpha = []; beta = 0; q = []; p = p(:,1)/norm(p(:,1));</span>
-<span class="s s-Atom">  &gt; t = A&#39;</span><span class="o">*</span><span class="nf">p</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+<span class="s s-Atom">  &gt; t = A&#39;</span><span class="o">*</span><span class="nf">p</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
   <span class="o">&gt;</span> <span class="nf">alpha</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="nf">norm</span><span class="p">(</span><span class="s s-Atom">t</span><span class="p">);</span>
-  <span class="o">&gt;</span> <span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">t</span><span class="o">/</span><span class="nf">alpha</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-  <span class="o">&gt;</span> <span class="nv">X</span> <span class="o">=</span> <span class="nf">p</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="s s-Atom">*</span><span class="p">(</span><span class="nf">alpha</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="s s-Atom">&#39;</span>
+  <span class="o">&gt;</span> <span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="s s-Atom">t</span><span class="o">/</span><span class="nf">alpha</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="o">&gt;</span> <span class="nv">X</span> <span class="o">=</span> <span class="nf">p</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="s s-Atom">*</span><span class="p">(</span><span class="nf">alpha</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="s s-Atom">&#39;</span>
 <span class="s s-Atom">  &gt; e(1) = norm(A-X,1)</span>
 <span class="s s-Atom">  &gt; for j = 2:r, exec(&#39;pdqstep&#39;,ip); ...</span>
 <span class="s s-Atom">  &gt;    X = X + p(:,j)*(alpha(j)*q(:,j)+beta(j)*q(:,j-1))&#39;</span><span class="p">,</span> <span class="p">...</span>
   <span class="o">&gt;</span>    <span class="nf">e</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">=</span> <span class="nf">norm</span><span class="p">(</span><span class="nv">A</span><span class="o">-</span><span class="nv">X</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:</span><span class="nn">pdqstep</span><span class="p">:</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">pdqstep</span><span class="p">:</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="nv">A</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="nf">alpha</span><span class="p">(</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nf">p</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
-  <span class="o">&gt;</span>    <span class="s s-Atom">if</span> <span class="s s-Atom">ort</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="mi">1</span><span class="s s-Atom">:j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="s s-Atom">t</span> <span class="o">-</span> <span class="s s-Atom">t&#39;*p(:,i)*p(:,i);</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="nv">A</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="nf">alpha</span><span class="p">(</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="nf">p</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+  <span class="o">&gt;</span>    <span class="s s-Atom">if</span> <span class="s s-Atom">ort</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="s s-Atom">t</span> <span class="o">-</span> <span class="s s-Atom">t&#39;*p(:,i)*p(:,i);</span>
 <span class="s s-Atom">  &gt; beta(j) = norm(t);</span>
 <span class="s s-Atom">  &gt; p(:,j) = t/beta(j);</span>
-<span class="s s-Atom">  &gt; t = A&#39;</span><span class="o">*</span><span class="nf">p</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">-</span> <span class="nf">beta</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">)</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="s s-Atom">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
-  <span class="o">&gt;</span>    <span class="s s-Atom">if</span> <span class="s s-Atom">ort</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="mi">1</span><span class="s s-Atom">:j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="s s-Atom">t</span> <span class="o">-</span> <span class="s s-Atom">t&#39;*q(:,i)*q(:,i);</span>
+<span class="s s-Atom">  &gt; t = A&#39;</span><span class="o">*</span><span class="nf">p</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="p">)</span> <span class="o">-</span> <span class="nb">beta</span><span class="p">(</span><span class="s s-Atom">j</span><span class="p">)</span><span class="o">*</span><span class="nf">q</span><span class="p">(</span><span class="o">:</span><span class="p">,</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+  <span class="o">&gt;</span>    <span class="s s-Atom">if</span> <span class="s s-Atom">ort</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="s s-Atom">for</span> <span class="s s-Atom">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">:</span><span class="s s-Atom">j</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="s s-Atom">t</span> <span class="o">-</span> <span class="s s-Atom">t&#39;*q(:,i)*q(:,i);</span>
 <span class="s s-Atom">  &gt; alpha(j) = norm(t);</span>
 <span class="s s-Atom">  &gt; q(:,j) = t/alpha(j);</span>
 
@@ -608,7 +554,7 @@ public subroutine LALA_init(init, echo)
 
 <span class="s s-Atom">  &gt; y = [ 75.995   91.972  105.711  123.203   ...</span>
 <span class="s s-Atom">  &gt;      131.669  150.697  179.323  203.212]&#39;</span>
-  <span class="o">&gt;</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">1900</span><span class="s s-Atom">:</span><span class="mi">10</span><span class="s s-Atom">:</span><span class="mi">1970</span> <span class="p">]</span><span class="s s-Atom">&#39;</span>
+  <span class="o">&gt;</span> <span class="s s-Atom">t</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">1900</span><span class="o">:</span><span class="mi">10</span><span class="o">:</span><span class="mi">1970</span> <span class="p">]</span><span class="s s-Atom">&#39;</span>
 <span class="s s-Atom">  &gt; t = (t - 1940*ones(t))/40;   [t y]</span>
 <span class="s s-Atom">  &gt; n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);</span>
 <span class="s s-Atom">  &gt; A</span>
@@ -729,19 +675,19 @@ public subroutine LALA_init(init, echo)
   <span class="o">&gt;</span> <span class="s s-Atom">x</span> <span class="o">=</span> <span class="p">(</span><span class="nv">A</span><span class="o">-</span><span class="s s-Atom">rho</span><span class="o">*</span><span class="s s-Atom">eye</span><span class="p">)</span><span class="s s-Atom">\x</span><span class="p">;</span>
   <span class="o">&gt;</span> <span class="s s-Atom">x</span> <span class="o">=</span> <span class="s s-Atom">x</span><span class="o">/</span><span class="nf">norm</span><span class="p">(</span><span class="s s-Atom">x</span><span class="p">)</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:</span><span class="nn">setup</span><span class="p">:</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">setup</span><span class="p">:</span>
 
   <span class="o">&gt;</span> <span class="nf">diary</span><span class="p">(</span><span class="s s-Atom">&#39;xxx&#39;</span><span class="p">)</span>
   <span class="o">&gt;</span> <span class="p">!</span><span class="s s-Atom">tail</span> <span class="o">-</span><span class="s s-Atom">f</span> <span class="s s-Atom">xxx</span> <span class="o">&gt;</span> <span class="o">/</span><span class="s s-Atom">dev</span><span class="o">/</span><span class="s s-Atom">tty1</span> <span class="s s-Atom">&amp;</span>
   <span class="o">&gt;</span> <span class="p">!</span><span class="s s-Atom">tail</span> <span class="o">-</span><span class="s s-Atom">f</span> <span class="s s-Atom">xxx</span> <span class="o">&gt;</span> <span class="o">/</span><span class="s s-Atom">dev</span><span class="o">/</span><span class="s s-Atom">tty2</span> <span class="s s-Atom">&amp;</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:</span><span class="nn">sigma</span><span class="p">:</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">sigma</span><span class="p">:</span>
 
   <span class="o">&gt;</span> <span class="nv">RHO</span> <span class="o">=</span> <span class="mf">.5</span>  <span class="nv">M</span> <span class="o">=</span> <span class="mi">20</span>  <span class="nv">N</span> <span class="o">=</span> <span class="mi">10</span>   <span class="nv">SIGMA</span> <span class="o">=</span>  <span class="mf">1.488934271883534</span>
   <span class="o">&gt;</span> <span class="nv">RHO</span> <span class="o">=</span> <span class="mf">.5</span>  <span class="nv">M</span> <span class="o">=</span> <span class="mi">40</span>  <span class="nv">N</span> <span class="o">=</span> <span class="mi">20</span>   <span class="nv">SIGMA</span> <span class="o">=</span>  <span class="mf">1.488920312974229</span>
   <span class="o">&gt;</span> <span class="nv">RHO</span> <span class="o">=</span> <span class="mf">.5</span>  <span class="nv">M</span> <span class="o">=</span> <span class="mi">60</span>  <span class="nv">N</span> <span class="o">=</span> <span class="mi">30</span>   <span class="nv">SIGMA</span> <span class="o">=</span>  <span class="mf">1.488920697912116</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:strut</span><span class="p">.</span><span class="nn">laf</span><span class="p">:</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">strut</span><span class="p">.</span><span class="s s-Atom">laf</span><span class="p">:</span>
 
   <span class="o">&gt;</span> <span class="o">//</span> <span class="nv">Structure</span> <span class="s s-Atom">problem</span><span class="p">,</span> <span class="nv">Forsythe</span><span class="p">,</span> <span class="nv">Malcolm</span> <span class="s s-Atom">and</span> <span class="nv">Moler</span><span class="p">,</span> <span class="s s-Atom">p</span><span class="p">.</span> <span class="mi">62</span>
   <span class="o">&gt;</span> <span class="s s-Atom">s</span> <span class="o">=</span>  <span class="nf">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
@@ -836,7 +782,7 @@ public subroutine LALA_init(init, echo)
 <span class="s s-Atom">  &gt; exec(&#39;longley&#39;)</span>
 <span class="s s-Atom">  &gt; exec(&#39;mgs&#39;)</span>
 <span class="s s-Atom">  &gt; exec(&#39;net&#39;)</span>
-<span class="s s-Atom">  &gt; exec(&#39;pascal&#39;)</span>
+<span class="s s-Atom">  &gt; exec(&#39;</span><span class="nb">pascal</span><span class="s s-Atom">&#39;)</span>
 <span class="s s-Atom">  &gt; exec(&#39;pdq&#39;)</span>
 <span class="s s-Atom">  &gt; // pdqstep</span>
 <span class="s s-Atom">  &gt; exec(&#39;pop&#39;)</span>
@@ -853,7 +799,7 @@ public subroutine LALA_init(init, echo)
 <span class="s s-Atom">  &gt; exec(&#39;rogers</span><span class="p">.</span><span class="s s-Atom">exec</span>
   <span class="o">&gt;</span> <span class="nf">exec</span><span class="p">(</span><span class="err">&#39;</span><span class="s s-Atom">rogers</span><span class="p">.</span><span class="s s-Atom">load</span>
 
-  <span class="o">&gt;</span> <span class="s s-Atom">:w5:</span>
+  <span class="o">&gt;</span> <span class="o">:</span><span class="s s-Atom">w5</span><span class="o">:</span>
 
   <span class="o">&gt;</span> <span class="s s-Atom">w5</span> <span class="o">=</span> <span class="p">[</span>
   <span class="o">&gt;</span>         <span class="mf">1.</span>     <span class="mf">1.</span>      <span class="mf">0.</span>      <span class="mf">0.</span>      <span class="mf">0.</span>
@@ -863,396 +809,382 @@ public subroutine LALA_init(init, echo)
   <span class="o">&gt;</span>       <span class="mf">024.</span>     <span class="mf">0.</span>      <span class="mf">0.</span>      <span class="mf">0.</span>     <span class="o">-</span><span class="mf">4.</span>
   <span class="o">&gt;</span>      <span class="p">]</span>
 </code></pre></div>
-    
+
 
     <h3>Arguments</h3>
-    
-      
-<table class="table table-striped varlist">
-<thead><tr><th>Type</th>
-<th>Intent</th><th>Optional</th>
-<th>Attributes</th><th></th><th>Name</th><th></th></thead>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Intent</th><th>Optional</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-init"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>init</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-echo~3"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>echo</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
-
-
-<tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-init"></span>integer,</td>
-  <td>intent(in)</td>
-  <td></td>
-  
-  <td></td><td>::</td>
-  <td><strong>init</strong></td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-echo~3"></span>logical,</td>
-  <td>intent(in),</td>
-  <td>optional</td>
-  
-  <td></td><td>::</td>
-  <td><strong>echo</strong></td><td></td>
-  
-</tr>
-
-</tbody>
-</table>
-
-    
-    
-    
-    
-     
     <br>
 
     <section class="visible-xs visible-sm hidden-md">
-      
-<h3>Contents</h3>
- 
-
-
-
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title"><a data-toggle="collapse" href="#vars-1">Variables</a></h3></div>
-  <div id="vars-1" class="panel-collapse collapse">
-    <div class="list-group">
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-eps">EPS</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-eye">EYE</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-flops">FLOPS</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-rand">RAND</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-s~2">s</a>
-      
-      <a class="list-group-item" href="../proc/lala_init.html#variable-t~2">t</a>
-      
+        <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-1">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../proc/lala_init.html#variable-eps">EPS</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-eye">EYE</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-flops">FLOPS</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-rand">RAND</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-s~2">s</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-t~2">t</a>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div class="panel panel-primary">
-  <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-  <div class="list-group">
-    <a class="list-group-item" href="../proc/lala_init.html#src">LALA_init</a>
-  </div>
-</div>
-
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/lala_init.html#src">LALA_init</a>
+      </div>
+    </div>
 
 
     </section>
     <br class="visible-xs visible-sm hidden-md">
 
-    
 
-    
     <section>    
       <h2>Variables</h2>
-    
-<table class="table table-striped varlist">
-<thead><tr><th>Type</th><th>Visibility</th>
-
-<th>Attributes</th><th></th><th>Name</th><th></th><th>Initial</th><th></th></thead>
-
-
-
-<tbody>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-eps"></span>integer,</td>
-  
-  <td>public,</td>
-  <td>parameter</td><td>::</td>
-  <td><strong>EPS</strong>(GG_MAX_NAME_LENGTH)</td><td> =</td><td>[iachar(['e', 'p', 's', ' ', ' ']), GG_PAD(6:)]</td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-eye"></span>integer,</td>
-  
-  <td>public,</td>
-  <td>parameter</td><td>::</td>
-  <td><strong>EYE</strong>(GG_MAX_NAME_LENGTH)</td><td> =</td><td>[iachar(['e', 'y', 'e', ' ', ' ']), GG_PAD(6:)]</td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-flops"></span>integer,</td>
-  
-  <td>public,</td>
-  <td>parameter</td><td>::</td>
-  <td><strong>FLOPS</strong>(GG_MAX_NAME_LENGTH)</td><td> =</td><td>[iachar(['f', 'l', 'o', 'p', 's']), GG_PAD(6:)]</td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-rand"></span>integer,</td>
-  
-  <td>public,</td>
-  <td>parameter</td><td>::</td>
-  <td><strong>RAND</strong>(GG_MAX_NAME_LENGTH)</td><td> =</td><td>[iachar(['r', 'a', 'n', 'd', ' ']), GG_PAD(6:)]</td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-s~2"></span>doubleprecision,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>s</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
-  
-  
-  
-  
-<tr>
-  
-  <td><span class="anchor" id="variable-t~2"></span>doubleprecision,</td>
-  
-  <td>public</td>
-  <td></td><td>::</td>
-  <td><strong>t</strong></td><td></td><td></td><td></td>
-  
-</tr>
-
-</tbody>
-</table>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th>Type</th>
+<th>Visibility</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+<th></th><th>Initial</th>        <th></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eps"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>EPS</strong>(GG_MAX_NAME_LENGTH)</td>
+<td> =</td>
+                <td>[iachar(['e', 'p', 's', ' ', ' ']), GG_PAD(6:)]</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eye"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>EYE</strong>(GG_MAX_NAME_LENGTH)</td>
+<td> =</td>
+                <td>[iachar(['e', 'y', 'e', ' ', ' ']), GG_PAD(6:)]</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-flops"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>FLOPS</strong>(GG_MAX_NAME_LENGTH)</td>
+<td> =</td>
+                <td>[iachar(['f', 'l', 'o', 'p', 's']), GG_PAD(6:)]</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rand"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>RAND</strong>(GG_MAX_NAME_LENGTH)</td>
+<td> =</td>
+                <td>[iachar(['r', 'a', 'n', 'd', ' ']), GG_PAD(6:)]</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-s~2"></span>
+              doubleprecision,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t~2"></span>
+              doubleprecision,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>t</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
 
     </section>
     <br>
     
     
-    
-    
-    
 
-    
-    
-    
     
     
 
 
-    
-    
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">LALA_init</span><span class="p">(</span><span class="n">init</span><span class="p">,</span><span class="n">echo</span><span class="p">)</span>
+    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">LALA_init</span><span class="p">(</span><span class="n">init</span><span class="p">,</span><span class="n">echo</span><span class="p">)</span><span class="w"></span>
 
-<span class="c">! ident_1=&quot;@(#)M_matrix::lala(3f): initialize and/or pass commands to matrix laboratory interpreter&quot;</span>
+<span class="c">! ident_1=&quot;@(#) M_matrix lala(3f) initialize and/or pass commands to matrix laboratory interpreter&quot;</span>
 
-<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span>          <span class="kd">::</span> <span class="n">init</span>
-<span class="kt">logical</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="k">optional</span> <span class="kd">::</span> <span class="n">echo</span>
-<span class="n">doubleprecision</span>             <span class="kd">::</span> <span class="n">s</span><span class="p">,</span><span class="n">t</span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span>           <span class="kd">::</span> <span class="n">EPS</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span>   <span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;s&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span>           <span class="kd">::</span> <span class="n">FLOPS</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span> <span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;f&#39;</span><span class="p">,</span><span class="s1">&#39;l&#39;</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;s&#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span>           <span class="kd">::</span> <span class="n">EYE</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span>   <span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span>           <span class="kd">::</span> <span class="nb">RAND</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span>  <span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s1">&#39;n&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">init</span><span class="w"></span>
+<span class="kt">logical</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">echo</span><span class="w"></span>
+<span class="n">doubleprecision</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="n">t</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">EPS</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span><span class="w">   </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;s&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">FLOPS</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;f&#39;</span><span class="p">,</span><span class="s1">&#39;l&#39;</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;s&#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">EYE</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span><span class="w">   </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="nb">RAND</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span><span class="w">  </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s1">&#39;n&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span><span class="w"></span>
 
-   <span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">echo</span><span class="p">))</span> <span class="n">G_ECHO</span><span class="o">=</span><span class="n">echo</span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">echo</span><span class="p">))</span><span class="w"> </span><span class="n">G_ECHO</span><span class="o">=</span><span class="n">echo</span><span class="w"></span>
 
-   <span class="n">G_PROMPT</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
-   <span class="n">G_ERR</span><span class="o">=</span><span class="mi">0</span>
+<span class="w">   </span><span class="n">G_PROMPT</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_ERR</span><span class="o">=</span><span class="mi">0</span><span class="w"></span>
 
-   <span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">))</span><span class="k">deallocate</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">)</span>
-   <span class="k">allocate</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">))</span><span class="k">deallocate</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"></span>
 
-   <span class="n">G_LIN</span><span class="o">=</span><span class="n">blank</span>
-   <span class="n">G_VAR_IDS</span><span class="o">=</span><span class="n">blank</span>
+<span class="w">   </span><span class="n">G_LIN</span><span class="o">=</span><span class="n">blank</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_VAR_IDS</span><span class="o">=</span><span class="n">blank</span><span class="w"></span>
 
-   <span class="n">GM_BIGMEM</span><span class="o">=</span><span class="n">INIT</span>
-   <span class="k">if</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="n">GM_BIGMEM</span><span class="o">=</span><span class="mi">200000</span>
-   <span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">)</span> <span class="p">)</span><span class="k">deallocate</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">)</span>
-   <span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">GM_IMAGS</span><span class="p">)</span> <span class="p">)</span><span class="k">deallocate</span><span class="p">(</span><span class="n">GM_IMAGS</span><span class="p">)</span>
-   <span class="k">allocate</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="p">))</span>                      <span class="c">! set to size of GM_BIGMEM</span>
+<span class="w">   </span><span class="n">GM_BIGMEM</span><span class="o">=</span><span class="n">INIT</span><span class="w"></span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="n">GM_BIGMEM</span><span class="o">=</span><span class="mi">200000</span><span class="w"></span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">deallocate</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">GM_IMAGS</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">deallocate</span><span class="p">(</span><span class="n">GM_IMAGS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="p">))</span><span class="w">                      </span><span class="c">! set to size of GM_BIGMEM</span>
 
-   <span class="n">G_INPUT_LUN</span> <span class="o">=</span> <span class="n">STDIN</span>                                                    <span class="c">! unit number for terminal input</span>
-   <span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">G_INPUT_LUN</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span>
-   <span class="n">G_RIO</span> <span class="o">=</span> <span class="n">G_INPUT_LUN</span>                                                    <span class="c">! current file to read commands from</span>
-   <span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">STDOUT</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span>
+<span class="w">   </span><span class="n">G_INPUT_LUN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STDIN</span><span class="w">                                                    </span><span class="c">! unit number for terminal input</span>
+<span class="w">   </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">G_INPUT_LUN</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_INPUT_LUN</span><span class="w">                                                    </span><span class="c">! current file to read commands from</span>
+<span class="w">   </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">STDOUT</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"></span>
 
-   <span class="k">call </span><span class="n">mat_help_text</span><span class="p">()</span>                                                   <span class="c">! initialize help text</span>
-   <span class="n">G_CURRENT_RANDOM_SEED</span> <span class="o">=</span> <span class="mi">0</span>                                              <span class="c">! random number seed</span>
-   <span class="n">G_CURRENT_RANDOM_TYPE</span> <span class="o">=</span> <span class="mi">0</span>                                              <span class="c">! set the type of random numbers to compute</span>
-   <span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="mi">23</span>                                                    <span class="c">! initial line limit for paging output</span>
+<span class="w">   </span><span class="k">call </span><span class="n">mat_help_text</span><span class="p">()</span><span class="w">                                                   </span><span class="c">! initialize help text</span>
+<span class="w">   </span><span class="n">G_CURRENT_RANDOM_SEED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                                              </span><span class="c">! random number seed</span>
+<span class="w">   </span><span class="n">G_CURRENT_RANDOM_TYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                                              </span><span class="c">! set the type of random numbers to compute</span>
+<span class="w">   </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">23</span><span class="w">                                                    </span><span class="c">! initial line limit for paging output</span>
 
-   <span class="n">G_TOP_OF_SAVED</span> <span class="o">=</span> <span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span>  <span class="c">! move up to allow room for the built-in values eps, flops, eye, rand</span>
+<span class="w">   </span><span class="n">G_TOP_OF_SAVED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="w">  </span><span class="c">! move up to allow room for the built-in values eps, flops, eye, rand</span>
 
-   <span class="k">call </span><span class="n">mat_wset</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mf">0.0D0</span><span class="p">,</span><span class="mf">0.0d0</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">mat_wset</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mf">0.0D0</span><span class="p">,</span><span class="mf">0.0d0</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
 
-   <span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;eps&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span>
-      <span class="c">!=============================================================</span>
-      <span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">),</span><span class="n">EPS</span><span class="p">)</span>
-      <span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">=</span> <span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span>
-      <span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span>
-      <span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span>
-      <span class="c">!=============================================================</span>
+<span class="w">   </span><span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;eps&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">),</span><span class="n">EPS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
 
-   <span class="c">! interesting way to calculate the epsilon value of a machine</span>
-   <span class="n">s</span> <span class="o">=</span> <span class="mf">1.0d0</span>
-   <span class="n">SET_ST</span><span class="p">:</span> <span class="k">do</span>
-<span class="k">      </span><span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">/</span><span class="mf">2.0D0</span>
-      <span class="n">t</span> <span class="o">=</span> <span class="mf">1.0d0</span> <span class="o">+</span> <span class="n">s</span>
-      <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="p">.</span><span class="n">LE</span><span class="p">.</span> <span class="mf">1.0d0</span><span class="p">)</span> <span class="k">exit</span>
-<span class="k">   enddo </span><span class="n">SET_ST</span>
+<span class="w">   </span><span class="c">! interesting way to calculate the epsilon value of a machine</span>
+<span class="w">   </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0d0</span><span class="w"></span>
+<span class="w">   </span><span class="n">SET_ST</span><span class="p">:</span><span class="w"> </span><span class="k">do</span>
+<span class="k">      </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="o">/</span><span class="mf">2.0D0</span><span class="w"></span>
+<span class="w">      </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0d0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="mf">1.0d0</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
+<span class="k">   enddo </span><span class="n">SET_ST</span><span class="w"></span>
 
-   <span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span> <span class="o">=</span> <span class="mf">2.0d0</span><span class="o">*</span><span class="n">s</span>
+<span class="w">   </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0d0</span><span class="o">*</span><span class="n">s</span><span class="w"></span>
 
-   <span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;flops&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span>
-      <span class="c">!=============================================================</span>
-      <span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="n">flops</span><span class="p">)</span>
-      <span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">3</span>
-      <span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span>
-      <span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="mi">2</span>
-      <span class="c">!=============================================================</span>
+<span class="w">   </span><span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;flops&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="n">flops</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">3</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
 
-   <span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;eye&#39;</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-      <span class="c">!=============================================================</span>
-      <span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">eye</span><span class="p">)</span>
-      <span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">1</span>
-      <span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-      <span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-      <span class="c">!=============================================================</span>
+<span class="w">   </span><span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;eye&#39;</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">eye</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
 
-   <span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="mf">1.0D0</span>
+<span class="w">   </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0D0</span><span class="w"></span>
 
-   <span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;rand&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="p">)</span>
-      <span class="c">!=============================================================</span>
-      <span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">),</span> <span class="nb">rand</span><span class="p">)</span>
-      <span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span> <span class="o">=</span> <span class="n">GM_BIGMEM</span>
-      <span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span>
-      <span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span> <span class="o">=</span> <span class="mi">1</span>
-      <span class="c">!=============================================================</span>
+<span class="w">   </span><span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;rand&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">),</span><span class="w"> </span><span class="nb">rand</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_BIGMEM</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
 
-   <span class="n">G_FMT</span> <span class="o">=</span> <span class="mi">1</span>
-   <span class="n">G_FLOP_COUNTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
-   <span class="n">G_FLOP_COUNTER</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span>
-   <span class="n">G_DEBUG_LEVEL</span> <span class="o">=</span> <span class="mi">0</span>
-   <span class="n">G_PTZ</span> <span class="o">=</span> <span class="mi">0</span>
-   <span class="n">G_PT</span> <span class="o">=</span> <span class="n">G_PTZ</span>
+<span class="w">   </span><span class="n">G_FMT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_FLOP_COUNTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_FLOP_COUNTER</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_DEBUG_LEVEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_PTZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_PT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_PTZ</span><span class="w"></span>
 
-   <span class="n">G_FORTRAN_TEXT</span><span class="o">=</span><span class="n">help_intrinsics</span><span class="p">(</span><span class="s1">&#39;manual&#39;</span><span class="p">,</span><span class="n">m_help</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span>  <span class="c">! load Fortran documentation</span>
+<span class="w">   </span><span class="n">G_FORTRAN_TEXT</span><span class="o">=</span><span class="n">help_intrinsics</span><span class="p">(</span><span class="s1">&#39;manual&#39;</span><span class="p">,</span><span class="n">m_help</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span><span class="w">  </span><span class="c">! load Fortran documentation</span>
 
-<span class="k">end subroutine </span><span class="n">LALA_init</span>
+<span class="k">end subroutine </span><span class="n">LALA_init</span><span class="w"></span>
 </pre></div>
 
     </section>
     <br>
     
-    
     </div>
   </div>
 
-
-    <hr>    
+      <hr>
     </div> <!-- /container -->
     <footer>
       <div class="container">
-      <div class="row">
-        <div class="col-xs-6 col-md-4"><p>&copy; 2022 
-                                          </p></div>
-        <div class="col-xs-6 col-md-4 col-md-push-4">
-          <p class="text-right">
-            Documentation generated by 
-            <a href="https://github.com/cmacmackin/ford">FORD</a>
-             on 2022-06-17 19:07  
-          </p>
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>M_matrix was developed by John S. Urban<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-07-22 19:55              </p>
+          </div>
         </div>
-        <div class="col-xs-12 col-md-4 col-md-pull-4"><p class="text-center"> M_strings was developed by John S. Urban</p></div>
-      </div>
-      <br>
-      </div> <!-- /container -->    
+        <br>
+      </div> <!-- /container -->
     </footer>
 
     <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-<!--
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
--->
-    <script src="../js/bootstrap.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="../js/ie10-viewport-bug-workaround.js"></script>
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
 
-    <!-- MathJax JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script type="text/x-mathjax-config">
-      MathJax.Hub.Config({
-        TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
-        jax: ['input/TeX','input/MathML','output/HTML-CSS'],
-        extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
-      });
-    </script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    
-    
-    <script src="../tipuesearch/tipuesearch_content.js"></script>
-    <script src="../tipuesearch/tipuesearch_set.js"></script>
-    <script src="../tipuesearch/tipuesearch.js"></script>
-    
-    
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
   </body>
 </html>
