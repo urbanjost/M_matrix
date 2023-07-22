@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="embeddable command-line matrix utility">
+    <meta name="author" content="John S. Urban" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>All Procedures &ndash; M_matrix
+</title>
+
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/local.css" rel="stylesheet">
+      <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="../index.html">M_matrix </a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12" id='text'>
+			 <h1>Procedures</h1>
+			 <table class="table table-striped">
+			 <thead><tr><th>Procedure</th><th>Location</th><th>Procedure Type</th><th>Description</th></tr></thead>
+			 <tbody>
+			   <tr><td><a href='../proc/ade2str.html'>ade2str</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/checkit.html'>checkit</a></td><td><a href='../program/try_matz.html'>try_matz</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/checkit~2.html'>checkit</a></td><td><a href='../program/try_matz~2.html'>try_matz</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/exists.html'>exists</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/find_exec_file.html'>find_exec_file</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/get.html'>get</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_cmplx.html'>get_array_from_lala_cmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_dpcmplx.html'>get_array_from_lala_dpcmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_int16.html'>get_array_from_lala_int16</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_int32.html'>get_array_from_lala_int32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_int64.html'>get_array_from_lala_int64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_int8.html'>get_array_from_lala_int8</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_logical.html'>get_array_from_lala_logical</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_real128.html'>get_array_from_lala_real128</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_real32.html'>get_array_from_lala_real32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_array_from_lala_real64.html'>get_array_from_lala_real64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_double_from_lala.html'>get_double_from_lala</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td><p>sample program:</p><a href="../proc/get_double_from_lala.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_cmplx.html'>get_fixed_array_from_lala_cmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_dpcmplx.html'>get_fixed_array_from_lala_dpcmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_int16.html'>get_fixed_array_from_lala_int16</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_int32.html'>get_fixed_array_from_lala_int32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_int64.html'>get_fixed_array_from_lala_int64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_int8.html'>get_fixed_array_from_lala_int8</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_logical.html'>get_fixed_array_from_lala_logical</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_real128.html'>get_fixed_array_from_lala_real128</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_real32.html'>get_fixed_array_from_lala_real32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_array_from_lala_real64.html'>get_fixed_array_from_lala_real64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_scalar_from_lala_character.html'>get_fixed_scalar_from_lala_character</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_character.html'>get_fixed_vector_from_lala_character</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_cmplx.html'>get_fixed_vector_from_lala_cmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_dpcmplx.html'>get_fixed_vector_from_lala_dpcmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_int16.html'>get_fixed_vector_from_lala_int16</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_int32.html'>get_fixed_vector_from_lala_int32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_int64.html'>get_fixed_vector_from_lala_int64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_int8.html'>get_fixed_vector_from_lala_int8</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_logical.html'>get_fixed_vector_from_lala_logical</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_real128.html'>get_fixed_vector_from_lala_real128</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_real32.html'>get_fixed_vector_from_lala_real32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_fixed_vector_from_lala_real64.html'>get_fixed_vector_from_lala_real64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../interface/get_from_lala.html'>get_from_lala</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_character.html'>get_scalar_from_lala_character</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_cmplx.html'>get_scalar_from_lala_cmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_dpcmplx.html'>get_scalar_from_lala_dpcmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_int16.html'>get_scalar_from_lala_int16</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_int32.html'>get_scalar_from_lala_int32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_int64.html'>get_scalar_from_lala_int64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_int8.html'>get_scalar_from_lala_int8</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_logical.html'>get_scalar_from_lala_logical</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_real128.html'>get_scalar_from_lala_real128</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_real32.html'>get_scalar_from_lala_real32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_scalar_from_lala_real64.html'>get_scalar_from_lala_real64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_character.html'>get_vector_from_lala_character</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_cmplx.html'>get_vector_from_lala_cmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_dpcmplx.html'>get_vector_from_lala_dpcmplx</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_int16.html'>get_vector_from_lala_int16</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_int32.html'>get_vector_from_lala_int32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_int64.html'>get_vector_from_lala_int64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_int8.html'>get_vector_from_lala_int8</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_logical.html'>get_vector_from_lala_logical</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_real128.html'>get_vector_from_lala_real128</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_real32.html'>get_vector_from_lala_real32</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/get_vector_from_lala_real64.html'>get_vector_from_lala_real64</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/ifin_lala.html'>ifin_lala</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td><p>sample program:</p><a href="../proc/ifin_lala.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/ints2str.html'>ints2str</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../interface/lala.html'>lala</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/lala_cmd.html'>LALA_cmd</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/lala_cmds.html'>LALA_cmds</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/lala_init.html'>LALA_init</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td><p>Example 1:</p><a href="../proc/lala_init.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/lala_text_viz.html'>lala_text_viz</a></td><td><a href='../program/demo_user~2.html'>demo_user</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/lala_user.html'>lala_user</a></td><td><a href='../program/demo_user.html'>demo_user</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_base.html'>mat_base</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_buf2str.html'>mat_buf2str</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_clause.html'>mat_clause</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_comand.html'>mat_comand</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_copyid.html'>mat_copyid</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_eqid.html'>mat_eqid</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_err.html'>mat_err</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_expr.html'>mat_expr</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_factor.html'>mat_factor</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_files.html'>mat_files</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_formz.html'>mat_formz</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_funs.html'>mat_funs</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_getch.html'>mat_getch</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_getlin.html'>mat_getlin</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_getsym.html'>mat_getsym</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_getval.html'>mat_getval</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_help_text.html'>mat_help_text</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_is_name.html'>mat_is_name</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_matfn1.html'>mat_matfn1</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_matfn2.html'>mat_matfn2</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_matfn3.html'>mat_matfn3</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_matfn4.html'>mat_matfn4</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_matfn5.html'>mat_matfn5</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td><p>! BROKEN BY GOING TO ASCII. ELIMINATE OR CORRECT</p></td></tr>
+			   <tr><td><a href='../proc/mat_matfn6.html'>mat_matfn6</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_parse.html'>mat_parse</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td><a href="../proc/mat_parse.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/mat_plot.html'>mat_plot</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_print.html'>mat_print</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_print_id.html'>mat_print_id</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_prompt.html'>mat_prompt</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_savlod.html'>mat_savlod</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_stack1.html'>mat_stack1</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_stack2.html'>mat_stack2</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_stack_get.html'>mat_stack_get</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_stack_put.html'>mat_stack_put</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_str2buf.html'>mat_str2buf</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_term.html'>mat_term</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_watan.html'>mat_watan</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_wdiv.html'>mat_wdiv</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/mat_wlog.html'>mat_wlog</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/printit.html'>printit</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../interface/put_into_lala.html'>put_into_lala</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Interface</td><td></td></tr>
+			   <tr><td><a href='../proc/rowpack.html'>rowpack</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/set_usersub.html'>set_usersub</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/setup.html'>setup</a></td><td><a href='../program/bigmat.html'>bigmat</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/sh_command.html'>sh_command</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/store_array_into_lala.html'>store_array_into_lala</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td><p>type is (character(len=*));
+   call store_double_into_lala(varname,
+   reshape(real(str2ade(anything),kind=dp),[1,len(anything)])
+   ,ierr=ierr)
+   call store_double_into_lala(varname,reshape(real(str2ade(anything),kind=dp),[1,len(anything)]),ierr=ierr)</p></td></tr>
+			   <tr><td><a href='../proc/store_double_into_lala.html'>store_double_into_lala</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td><p>subroutine put_into_lala(varname,A,IERR)</p><a href="../proc/store_double_into_lala.html" class="pull-right"><emph>Read more&hellip;</emph></a></td></tr>
+			   <tr><td><a href='../proc/store_scalar_into_lala.html'>store_scalar_into_lala</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/store_vector_into_lala.html'>store_vector_into_lala</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/str2ade.html'>str2ade</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/system_getenv.html'>system_getenv</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/test_abs.html'>test_abs</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_ans.html'>test_ans</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_atan.html'>test_atan</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_base.html'>test_base</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_chol.html'>test_chol</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_chop.html'>test_chop</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_clear.html'>test_clear</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_cond.html'>test_cond</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_conjg.html'>test_conjg</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_cos.html'>test_cos</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_debug.html'>test_debug</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_delete.html'>test_delete</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_det.html'>test_det</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_diag.html'>test_diag</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_diary.html'>test_diary</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_display.html'>test_display</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_doc.html'>test_doc</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_eig.html'>test_eig</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_else.html'>test_else</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_end.html'>test_end</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_eps.html'>test_eps</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td><p>logs=.true.
+logs=.false.</p></td></tr>
+			   <tr><td><a href='../proc/test_exec.html'>test_exec</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_exit.html'>test_exit</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_exp.html'>test_exp</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_eye.html'>test_eye</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_flops.html'>test_flops</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_for.html'>test_for</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_general_avg.html'>test_general_avg</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_general_char.html'>test_general_char</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_general_dots.html'>test_general_dots</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td><p>logs=.true.
+logs=.false.</p></td></tr>
+			   <tr><td><a href='../proc/test_general_expr.html'>test_general_expr</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td><p>logs=.true.
+logs=.false.</p></td></tr>
+			   <tr><td><a href='../proc/test_general_pascal.html'>test_general_pascal</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td><p>logs=.true.
+logs=.false.</p></td></tr>
+			   <tr><td><a href='../proc/test_help.html'>test_help</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_hess.html'>test_hess</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_if.html'>test_if</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_imag.html'>test_imag</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_inv.html'>test_inv</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_invh.html'>test_invh</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_kron.html'>test_kron</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_lala.html'>test_lala</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_lines.html'>test_lines</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_load.html'>test_load</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_log.html'>test_log</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_long.html'>test_long</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_lu.html'>test_lu</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_magic.html'>test_magic</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_norm.html'>test_norm</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_ones.html'>test_ones</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_orth.html'>test_orth</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_pinv.html'>test_pinv</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_plot.html'>test_plot</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_poly.html'>test_poly</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_print.html'>test_print</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_prod.html'>test_prod</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_qr.html'>test_qr</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_quit.html'>test_quit</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_rand.html'>test_rand</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_rank.html'>test_rank</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_rat.html'>test_rat</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_rcond.html'>test_rcond</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_real.html'>test_real</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_roots.html'>test_roots</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_round.html'>test_round</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_rref.html'>test_rref</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_save.html'>test_save</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_schur.html'>test_schur</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_semi.html'>test_semi</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_sh.html'>test_sh</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_shape.html'>test_shape</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_short.html'>test_short</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_sin.html'>test_sin</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_sqrt.html'>test_sqrt</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_sum.html'>test_sum</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_svd.html'>test_svd</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_tril.html'>test_tril</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_triu.html'>test_triu</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_user.html'>test_user</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_what.html'>test_what</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_while.html'>test_while</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_who.html'>test_who</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/test_zeros.html'>test_zeros</a></td><td><a href='../program/testit.html'>testit</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/too_much_memory.html'>too_much_memory</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Function</td><td></td></tr>
+			   <tr><td><a href='../proc/update.html'>update</a></td><td><a href='../module/m_matrix.html'>M_matrix</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/viz_done.html'>viz_done</a></td><td><a href='../module/m_matrix__text_viz.html'>M_matrix__text_viz</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/viz_init.html'>viz_init</a></td><td><a href='../module/m_matrix__text_viz.html'>M_matrix__text_viz</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/viz_plot.html'>viz_plot</a></td><td><a href='../module/m_matrix__text_viz.html'>M_matrix__text_viz</a></td><td>Subroutine</td><td></td></tr>
+			   <tr><td><a href='../proc/viz_pos.html'>viz_pos</a></td><td><a href='../module/m_matrix__text_viz.html'>M_matrix__text_viz</a></td><td>Subroutine</td><td></td></tr>
+			 </tbody></table>
+             
+        </div>
+      </div>
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>M_matrix was developed by John S. Urban<br>&copy; 2023 
+</p>
+          </div>
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2023-07-22 19:55              </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+
+        <!-- MathJax JavaScript
+             ================================================== -->
+             <!-- Placed at the end of the document so the pages load faster -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+          TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } },
+          jax: ['input/TeX','input/MathML','output/HTML-CSS'],
+          extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']
+          });
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+          <script src="../tipuesearch/tipuesearch_content.js"></script>
+          <script src="../tipuesearch/tipuesearch_set.js"></script>
+          <script src="../tipuesearch/tipuesearch.js"></script>
+
+  </body>
+</html>
