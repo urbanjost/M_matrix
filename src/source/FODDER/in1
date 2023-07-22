@@ -1,0 +1,15 @@
+diary('log.txt')
+magic(4)
+r=random(5,5)
+ones(6,6)
+save('saved')
+who
+clear
+load('saved')
+who
+r
+help
+exec('exec/test1')
+A=magic(5)
+inv(A)
+quit

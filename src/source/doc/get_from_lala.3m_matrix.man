@@ -1,0 +1,98 @@
+NAME
+    get_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
+    LICENSE(MIT)
+SYNOPSIS
+    subroutine get_from_lala(varname,A,IERR,fixed)
+
+     character(len=*),intent(in)               :: varname
+     [INTRINSIC_TYPE],allocatable,intent(out)  :: a(:,:)
+     integer,intent(out)                       :: ierr
+     logical,intent(in),optional               :: fixed
+
+DESCRIPTION
+   Given the name of a variable defined with lala(3f) commands return
+   the values to the calling program.
+
+OPTIONS
+   VARNAME Name of lala(3f) variable to retrieve
+
+   FIXED   If .true., A is assumed to be a fixed size. It should only
+           be specified if the value is .true.! It is up to the user
+           at this point to ensure the size is correct at this point.
+RETURNS
+     A    May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.
+          May be a scalar, vector, or MxN matrix.
+   IERR   Zero if no error occurred
+
+EXAMPLE
+  sample program:
+
+   program demo_get_from_lala
+   use M_matrix, only : lala, get_from_lala, put_into_lala
+   implicit none
+   doubleprecision,allocatable :: darr(:,:)
+   real,allocatable            :: rarr(:,:)
+   integer,allocatable         :: ivec(:)
+   integer                     :: ierr
+   integer                     :: i
+   character(len=*),parameter  :: gen='(*(g0,1x))'
+
+      ! create an array in LALA so have something to get
+      call lala('A=rand(4,5)*10.5,long,A')
+
+      ! get the array as a REAL array
+      call get_from_lala('A',rarr,ierr)
+      write(*,gen)'in calling program RARR=',shape(rarr)
+      write(*,gen)(rarr(i,:),new_line('A'),i=1,size(rarr,dim=1))
+
+      ! get the array as a DOUBLEPRECISION  array
+      call get_from_lala('A',darr,ierr)
+      write(*,gen)'in calling program darr=',shape(darr)
+      write(*,gen)(darr(i,:),new_line('A'),i=1,size(darr,dim=1))
+
+      ! get the array as an INTEGER vector, much like the
+      ! PUSH(3f) intrinsic
+      call get_from_lala('A',ivec,ierr)
+      write(*,gen)'in calling program ivec=',shape(ivec)
+      write(*,gen)ivec
+
+   end program demo_get_from_lala
+
+  Results:
+
+   >A  =
+   >   2.2189  6.9865  9.2213  7.6267  2.4278
+   >   7.9385  6.5981  0.7179  2.0844  2.2729
+   >   0.0023  8.9223  5.8889  5.7147  9.2756
+   >   3.4684  7.2002  6.9547  2.4368  6.8514
+
+   >A  =
+   >    COLUMNS     1 THRU     4
+   >  2.218911087373272 6.986501594306901 9.221273053670302 7.626682105707005
+   >  7.938460468780249 6.598113777581602 0.717927386518568 2.084401034284383
+   >  0.002321913605556 8.922324976650998 5.888910365989432 5.714701820863411
+   >  3.468434463255107 7.200175708159804 6.954747841693461 2.436785291880369
+   >    COLUMNS     5 THRU     5
+   >  2.427849056432024
+   >  2.272864263039082
+   >  9.275582205271348
+   >  6.851391694508493
+   >in calling program RARR= 4 5
+   > 2.21891117 6.98650169 9.22127342 7.62668228 2.42784905
+   > 7.93846035 6.59811401 0.717927396 2.08440113 2.27286434
+   > 0.232191361E-2 8.92232513 5.88891029 5.71470165 9.27558231
+   > 3.46843457 7.20017576 6.95474768 2.43678522 6.85139179
+
+   >in calling program darr= 4 5
+   > 2.2189110873732716 6.9865015943069011 9.2212730536703020 ..
+   > 7.6266821057070047 2.4278490564320236
+   > 7.9384604687802494 6.5981137775816023 0.71792738651856780 ..
+   > 2.0844010342843831 2.2728642630390823
+   > 0.23219136055558920E-2 8.9223249766509980 5.8889103659894317 ..
+   > 5.7147018208634108 9.2755822052713484
+   > 3.4684344632551074 7.2001757081598043 6.9547478416934609 ..
+   > 2.4367852918803692 6.8513916945084929
+
+   >in calling program ivec= 20
+   > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
+

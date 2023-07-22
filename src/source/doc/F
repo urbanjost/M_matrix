@@ -1,0 +1,47 @@
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+! no simple way to return type class to a non-class variable, apparently.
+! revisit but did not work the way I intended
+! there was a similiar one for vector and matrix
+subroutine get_scalar_class_from_lala(varname,anything,ierr)
+character(len=*),intent(in)       :: varname
+class(*),intent(out)              :: anything
+doubleprecision,allocatable       :: double(:,:), doublei(:,:)
+integer,intent(out)               :: ierr
+integer                           :: sz
+! character return values work better if allocatable so they have their own procedure
+
+   sz=0
+   if(allocated(double))deallocate(double)
+   call get_double_from_lala(varname,double,type=0,ierr=ierr)
+   if(ierr.ne.0)return
+
+   select type(anything)
+    type is (complex)
+       call get_double_from_lala(varname,doublei,type=1,ierr=ierr)
+       ! so far lala cannot have an array of zero size so assume array(1,1) exists
+       anything=cmplx(double(1,1),doublei(1,1),kind=sp)
+       sz=size(double)
+
+    type is (complex(kind=dp))
+       call get_double_from_lala(varname,doublei,type=1,ierr=ierr)
+       anything=cmplx(double(1,1), doublei(1,1))
+       sz=size(double)
+    type is (integer(kind=int8));  anything=int(double(1,1),kind=int8)     ;sz=size(double)
+    type is (integer(kind=int16)); anything=int(double(1,1),kind=int16)    ;sz=size(double)
+    type is (integer(kind=int32)); anything=int(double(1,1),kind=int32)    ;sz=size(double)
+    type is (integer(kind=int64)); anything=int(double(1,1),kind=int64)    ;sz=size(double)
+    type is (real(kind=real32));   anything=real(double(1,1),kind=real32)  ;sz=size(double)
+    type is (real(kind=real64));   anything=real(double(1,1),kind=real64)  ;sz=size(double)
+    type is (real(kind=real128));  anything=real(double(1,1),kind=real128) ;sz=size(double)
+    type is (logical);             anything=nint(double(1,1)).ne.0         ;sz=size(double)
+    class default
+      stop 'crud. get_scalar_class_from_lala(1) does not know about this type'
+      ierr=-20
+   end select
+   if(sz.ne.1)write(*,*)'*get_scalar_class_from_lala* Warning: variable was larger than one value, element (1:1) returned'
+end subroutine get_scalar_class_from_lala
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================

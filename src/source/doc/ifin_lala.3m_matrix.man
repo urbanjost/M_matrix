@@ -1,0 +1,27 @@
+NAME
+   ifin_lala(3f) - [M_matrix] test if variable name exists in lala()
+   LICENSE(MIT)
+SYNOPSIS
+     logical function ifin_lala(varname)
+
+     character(len=*),intent(in) :: varname
+DESCRIPTION
+   Determine if a variable name currently exists in lala().
+
+RETURNS
+    ifin_lala  TRUE if varname exists in lala, else FALSE.
+EXAMPLE
+  sample program:
+
+     program demo_ifin_lala
+     use M_matrix, only : ifin_lala
+     implicit none
+        write(*,*)'eps ',ifin_lala('eps')
+        write(*,*)'unknown ',ifin_lala('unknown')
+     end program demo_ifin_lala
+
+  Results:
+
+    eps  T
+    unknown  F
+

@@ -1,0 +1,3356 @@
+>>>> MODULE IS                       M_matrix
+>>>> DOCUMENT DIRECTORY IS           /home/urbanjs/venus/V600/github/M_matrix/src/source
+>>>> MANPAGES PROCEDURE DIRECTORY IS /home/urbanjs/venus/V600/github/M_matrix/man
+>>>> MAN_EXTENSION IS                m_matrix
++ grep -q '^#' M_matrix.FF
++ SUFFIX=F90
++ '[' TRUE = '' ']'
++ prep F90 GITHUB --noenv --comment doxygen --verbose -i M_matrix.FF -o ../M_matrix.F90
++ verbose mode on
++ -->> M_matrix::mat_str2buf(3fp): convert CHARACTER TO ADE array vector
++ -->>M_LA::mat_wdiv(3fp): c = a/b"
++ -->>M_LA::mat_wlog(3fp): y = log(x)"
++ grep -qi '^$IFDEF  *C *$' M_matrix.FF
++ cd doc
++ set -xv
++ cat
+>>>> .man files to MAN DIRECTORY as ROFF and HTML
+>>>> MANOUT        => /home/urbanjs/venus/V600/github/M_matrix/man
+>>>> MAN_EXTENSION => 
+>>>> DOCS          => /home/urbanjs/venus/V600/github/M_matrix/docs
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man1
+++ ls lala.1.man '*.1m_matrix.man'
+++ sort
+++ uniq
++ for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
++ echo '>>>> processing manpage and HTML for lala.1.man'
+>>>> processing manpage and HTML for lala.1.man
+++ basename lala.1.man .man
++ SHORTNAME_MAN=/home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
+++ basename lala.1.man .1m_matrix.man
++ SHORTNAME=lala.1.man
++ : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1 SHORTNAME lala.1.man
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
++ env AUX_FILENAME=lala.1.man man2html
++ txt2man -s 1m_matrix -t lala.1.man lala.1.man
+/home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
+man2html 372601fa-5b09-4cbc-8a81-ad2df44e417a
++ replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
+CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
+BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
+AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
++ gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
+++ ls '*.2.man' '*.2m_matrix.man'
+++ uniq
+++ sort
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
+++ ls '*.3.man' get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
+++ sort
+++ uniq
++ for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
++ echo '>>>> processing manpage and HTML for get_from_lala.3m_matrix.man'
+>>>> processing manpage and HTML for get_from_lala.3m_matrix.man
+++ basename get_from_lala.3m_matrix.man .man
++ SHORTNAME_MAN=/home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
+++ basename get_from_lala.3m_matrix.man .3m_matrix.man
++ SHORTNAME=get_from_lala
++ : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix SHORTNAME get_from_lala
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
++ env AUX_FILENAME=get_from_lala man2html
++ txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
+/home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
+man2html a5244b12-f2c1-469d-bcc1-8b834ec0c06f
++ replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
+CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
+BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
+AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
++ gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
++ for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
++ echo '>>>> processing manpage and HTML for ifin_lala.3m_matrix.man'
+>>>> processing manpage and HTML for ifin_lala.3m_matrix.man
+++ basename ifin_lala.3m_matrix.man .man
++ SHORTNAME_MAN=/home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
+++ basename ifin_lala.3m_matrix.man .3m_matrix.man
++ SHORTNAME=ifin_lala
++ : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix SHORTNAME ifin_lala
++ txt2man -s 3m_matrix -t ifin_lala ifin_lala.3m_matrix.man
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
++ env AUX_FILENAME=ifin_lala man2html
+/home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
+man2html d12ddeae-8bfe-4df7-a340-7c6a4b403f89
++ replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
+CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
+BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
+AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
++ gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
++ for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
++ echo '>>>> processing manpage and HTML for lala.3m_matrix.man'
+>>>> processing manpage and HTML for lala.3m_matrix.man
+++ basename lala.3m_matrix.man .man
++ SHORTNAME_MAN=/home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
+++ basename lala.3m_matrix.man .3m_matrix.man
++ SHORTNAME=lala
++ : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix SHORTNAME lala
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
++ txt2man -s 3m_matrix -t lala lala.3m_matrix.man
+/home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
++ env AUX_FILENAME=lala man2html
+man2html f9ddb54f-368d-4f85-8d4b-cc86f2d61130
++ replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
+CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
+BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
+AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
++ gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
++ for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
++ echo '>>>> processing manpage and HTML for M_matrix.3m_matrix.man'
+>>>> processing manpage and HTML for M_matrix.3m_matrix.man
+++ basename M_matrix.3m_matrix.man .man
++ SHORTNAME_MAN=/home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
+++ basename M_matrix.3m_matrix.man .3m_matrix.man
++ SHORTNAME=M_matrix
++ : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix SHORTNAME M_matrix
++ txt2man -s 3m_matrix -t M_matrix M_matrix.3m_matrix.man
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
++ env AUX_FILENAME=M_matrix man2html
+/home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
+man2html 2b179ba7-7419-4a48-9094-afc4d0037a1d
++ replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
+CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
+BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
+AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
++ gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
++ for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
++ echo '>>>> processing manpage and HTML for put_into_lala.3m_matrix.man'
+>>>> processing manpage and HTML for put_into_lala.3m_matrix.man
+++ basename put_into_lala.3m_matrix.man .man
++ SHORTNAME_MAN=/home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
+++ basename put_into_lala.3m_matrix.man .3m_matrix.man
++ SHORTNAME=put_into_lala
++ : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix SHORTNAME put_into_lala
++ txt2man -s 3m_matrix -t put_into_lala put_into_lala.3m_matrix.man
++ env AUX_FILENAME=put_into_lala man2html
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
+/home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
+man2html 5d82d25b-534b-443b-8583-22f7a6ac42c6
++ replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
+CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
+BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
+AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
++ gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
+++ sort
+++ uniq
+++ ls '*.4.man' '*.4m_matrix.man'
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
+++ sort
+++ uniq
+++ ls '*.5.man' '*.5m_matrix.man'
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
+++ sort
+++ uniq
+++ ls '*.6.man' '*.6m_matrix.man'
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
+++ sort
+++ uniq
+++ ls '*.7.man' '*.7m_matrix.man'
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man8
+++ sort
+++ uniq
+++ ls '*.8.man' '*.8m_matrix.man'
++ cat
+>>>> .txt files to MAN DIRECTORY
+>>>> MANOUT        => /home/urbanjs/venus/V600/github/M_matrix/man
+>>>> MAN_EXTENSION => 
++ cd doc
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man1
+++ ls '*.1.txt' '*.1m_matrix.txt'
+++ sort
+++ uniq
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
+++ sort
+++ uniq
+++ ls '*.2.txt' '*.2m_matrix.txt'
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
+++ ls '*.3.txt' '*.3m_matrix.txt'
+++ sort
+++ uniq
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
+++ sort
+++ ls '*.4.txt' '*.4m_matrix.txt'
+++ uniq
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
+++ ls '*.5.txt' '*.5m_matrix.txt'
+++ sort
+++ uniq
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
+++ ls '*.6.txt' '*.6m_matrix.txt'
+++ uniq
+++ sort
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
+++ sort
+++ ls '*.7.txt' '*.7m_matrix.txt'
+++ uniq
++ for NUM in 1 2 3 4 5 6 7 8
++ mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man8
+++ sort
+++ uniq
+++ ls '*.8.txt' '*.8m_matrix.txt'
++ echo '>>>> *.htm files to HTML and ROFF'
+>>>> *.htm files to HTML and ROFF
++ cd doc
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.htm'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.htm'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.htm'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.htm'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.htm'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.htm'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.htm'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.htm'
++ echo '>>>> *.html files to DOC DIRECTORY'
+>>>> *.html files to DOC DIRECTORY
++ cd doc
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.1m_matrix.html'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.2m_matrix.html'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.3m_matrix.html'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.4m_matrix.html'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.5m_matrix.html'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.6m_matrix.html'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.7m_matrix.html'
++ for NUM in 1 2 3 4 5 6 7 8
+++ ls '*.8m_matrix.html'
++ echo '>>>> Build manpage index'
+>>>> Build manpage index
++ cd ../../man
++ mandb -c .
+mandb: warning: $MANPATH set, inserting /etc/manpath.config
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man1'. Wait...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/....
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man3'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man2'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man4'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man6'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man7'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man8'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man5'. Wait...
+done.
+Checking for stray cats under /home/urbanjs/venus/V600/github/M_matrix/man/....
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat8...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat1...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat3...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat4...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat6...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat2...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat5...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat7...
+8 man subdirectories contained newer manual pages.
+6 manual pages were added.
+0 stray cats were added.
+++ pwd
++ env MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -k .
+get_from_lala (3m_matrix) - [M_matrix] return data from lala(3f) to calling p...
+ifin_lala (3m_matrix) - [M_matrix] test if variable name exists in lala() LIC...
+lala (1)             - interpret matrix expressions using a shell-like interface
+lala (3m_matrix)     - [M_matrix] initialize and/or pass commands to matrix l...
+M_matrix (3m_matrix) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algeb...
+put_into_lala (3m_matrix) - [M_matrix] return data from lala(3f) to calling p...
++ echo '>>>> Build text version of manpages in docs/manual.txt'
+>>>> Build text version of manpages in docs/manual.txt
++ cd ../../man
++ mandb -c .
+mandb: warning: $MANPATH set, inserting /etc/manpath.config
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man1'. Wait...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/....
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man3'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man2'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man4'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man6'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man7'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man8'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/man/./man5'. Wait...
+done.
+Checking for stray cats under /home/urbanjs/venus/V600/github/M_matrix/man/....
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat8...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat1...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat3...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat4...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat6...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat2...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat5...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat7...
+8 man subdirectories contained newer manual pages.
+6 manual pages were added.
+0 stray cats were added.
++ col -b
+++ pwd
++ env MANWIDTH=256 MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -k .
++ col -b
+++ pwd
++ env MANWIDTH=80 MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -Tutf8 --regex '.*'
++ echo '>>>> make easily distributed archive files of manpages'
+>>>> make easily distributed archive files of manpages
++ mkdir -p ../../docs
++ cd ../../man
++ gzip man3/get_from_lala.3m_matrix.gz man3/ifin_lala.3m_matrix.gz man3/lala.3m_matrix.gz man3/M_matrix.3m_matrix.gz man3/put_into_lala.3m_matrix.gz
+gzip: man3/get_from_lala.3m_matrix.gz already has .gz suffix -- unchanged
+gzip: man3/ifin_lala.3m_matrix.gz already has .gz suffix -- unchanged
+gzip: man3/lala.3m_matrix.gz already has .gz suffix -- unchanged
+gzip: man3/M_matrix.3m_matrix.gz already has .gz suffix -- unchanged
+gzip: man3/put_into_lala.3m_matrix.gz already has .gz suffix -- unchanged
++ zip -r ../docs/manpages.zip man1/lala.1.gz man3/get_from_lala.3m_matrix.gz man3/ifin_lala.3m_matrix.gz man3/lala.3m_matrix.gz man3/M_matrix.3m_matrix.gz man3/put_into_lala.3m_matrix.gz
+	zip warning: expected 5 entries but found 3
+
+zip error: Zip file structure invalid (../docs/manpages.zip)
++ tar cvfz ../docs/manpages.tgz man1/lala.1.gz man3/get_from_lala.3m_matrix.gz man3/ifin_lala.3m_matrix.gz man3/lala.3m_matrix.gz man3/M_matrix.3m_matrix.gz man3/put_into_lala.3m_matrix.gz
+man1/lala.1.gz
+man3/get_from_lala.3m_matrix.gz
+man3/ifin_lala.3m_matrix.gz
+man3/lala.3m_matrix.gz
+man3/M_matrix.3m_matrix.gz
+man3/put_into_lala.3m_matrix.gz
++ gunzip man3/get_from_lala.3m_matrix.gz man3/ifin_lala.3m_matrix.gz man3/lala.3m_matrix.gz man3/M_matrix.3m_matrix.gz man3/put_into_lala.3m_matrix.gz
++ echo '>>>> extract demo pages from manpages'
+>>>> extract demo pages from manpages
++ cd /home/urbanjs/venus/V600/github/M_matrix/man
+++ pwd
++ MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man
++ SECTION=3m_matrix
++ DEMO_OUTDIR=../../example/
++ GPF_extract_manpage_demos /home/urbanjs/venus/V600/github/M_matrix/man 3m_matrix ../../example/
+>>>> Extract demo program from manpages with
+     MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man
+     SECTION=3m_matrix
+     DEMO_OUTDIR=../../example/
+     DEMO_SUBDIR=FALSE
+     1	get_from_lala (3m_matrix) - [M_matrix] return data from lala(3f) to calling p...
+     2	ifin_lala (3m_matrix) - [M_matrix] test if variable name exists in lala() LIC...
+     3	lala (1)             - interpret matrix expressions using a shell-like interface
+     4	lala (3m_matrix)     - [M_matrix] initialize and/or pass commands to matrix l...
+     5	M_matrix (3m_matrix) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algeb...
+     6	put_into_lala (3m_matrix) - [M_matrix] return data from lala(3f) to calling p...
+>>>> get_from_lala.3m_matrix
+>>>> ifin_lala.3m_matrix
+>>>> lala.3m_matrix
+>>>> M_matrix.3m_matrix
+>>>> put_into_lala.3m_matrix
+lala.1.man(1m_matrix)					 lala.1.man(1m_matrix)
+
+
+
+NAME
+  lala(1f) - interpret matrix expressions using a shell-like interface
+
+
+SYNOPSIS
+  lala [expression(s)] | [ --help| --version]
+
+DESCRIPTION
+  lala(1) is an interactive computer program that serves as a convenient
+  "laboratory" for computations involving matrices. It provides easy access to
+  matrix software developed by the LINPACK and EISPACK projects. The
+  capabilities range from standard tasks such as solving simultaneous linear
+  equations and inverting matrices, through symmetric and nonsymmetric
+  eigenvalue problems, to fairly sophisticated matrix tools such as the
+  singular value decomposition.
+
+OPTIONS
+  --help
+    display this help and exit
+
+  --version
+    output version information and exit
+
+  expression(s)
+    if expressions are supplied they are evaluated and the program terminates.
+
+AUTHOR
+  This is heavily based on a program from the Department of Computer Science,
+  University of New Mexico, by Cleve Moler.
+
+EXAMPLES
+  Sample commands
+
+      # Example 1: introductory usage:
+      lala
+      a=<1 2 3;5 4 6;7 8 9>
+      b=<5;6;7>
+      a*b
+      b*a
+      det(a)
+      quit
+
+  An explanation of Example 1:
+
+      // For this session the <> character is the LALA prompt.
+       <> A=<1 2 3;5 4 6;7 8 9> 	   <---  you enter this
+       A     =				   <---  LALA response
+	   1.	 2.    3.
+	   5.	 4.    6.
+	   7.	 8.    9.
+       <> b=<5;6;7>
+       b     =
+	   5.
+	   6.
+	   7.
+
+       <> A*b		  <--- you enter "multiply A and b"
+
+       ANS   =		  <--- LALA response
+	  38.
+	  91.
+	 146.
+
+       <> b*A		  <---you enter "multiply b and A"
+	  /--ERROR			   <--- LALA response
+
+   INCOMPATIBLE FOR MULTIPLICATION
+  <> det(A)
+    <--- Take the determinant of A
+
+  ANS
+    =		<---LALA response
+
+	  18.
+
+
+  <> quit
+    <--- you quit LALA
+
+  total flops
+    34
+
+   ADIOS
+  // --------------------------------------
+
+  Example 2: Simple looping and conditionals are also available
+
+      lala
+      //Eigenvalue sensitivity example. See section 8 of the Users' Guide.
+      B = <3 0 7; 0 2 0; 0 0 1>
+      L = <1 0 0; 2 1 0; -3 4 1>,  M = L\L'
+      A = M*B/M
+      A = round(A)
+      <X,D> = eig(A)
+      long,  diag(D),  short
+      cond(X)
+      X = X/diag(X(3,:)),  cond(X)
+      Y = inv(X'),  Y'*A*X
+      for j = 1:3, c(j) = norm(Y(:,j))*norm(X(:,j));
+
+   C
+  E = -1.e-6*Y(:,1)*X(:,1)'
+
+  eig(A + .4*E),
+    eig(A + .5*E)
+
+  r = .4;
+    s = .5; while s-r > 1.e-14, t = (r+s)/2; d = eig(A+t*E); ...  if
+    imag(d(1))=0, r = t; else, s = t;
+
+  long,
+    t = r
+
+  A+t*e,
+    eig(A+t*E)
+
+  <X,D> = eig(A+t*E);
+    X = X/diag(X(3,:))
+
+  short,
+    cond(X) // --------------------------------------
+
+  Use the HELP command for further information.  For example, to enter HELP on
+  the entire manual, display directions for using HELP and place a User manual
+  in the file "lala.userguide.txt", enter
+
+      lala
+      <>help manual
+      continue ...
+      h // show directions for using "help"
+      w lala.userguide.txt
+      continue ...
+      q
+      quit
+
+
+
+				 July 22, 2023		 lala.1.man(1m_matrix)
+ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
+
+
+
+NAME
+  ifin_lala(3f) - [M_matrix] test if variable name exists in lala()
+  LICENSE(MIT)
+
+SYNOPSIS
+  logical function ifin_lala(varname)
+
+  character(len=*),intent(in) :: varname
+
+DESCRIPTION
+  Determine if a variable name currently exists in lala().
+
+RETURNS
+  ifin_lala
+    TRUE if varname exists in lala, else FALSE.
+
+EXAMPLE
+  sample program:
+
+       program demo_ifin_lala
+       use M_matrix, only : ifin_lala
+       implicit none
+	  write(*,*)'eps ',ifin_lala('eps')
+	  write(*,*)'unknown ',ifin_lala('unknown')
+       end program demo_ifin_lala
+
+  Results:
+
+      eps  T
+      unknown  F
+
+
+
+
+				 July 22, 2023		  ifin_lala(3m_matrix)
+M_matrix(3m_matrix)					   M_matrix(3m_matrix)
+
+
+
+NAME
+  M_matrix(3f) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algebra
+  Fortran Facility (LALA) LICENSE(MIT)
+
+
+DESCRIPTION
+  The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
+  which allows for interacting with a Fortran program using Matlab
+
+  or Octave-like commands.
+    LALA is also usable as a simple one-line language. It is a WIP (Work In
+    Progress) but is already useful.
+
+    •  You can pass intrinsic-type data easily between your Fortran program
+       and the LALA utility.
+
+    •  blocks of LALA commands may be passed to lala(3f) as well.
+
+    •  external files containing lala(3f) commands may be read to create data
+       or as configuration files.
+
+    •  LALA commands may be recorded and played back.
+
+    •  a command-line based command history allowed for recalling and editing
+       input.
+
+    •  a stand-alone program lets you create and test LALA files. It is a
+       flexible calculator utility all by itself.
+
+    •  a built-in help command describes the many functions and commands
+
+    •  a user-added Fortran routine may be called via the USER() function.
+
+  All together, this allows lala(3f) to be used for self-describing
+  configuration and data files, inspecting data in existing programs,
+  transferring small amounts of data between programs or assisting in
+  debugging and development, unit testing and macro-level timing.
+
+EXAMPLE
+  Sample program:
+
+      program demo_M_matrix
+      use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
+      !real,allocatable 	    :: r
+      !complex,allocatable	    :: cvec(:)
+      integer,allocatable	   :: iarr(:,:)
+      character(len=:),allocatable :: t(:)
+      integer			   :: ierr
+      integer			   :: i
+
+      ! store some data into lala(3)
+      call put_into_lala('A',[1,2,3,4,5]*10.5,ierr)
+      write(*,*)'is A defined in LALA?',ifin_lala('A')
+      call lala('A/2.0')
+
+      ! pass some commands to lala(3f)
+      call lala([character(len=80) :: &
+      &'PI=atan(1)*4		   ', &
+      &"mytitle='this is my title';", &
+      &'littlearray=<		   ', &
+      &'   1 2 3;		   ', &
+      &'   4 5 6;		   ', &
+      &'   7 8 9;		   ', &
+      &'>			   ', &
+      &'S=sum(A)		   ', &
+      &'I=inv(littlearray);	   ', &
+      &'B=littlearray*sin(PI/3)    ', &
+      &"save('keepB',B) 	   ", &
+      &''])
+
+      ! read a file containing lala(3f) commands
+      call lala("exec('mycommands');")
+
+      ! interactively interact with lala(3f) interpreter
+      call lala()
+
+      ! get some data from LALA into the calling program
+      call get_from_lala('littlearray',iarr,ierr)
+      write(*,'(a)')'IN CALLING PROGRAM IARR='
+      write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
+
+      call get_from_lala('mytitle',t,ierr)
+      write(*,*)'IN CALLING PROGRAM T=',t
+
+      end program demo_M_matrix
+
+
+
+				 July 22, 2023		   M_matrix(3m_matrix)
+put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
+
+
+
+NAME
+  put_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
+  LICENSE(MIT)
+
+SYNOPSIS
+  subroutine put_into_lala(varname,A,IERR)
+
+     character(len=*),intent(in)	      :: varname
+     [INTRINSIC_TYPE],allocatable,intent(in)  :: a(:,:)
+     integer,intent(out)		      :: ierr
+
+
+DESCRIPTION
+  Define a variable in the lala(3f) utility with a variable declared in the
+  calling program.
+
+OPTIONS
+  VARNAME Name of lala(3f) variable to retrieve
+
+    A May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.  May be a
+      scalar, vector, or MxN matrix.
+
+RETURNS
+  IERR
+    Zero if no error occurred
+
+EXAMPLE
+  sample program:
+
+     program demo_put_into_lala
+     use M_matrix, only : lala, get_from_lala, put_into_lala
+     implicit none
+     integer :: ierr
+
+	! store some data from the program into lala(3f)
+	call put_into_lala('A',[1,2,3,4,5,6,7,8,9],ierr)
+	call put_into_lala('B',[1.1,2.2,3.3],ierr)
+	call put_into_lala('C',"This is my title",ierr)
+
+	! call lala(3f) and display the values
+	call lala([character(len=80) :: &
+	& 'who,A,B', &
+	& 'display(C);', &
+	& '', &
+	& ''])
+
+     end program demo_put_into_lala
+
+  Results:
+
+       > Your current variables are...
+       > C  B  A  eps  flops  eye  rand
+       >using 33 out of 200000 elements
+       >
+       > A  =
+       >     1.    2.	 3.    4.    5.    6.	 7.    8.    9.
+       >
+       > B  =
+       >    1.1000    2.2000	3.3000
+       >This is my title
+
+
+
+
+				 July 22, 2023	      put_into_lala(3m_matrix)
+lala(3m_matrix) 					       lala(3m_matrix)
+
+
+
+NAME
+  LALA(3f) - [M_matrix] initialize and/or pass commands to matrix laboratory
+  interpreter LICENSE(MIT)
+
+SYNOPSIS
+  subroutine lala(init,cmd)
+
+       integer,intent(in),optional :: init
+       character(len=*),intent(in),optional :: cmd
+	  or
+       character(len=*),intent(in),optional :: cmd(:)
+
+
+DESCRIPTION
+  LALA(3f) is modeled on MATLAB(3f) (MATrix LABoratory), a FORTRAN package
+  developed by Argonne National Laboratories for in-house use.	It provides
+  comprehensive vector and tensor operations in a package which may be
+  programmed, either through a macro language or through execution of script
+  files.
+
+  LALA(3f) Functions supported include (but are not by any means limited to)
+  sin, cos, tan, arcfunctions, upper triangular, lower triangular,
+  determinants, matrix multiplication, identity, Hilbert matrices, eigenvalues
+  and eigenvectors, matrix roots and products, inversion and so on and so
+  forth.
+
+  LALA() can be used
+
+    •  as a stand-alone utility for working with lala() files and for basic
+       computations.
+
+    •  embedded in a Fortran program, passing variables back and forth between
+       the calling program and the utility.
+
+    •  to read configuration and data files that contain expressions and
+       conditionally selected values.
+
+    •  for interactively inspecting data generated by the calling program.
+
+    •  for creating unit tests that allow for further interactive examination.
+
+  The HELP command describes using the interpreter.
+
+OPTIONS
+  INIT
+    indicate size of scratch space to allocate and (re)initialize LALA.
+
+  CMD
+    LALA command(s) to perform. May be CHARACTER scalar or vector
+
+  INIT and CMD cannot be combined on a single call.
+
+  The first call may be an initialization declaring the number of
+  doubleprecision complex values to allocate for the combined scratch and
+  variable storage area. This form may be repeated and reinitializes the
+  utility at each call. A size of zero will deallocate any allocated storage
+  (after which the routine cannot be called with commands until reallocated by
+  another call to lala()).
+
+  If no parameters are supplied interactive mode is entered.
+
+  If a CMD is passed and no previous initialization call was made the scratch
+  space will be allocated to 200000.
+
+EXAMPLE
+  Example 1:
+
+	program demo_LALA
+	use M_matrix, only : lala
+
+	   write(*,'(a)')'optionally initialize scratch area size'
+	   call LALA(20000)
+
+	   write(*,'(a)')'do some commands'
+	   call LALA([character(len=80) :: &
+	   & 'semi;			    ',&
+	   & 'a=magic(4),b=-a		    ',&
+	   & 'a+b;a;b			    ',&
+	   & "display('That is all Folks!') "])
+
+	   write(*,'(a)')'do a single command'
+	   call LALA('who')
+
+	   write(*,'(a)')'enter interactive mode'
+	   call LALA()
+
+	   write(*,'(a)')'ending program'
+	end program demo_LALA
+
+  Example 2:
+
+     program bigmat
+     use M_matrix, only : lala
+	! pass strings to LALA but do not enter interactive mode
+	call lala(20000)		  ! initialize silently
+	call lala( 'a=[1 2 3 4; 5 6 7 8]')
+	call lala( [character(len=80) :: &
+	 & 'semi;lines(999999)					  ',&
+	 & '// create a magic square and add 100 to all the values',&
+	 & 'A=magic(4),<X,Y>=shape(A)				  ',&
+	 & 'B=A+ones(X,Y)*100					  ',&
+	 & '// save all current values to a file		  ',&
+	 & "save('sample.laf')					  ",&
+	 & '// clear all user values				  ',&
+	 & 'clear						  ',&
+	 & '// show variable names, load values from file	  ',&
+	 & '// and show again to show the variables are restored  ',&
+	 & "who;load('sample.laf');who				  "])
+     end program bigmat
+
+  Example 3: Sample program with custom user function
+
+	program custom_user
+	use M_matrix
+	implicit none
+	call set_usersub(lala_user)
+	call lala()
+	contains
+	!-------------------------------------------------------------
+	subroutine lala_user(a,m,n,s,t)  ! sample user routine
+	! Allows personal  Fortran  subroutines  to  be  linked  into
+	! LALA. The subroutine should have the heading
+	!
+	!    subroutine name(a,m,n,s,t)
+	!    integer :: m,n
+	!    doubleprecision a(:),s,t
+	!
+	! The LALA statement Y = USER(X,s,t) results in a call to
+	! the subroutine with a copy of the matrix X stored in the
+	! argument A, its column and row dimensions in M and N,
+	! and the scalar parameters S and T stored in S and T.
+	! If S and T are omitted, they are set to 0.0. After
+	! the return, A is stored in Y. The dimensions M and
+	! N may be reset within the subroutine. The statement Y =
+	! USER(K) results in a call with M = 1, N = 1 and A(1,1) =
+	! FLOAT(K). After the subroutine has been written, it must
+	! be compiled and linked to the LALA object code within the
+	! local programming environment.
+	!
+	implicit none
+	integer 		   :: m,n
+	doubleprecision 	   :: a(:)
+	doubleprecision 	   :: s,t
+	integer 		   :: i, j, k
+	   write(*,*)'MY ROUTINE'
+	   write(*,*)'M=',m
+	   write(*,*)'N=',n
+	   write(*,*)'S=',s
+	   write(*,*)'T=',t
+	   k=0
+	   do i = 1, m
+	      do j = 1, n
+		 k=k+1
+		 write(*,*)i,j,a(k)
+	      enddo
+	   enddo
+	   k=0
+	   if(s.eq.0)s=1
+	   do i = 1, m
+	      do j = 1, n
+		 k=k+1
+		 a(k)=a(k)*s+t
+	      enddo
+	   enddo
+	end subroutine lala_user
+	end program custom_user
+
+  Example inputs
+
+       >:avg:
+
+       >for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
+       >a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
+
+       >:cdiv:
+
+       >// ======================================================
+       >// cdiv
+       >a=sqrt(random(8))
+       >ar = real(a); ai = imag(a); br = real(b); bi = imag(b);
+       >p = bi/br;
+       >t = (ai - p*ar)/(br + p*bi);
+       >cr = p*t + ar/br;
+       >ci = t;
+       >p2 = br/bi;
+       >t2 = (ai + p2*ar)/(bi + p2*br);
+       >ci2 = p2*t2 - ar/bi;
+       >cr2 = t2;
+       >s = abs(br) + abs(bi);
+       >ars = ar/s;
+       >ais = ai/s;
+       >brs = br/s;
+       >bis = bi/s;
+       >s = brs**2 + bis**2;
+       >cr3 = (ars*brs + ais*bis)/s;
+       >ci3 = (ais*brs - ars*bis)/s;
+       >[cr ci; cr2 ci2; cr3 ci3]
+       >// ======================================================
+
+       >:exp:
+
+       >t = 0*x + eye; s = 0*eye(x); n = 1;
+       >while abs(s+t-s) > 0, s = s+t, t = x*t/n, n = n + 1
+
+       >:four:
+       > n
+       > pi = 4*atan(1);
+       > i = sqrt(-1);
+       > w = exp(2*pi*i/n);
+       > F = [];
+       > for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
+       > F = F/sqrt(n);
+       > alpha = r*pi;
+       > rho = exp(i*alpha);
+       > S = log(rho*F)/i - alpha*eye;
+       > serr = norm(imag(S),1);
+       > S = real(S);
+       > serr = serr + norm(S-S',1)
+       > S = (S + S')/2;
+       > ferr = norm(F-exp(i*S),1)
+
+       > :gs:
+       > for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)'; x(k,:) = x(k,:) - d*x(j,:); ...
+       > end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;
+
+       > :jacobi:
+       > [n, n] = shape(A);
+       > X = eye(n);
+       > anorm = norm(A,'fro');
+       > cnt = 1;
+       > while cnt > 0, ...
+       >   cnt = 0; ...
+       >   for p = 1:n-1, ...
+       >     for q = p+1:n, ...
+       >       if anorm + abs(a(p,q)) > anorm, ...
+       >	 cnt = cnt + 1; ...
+       >	 exec('jacstep'); ...
+       >       end, ...
+       >     end, ...
+       >   end, ...
+       >   display(rat(A)), ...
+       > end
+
+       > :jacstep:
+
+       > d = (a(q,q)-a(p,p))*0.5/a(p,q);
+       > t = 1/(abs(d)+sqrt(d*d+1));
+       > if d < 0, t = -t; end;
+       > c = 1/sqrt(1+t*t);  s = t*c;
+       > R = eye(n); r(p,p)=c; r(q,q)=c; r(p,q)=s; r(q,p)=-s;
+       > X = X*R;
+       > A = R'*A*R;
+
+       > :kron:
+
+       > //  C = Kronecker product of A and B
+       > [m, n] = shape(A);
+       > for i = 1:m, ...
+       >    ci = a(i,1)*B; ...
+       >    for j = 2:n, ci = [ci a(i,j)*B]; end ...
+       >    if i = 1, C = ci; else, C = [C; ci];
+
+       > :lanczos:
+
+       > [n,n] = shape(A);
+       > q1 = rand(n,1);
+       > ort
+       > alpha = []; beta = [];
+       > q = q1/norm(q1); r = A*q(:,1);
+       > for j = 1:n, exec('lanstep',0);
+
+       > :lanstep:
+
+       > alpha(j) = q(:,j)'*r;
+       > r = r - alpha(j)*q(:,j);
+       > if ort <> 0, for k = 1:j-1, r = r - r'*q(:,k)*q(:,k);
+       > beta(j) = norm(r);
+       > q(:,j+1) = r/beta(j);
+       > r = A*q(:,j+1) - beta(j)*q(:,j);
+       > if j > 1, T = diag(beta(1:j-1),1); T = diag(alpha) + T + T'; eig(T)
+
+       > :mgs:
+
+       > for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; ...
+       >    for j = k+1:n, d = x(j,:)*x(k,:)'; x(j,:) = x(j,:) - d*x(k,:);
+
+       > :net:
+
+       > C = [
+       > 1   2	 15  .	 .   .
+       > 2   1	 3   .	 .   .
+       > 3   2	 4   11  .   .
+       > 4   3	 5   .	 .   .
+       > 5   4	 6   7	 .   .
+       > 6   5	 8   .	 .   .
+       > 7   5	 9   30  .   .
+       > 8   6	 9   10  11  .
+       > 9   7	 8   30  .   .
+       > 10  8	 12  30  31  34
+       > 11  3	 8   12  13  .
+       > 12  10  11  34  36  .
+       > 13  11  14  .	 .   .
+       > 14  13  15  16  38  .
+       > 15  1	 14  .	 .   .
+       > 16  14  17  20  35  37
+       > 17  16  18  .	 .   .
+       > 18  17  19  .	 .   .
+       > 19  18  20  .	 .   .
+       > 20  16  19  21  .   .
+       > 21  20  22  .	 .   .
+       > 22  21  23  .	 .   .
+       > 23  22  24  35  .   .
+       > 24  23  25  39  .   .
+       > 25  24  .   .	 .   .
+       > 26  27  33  39  .   .
+       > 27  26  32  .	 .   .
+       > 28  29  32  .	 .   .
+       > 29  28  30  .	 .   .
+       > 30  7	 9   10  29  .
+       > 31  10  32  .	 .   .
+       > 32  27  28  31  34  .
+       > 33  26  34  .	 .   .
+       > 34  10  12  32  33  35
+       > 35  16  23  34  36  .
+       > 36  12  35  38  .   .
+       > 37  16  38  .	 .   .
+       > 38  14  36  37  .   .
+       > 39  24  26  .	 .   .
+       > ];
+       > [n, m] = shape(C);
+       > A = 0*ones(n,n);
+       > for i=1:n, for j=2:m, k=c(i,j); if k>0, a(i,k)=1;
+       > check = norm(A-A',1), if check > 0, quit
+       > [X,D] = eig(A+eye);
+       > D = diag(D);  D = D(n:-1:1)
+       > X = X(:,n:-1:1);
+       > [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
+
+       > :pascal:
+
+       > //Generate next Pascal matrix
+       > [k,k] = shape(L);
+       > k = k + 1;
+       > L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];
+
+       > :pdq:
+
+       > alpha = []; beta = 0; q = []; p = p(:,1)/norm(p(:,1));
+       > t = A'*p(:,1);
+       > alpha(1) = norm(t);
+       > q(:,1) = t/alpha(1);
+       > X = p(:,1)*(alpha(1)*q(:,1))'
+       > e(1) = norm(A-X,1)
+       > for j = 2:r, exec('pdqstep',ip); ...
+       >    X = X + p(:,j)*(alpha(j)*q(:,j)+beta(j)*q(:,j-1))', ...
+       >    e(j) = norm(A-X,1)
+
+       > :pdqstep:
+
+       > t = A*q(:,j-1) - alpha(j-1)*p(:,j-1);
+       >    if ort>0, for i = 1:j-1, t = t - t'*p(:,i)*p(:,i);
+       > beta(j) = norm(t);
+       > p(:,j) = t/beta(j);
+       > t = A'*p(:,j) - beta(j)*q(:,j-1);
+       >    if ort>0, for i = 1:j-1, t = t - t'*q(:,i)*q(:,i);
+       > alpha(j) = norm(t);
+       > q(:,j) = t/alpha(j);
+
+       > :pop:
+
+       > y = [ 75.995	91.972	105.711  123.203   ...
+       >      131.669  150.697	179.323  203.212]'
+       > t = [ 1900:10:1970 ]'
+       > t = (t - 1940*ones(t))/40;   [t y]
+       > n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
+       > A
+       > c = A\y
+
+       > :qr:
+
+       > scale = s(m);
+       > sm = s(m)/scale; smm1 = s(m-1)/scale; emm1 = e(m-1)/scale;
+       > sl = s(l)/scale; el = e(l)/scale;
+       > b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
+       > c = (sm*emm1)**2;
+       > shift = sqrt(b**2+c); if b < 0, shift = -shift;
+       > shift = c/(b + shift)
+       > f = (sl + sm)*(sl-sm) - shift
+       > g = sl*el
+       > for k = l: m-1, exec('qrstep',ip)
+       > e(m-1) = f
+
+       > :qrstep:
+
+       > exec('rot');
+       > if k <> l, e(k-1) = f
+       > f = cs*s(k) + sn*e(k)
+       > e(k) = cs*e(k) - sn*s(k)
+       > g = sn*s(k+1)
+       > s(k+1) = cs*s(k+1)
+       > exec('rot');
+       > s(k) = f
+       > f = cs*e(k) + sn*s(k+1)
+       > s(k+1) = -sn*e(k) + cs*s(k+1)
+       > g = sn*e(k+1)
+       > e(k+1) = cs*e(k+1)
+
+       > :rho:
+
+       > //Conductivity example.
+       > //Parameters ---
+       >    rho       //radius of cylindrical inclusion
+       >    n	      //number of terms in solution
+       >    m	      //number of boundary points
+       > //initialize operation counter
+       >    flop = [0 0];
+       > //initialize variables
+       >    m1 = round(m/3);   //number of points on each straight edge
+       >    m2 = m - m1;       //number of points with Dirichlet conditions
+       >    pi = 4*atan(1);
+       > //generate points in Cartesian coordinates
+       >    //right hand edge
+       >    for i = 1:m1, x(i) = 1; y(i) = (1-rho)*(i-1)/(m1-1);
+       >    //top edge
+       >    for i = m2+1:m, x(i) = (1-rho)*(m-i)/(m-m2-1); y(i) = 1;
+       >    //circular edge
+       >    for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); ...
+       >       x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);
+       > //convert to polar coordinates
+       >    for i = 1:m-1, th(i) = atan(y(i)/x(i));  ...
+       >       r(i) = sqrt(x(i)**2+y(i)**2);
+       >    th(m) = pi/2;  r(m) = 1;
+       > //generate matrix
+       >    //Dirichlet conditions
+       >    for i = 1:m2, for j = 1:n, k = 2*j-1; ...
+       >       a(i,j) = r(i)**k*cos(k*th(i));
+       >    //Neumann conditions
+       >    for i = m2+1:m, for j = 1:n, k = 2*j-1; ...
+       >       a(i,j) = k*r(i)**(k-1)*sin((k-1)*th(i));
+       > //generate right hand side
+       >    for i = 1:m2, b(i) = 1;
+       >    for i = m2+1:m, b(i) = 0;
+       > //solve for coefficients
+       >    c = A\b
+       > //compute effective conductivity
+       >    c(2:2:n) = -c(2:2:n)
+       >    sigma = sum(c)
+       > //output total operation count
+       >    ops = flop(2)
+
+       > :rogers.exec:
+
+       > exec('d.boug');		// reads data
+       > [g,k] = shape(p);		// p is matrix of gene frequencies
+       > wv = ncen/sum(ncen);		// ncen contains population sizes
+       > pbar = wv*p;			// weighted average of p
+       > p = p - ones(g,1)*pbar;	// deviations from mean
+       > p = sqrt(diag(wv)) * p;	// weight rows of p by sqrt of pop size
+       > h = diag(pbar); h = h*(eye-h); // diagonal contains binomial variance: p*(1-p)
+       > r = p*inv(h)*p'/k;		// normalized covariance matrix
+       > eig(r)'
+
+       > :rosser:
+
+       > A  = [
+       >   611.  196. -192.  407.   -8.  -52.  -49.   29.
+       >   196.  899.  113. -192.  -71.  -43.	-8.  -44.
+       >  -192.  113.  899.  196.   61.   49.	 8.   52.
+       >   407. -192.  196.  611.    8.   44.	59.  -23.
+       >    -8.  -71.	61.    8.  411. -599.  208.  208.
+       >   -52.  -43.	49.   44. -599.  411.  208.  208.
+       >   -49.   -8.	 8.   59.  208.  208.	99. -911.
+       >    29.  -44.	52.  -23.  208.  208. -911.   99.  ];
+
+       > :rot:
+
+       > // subexec rot(f,g,cs,sn)
+       >    rho = g; if abs(f) > abs(g), rho = f;
+       >    cs = 1.0; sn = 0.0; z = 1.0;
+       >    r = norm([f g]); if rho < 0, r = -r; r
+       >    if r <> 0.0, cs = f/r
+       >    if r <> 0.0, sn = g/r
+       >    if abs(f) > abs(g), z = sn;
+       >    if abs(g) >= abs(f), if cs <> 0, z = 1/cs;
+       >    f = r;
+       >    g = z;
+
+       > :rqi:
+
+       > rho = (x'*A*x)
+       > x = (A-rho*eye)\x;
+       > x = x/norm(x)
+
+       > :setup:
+
+       > diary('xxx')
+       > !tail -f xxx > /dev/tty1 &
+       > !tail -f xxx > /dev/tty2 &
+
+       > :sigma:
+
+       > RHO = .5  M = 20  N = 10   SIGMA =  1.488934271883534
+       > RHO = .5  M = 40  N = 20   SIGMA =  1.488920312974229
+       > RHO = .5  M = 60  N = 30   SIGMA =  1.488920697912116
+
+       > :strut.laf:
+
+       > // Structure problem, Forsythe, Malcolm and Moler, p. 62
+       > s =  sqrt(2)/2;
+       > A = [
+       > -s  .	.  1  s   .  .	.  .  .  .  .  .  .  .	.  .
+       > -s  . -1  . -s   .  .	.  .  .  .  .  .  .  .	.  .
+       >  . -1	.  .  .   1  .	.  .  .  .  .  .  .  .	.  .
+       >  .  .	1  .  .   .  .	.  .  .  .  .  .  .  .	.  .
+       >  .  .	. -1  .   .  .	1  .  .  .  .  .  .  .	.  .
+       >  .  .	.  .  .   . -1	.  .  .  .  .  .  .  .	.  .
+       >  .  .	.  . -s -1  .  .  s  1	.  .  .   .  .	.  .
+       >  .  .	.  .  s   .  1	.  s  .  .  .  .  .  .	.  .
+       >  .  .	.  .  .   .  . -1 -s  .  .  1  s  .  .	.  .
+       >  .  .	.  .  .   .  .	. -s  . -1  . -s  .  .	.  .
+       >  .  .	.  .  .   .  .	.  . -1  .  .  .  1  .	.  .
+       >  .  .	.  .  .   .  .	.  .  .  1  .  .  .  .	.  .
+       >  .  .	.  .  .   .  .	.  .  .  . -1  .  .  .	s  .
+       >  .  .	.  .  .   .  .	.  .  .  .  .  .  . -1 -s  .
+       >  .  .	.  .  .   .  .	.  .  .  .  . -s -1  .	.  1
+       >  .  .	.  .  .   .  .	.  .  .  .  .  s  .  1	.  .
+       >  .  .	.  .  .   .  .	.  .  .  .  .  .  .  . -s -1];
+       > b = [
+       >  .  .	. 10  .   .  . 15  .  .  .  .  .  .  . 10  .]';
+
+       > :test1:
+
+       > // -----------------------------------------------------------------
+       > // start a new log file
+       > sh rm -fv log.txt
+       > diary('log.txt')
+       > // -----------------------------------------------------------------
+       > titles=['GNP deflator'
+       >  'GNP	       '
+       >  'Unemployment'
+       >  'Armed Force '
+       >  'Population  '
+       >  'Year        '
+       >  'Employment  '];
+       > data = ...
+       > [ 83.0  234.289  235.6  159.0	107.608  1947  60.323
+       >   88.5  259.426  232.5  145.6	108.632  1948  61.122
+       >   88.2  258.054  368.2  161.6	109.773  1949  60.171
+       >   89.5  284.599  335.1  165.0	110.929  1950  61.187
+       >   96.2  328.975  209.9  309.9	112.075  1951  63.221
+       >   98.1  346.999  193.2  359.4	113.270  1952  63.639
+       >   99.0  365.385  187.0  354.7	115.094  1953  64.989
+       >  100.0  363.112  357.8  335.0	116.219  1954  63.761
+       >  101.2  397.469  290.4  304.8	117.388  1955  66.019
+       >  104.6  419.180  282.2  285.7	118.734  1956  67.857
+       >  108.4  442.769  293.6  279.8	120.445  1957  68.169
+       >  110.8  444.546  468.1  263.7	121.950  1958  66.513
+       >  112.6  482.704  381.3  255.2	123.366  1959  68.655
+       >  114.2  502.601  393.1  251.4	125.368  1960  69.564
+       >  115.7  518.173  480.6  257.2	127.852  1961  69.331
+       >  116.9  554.894  400.7  282.7	130.081  1962  70.551];
+       > short
+       > X = data;
+       > [n,p] = shape(X)
+       > mu = ones(1,n)*X/n
+       > X = X - ones(n,1)*mu;	X = X/diag(sqrt(diag(X'*X)))
+       > corr = X'*X
+       > y = data(:,p); X = [ones(y) data(:,1:p-1)];
+       > long e
+       > beta = X\y
+       > expected = [ ...
+       >    -3.482258634594421D+03
+       >     1.506187227124484D-02
+       >    -3.581917929257409D-02
+       >    -2.020229803816908D-02
+       >    -1.033226867173703D-02
+       >    -5.110410565317738D-02
+       >     1.829151464612817D+00
+       > ]
+       > display('EXPE and BETA should be the same')
+
+       > :tryall:
+
+       > diary('log.txt')
+       > a=magic(8)
+       > n=3
+       > exec('avg')
+       > b=random(8,8)
+       > exec('cdiv')
+       > exec('exp')
+       > exec('four')
+       > exec('gs')
+       > exec('jacobi')
+       > // jacstep
+       > exec('kron')
+       > exec('lanczos')
+       > // lanstep
+       > exec('longley')
+       > exec('mgs')
+       > exec('net')
+       > exec('pascal')
+       > exec('pdq')
+       > // pdqstep
+       > exec('pop')
+       > exec('qr')
+       > // qrstep
+       > exec('rho')
+       > exec('rosser')
+       > // rot
+       > exec('rqi')
+       > exec('setup')
+       > exec('sigma')
+       > exec('strut.laf')
+       > exec('w5')
+       > exec('rogers.exec
+       > exec('rogers.load
+
+       > :w5:
+
+       > w5 = [
+       >	 1.	1.	0.	0.	0.
+       >       -10.	1.	1.	0.	0.
+       >	40.	0.	1.	1.	0.
+       >       205.	0.	0.	1.	1.
+       >       024.	0.	0.	0.     -4.
+       >      ]
+
+
+
+				 July 22, 2023		       lala(3m_matrix)
+get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
+
+
+
+NAME
+  get_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
+  LICENSE(MIT)
+
+SYNOPSIS
+  subroutine get_from_lala(varname,A,IERR,fixed)
+
+       character(len=*),intent(in)		 :: varname
+       [INTRINSIC_TYPE],allocatable,intent(out)  :: a(:,:)
+       integer,intent(out)			 :: ierr
+       logical,intent(in),optional		 :: fixed
+
+
+DESCRIPTION
+  Given the name of a variable defined with lala(3f) commands return the
+  values to the calling program.
+
+OPTIONS
+  VARNAME Name of lala(3f) variable to retrieve
+
+  FIXED
+    If .true., A is assumed to be a fixed size. It should only be specified if
+    the value is .true.! It is up to the user at this point to ensure the size
+    is correct at this point.
+
+RETURNS
+  A May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.  May be a
+    scalar, vector, or MxN matrix.
+
+  IERR
+    Zero if no error occurred
+
+EXAMPLE
+  sample program:
+
+     program demo_get_from_lala
+     use M_matrix, only : lala, get_from_lala, put_into_lala
+     implicit none
+     doubleprecision,allocatable :: darr(:,:)
+     real,allocatable		 :: rarr(:,:)
+     integer,allocatable	 :: ivec(:)
+     integer			 :: ierr
+     integer			 :: i
+     character(len=*),parameter  :: gen='(*(g0,1x))'
+
+	! create an array in LALA so have something to get
+	call lala('A=rand(4,5)*10.5,long,A')
+
+	! get the array as a REAL array
+	call get_from_lala('A',rarr,ierr)
+	write(*,gen)'in calling program RARR=',shape(rarr)
+	write(*,gen)(rarr(i,:),new_line('A'),i=1,size(rarr,dim=1))
+
+	! get the array as a DOUBLEPRECISION  array
+	call get_from_lala('A',darr,ierr)
+	write(*,gen)'in calling program darr=',shape(darr)
+	write(*,gen)(darr(i,:),new_line('A'),i=1,size(darr,dim=1))
+
+	! get the array as an INTEGER vector, much like the
+	! PUSH(3f) intrinsic
+	call get_from_lala('A',ivec,ierr)
+	write(*,gen)'in calling program ivec=',shape(ivec)
+	write(*,gen)ivec
+
+     end program demo_get_from_lala
+
+  Results:
+
+     >A  =
+     >	 2.2189  6.9865  9.2213  7.6267  2.4278
+     >	 7.9385  6.5981  0.7179  2.0844  2.2729
+     >	 0.0023  8.9223  5.8889  5.7147  9.2756
+     >	 3.4684  7.2002  6.9547  2.4368  6.8514
+
+     >A  =
+     >	  COLUMNS     1 THRU	 4
+     >	2.218911087373272 6.986501594306901 9.221273053670302 7.626682105707005
+     >	7.938460468780249 6.598113777581602 0.717927386518568 2.084401034284383
+     >	0.002321913605556 8.922324976650998 5.888910365989432 5.714701820863411
+     >	3.468434463255107 7.200175708159804 6.954747841693461 2.436785291880369
+     >	  COLUMNS     5 THRU	 5
+     >	2.427849056432024
+     >	2.272864263039082
+     >	9.275582205271348
+     >	6.851391694508493
+     >in calling program RARR= 4 5
+     > 2.21891117 6.98650169 9.22127342 7.62668228 2.42784905
+     > 7.93846035 6.59811401 0.717927396 2.08440113 2.27286434
+     > 0.232191361E-2 8.92232513 5.88891029 5.71470165 9.27558231
+     > 3.46843457 7.20017576 6.95474768 2.43678522 6.85139179
+
+     >in calling program darr= 4 5
+     > 2.2189110873732716 6.9865015943069011 9.2212730536703020 ..
+     > 7.6266821057070047 2.4278490564320236
+     > 7.9384604687802494 6.5981137775816023 0.71792738651856780 ..
+     > 2.0844010342843831 2.2728642630390823
+     > 0.23219136055558920E-2 8.9223249766509980 5.8889103659894317 ..
+     > 5.7147018208634108 9.2755822052713484
+     > 3.4684344632551074 7.2001757081598043 6.9547478416934609 ..
+     > 2.4367852918803692 6.8513916945084929
+
+     >in calling program ivec= 20
+     > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
+
+
+
+
+				 July 22, 2023	      get_from_lala(3m_matrix)
++ echo '>>>> run make'
+>>>> run make
++ cd ..
++ make clean
+rm -f ../example/demo_adjustc ../example/demo_base ../example/demo_change ../example/demo_chomp ../example/demo_codebase ../example/demo_compact ../example/demo_crop ../example/demo_decodebase ../example/demo_delim ../example/demo_describe ../example/demo_expand ../example/demo_fmt ../example/demo_getvals ../example/demo_indent ../example/demo_isalnum ../example/demo_isalpha ../example/demo_isascii ../example/demo_isblank ../example/demo_iscntrl ../example/demo_isdigit ../example/demo_isgraph ../example/demo_islower ../example/demo_isnumber ../example/demo_isprint ../example/demo_ispunct ../example/demo_isspace ../example/demo_isupper ../example/demo_isxdigit ../example/demo_join ../example/demo_len_white ../example/demo_lenset ../example/demo_listout ../example/demo_lower ../example/demo_matchw ../example/demo_merge_str ../example/demo_modif ../example/demo_msg ../example/demo_noesc ../example/demo_nospace ../example/demo_notabs ../example/demo_quote ../example/demo_replace ../example/demo_reverse ../example/demo_rotate13 ../example/demo_s2c ../example/demo_s2v ../example/demo_s2vs ../example/demo_split ../example/demo_stretch ../example/demo_string_to_value ../example/demo_string_to_values ../example/demo_strtok ../example/demo_substitute ../example/demo_switch ../example/demo_transliterate ../example/demo_unquote ../example/demo_upper ../example/demo_upper_quoted ../example/demo_v2s ../example/demo_value_to_string ../example/demo_visible ../example/demo_M_strings  M_strings.o M_strings_oop.o  *.mod ../test/test_suite_M_strings ../test/M_strings_oops 
++ make F90=gfortran gfortran
+make: *** No rule to make target 'M_strings.o', needed by '../example/demo_adjustc'.  Stop.
++ make doxygen
+doxygen dox.in
+warning: Tag 'PERL_PATH' at line 2140 of file 'dox.in' has become obsolete.
+         To avoid this warning please remove this line from your configuration file or upgrade it using "doxygen -u"
+warning: Tag 'MSCGEN_PATH' at line 2162 of file 'dox.in' has become obsolete.
+         To avoid this warning please remove this line from your configuration file or upgrade it using "doxygen -u"
+warning: source html/images is not a readable file or directory... skipping.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:403: warning: Found ';' while parsing initializer list! (doxygen could be confused by a macro call without semicolon)
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:432: warning: Found ';' while parsing initializer list! (doxygen could be confused by a macro call without semicolon)
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2974: warning: Found ';' while parsing initializer list! (doxygen could be confused by a macro call without semicolon)
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:3030: warning: Found ';' while parsing initializer list! (doxygen could be confused by a macro call without semicolon)
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:407: warning: documented symbol '< 4 2 0 > x since they can easily be added to the system COLUMNS AND SUBMATRICES Individual elements of a matrix can be accessed by giving their subscripts in eg TAB' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:433: warning: documented symbol 'A changes all but the outer edge of the lower triangle and then prints the final matrix for< h, cos(pi *h)> prints a table of cosines< X, D > for A *v displays one at a time The WHILE clause allows statements to be repeated an indefinite number of times The general form is WHILE expr relop END where relop<, ><=, > or' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1284: warning: documented symbol '< > QUOTE LINE STATEMENT CLAUSE EXPR COMMAND EXPR< ><<-|||--------||---------||-<,<-|STATEMENT|-> NAME' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1420: warning: documented symbol '< > QUOTE LINE STATEMENT CLAUSE EXPR COMMAND EXPR< ><<-|||--------||---------||-<,<-|STATEMENT|-><----||--><---||||||||||--<,<---|||||||------------> EXPR< > FACTOR **FACTOR TEXT NUMBER INT INT E INT INT DIGIT NAME< LETTER<--|||------> LETTER< DIGIT<--|COMMAND|--> NAME NAME CHAR TEXT LETTER DIGIT CHAR THE PARSER INTERPRETER The structure of the parser interpreter is similar to that of Wirth s compiler' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1476: warning: documented symbol '< > QUOTE LINE STATEMENT CLAUSE EXPR COMMAND EXPR< ><<-|||--------||---------||-<,<-|STATEMENT|-><----||--><---||||||||||--<,<---|||||||------------> EXPR< > FACTOR **FACTOR TEXT NUMBER INT INT E INT INT DIGIT NAME< LETTER<--|||------> LETTER< DIGIT<--|COMMAND|--> NAME NAME CHAR TEXT LETTER DIGIT CHAR THE PARSER INTERPRETER The structure of the parser interpreter is similar to that of Wirth s compiler' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1480: warning: documented symbol '< > QUOTE LINE STATEMENT CLAUSE EXPR COMMAND EXPR< ><<-|||--------||---------||-<,<-|STATEMENT|-><----||--><---||||||||||--<,<---|||||||------------> EXPR< > FACTOR **FACTOR TEXT NUMBER INT INT E INT INT DIGIT NAME< LETTER<--|||------> LETTER< DIGIT<--|COMMAND|--> NAME NAME CHAR TEXT LETTER DIGIT CHAR THE PARSER INTERPRETER The structure of the parser interpreter is similar to that of Wirth s compiler' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1532: warning: documented symbol '< > QUOTE LINE STATEMENT CLAUSE EXPR COMMAND EXPR< ><<-|||--------||---------||-<,<-|STATEMENT|-><----||--><---||||||||||--<,<---|||||||------------> EXPR< > FACTOR **FACTOR TEXT NUMBER INT INT E INT INT DIGIT NAME< LETTER<--|||------> LETTER< DIGIT<--|COMMAND|--> NAME NAME CHAR TEXT LETTER DIGIT CHAR THE PARSER INTERPRETER The structure of the parser interpreter is similar to that of Wirth s compiler' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1604: warning: documented symbol 'RAND and occupy the last four positions of the variable stacks RAND has dimensions but whenever its value is a random number generator is used instead EYE has dimensions by to indicate that the actual dimensions must be determined later by context The two saved variables have dimensions by and by and so take up a total of locations Subsequent statements involving A and x will result in temporary copies being made in the top of the stack for use in the actual calculations Whenever the top of the stack reaches the a message indicating memory has been exceeded is but the current variables are not affected This modular structure makes it possible to implement MAT88 on a system with a limited amount of memory The object code for the MATFN s and the LINPACK EISPACK subroutines is rarely needed Although it is not many Fortran operating systems provide some overlay mechanism so that this code is brought into the main memory only when required The which occupy a relatively small portion of the remain in while the subroutines which process them are loaded a few at a time THE NUMERICAL ALGORITHMS The algorithms underlying the basic MAT88 functions are described in the LINPACK and EISPACK guides' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1610: warning: documented symbol 'RAND and occupy the last four positions of the variable stacks RAND has dimensions but whenever its value is a random number generator is used instead EYE has dimensions by to indicate that the actual dimensions must be determined later by context The two saved variables have dimensions by and by and so take up a total of locations Subsequent statements involving A and x will result in temporary copies being made in the top of the stack for use in the actual calculations Whenever the top of the stack reaches the a message indicating memory has been exceeded is but the current variables are not affected This modular structure makes it possible to implement MAT88 on a system with a limited amount of memory The object code for the MATFN s and the LINPACK EISPACK subroutines is rarely needed Although it is not many Fortran operating systems provide some overlay mechanism so that this code is brought into the main memory only when required The which occupy a relatively small portion of the remain in while the subroutines which process them are loaded a few at a time THE NUMERICAL ALGORITHMS The algorithms underlying the basic MAT88 functions are described in the LINPACK and EISPACK guides' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1610: warning: documented symbol 'RAND and occupy the last four positions of the variable stacks RAND has dimensions but whenever its value is a random number generator is used instead EYE has dimensions by to indicate that the actual dimensions must be determined later by context The two saved variables have dimensions by and by and so take up a total of locations Subsequent statements involving A and x will result in temporary copies being made in the top of the stack for use in the actual calculations Whenever the top of the stack reaches the a message indicating memory has been exceeded is but the current variables are not affected This modular structure makes it possible to implement MAT88 on a system with a limited amount of memory The object code for the MATFN s and the LINPACK EISPACK subroutines is rarely needed Although it is not many Fortran operating systems provide some overlay mechanism so that this code is brought into the main memory only when required The which occupy a relatively small portion of the remain in while the subroutines which process them are loaded a few at a time THE NUMERICAL ALGORITHMS The algorithms underlying the basic MAT88 functions are described in the LINPACK and EISPACK guides' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1673: warning: documented symbol 'X *D X This is essentially method number out of the dubious possibilities described in' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2097: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2099: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2102: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2102: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2102: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2102: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2104: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2104: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2105: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2111: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2117: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2125: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+/home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2126: warning: documented symbol 'Then the MAT88 statements N DO N N N N enddo or MAT88 subroutine SAVLOD After this program is enter MAT88 and give the following X If all goes according to this will read the matrix A from the file invert store the inverse in X and then write the matrix X on the file X The following program can then access X PROGRAM MAINX DOUBLEPRECISION N N M ENDDO but which is not used by MAT88 itself The preample of MATZ IERR INTEGER IERR DOUBLEPRECISION STORED IN AN ARRAY WITH ! LEADING DIMENSION LDA ! IDA IS THE NAME OF A ! IF IDA IS AN INTEGER K LESS THEN THE NAME IS A K FORMAT STACKP AND ERROR The preample of subroutine MAT88 NONZERO FOR SUBSEQUENT ENTRIES To do our write the following IDX CALL N DO N the call to then waits for input The command quit sends control back to our example program The matrix A is generated by the program and sent to the stack by the first call to MATZ The call to put the result on the stack and go back to our program The second call to MATZ will retrieve X By the this matrix X is interesting Take a look at where it is being supported by the National Science Foundation Additional work has been done during visits to Stanford Linear Accelerator Argonne National Laboratory and Los Alamos Scientific where support has been provided by NSF and the Department of Energy REFERENCES' was not declared or defined.
+Searching for include files...
+Searching for example files...
+Searching for images...
+Searching for files in directory /home/urbanjs/venus/V600/github/M_matrix/docs/images
+Searching for dot files...
+Searching for msc files...
+Searching for dia files...
+Searching for files to exclude
+Searching INPUT for files to process...
+Searching for files in directory /home/urbanjs/venus/V600/github/M_matrix/src
+Searching for files in directory /home/urbanjs/venus/V600/github/M_matrix/src/source
+Searching for files in directory /home/urbanjs/venus/V600/github/M_matrix/src/source/doc
+Searching for files in directory /home/urbanjs/venus/V600/github/M_matrix/src/source/doc/PRIVATE
+Searching for files in directory /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER
+Searching for files in directory /home/urbanjs/venus/V600/github/M_matrix/src/source/HOLD
+Reading and parsing tag files
+Parsing files
+Preprocessing /home/urbanjs/venus/V600/github/M_matrix/src/mainpage.txt...
+Parsing file /home/urbanjs/venus/V600/github/M_matrix/src/mainpage.txt...
+Reading /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mmm.f90...
+Parsing file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mmm.f90...
+Reading /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mold.f90...
+Prepassing fixed form of /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mold.f90
+Parsing file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mold.f90...
+Preprocessing /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt...
+Parsing file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt...
+Building group list...
+Building directory list...
+Building namespace list...
+Building file list...
+Building class list...
+Computing nesting relations for classes...
+Associating documentation with classes...
+Building example list...
+Searching for enumerations...
+Searching for documented typedefs...
+Searching for members imported via using declarations...
+Searching for included using directives...
+Searching for documented variables...
+Building interface member list...
+Building member list...
+Searching for friends...
+Searching for documented defines...
+Computing class inheritance relations...
+Computing class usage relations...
+Flushing cached template relations that have become invalid...
+Computing class relations...
+Add enum values to enums...
+Searching for member function documentation...
+Creating members for template instances...
+Building page list...
+Search for main page...
+Computing page relations...
+Determining the scope of groups...
+Sorting lists...
+Determining which enums are documented
+Computing member relations...
+Building full member lists recursively...
+Adding members to member groups.
+Computing member references...
+Inheriting documentation...
+Generating disk names...
+Adding source references...
+Adding xrefitems...
+Sorting member lists...
+Setting anonymous enum type...
+Computing dependencies between directories...
+Generating citations page...
+Counting members...
+Counting data structures...
+Resolving user defined references...
+Finding anchors and sections in the documentation...
+Transferring function references...
+Combining using relations...
+Adding members to index pages...
+Correcting members for VHDL...
+Generating style sheet...
+Generating search indices...
+Generating example documentation...
+Generating file sources...
+Parsing code for file /home/urbanjs/venus/V600/github/M_matrix/src/mainpage.txt...
+Parsing code for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mmm.f90...
+Parsing code for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mold.f90...
+Parsing code for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt...
+Generating file documentation...
+Generating docs for file /home/urbanjs/venus/V600/github/M_matrix/src/mainpage.txt...
+Generating docs for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mmm.f90...
+Generating call graph for function bigmat
+Generating call graph for function mat_parse
+Generating caller graph for function mat_parse
+Generating call graph for function matx_waxpy
+Generating caller graph for function matx_waxpy
+Generating call graph for function ml_clause
+Generating caller graph for function ml_clause
+Generating call graph for function ml_comand
+Generating caller graph for function ml_comand
+Generating call graph for function ml_comqr3
+Generating caller graph for function ml_comqr3
+Generating call graph for function ml_corth
+Generating caller graph for function ml_corth
+Generating call graph for function ml_expr
+Generating caller graph for function ml_expr
+Generating call graph for function ml_factor
+Generating caller graph for function ml_factor
+Generating call graph for function ml_getlin
+Generating caller graph for function ml_getlin
+Generating call graph for function ml_htribk
+Generating caller graph for function ml_htribk
+Generating call graph for function ml_htridi
+Generating caller graph for function ml_htridi
+Generating call graph for function ml_imtql2
+Generating caller graph for function ml_imtql2
+Generating call graph for function ml_magic
+Generating caller graph for function ml_magic
+Generating call graph for function ml_matfn1
+Generating caller graph for function ml_matfn1
+Generating call graph for function ml_matfn2
+Generating caller graph for function ml_matfn2
+Generating call graph for function ml_matfn3
+Generating caller graph for function ml_matfn3
+Generating call graph for function ml_matfn4
+Generating caller graph for function ml_matfn4
+Generating call graph for function ml_matfn5
+Generating caller graph for function ml_matfn5
+Generating caller graph for function ml_plot
+Generating call graph for function ml_prntid
+Generating caller graph for function ml_prntid
+Generating caller graph for function ml_prompt
+Generating call graph for function ml_rat
+Generating caller graph for function ml_rat
+Generating call graph for function ml_rrot
+Generating caller graph for function ml_rrot
+Generating call graph for function ml_rrotg
+Generating caller graph for function ml_rrotg
+Generating caller graph for function ml_rset
+Generating caller graph for function ml_rswap
+Generating call graph for function ml_savlod
+Generating caller graph for function ml_savlod
+Generating call graph for function ml_stack1
+Generating caller graph for function ml_stack1
+Generating call graph for function ml_stack2
+Generating caller graph for function ml_stack2
+Generating call graph for function ml_stackg
+Generating caller graph for function ml_stackg
+Generating call graph for function ml_stackp
+Generating caller graph for function ml_stackp
+Generating call graph for function ml_term
+Generating caller graph for function ml_term
+Generating call graph for function ml_wasum
+Generating call graph for function ml_watan
+Generating caller graph for function ml_watan
+Generating call graph for function ml_wdotci
+Generating call graph for function ml_wdotcr
+Generating call graph for function ml_wdotui
+Generating call graph for function ml_wgeco
+Generating caller graph for function ml_wgeco
+Generating call graph for function ml_wgedi
+Generating caller graph for function ml_wgedi
+Generating call graph for function ml_wgefa
+Generating caller graph for function ml_wgefa
+Generating call graph for function ml_wgesl
+Generating caller graph for function ml_wgesl
+Generating call graph for function ml_wmul
+Generating caller graph for function ml_wmul
+Generating call graph for function ml_wnrm2
+Generating call graph for function ml_wpofa
+Generating caller graph for function ml_wpofa
+Generating call graph for function ml_wqrdc
+Generating caller graph for function ml_wqrdc
+Generating call graph for function ml_wqrsl
+Generating caller graph for function ml_wqrsl
+Generating call graph for function ml_wrscal
+Generating caller graph for function ml_wrscal
+Generating call graph for function ml_wscal
+Generating caller graph for function ml_wscal
+Generating call graph for function ml_wsign
+Generating caller graph for function ml_wsign
+Generating call graph for function ml_wsvdc
+Generating caller graph for function ml_wsvdc
+Generating docs for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mold.f90...
+Generating caller graph for function base
+Generating call graph for function bigmat
+Generating call graph for function clause
+Generating caller graph for function clause
+Generating call graph for function comand
+Generating caller graph for function comand
+Generating call graph for function comqr3
+Generating caller graph for function comqr3
+Generating caller graph for function corth
+Generating caller graph for function edit
+Generating call graph for function eqid
+Generating caller graph for function error
+Generating call graph for function expr
+Generating call graph for function factor
+Generating caller graph for function factor
+Generating caller graph for function files
+Generating caller graph for function formz
+Generating call graph for function funs
+Generating caller graph for function funs
+Generating caller graph for function getch
+Generating call graph for function getlin
+Generating caller graph for function getlin
+Generating call graph for function getsym
+Generating caller graph for function getsym
+Generating call graph for function getval
+Generating caller graph for function getval
+Generating caller graph for function hilber
+Generating caller graph for function htribk
+Generating caller graph for function htridi
+Generating caller graph for function imtql2
+Generating call graph for function iwamax
+Generating caller graph for function iwamax
+Generating call graph for function magic
+Generating caller graph for function magic
+Generating call graph for function matfn1
+Generating caller graph for function matfn1
+Generating call graph for function matfn2
+Generating caller graph for function matfn2
+Generating call graph for function matfn3
+Generating caller graph for function matfn3
+Generating call graph for function matfn4
+Generating caller graph for function matfn4
+Generating call graph for function matfn5
+Generating caller graph for function matfn5
+Generating call graph for function matfn6
+Generating caller graph for function matfn6
+Generating call graph for function matlab
+Generating caller graph for function matlab
+Generating call graph for function parse
+Generating caller graph for function parse
+Generating caller graph for function plot
+Generating call graph for function print
+Generating caller graph for function print
+Generating caller graph for function prntid
+Generating caller graph for function prompt
+Generating caller graph for function putid
+Generating call graph for function pythag
+Generating caller graph for function pythag
+Generating caller graph for function rat
+Generating call graph for function round
+Generating call graph for function rref
+Generating caller graph for function rref
+Generating caller graph for function rrot
+Generating caller graph for function rrotg
+Generating caller graph for function rset
+Generating caller graph for function rswap
+Generating caller graph for function savlod
+Generating call graph for function stack1
+Generating caller graph for function stack1
+Generating call graph for function stack2
+Generating caller graph for function stack2
+Generating call graph for function stackg
+Generating caller graph for function stackg
+Generating call graph for function stackp
+Generating caller graph for function stackp
+Generating call graph for function term
+Generating caller graph for function term
+Generating caller graph for function user
+Generating call graph for function watan
+Generating caller graph for function watan
+Generating caller graph for function waxpy
+Generating caller graph for function wcopy
+Generating call graph for function wdiv
+Generating caller graph for function wdiv
+Generating call graph for function wgeco
+Generating caller graph for function wgeco
+Generating call graph for function wgedi
+Generating caller graph for function wgedi
+Generating call graph for function wgefa
+Generating caller graph for function wgefa
+Generating call graph for function wgesl
+Generating caller graph for function wgesl
+Generating call graph for function wlog
+Generating caller graph for function wlog
+Generating caller graph for function wmul
+Generating call graph for function wnrm2
+Generating call graph for function wpofa
+Generating caller graph for function wpofa
+Generating call graph for function wqrdc
+Generating caller graph for function wqrdc
+Generating call graph for function wqrsl
+Generating caller graph for function wqrsl
+Generating caller graph for function wrscal
+Generating call graph for function wscal
+Generating caller graph for function wscal
+Generating caller graph for function wset
+Generating call graph for function wsign
+Generating caller graph for function wsign
+Generating caller graph for function wsqrt
+Generating call graph for function wsvdc
+Generating caller graph for function wsvdc
+Generating caller graph for function wswap
+Generating docs for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt...
+Generating caller graph for function p
+Generating caller graph for function y
+Generating page documentation...
+Generating group documentation...
+Generating class documentation...
+Generating namespace index...
+Generating docs for namespace m_matrix
+Generating call graph for function m_matrix::mat88
+Generating caller graph for function m_matrix::mat88
+Generating caller graph for function m_matrix::mat_appnum
+Generating caller graph for function m_matrix::mat_buf2str
+Generating call graph for function m_matrix::mat_eqid
+Generating caller graph for function m_matrix::mat_eqid
+Generating call graph for function m_matrix::mat_err
+Generating caller graph for function m_matrix::mat_err
+Generating call graph for function m_matrix::mat_files
+Generating caller graph for function m_matrix::mat_files
+Generating caller graph for function m_matrix::mat_flop
+Generating call graph for function m_matrix::mat_funs
+Generating caller graph for function m_matrix::mat_funs
+Generating caller graph for function m_matrix::mat_getch
+Generating call graph for function m_matrix::mat_getsym
+Generating caller graph for function m_matrix::mat_getsym
+Generating call graph for function m_matrix::mat_getval
+Generating caller graph for function m_matrix::mat_getval
+Generating call graph for function m_matrix::mat_iwamax
+Generating caller graph for function m_matrix::mat_iwamax
+Generating caller graph for function m_matrix::mat_make_help
+Generating call graph for function m_matrix::mat_matfn6
+Generating caller graph for function m_matrix::mat_matfn6
+Generating call graph for function m_matrix::mat_print
+Generating caller graph for function m_matrix::mat_putid
+Generating call graph for function m_matrix::mat_pythag
+Generating caller graph for function m_matrix::mat_pythag
+Generating call graph for function m_matrix::mat_round
+Generating caller graph for function m_matrix::mat_round
+Generating call graph for function m_matrix::mat_rref
+Generating caller graph for function m_matrix::mat_str2buf
+Generating caller graph for function m_matrix::mat_wcopy
+Generating call graph for function m_matrix::mat_wdiv
+Generating caller graph for function m_matrix::mat_wdiv
+Generating call graph for function m_matrix::mat_wdotur
+Generating call graph for function m_matrix::mat_wlog
+Generating caller graph for function m_matrix::mat_wlog
+Generating caller graph for function m_matrix::mat_wset
+Generating call graph for function m_matrix::mat_wsqrt
+Generating caller graph for function m_matrix::mat_wsqrt
+Generating caller graph for function m_matrix::mat_wswap
+Generating caller graph for function m_matrix::ml_formz
+Generating graph info page...
+Generating directory documentation...
+Generating index page...
+Generating page index...
+Generating module index...
+Generating namespace index...
+Generating namespace member index...
+Generating annotated compound index...
+Generating alphabetical compound index...
+Generating hierarchical class index...
+Generating graphical class hierarchy...
+Generating member index...
+Generating file index...
+Generating file member index...
+Generating example index...
+finalizing index lists...
+writing tag file...
+Running plantuml with JAVA...
+Running dot...
+lookup cache used 718/65536 hits=253630 misses=764
+finished...
++ make man
+mandb: warning: $MANPATH set, inserting /etc/manpath.config
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/../man/man3'. Wait...
+Purging old database entries in /home/urbanjs/venus/V600/github/M_matrix/src/../man...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man...
+mandb: warning: failed to store entry for put_into_lala(3m_matrix)
+mandb: warning: failed to store entry for M_matrix(3m_matrix)
+mandb: warning: failed to store entry for ifin_lala(3m_matrix)
+mandb: warning: failed to store entry for get_from_lala(3m_matrix)
+mandb: warning: failed to store entry for lala(3m_matrix)
+done.
+Checking for stray cats under /home/urbanjs/venus/V600/github/M_matrix/src/../man...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat8...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat1...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat3...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat4...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat6...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat2...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat5...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat7...
+1 man subdirectory contained newer manual pages.
+5 manual pages were added.
+0 stray cats were added.
+0 old database entries were purged.
+get_from_lala(3f) (3m_matrix) [get_from_lala] - (unknown subject)
+ifin_lala(3f) (3m_matrix) [ifin_lala] - (unknown subject)
+lala (1)	     - interpret matrix expressions using a shell-like interface
+LALA(3f) (3m_matrix) [lala] - (unknown subject)
+M_matrix(3f) (3m_matrix) [M_matrix] - (unknown subject)
+put_from_lala(3f) (3m_matrix) [put_into_lala] - (unknown subject)
+lala.1.man(1m_matrix)					 lala.1.man(1m_matrix)
+
+
+
+NAME
+  lala(1f) - interpret matrix expressions using a shell-like interface
+
+
+SYNOPSIS
+  lala [expression(s)] | [ --help| --version]
+
+DESCRIPTION
+  lala(1) is an interactive computer program that serves as a convenient
+  "laboratory" for computations involving matrices. It provides easy access to
+  matrix software developed by the LINPACK and EISPACK projects. The
+  capabilities range from standard tasks such as solving simultaneous linear
+  equations and inverting matrices, through symmetric and nonsymmetric
+  eigenvalue problems, to fairly sophisticated matrix tools such as the
+  singular value decomposition.
+
+OPTIONS
+  --help
+    display this help and exit
+
+  --version
+    output version information and exit
+
+  expression(s)
+    if expressions are supplied they are evaluated and the program terminates.
+
+AUTHOR
+  This is heavily based on a program from the Department of Computer Science,
+  University of New Mexico, by Cleve Moler.
+
+EXAMPLES
+  Sample commands
+
+      # Example 1: introductory usage:
+      lala
+      a=<1 2 3;5 4 6;7 8 9>
+      b=<5;6;7>
+      a*b
+      b*a
+      det(a)
+      quit
+
+  An explanation of Example 1:
+
+      // For this session the <> character is the LALA prompt.
+       <> A=<1 2 3;5 4 6;7 8 9> 	   <---  you enter this
+       A     =				   <---  LALA response
+	   1.	 2.    3.
+	   5.	 4.    6.
+	   7.	 8.    9.
+       <> b=<5;6;7>
+       b     =
+	   5.
+	   6.
+	   7.
+
+       <> A*b		  <--- you enter "multiply A and b"
+
+       ANS   =		  <--- LALA response
+	  38.
+	  91.
+	 146.
+
+       <> b*A		  <---you enter "multiply b and A"
+	  /--ERROR			   <--- LALA response
+
+   INCOMPATIBLE FOR MULTIPLICATION
+  <> det(A)
+    <--- Take the determinant of A
+
+  ANS
+    =		<---LALA response
+
+	  18.
+
+
+  <> quit
+    <--- you quit LALA
+
+  total flops
+    34
+
+   ADIOS
+  // --------------------------------------
+
+  Example 2: Simple looping and conditionals are also available
+
+      lala
+      //Eigenvalue sensitivity example. See section 8 of the Users' Guide.
+      B = <3 0 7; 0 2 0; 0 0 1>
+      L = <1 0 0; 2 1 0; -3 4 1>,  M = L\L'
+      A = M*B/M
+      A = round(A)
+      <X,D> = eig(A)
+      long,  diag(D),  short
+      cond(X)
+      X = X/diag(X(3,:)),  cond(X)
+      Y = inv(X'),  Y'*A*X
+      for j = 1:3, c(j) = norm(Y(:,j))*norm(X(:,j));
+
+   C
+  E = -1.e-6*Y(:,1)*X(:,1)'
+
+  eig(A + .4*E),
+    eig(A + .5*E)
+
+  r = .4;
+    s = .5; while s-r > 1.e-14, t = (r+s)/2; d = eig(A+t*E); ...  if
+    imag(d(1))=0, r = t; else, s = t;
+
+  long,
+    t = r
+
+  A+t*e,
+    eig(A+t*E)
+
+  <X,D> = eig(A+t*E);
+    X = X/diag(X(3,:))
+
+  short,
+    cond(X) // --------------------------------------
+
+  Use the HELP command for further information.  For example, to enter HELP on
+  the entire manual, display directions for using HELP and place a User manual
+  in the file "lala.userguide.txt", enter
+
+      lala
+      <>help manual
+      continue ...
+      h // show directions for using "help"
+      w lala.userguide.txt
+      continue ...
+      q
+      quit
+
+
+
+				 July 22, 2023		 lala.1.man(1m_matrix)
+ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
+
+
+
+NAME
+  ifin_lala(3f) - [M_matrix] test if variable name exists in lala()
+  LICENSE(MIT)
+
+SYNOPSIS
+  logical function ifin_lala(varname)
+
+  character(len=*),intent(in) :: varname
+
+DESCRIPTION
+  Determine if a variable name currently exists in lala().
+
+RETURNS
+  ifin_lala
+    TRUE if varname exists in lala, else FALSE.
+
+EXAMPLE
+  sample program:
+
+       program demo_ifin_lala
+       use M_matrix, only : ifin_lala
+       implicit none
+	  write(*,*)'eps ',ifin_lala('eps')
+	  write(*,*)'unknown ',ifin_lala('unknown')
+       end program demo_ifin_lala
+
+  Results:
+
+      eps  T
+      unknown  F
+
+
+
+
+				 July 22, 2023		  ifin_lala(3m_matrix)
+M_matrix(3m_matrix)					   M_matrix(3m_matrix)
+
+
+
+NAME
+  M_matrix(3f) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algebra
+  Fortran Facility (LALA) LICENSE(MIT)
+
+
+DESCRIPTION
+  The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
+  which allows for interacting with a Fortran program using Matlab
+
+  or Octave-like commands.
+    LALA is also usable as a simple one-line language. It is a WIP (Work In
+    Progress) but is already useful.
+
+    •  You can pass intrinsic-type data easily between your Fortran program
+       and the LALA utility.
+
+    •  blocks of LALA commands may be passed to lala(3f) as well.
+
+    •  external files containing lala(3f) commands may be read to create data
+       or as configuration files.
+
+    •  LALA commands may be recorded and played back.
+
+    •  a command-line based command history allowed for recalling and editing
+       input.
+
+    •  a stand-alone program lets you create and test LALA files. It is a
+       flexible calculator utility all by itself.
+
+    •  a built-in help command describes the many functions and commands
+
+    •  a user-added Fortran routine may be called via the USER() function.
+
+  All together, this allows lala(3f) to be used for self-describing
+  configuration and data files, inspecting data in existing programs,
+  transferring small amounts of data between programs or assisting in
+  debugging and development, unit testing and macro-level timing.
+
+EXAMPLE
+  Sample program:
+
+      program demo_M_matrix
+      use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
+      !real,allocatable 	    :: r
+      !complex,allocatable	    :: cvec(:)
+      integer,allocatable	   :: iarr(:,:)
+      character(len=:),allocatable :: t(:)
+      integer			   :: ierr
+      integer			   :: i
+
+      ! store some data into lala(3)
+      call put_into_lala('A',[1,2,3,4,5]*10.5,ierr)
+      write(*,*)'is A defined in LALA?',ifin_lala('A')
+      call lala('A/2.0')
+
+      ! pass some commands to lala(3f)
+      call lala([character(len=80) :: &
+      &'PI=atan(1)*4		   ', &
+      &"mytitle='this is my title';", &
+      &'littlearray=<		   ', &
+      &'   1 2 3;		   ', &
+      &'   4 5 6;		   ', &
+      &'   7 8 9;		   ', &
+      &'>			   ', &
+      &'S=sum(A)		   ', &
+      &'I=inv(littlearray);	   ', &
+      &'B=littlearray*sin(PI/3)    ', &
+      &"save('keepB',B) 	   ", &
+      &''])
+
+      ! read a file containing lala(3f) commands
+      call lala("exec('mycommands');")
+
+      ! interactively interact with lala(3f) interpreter
+      call lala()
+
+      ! get some data from LALA into the calling program
+      call get_from_lala('littlearray',iarr,ierr)
+      write(*,'(a)')'IN CALLING PROGRAM IARR='
+      write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
+
+      call get_from_lala('mytitle',t,ierr)
+      write(*,*)'IN CALLING PROGRAM T=',t
+
+      end program demo_M_matrix
+
+
+
+				 July 22, 2023		   M_matrix(3m_matrix)
+put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
+
+
+
+NAME
+  put_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
+  LICENSE(MIT)
+
+SYNOPSIS
+  subroutine put_into_lala(varname,A,IERR)
+
+     character(len=*),intent(in)	      :: varname
+     [INTRINSIC_TYPE],allocatable,intent(in)  :: a(:,:)
+     integer,intent(out)		      :: ierr
+
+
+DESCRIPTION
+  Define a variable in the lala(3f) utility with a variable declared in the
+  calling program.
+
+OPTIONS
+  VARNAME Name of lala(3f) variable to retrieve
+
+    A May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.  May be a
+      scalar, vector, or MxN matrix.
+
+RETURNS
+  IERR
+    Zero if no error occurred
+
+EXAMPLE
+  sample program:
+
+     program demo_put_into_lala
+     use M_matrix, only : lala, get_from_lala, put_into_lala
+     implicit none
+     integer :: ierr
+
+	! store some data from the program into lala(3f)
+	call put_into_lala('A',[1,2,3,4,5,6,7,8,9],ierr)
+	call put_into_lala('B',[1.1,2.2,3.3],ierr)
+	call put_into_lala('C',"This is my title",ierr)
+
+	! call lala(3f) and display the values
+	call lala([character(len=80) :: &
+	& 'who,A,B', &
+	& 'display(C);', &
+	& '', &
+	& ''])
+
+     end program demo_put_into_lala
+
+  Results:
+
+       > Your current variables are...
+       > C  B  A  eps  flops  eye  rand
+       >using 33 out of 200000 elements
+       >
+       > A  =
+       >     1.    2.	 3.    4.    5.    6.	 7.    8.    9.
+       >
+       > B  =
+       >    1.1000    2.2000	3.3000
+       >This is my title
+
+
+
+
+				 July 22, 2023	      put_into_lala(3m_matrix)
+lala(3m_matrix) 					       lala(3m_matrix)
+
+
+
+NAME
+  LALA(3f) - [M_matrix] initialize and/or pass commands to matrix laboratory
+  interpreter LICENSE(MIT)
+
+SYNOPSIS
+  subroutine lala(init,cmd)
+
+       integer,intent(in),optional :: init
+       character(len=*),intent(in),optional :: cmd
+	  or
+       character(len=*),intent(in),optional :: cmd(:)
+
+
+DESCRIPTION
+  LALA(3f) is modeled on MATLAB(3f) (MATrix LABoratory), a FORTRAN package
+  developed by Argonne National Laboratories for in-house use.	It provides
+  comprehensive vector and tensor operations in a package which may be
+  programmed, either through a macro language or through execution of script
+  files.
+
+  LALA(3f) Functions supported include (but are not by any means limited to)
+  sin, cos, tan, arcfunctions, upper triangular, lower triangular,
+  determinants, matrix multiplication, identity, Hilbert matrices, eigenvalues
+  and eigenvectors, matrix roots and products, inversion and so on and so
+  forth.
+
+  LALA() can be used
+
+    •  as a stand-alone utility for working with lala() files and for basic
+       computations.
+
+    •  embedded in a Fortran program, passing variables back and forth between
+       the calling program and the utility.
+
+    •  to read configuration and data files that contain expressions and
+       conditionally selected values.
+
+    •  for interactively inspecting data generated by the calling program.
+
+    •  for creating unit tests that allow for further interactive examination.
+
+  The HELP command describes using the interpreter.
+
+OPTIONS
+  INIT
+    indicate size of scratch space to allocate and (re)initialize LALA.
+
+  CMD
+    LALA command(s) to perform. May be CHARACTER scalar or vector
+
+  INIT and CMD cannot be combined on a single call.
+
+  The first call may be an initialization declaring the number of
+  doubleprecision complex values to allocate for the combined scratch and
+  variable storage area. This form may be repeated and reinitializes the
+  utility at each call. A size of zero will deallocate any allocated storage
+  (after which the routine cannot be called with commands until reallocated by
+  another call to lala()).
+
+  If no parameters are supplied interactive mode is entered.
+
+  If a CMD is passed and no previous initialization call was made the scratch
+  space will be allocated to 200000.
+
+EXAMPLE
+  Example 1:
+
+	program demo_LALA
+	use M_matrix, only : lala
+
+	   write(*,'(a)')'optionally initialize scratch area size'
+	   call LALA(20000)
+
+	   write(*,'(a)')'do some commands'
+	   call LALA([character(len=80) :: &
+	   & 'semi;			    ',&
+	   & 'a=magic(4),b=-a		    ',&
+	   & 'a+b;a;b			    ',&
+	   & "display('That is all Folks!') "])
+
+	   write(*,'(a)')'do a single command'
+	   call LALA('who')
+
+	   write(*,'(a)')'enter interactive mode'
+	   call LALA()
+
+	   write(*,'(a)')'ending program'
+	end program demo_LALA
+
+  Example 2:
+
+     program bigmat
+     use M_matrix, only : lala
+	! pass strings to LALA but do not enter interactive mode
+	call lala(20000)		  ! initialize silently
+	call lala( 'a=[1 2 3 4; 5 6 7 8]')
+	call lala( [character(len=80) :: &
+	 & 'semi;lines(999999)					  ',&
+	 & '// create a magic square and add 100 to all the values',&
+	 & 'A=magic(4),<X,Y>=shape(A)				  ',&
+	 & 'B=A+ones(X,Y)*100					  ',&
+	 & '// save all current values to a file		  ',&
+	 & "save('sample.laf')					  ",&
+	 & '// clear all user values				  ',&
+	 & 'clear						  ',&
+	 & '// show variable names, load values from file	  ',&
+	 & '// and show again to show the variables are restored  ',&
+	 & "who;load('sample.laf');who				  "])
+     end program bigmat
+
+  Example 3: Sample program with custom user function
+
+	program custom_user
+	use M_matrix
+	implicit none
+	call set_usersub(lala_user)
+	call lala()
+	contains
+	!-------------------------------------------------------------
+	subroutine lala_user(a,m,n,s,t)  ! sample user routine
+	! Allows personal  Fortran  subroutines  to  be  linked  into
+	! LALA. The subroutine should have the heading
+	!
+	!    subroutine name(a,m,n,s,t)
+	!    integer :: m,n
+	!    doubleprecision a(:),s,t
+	!
+	! The LALA statement Y = USER(X,s,t) results in a call to
+	! the subroutine with a copy of the matrix X stored in the
+	! argument A, its column and row dimensions in M and N,
+	! and the scalar parameters S and T stored in S and T.
+	! If S and T are omitted, they are set to 0.0. After
+	! the return, A is stored in Y. The dimensions M and
+	! N may be reset within the subroutine. The statement Y =
+	! USER(K) results in a call with M = 1, N = 1 and A(1,1) =
+	! FLOAT(K). After the subroutine has been written, it must
+	! be compiled and linked to the LALA object code within the
+	! local programming environment.
+	!
+	implicit none
+	integer 		   :: m,n
+	doubleprecision 	   :: a(:)
+	doubleprecision 	   :: s,t
+	integer 		   :: i, j, k
+	   write(*,*)'MY ROUTINE'
+	   write(*,*)'M=',m
+	   write(*,*)'N=',n
+	   write(*,*)'S=',s
+	   write(*,*)'T=',t
+	   k=0
+	   do i = 1, m
+	      do j = 1, n
+		 k=k+1
+		 write(*,*)i,j,a(k)
+	      enddo
+	   enddo
+	   k=0
+	   if(s.eq.0)s=1
+	   do i = 1, m
+	      do j = 1, n
+		 k=k+1
+		 a(k)=a(k)*s+t
+	      enddo
+	   enddo
+	end subroutine lala_user
+	end program custom_user
+
+  Example inputs
+
+       >:avg:
+
+       >for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
+       >a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
+
+       >:cdiv:
+
+       >// ======================================================
+       >// cdiv
+       >a=sqrt(random(8))
+       >ar = real(a); ai = imag(a); br = real(b); bi = imag(b);
+       >p = bi/br;
+       >t = (ai - p*ar)/(br + p*bi);
+       >cr = p*t + ar/br;
+       >ci = t;
+       >p2 = br/bi;
+       >t2 = (ai + p2*ar)/(bi + p2*br);
+       >ci2 = p2*t2 - ar/bi;
+       >cr2 = t2;
+       >s = abs(br) + abs(bi);
+       >ars = ar/s;
+       >ais = ai/s;
+       >brs = br/s;
+       >bis = bi/s;
+       >s = brs**2 + bis**2;
+       >cr3 = (ars*brs + ais*bis)/s;
+       >ci3 = (ais*brs - ars*bis)/s;
+       >[cr ci; cr2 ci2; cr3 ci3]
+       >// ======================================================
+
+       >:exp:
+
+       >t = 0*x + eye; s = 0*eye(x); n = 1;
+       >while abs(s+t-s) > 0, s = s+t, t = x*t/n, n = n + 1
+
+       >:four:
+       > n
+       > pi = 4*atan(1);
+       > i = sqrt(-1);
+       > w = exp(2*pi*i/n);
+       > F = [];
+       > for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
+       > F = F/sqrt(n);
+       > alpha = r*pi;
+       > rho = exp(i*alpha);
+       > S = log(rho*F)/i - alpha*eye;
+       > serr = norm(imag(S),1);
+       > S = real(S);
+       > serr = serr + norm(S-S',1)
+       > S = (S + S')/2;
+       > ferr = norm(F-exp(i*S),1)
+
+       > :gs:
+       > for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)'; x(k,:) = x(k,:) - d*x(j,:); ...
+       > end, s = norm(x(k,:)), x(k,:) = x(k,:)/s;
+
+       > :jacobi:
+       > [n, n] = shape(A);
+       > X = eye(n);
+       > anorm = norm(A,'fro');
+       > cnt = 1;
+       > while cnt > 0, ...
+       >   cnt = 0; ...
+       >   for p = 1:n-1, ...
+       >     for q = p+1:n, ...
+       >       if anorm + abs(a(p,q)) > anorm, ...
+       >	 cnt = cnt + 1; ...
+       >	 exec('jacstep'); ...
+       >       end, ...
+       >     end, ...
+       >   end, ...
+       >   display(rat(A)), ...
+       > end
+
+       > :jacstep:
+
+       > d = (a(q,q)-a(p,p))*0.5/a(p,q);
+       > t = 1/(abs(d)+sqrt(d*d+1));
+       > if d < 0, t = -t; end;
+       > c = 1/sqrt(1+t*t);  s = t*c;
+       > R = eye(n); r(p,p)=c; r(q,q)=c; r(p,q)=s; r(q,p)=-s;
+       > X = X*R;
+       > A = R'*A*R;
+
+       > :kron:
+
+       > //  C = Kronecker product of A and B
+       > [m, n] = shape(A);
+       > for i = 1:m, ...
+       >    ci = a(i,1)*B; ...
+       >    for j = 2:n, ci = [ci a(i,j)*B]; end ...
+       >    if i = 1, C = ci; else, C = [C; ci];
+
+       > :lanczos:
+
+       > [n,n] = shape(A);
+       > q1 = rand(n,1);
+       > ort
+       > alpha = []; beta = [];
+       > q = q1/norm(q1); r = A*q(:,1);
+       > for j = 1:n, exec('lanstep',0);
+
+       > :lanstep:
+
+       > alpha(j) = q(:,j)'*r;
+       > r = r - alpha(j)*q(:,j);
+       > if ort <> 0, for k = 1:j-1, r = r - r'*q(:,k)*q(:,k);
+       > beta(j) = norm(r);
+       > q(:,j+1) = r/beta(j);
+       > r = A*q(:,j+1) - beta(j)*q(:,j);
+       > if j > 1, T = diag(beta(1:j-1),1); T = diag(alpha) + T + T'; eig(T)
+
+       > :mgs:
+
+       > for k = 1:n, s = norm(x(k,:)), x(k,:) = x(k,:)/s; ...
+       >    for j = k+1:n, d = x(j,:)*x(k,:)'; x(j,:) = x(j,:) - d*x(k,:);
+
+       > :net:
+
+       > C = [
+       > 1   2	 15  .	 .   .
+       > 2   1	 3   .	 .   .
+       > 3   2	 4   11  .   .
+       > 4   3	 5   .	 .   .
+       > 5   4	 6   7	 .   .
+       > 6   5	 8   .	 .   .
+       > 7   5	 9   30  .   .
+       > 8   6	 9   10  11  .
+       > 9   7	 8   30  .   .
+       > 10  8	 12  30  31  34
+       > 11  3	 8   12  13  .
+       > 12  10  11  34  36  .
+       > 13  11  14  .	 .   .
+       > 14  13  15  16  38  .
+       > 15  1	 14  .	 .   .
+       > 16  14  17  20  35  37
+       > 17  16  18  .	 .   .
+       > 18  17  19  .	 .   .
+       > 19  18  20  .	 .   .
+       > 20  16  19  21  .   .
+       > 21  20  22  .	 .   .
+       > 22  21  23  .	 .   .
+       > 23  22  24  35  .   .
+       > 24  23  25  39  .   .
+       > 25  24  .   .	 .   .
+       > 26  27  33  39  .   .
+       > 27  26  32  .	 .   .
+       > 28  29  32  .	 .   .
+       > 29  28  30  .	 .   .
+       > 30  7	 9   10  29  .
+       > 31  10  32  .	 .   .
+       > 32  27  28  31  34  .
+       > 33  26  34  .	 .   .
+       > 34  10  12  32  33  35
+       > 35  16  23  34  36  .
+       > 36  12  35  38  .   .
+       > 37  16  38  .	 .   .
+       > 38  14  36  37  .   .
+       > 39  24  26  .	 .   .
+       > ];
+       > [n, m] = shape(C);
+       > A = 0*ones(n,n);
+       > for i=1:n, for j=2:m, k=c(i,j); if k>0, a(i,k)=1;
+       > check = norm(A-A',1), if check > 0, quit
+       > [X,D] = eig(A+eye);
+       > D = diag(D);  D = D(n:-1:1)
+       > X = X(:,n:-1:1);
+       > [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
+
+       > :pascal:
+
+       > //Generate next Pascal matrix
+       > [k,k] = shape(L);
+       > k = k + 1;
+       > L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];
+
+       > :pdq:
+
+       > alpha = []; beta = 0; q = []; p = p(:,1)/norm(p(:,1));
+       > t = A'*p(:,1);
+       > alpha(1) = norm(t);
+       > q(:,1) = t/alpha(1);
+       > X = p(:,1)*(alpha(1)*q(:,1))'
+       > e(1) = norm(A-X,1)
+       > for j = 2:r, exec('pdqstep',ip); ...
+       >    X = X + p(:,j)*(alpha(j)*q(:,j)+beta(j)*q(:,j-1))', ...
+       >    e(j) = norm(A-X,1)
+
+       > :pdqstep:
+
+       > t = A*q(:,j-1) - alpha(j-1)*p(:,j-1);
+       >    if ort>0, for i = 1:j-1, t = t - t'*p(:,i)*p(:,i);
+       > beta(j) = norm(t);
+       > p(:,j) = t/beta(j);
+       > t = A'*p(:,j) - beta(j)*q(:,j-1);
+       >    if ort>0, for i = 1:j-1, t = t - t'*q(:,i)*q(:,i);
+       > alpha(j) = norm(t);
+       > q(:,j) = t/alpha(j);
+
+       > :pop:
+
+       > y = [ 75.995	91.972	105.711  123.203   ...
+       >      131.669  150.697	179.323  203.212]'
+       > t = [ 1900:10:1970 ]'
+       > t = (t - 1940*ones(t))/40;   [t y]
+       > n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
+       > A
+       > c = A\y
+
+       > :qr:
+
+       > scale = s(m);
+       > sm = s(m)/scale; smm1 = s(m-1)/scale; emm1 = e(m-1)/scale;
+       > sl = s(l)/scale; el = e(l)/scale;
+       > b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
+       > c = (sm*emm1)**2;
+       > shift = sqrt(b**2+c); if b < 0, shift = -shift;
+       > shift = c/(b + shift)
+       > f = (sl + sm)*(sl-sm) - shift
+       > g = sl*el
+       > for k = l: m-1, exec('qrstep',ip)
+       > e(m-1) = f
+
+       > :qrstep:
+
+       > exec('rot');
+       > if k <> l, e(k-1) = f
+       > f = cs*s(k) + sn*e(k)
+       > e(k) = cs*e(k) - sn*s(k)
+       > g = sn*s(k+1)
+       > s(k+1) = cs*s(k+1)
+       > exec('rot');
+       > s(k) = f
+       > f = cs*e(k) + sn*s(k+1)
+       > s(k+1) = -sn*e(k) + cs*s(k+1)
+       > g = sn*e(k+1)
+       > e(k+1) = cs*e(k+1)
+
+       > :rho:
+
+       > //Conductivity example.
+       > //Parameters ---
+       >    rho       //radius of cylindrical inclusion
+       >    n	      //number of terms in solution
+       >    m	      //number of boundary points
+       > //initialize operation counter
+       >    flop = [0 0];
+       > //initialize variables
+       >    m1 = round(m/3);   //number of points on each straight edge
+       >    m2 = m - m1;       //number of points with Dirichlet conditions
+       >    pi = 4*atan(1);
+       > //generate points in Cartesian coordinates
+       >    //right hand edge
+       >    for i = 1:m1, x(i) = 1; y(i) = (1-rho)*(i-1)/(m1-1);
+       >    //top edge
+       >    for i = m2+1:m, x(i) = (1-rho)*(m-i)/(m-m2-1); y(i) = 1;
+       >    //circular edge
+       >    for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); ...
+       >       x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);
+       > //convert to polar coordinates
+       >    for i = 1:m-1, th(i) = atan(y(i)/x(i));  ...
+       >       r(i) = sqrt(x(i)**2+y(i)**2);
+       >    th(m) = pi/2;  r(m) = 1;
+       > //generate matrix
+       >    //Dirichlet conditions
+       >    for i = 1:m2, for j = 1:n, k = 2*j-1; ...
+       >       a(i,j) = r(i)**k*cos(k*th(i));
+       >    //Neumann conditions
+       >    for i = m2+1:m, for j = 1:n, k = 2*j-1; ...
+       >       a(i,j) = k*r(i)**(k-1)*sin((k-1)*th(i));
+       > //generate right hand side
+       >    for i = 1:m2, b(i) = 1;
+       >    for i = m2+1:m, b(i) = 0;
+       > //solve for coefficients
+       >    c = A\b
+       > //compute effective conductivity
+       >    c(2:2:n) = -c(2:2:n)
+       >    sigma = sum(c)
+       > //output total operation count
+       >    ops = flop(2)
+
+       > :rogers.exec:
+
+       > exec('d.boug');		// reads data
+       > [g,k] = shape(p);		// p is matrix of gene frequencies
+       > wv = ncen/sum(ncen);		// ncen contains population sizes
+       > pbar = wv*p;			// weighted average of p
+       > p = p - ones(g,1)*pbar;	// deviations from mean
+       > p = sqrt(diag(wv)) * p;	// weight rows of p by sqrt of pop size
+       > h = diag(pbar); h = h*(eye-h); // diagonal contains binomial variance: p*(1-p)
+       > r = p*inv(h)*p'/k;		// normalized covariance matrix
+       > eig(r)'
+
+       > :rosser:
+
+       > A  = [
+       >   611.  196. -192.  407.   -8.  -52.  -49.   29.
+       >   196.  899.  113. -192.  -71.  -43.	-8.  -44.
+       >  -192.  113.  899.  196.   61.   49.	 8.   52.
+       >   407. -192.  196.  611.    8.   44.	59.  -23.
+       >    -8.  -71.	61.    8.  411. -599.  208.  208.
+       >   -52.  -43.	49.   44. -599.  411.  208.  208.
+       >   -49.   -8.	 8.   59.  208.  208.	99. -911.
+       >    29.  -44.	52.  -23.  208.  208. -911.   99.  ];
+
+       > :rot:
+
+       > // subexec rot(f,g,cs,sn)
+       >    rho = g; if abs(f) > abs(g), rho = f;
+       >    cs = 1.0; sn = 0.0; z = 1.0;
+       >    r = norm([f g]); if rho < 0, r = -r; r
+       >    if r <> 0.0, cs = f/r
+       >    if r <> 0.0, sn = g/r
+       >    if abs(f) > abs(g), z = sn;
+       >    if abs(g) >= abs(f), if cs <> 0, z = 1/cs;
+       >    f = r;
+       >    g = z;
+
+       > :rqi:
+
+       > rho = (x'*A*x)
+       > x = (A-rho*eye)\x;
+       > x = x/norm(x)
+
+       > :setup:
+
+       > diary('xxx')
+       > !tail -f xxx > /dev/tty1 &
+       > !tail -f xxx > /dev/tty2 &
+
+       > :sigma:
+
+       > RHO = .5  M = 20  N = 10   SIGMA =  1.488934271883534
+       > RHO = .5  M = 40  N = 20   SIGMA =  1.488920312974229
+       > RHO = .5  M = 60  N = 30   SIGMA =  1.488920697912116
+
+       > :strut.laf:
+
+       > // Structure problem, Forsythe, Malcolm and Moler, p. 62
+       > s =  sqrt(2)/2;
+       > A = [
+       > -s  .	.  1  s   .  .	.  .  .  .  .  .  .  .	.  .
+       > -s  . -1  . -s   .  .	.  .  .  .  .  .  .  .	.  .
+       >  . -1	.  .  .   1  .	.  .  .  .  .  .  .  .	.  .
+       >  .  .	1  .  .   .  .	.  .  .  .  .  .  .  .	.  .
+       >  .  .	. -1  .   .  .	1  .  .  .  .  .  .  .	.  .
+       >  .  .	.  .  .   . -1	.  .  .  .  .  .  .  .	.  .
+       >  .  .	.  . -s -1  .  .  s  1	.  .  .   .  .	.  .
+       >  .  .	.  .  s   .  1	.  s  .  .  .  .  .  .	.  .
+       >  .  .	.  .  .   .  . -1 -s  .  .  1  s  .  .	.  .
+       >  .  .	.  .  .   .  .	. -s  . -1  . -s  .  .	.  .
+       >  .  .	.  .  .   .  .	.  . -1  .  .  .  1  .	.  .
+       >  .  .	.  .  .   .  .	.  .  .  1  .  .  .  .	.  .
+       >  .  .	.  .  .   .  .	.  .  .  . -1  .  .  .	s  .
+       >  .  .	.  .  .   .  .	.  .  .  .  .  .  . -1 -s  .
+       >  .  .	.  .  .   .  .	.  .  .  .  . -s -1  .	.  1
+       >  .  .	.  .  .   .  .	.  .  .  .  .  s  .  1	.  .
+       >  .  .	.  .  .   .  .	.  .  .  .  .  .  .  . -s -1];
+       > b = [
+       >  .  .	. 10  .   .  . 15  .  .  .  .  .  .  . 10  .]';
+
+       > :test1:
+
+       > // -----------------------------------------------------------------
+       > // start a new log file
+       > sh rm -fv log.txt
+       > diary('log.txt')
+       > // -----------------------------------------------------------------
+       > titles=['GNP deflator'
+       >  'GNP	       '
+       >  'Unemployment'
+       >  'Armed Force '
+       >  'Population  '
+       >  'Year        '
+       >  'Employment  '];
+       > data = ...
+       > [ 83.0  234.289  235.6  159.0	107.608  1947  60.323
+       >   88.5  259.426  232.5  145.6	108.632  1948  61.122
+       >   88.2  258.054  368.2  161.6	109.773  1949  60.171
+       >   89.5  284.599  335.1  165.0	110.929  1950  61.187
+       >   96.2  328.975  209.9  309.9	112.075  1951  63.221
+       >   98.1  346.999  193.2  359.4	113.270  1952  63.639
+       >   99.0  365.385  187.0  354.7	115.094  1953  64.989
+       >  100.0  363.112  357.8  335.0	116.219  1954  63.761
+       >  101.2  397.469  290.4  304.8	117.388  1955  66.019
+       >  104.6  419.180  282.2  285.7	118.734  1956  67.857
+       >  108.4  442.769  293.6  279.8	120.445  1957  68.169
+       >  110.8  444.546  468.1  263.7	121.950  1958  66.513
+       >  112.6  482.704  381.3  255.2	123.366  1959  68.655
+       >  114.2  502.601  393.1  251.4	125.368  1960  69.564
+       >  115.7  518.173  480.6  257.2	127.852  1961  69.331
+       >  116.9  554.894  400.7  282.7	130.081  1962  70.551];
+       > short
+       > X = data;
+       > [n,p] = shape(X)
+       > mu = ones(1,n)*X/n
+       > X = X - ones(n,1)*mu;	X = X/diag(sqrt(diag(X'*X)))
+       > corr = X'*X
+       > y = data(:,p); X = [ones(y) data(:,1:p-1)];
+       > long e
+       > beta = X\y
+       > expected = [ ...
+       >    -3.482258634594421D+03
+       >     1.506187227124484D-02
+       >    -3.581917929257409D-02
+       >    -2.020229803816908D-02
+       >    -1.033226867173703D-02
+       >    -5.110410565317738D-02
+       >     1.829151464612817D+00
+       > ]
+       > display('EXPE and BETA should be the same')
+
+       > :tryall:
+
+       > diary('log.txt')
+       > a=magic(8)
+       > n=3
+       > exec('avg')
+       > b=random(8,8)
+       > exec('cdiv')
+       > exec('exp')
+       > exec('four')
+       > exec('gs')
+       > exec('jacobi')
+       > // jacstep
+       > exec('kron')
+       > exec('lanczos')
+       > // lanstep
+       > exec('longley')
+       > exec('mgs')
+       > exec('net')
+       > exec('pascal')
+       > exec('pdq')
+       > // pdqstep
+       > exec('pop')
+       > exec('qr')
+       > // qrstep
+       > exec('rho')
+       > exec('rosser')
+       > // rot
+       > exec('rqi')
+       > exec('setup')
+       > exec('sigma')
+       > exec('strut.laf')
+       > exec('w5')
+       > exec('rogers.exec
+       > exec('rogers.load
+
+       > :w5:
+
+       > w5 = [
+       >	 1.	1.	0.	0.	0.
+       >       -10.	1.	1.	0.	0.
+       >	40.	0.	1.	1.	0.
+       >       205.	0.	0.	1.	1.
+       >       024.	0.	0.	0.     -4.
+       >      ]
+
+
+
+				 July 22, 2023		       lala(3m_matrix)
+get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
+
+
+
+NAME
+  get_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
+  LICENSE(MIT)
+
+SYNOPSIS
+  subroutine get_from_lala(varname,A,IERR,fixed)
+
+       character(len=*),intent(in)		 :: varname
+       [INTRINSIC_TYPE],allocatable,intent(out)  :: a(:,:)
+       integer,intent(out)			 :: ierr
+       logical,intent(in),optional		 :: fixed
+
+
+DESCRIPTION
+  Given the name of a variable defined with lala(3f) commands return the
+  values to the calling program.
+
+OPTIONS
+  VARNAME Name of lala(3f) variable to retrieve
+
+  FIXED
+    If .true., A is assumed to be a fixed size. It should only be specified if
+    the value is .true.! It is up to the user at this point to ensure the size
+    is correct at this point.
+
+RETURNS
+  A May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.  May be a
+    scalar, vector, or MxN matrix.
+
+  IERR
+    Zero if no error occurred
+
+EXAMPLE
+  sample program:
+
+     program demo_get_from_lala
+     use M_matrix, only : lala, get_from_lala, put_into_lala
+     implicit none
+     doubleprecision,allocatable :: darr(:,:)
+     real,allocatable		 :: rarr(:,:)
+     integer,allocatable	 :: ivec(:)
+     integer			 :: ierr
+     integer			 :: i
+     character(len=*),parameter  :: gen='(*(g0,1x))'
+
+	! create an array in LALA so have something to get
+	call lala('A=rand(4,5)*10.5,long,A')
+
+	! get the array as a REAL array
+	call get_from_lala('A',rarr,ierr)
+	write(*,gen)'in calling program RARR=',shape(rarr)
+	write(*,gen)(rarr(i,:),new_line('A'),i=1,size(rarr,dim=1))
+
+	! get the array as a DOUBLEPRECISION  array
+	call get_from_lala('A',darr,ierr)
+	write(*,gen)'in calling program darr=',shape(darr)
+	write(*,gen)(darr(i,:),new_line('A'),i=1,size(darr,dim=1))
+
+	! get the array as an INTEGER vector, much like the
+	! PUSH(3f) intrinsic
+	call get_from_lala('A',ivec,ierr)
+	write(*,gen)'in calling program ivec=',shape(ivec)
+	write(*,gen)ivec
+
+     end program demo_get_from_lala
+
+  Results:
+
+     >A  =
+     >	 2.2189  6.9865  9.2213  7.6267  2.4278
+     >	 7.9385  6.5981  0.7179  2.0844  2.2729
+     >	 0.0023  8.9223  5.8889  5.7147  9.2756
+     >	 3.4684  7.2002  6.9547  2.4368  6.8514
+
+     >A  =
+     >	  COLUMNS     1 THRU	 4
+     >	2.218911087373272 6.986501594306901 9.221273053670302 7.626682105707005
+     >	7.938460468780249 6.598113777581602 0.717927386518568 2.084401034284383
+     >	0.002321913605556 8.922324976650998 5.888910365989432 5.714701820863411
+     >	3.468434463255107 7.200175708159804 6.954747841693461 2.436785291880369
+     >	  COLUMNS     5 THRU	 5
+     >	2.427849056432024
+     >	2.272864263039082
+     >	9.275582205271348
+     >	6.851391694508493
+     >in calling program RARR= 4 5
+     > 2.21891117 6.98650169 9.22127342 7.62668228 2.42784905
+     > 7.93846035 6.59811401 0.717927396 2.08440113 2.27286434
+     > 0.232191361E-2 8.92232513 5.88891029 5.71470165 9.27558231
+     > 3.46843457 7.20017576 6.95474768 2.43678522 6.85139179
+
+     >in calling program darr= 4 5
+     > 2.2189110873732716 6.9865015943069011 9.2212730536703020 ..
+     > 7.6266821057070047 2.4278490564320236
+     > 7.9384604687802494 6.5981137775816023 0.71792738651856780 ..
+     > 2.0844010342843831 2.2728642630390823
+     > 0.23219136055558920E-2 8.9223249766509980 5.8889103659894317 ..
+     > 5.7147018208634108 9.2755822052713484
+     > 3.4684344632551074 7.2001757081598043 6.9547478416934609 ..
+     > 2.4367852918803692 6.8513916945084929
+
+     >in calling program ivec= 20
+     > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
+
+
+
+
+				 July 22, 2023	      get_from_lala(3m_matrix)
++ make ship
+: make easily distributed archive files of manpages
+mkdir -p ../docs
+cd ../man/man3;\
+   gzip *.3m_strings;\
+   zip -r ../../docs/manpages.zip *gz;\
+   tar cvfz ../../docs/manpages.tgz *gz;\
+   gunzip *.3m_strings.gz
+gzip: *.3m_strings: No such file or directory
+	zip warning: expected 5 entries but found 3
+
+zip error: Zip file structure invalid (../../docs/manpages.zip)
+tar: *gz: Cannot stat: No such file or directory
+tar: Exiting with failure status due to previous errors
+gzip: *.3m_strings.gz: No such file or directory
+make: *** [Makefile:150: ship] Error 1
++ make help
+: make    '-- build M_strings M_strings_oop module'
+: run     '-- run manpage demo programs and test program'
+: man     '-- show all manpages as text'
+: ship    '-- rebuild archive files of manpages'
+: clean   '-- clean directory of object files and executables'
+: doxygen '-- run doxygen(1) if you have it'
+: help    '-- display this text'
++ make clean
+rm -f ../example/demo_adjustc ../example/demo_base ../example/demo_change ../example/demo_chomp ../example/demo_codebase ../example/demo_compact ../example/demo_crop ../example/demo_decodebase ../example/demo_delim ../example/demo_describe ../example/demo_expand ../example/demo_fmt ../example/demo_getvals ../example/demo_indent ../example/demo_isalnum ../example/demo_isalpha ../example/demo_isascii ../example/demo_isblank ../example/demo_iscntrl ../example/demo_isdigit ../example/demo_isgraph ../example/demo_islower ../example/demo_isnumber ../example/demo_isprint ../example/demo_ispunct ../example/demo_isspace ../example/demo_isupper ../example/demo_isxdigit ../example/demo_join ../example/demo_len_white ../example/demo_lenset ../example/demo_listout ../example/demo_lower ../example/demo_matchw ../example/demo_merge_str ../example/demo_modif ../example/demo_msg ../example/demo_noesc ../example/demo_nospace ../example/demo_notabs ../example/demo_quote ../example/demo_replace ../example/demo_reverse ../example/demo_rotate13 ../example/demo_s2c ../example/demo_s2v ../example/demo_s2vs ../example/demo_split ../example/demo_stretch ../example/demo_string_to_value ../example/demo_string_to_values ../example/demo_strtok ../example/demo_substitute ../example/demo_switch ../example/demo_transliterate ../example/demo_unquote ../example/demo_upper ../example/demo_upper_quoted ../example/demo_v2s ../example/demo_value_to_string ../example/demo_visible ../example/demo_M_strings  M_strings.o M_strings_oop.o  *.mod ../test/test_suite_M_strings ../test/M_strings_oops 
++ echo '>>>> fpm test'
+>>>> fpm test
++ cd ../..
++ fpm test
+ + mkdir -p build/dependencies
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_framework/.git/
+From https://github.com/urbanjost/M_framework
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_msg/.git/
+From https://github.com/urbanjost/M_msg
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_strings/.git/
+From https://github.com/urbanjost/M_strings
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_history/.git/
+From https://github.com/urbanjost/M_history
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_CLI2/.git/
+From https://github.com/urbanjost/M_CLI2
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_list/.git/
+From https://github.com/urbanjost/M_list
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_io/.git/
+From https://github.com/urbanjost/M_io
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_LA/.git/
+From https://github.com/urbanjost/M_LA
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_intrinsics/.git/
+From https://github.com/urbanjost/M_intrinsics
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_match/.git/
+From https://github.com/urbanjost/M_match
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_escape/.git/
+remote: Repository not found.
+fatal: repository 'https://github.com/urbanjost/M_escape.git/' not found
+<ERROR> *cmd_run* Model error: Error while fetching git repository for remote dependency
+STOP 1
++ echo '>>>> make BOOK html document'
+>>>> make BOOK html document
++ env MANPATH=../../man mandb -c
+mandb: warning: $MANPATH set, ignoring /etc/manpath.config
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man1'. Wait...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man3'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man2'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man4'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man6'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man7'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man8'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man5'. Wait...
+done.
+Checking for stray cats under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat8...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat1...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat3...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat4...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat6...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat2...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat5...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat7...
+8 man subdirectories contained newer manual pages.
+6 manual pages were added.
+0 stray cats were added.
++ env OUTPUT_DIR=../../docs/ MAN_CMD=man MANPATH=../../man GPF_book M_matrix m_matrix
+Creating book M_matrix
+                                                                
+                                                                
+ XX   XX                                            X           
+  X   X                            X                            
+  XX XX                            X                            
+  XX XX          XXX X    XXXX    XXXX   XXX XX   XXX    XXX XXX
+  X X X           X X X       X    X       XX  X    X     X   X 
+  X X X           X X X   XXXXX    X       X        X      XXX  
+  X   X           X X X  X    X    X       X        X      XXX  
+  X   X           X X X  X    X    X  X    X        X     X   X 
+ XXX XXX         XX X XX  XXXX X    XX   XXXXX    XXXXX  XXX XXX
+                                                                
+        XXXXXXXX                                                
+/home/urbanjs/venus/V600/github/github_scripts/bash/GPF_book:
+________________________________________________________________________________
+   TOPIC      M_matrix
+   SECTION    m_matrix
+   OUTPUT_DIR ../../docs/
+   MAN_CMD    man
+   MANPATH    ../../man
+________________________________________________________________________________
++ HTML
++ cat
++ cat
+++ date +%Y-%m-%d
++ cat
++ cat
++ cat
++ echo 'function loadthem(){'
++ '[' M_matrix = INDEX ']'
++ uniq
++ read NAME
++ echo M_matrix.3m_matrix.html
++ tr -d '()'
++ awk '{printf "%s.%s.html\n",$1,$2}'
++ grep -i '(3M_matrix)'
++ man -k '\[M_matrix\>'
++ uniq
++ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
++ man --section 3m_matrix -k .
++ grep -i '(3M_matrix)'
++ grep -vi '(3M_matrix)'
++ man -k '\[M_matrix\>'
++ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
++ '[' -r ../../docs//M_matrix.3m_matrix.html..html ']'
++ read NAME
++ '[' -r ../../docs//M_matrix.3m_matrix.html ']'
++ echo 'append("M_matrix.3m_matrix.html");'
++ read NAME
++ '[' -r ../../docs//get_from_lala.3m_matrix.html ']'
++ echo 'append("get_from_lala.3m_matrix.html");'
++ read NAME
++ '[' -r ../../docs//ifin_lala.3m_matrix.html ']'
++ echo 'append("ifin_lala.3m_matrix.html");'
++ read NAME
++ '[' -r ../../docs//lala.3m_matrix.html ']'
++ echo 'append("lala.3m_matrix.html");'
++ read NAME
++ '[' -r ../../docs//put_into_lala.3m_matrix.html ']'
++ echo 'append("put_into_lala.3m_matrix.html");'
++ read NAME
++ echo '}'
++ exit
++ echo '>>>> make HTML index to manpages'
+>>>> make HTML index to manpages
++ env MANPATH=../../man OUTDIR=../../docs GPF_manpage_index
+making HTML index for section 1 in ../../docs/man1.html
+FOUND 1 for section 1
+<GPF_manpage_index><MANPATH>../../man
+<GPF_manpage_index><NAME>lala<SECT>(1)<DASH>-
+making HTML index for section 2 in ../../docs/man2.html
+FOUND 0 for section 2
+making HTML index for section 3 in ../../docs/man3.html
+FOUND 5 for section 3
+<GPF_manpage_index><MANPATH>../../man
+<GPF_manpage_index><NAME>M_matrix<SECT>(3m_matrix)<DASH>-
+<GPF_manpage_index><NAME>get_from_lala<SECT>(3m_matrix)<DASH>-
+<GPF_manpage_index><NAME>ifin_lala<SECT>(3m_matrix)<DASH>-
+<GPF_manpage_index><NAME>lala<SECT>(3m_matrix)<DASH>-
+<GPF_manpage_index><NAME>put_into_lala<SECT>(3m_matrix)<DASH>-
+making HTML index for section 4 in ../../docs/man4.html
+FOUND 0 for section 4
+making HTML index for section 5 in ../../docs/man5.html
+FOUND 0 for section 5
+making HTML index for section 6 in ../../docs/man6.html
+FOUND 0 for section 6
+making HTML index for section 7 in ../../docs/man7.html
+FOUND 0 for section 7
+making HTML index for section 8 in ../../docs/man8.html
+FOUND 0 for section 8
+making HTML index for Fortran Intrinsics for section 3 in ../../docs/man3i.html
+FOUND 0 for section 3
+making HTML index for Fortran Intrinsics for section 7 in ../../docs/man7i.html
+FOUND 0 for section 7
+sed: can't read ../../docs/*.[37]fortran.html: No such file or directory
++ echo '>>>> spell check'
+>>>> spell check
++ spell ../../README.md
++ xargs -n 8
++ column -t
+Alamos      CHANGELOG    EXPE      Forsythe  Fortran   IARR         INI      JSON
+LALA        Moler        NAMELIST  Neumann   TOML      YAML         ai       ais
+alfa        allocatable  anorm     ar        ars       atan         attr     boug
+br          brs          cd        cdiv      ci        cnt          config   cr
+cvec        deflator     dev       diag      disp      doxygen      eig      el
+embeddable  emm          ferr      fhelp     fortran   fpm          fv       gif
+github      hierarchial  html      https     iarr      ierr         ifin     imag
+inv         io           ip        jacobi    jacstep   journaling   keepB    kron
+lala        lanczos      lang      lanstep   len       littlearray  longley  md
+mgs         mycommands   mytitle   ncen      ort       pbar         pdq      pdqstep
+qrstep      rosser       rqi       serr      similiar  sl           sm       smm
+sn          sqrt         subexec   th        toml      tryall       tty      txt
+urbanjost   userguide    wv        xin
++ echo '>>>> update GPF project and documents'
+>>>> update GPF project and documents
++ unset GITHUB
++ make.one libGPF
+1136221 (process ID) old priority 0, new priority 19
+W-A-R-N-I-N-G: no ccheck.c file (required for configured versions)
++ echo '>>>> run test'
+>>>> run test
++ cd ../../test
++ ccall test_suite_M_matrix.f90
+*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_1137560
++ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_1137560
++ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_1137560
++ CCALL_DELETE_DIR=TRUE
++ FULLNAME=/dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ SPLIT
++ sed -e 's/ -/@ -/g'
++ tr @ '\012'
++ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ echo NAME test_suite_M_matrix.f90
+NAME test_suite_M_matrix.f90
++ echo /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
+/home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
++ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ grep
+ -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ grep
+ -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ set
+ -x
++ set
+ -v
++ gfortran
+ -fbacktrace
+ -fdump-core
+ -frecord-marker=4
+ -I.
+ -DTESTPRG
+ -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
+ -o /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
+ -Wall
+ -Wextra
+ -Bstatic
+ -I/home/urbanjs/venus/V600/lib/Linux_gfortran
+ -J/home/urbanjs/venus/V600/lib/Linux_gfortran
+ -L/home/urbanjs/venus/V600/lib/Linux_gfortran
+ -lkon
+ -lDL
+ -lMULTI
+ -lrandlib
+ -lrandlibf90
+ -lncarsa
+ -lvopl
+ -lGPF
+ -lGPF_C
+ -lncurses
+ -lcurl
+ -lSTUG
+ -lsqlite3
+ -lquadmath
+ -lm
+ -Wunreachable-code
+ -Wunused
+ -Wuninitialized
+ -g
+ -O
+ -fcoarray=single
+ -Bdynamic
+ -L/usr/lib/x86_64-linux-gnu
+ -lX11
+/dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90:2:5:
+
+    2 | use M_matrix, only : lala, get_from_lala, put_into_lala
+      |     1
+Fatal Error: Cannot open module file ‘m_matrix.mod’ for reading at (1): No such file or directory
+compilation terminated.
++ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
+a - /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ set +x
+/home/urbanjs/venus/V600/LIBRARY/CYGWIN/scripts_regression/goodbad: test_suite_M_matrix.1 0 test_suite_M_matrix start --section 1
+*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_1137560
++ test_suite_M_matrix
+/home/urbanjs/venus/V600/github/github_scripts/bash/GPF_build_module: line 208: test_suite_M_matrix: command not found
++ echo '>>>> GPF_fman'
+>>>> GPF_fman
++ '[' -d doc/ ']'
++ GPF_fman m_matrix doc
++++ dirname /home/urbanjs/venus/V600/github/github_scripts/bash/GPF_fman
+++ realpath /home/urbanjs/venus/V600/github/github_scripts/bash
++ HERE=/home/urbanjs/venus/V600/github/github_scripts/bash
+++ dirname /home/urbanjs/venus/V600/github/github_scripts/bash
++ BASE=/home/urbanjs/venus/V600/github/github_scripts
+++ dirname /home/urbanjs/venus/V600/github/github_scripts
++ BASE=/home/urbanjs/venus/V600/github
++ DOCS=/home/urbanjs/venus/V600/github/docs
++ export PACKAGE=m_matrix
++ PACKAGE=m_matrix
++ export TEXTDIR=doc
++ TEXTDIR=doc
++ export NAME
++ cd doc
++ WRITE_MODULE
++ cat
++ cat
++ cat
++ cat
++ COUNT=0
++ ls get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
++ read NAME
++ SHORTNAME=get_from_lala
++ COUNT=1
++ cat
+++ TOCHARACTER
+++ :
+++ cat get_from_lala.3m_matrix.man
+++ sed -e 's/'\''/'\'''\''/g'
+++ sed -e 's/$/'\'', \&/'
+++ sed -e 's/^/'\''/'
+++ cat
++ read NAME
++ SHORTNAME=ifin_lala
++ COUNT=2
++ cat
+++ TOCHARACTER
+++ :
+++ cat ifin_lala.3m_matrix.man
+++ sed -e 's/^/'\''/'
+++ cat
+++ sed -e 's/$/'\'', \&/'
+++ sed -e 's/'\''/'\'''\''/g'
++ read NAME
++ SHORTNAME=lala
++ COUNT=3
++ cat
+++ TOCHARACTER
+++ :
+++ cat lala.3m_matrix.man
+++ sed -e 's/^/'\''/'
+++ sed -e 's/$/'\'', \&/'
+++ cat
+++ sed -e 's/'\''/'\'''\''/g'
++ read NAME
++ SHORTNAME=M_matrix
++ COUNT=4
++ cat
+++ TOCHARACTER
+++ :
+++ sed -e 's/'\''/'\'''\''/g'
+++ cat M_matrix.3m_matrix.man
+++ cat
+++ sed -e 's/$/'\'', \&/'
+++ sed -e 's/^/'\''/'
++ read NAME
++ SHORTNAME=put_into_lala
++ COUNT=5
++ cat
+++ TOCHARACTER
+++ :
+++ sed -e 's/'\''/'\'''\''/g'
+++ cat put_into_lala.3m_matrix.man
+++ cat
+++ sed -e 's/^/'\''/'
+++ sed -e 's/$/'\'', \&/'
++ read NAME
++ END_MODULE
++ cat
++ cat
++ ls -ld /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
+-rw-rw-r-- 1 urbanjs urbanjs 45867 Jul 22 15:42 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
++ cat

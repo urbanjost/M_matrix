@@ -1,0 +1,57 @@
+NAME
+    put_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
+    LICENSE(MIT)
+SYNOPSIS
+  subroutine put_into_lala(varname,A,IERR)
+
+   character(len=*),intent(in)              :: varname
+   [INTRINSIC_TYPE],allocatable,intent(in)  :: a(:,:)
+   integer,intent(out)                      :: ierr
+
+DESCRIPTION
+   Define a variable in the lala(3f) utility with a variable declared
+   in the calling program.
+
+OPTIONS
+   VARNAME Name of lala(3f) variable to retrieve
+     A     May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.
+           May be a scalar, vector, or MxN matrix.
+
+RETURNS
+   IERR   Zero if no error occurred
+
+EXAMPLE
+  sample program:
+
+   program demo_put_into_lala
+   use M_matrix, only : lala, get_from_lala, put_into_lala
+   implicit none
+   integer :: ierr
+
+      ! store some data from the program into lala(3f)
+      call put_into_lala('A',[1,2,3,4,5,6,7,8,9],ierr)
+      call put_into_lala('B',[1.1,2.2,3.3],ierr)
+      call put_into_lala('C',"This is my title",ierr)
+
+      ! call lala(3f) and display the values
+      call lala([character(len=80) :: &
+      & 'who,A,B', &
+      & 'display(C);', &
+      & '', &
+      & ''])
+
+   end program demo_put_into_lala
+
+  Results:
+
+     > Your current variables are...
+     > C  B  A  eps  flops  eye  rand
+     >using 33 out of 200000 elements
+     >
+     > A  =
+     >     1.    2.    3.    4.    5.    6.    7.    8.    9.
+     >
+     > B  =
+     >    1.1000    2.2000    3.3000
+     >This is my title
+

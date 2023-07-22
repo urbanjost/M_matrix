@@ -4,13 +4,13 @@ src_dir: src
          example
          test
 output_dir: docs/fpm-ford
-project: M_strings
+project: M_matrix
 summary: embeddable command-line matrix utility
-project_github: https://github.com/urbanjost/M_strings
-project_download:
+project_github: https://github.com/urbanjost/M_matrix
+project_download: https://github.com/urbanjost/M_matrix/archive/refs/heads/master.zip
 author: John S. Urban
 author_email: urbanjost@comcast.net
-github: https://github.com/urbanjost/M_strings
+github: https://github.com/urbanjost/M_matrix
 media_dir: ./docs/images
 exclude_dir: ./archive
              ./arrpointer

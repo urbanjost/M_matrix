@@ -80,13 +80,13 @@ module M_matrix
 use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
 use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
 
-use M_strings, only     : value_to_string, lower, v2s, s2v
-use M_framework__journal, only     : journal
-use M_framework__help, only        : help_command
-use M_history, only     : redo
-use M_list, only        : insert, locate, replace, remove
-use M_io, only          : lookfor
-use M_intrinsics, only  : help_intrinsics
+use M_strings,    only : value_to_string, lower, v2s, s2v
+use M_framework,  only : journal
+use M_msg,        only : help_command
+use M_history,    only : redo
+use M_list,       only : insert, locate, replace, remove
+use M_io,         only : lookfor
+use M_intrinsics, only : help_intrinsics
 
 use M_LA, only : mat_flop,   mat_inverse_hilbert,  mat_iwamax,  mat_magic,   mat_pythag,  mat_rat,    mat_round,  mat_rref
 use M_LA, only : mat_rrot,   mat_rrotg,            mat_rset,    mat_rswap,   mat_urand,   mat_wasum,  mat_wcopy
