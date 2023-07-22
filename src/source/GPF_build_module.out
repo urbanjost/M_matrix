@@ -21,8 +21,8 @@
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man1
 ++ ls lala.1.man '*.1m_matrix.man'
-++ sort
 ++ uniq
+++ sort
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for lala.1.man'
 >>>> processing manpage and HTML for lala.1.man
@@ -31,11 +31,11 @@
 ++ basename lala.1.man .1m_matrix.man
 + SHORTNAME=lala.1.man
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1 SHORTNAME lala.1.man
-+ tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 + env AUX_FILENAME=lala.1.man man2html
 + txt2man -s 1m_matrix -t lala.1.man lala.1.man
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 372601fa-5b09-4cbc-8a81-ad2df44e417a
+man2html cdb9e9f9-103f-4c9e-9d27-cfabf86f7f59
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -43,14 +43,14 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
-++ ls '*.2.man' '*.2m_matrix.man'
 ++ uniq
 ++ sort
+++ ls '*.2.man' '*.2m_matrix.man'
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
-++ ls '*.3.man' get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
 ++ sort
 ++ uniq
+++ ls '*.3.man' get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for get_from_lala.3m_matrix.man'
 >>>> processing manpage and HTML for get_from_lala.3m_matrix.man
@@ -59,11 +59,11 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:
 ++ basename get_from_lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=get_from_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix SHORTNAME get_from_lala
++ txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
 + env AUX_FILENAME=get_from_lala man2html
-+ txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html a5244b12-f2c1-469d-bcc1-8b834ec0c06f
+man2html bb1407a9-90e2-440a-b8f9-c3991a576ca7
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -77,11 +77,11 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.ht
 ++ basename ifin_lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=ifin_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix SHORTNAME ifin_lala
-+ txt2man -s 3m_matrix -t ifin_lala ifin_lala.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
 + env AUX_FILENAME=ifin_lala man2html
++ txt2man -s 3m_matrix -t ifin_lala ifin_lala.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html d12ddeae-8bfe-4df7-a340-7c6a4b403f89
+man2html 8b6b2236-fe83-4447-a32b-c574168663af
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -95,11 +95,11 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html:4
 ++ basename lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix SHORTNAME lala
-+ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
 + txt2man -s 3m_matrix -t lala lala.3m_matrix.man
-/home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
 + env AUX_FILENAME=lala man2html
-man2html f9ddb54f-368d-4f85-8d4b-cc86f2d61130
+/home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
+man2html 05976bc6-cd2d-4a63-9cc7-d279d76a311b
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -117,7 +117,7 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html:45:<h5
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
 + env AUX_FILENAME=M_matrix man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 2b179ba7-7419-4a48-9094-afc4d0037a1d
+man2html 434636e3-0c66-4e02-a245-b83015f193a9
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -132,10 +132,10 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html:45
 + SHORTNAME=put_into_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix SHORTNAME put_into_lala
 + txt2man -s 3m_matrix -t put_into_lala put_into_lala.3m_matrix.man
-+ env AUX_FILENAME=put_into_lala man2html
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
++ env AUX_FILENAME=put_into_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 5d82d25b-534b-443b-8583-22f7a6ac42c6
+man2html 50907783-82ac-4c73-9e47-f2ade1f868ef
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -143,29 +143,29 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.ht
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
-++ sort
-++ uniq
 ++ ls '*.4.man' '*.4m_matrix.man'
+++ uniq
+++ sort
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
-++ sort
-++ uniq
 ++ ls '*.5.man' '*.5m_matrix.man'
+++ uniq
+++ sort
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
+++ ls '*.6.man' '*.6m_matrix.man'
 ++ sort
 ++ uniq
-++ ls '*.6.man' '*.6m_matrix.man'
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
+++ ls '*.7.man' '*.7m_matrix.man'
 ++ sort
 ++ uniq
-++ ls '*.7.man' '*.7m_matrix.man'
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man8
 ++ sort
-++ uniq
 ++ ls '*.8.man' '*.8m_matrix.man'
+++ uniq
 + cat
 >>>> .txt files to MAN DIRECTORY
 >>>> MANOUT        => /home/urbanjs/venus/V600/github/M_matrix/man
@@ -188,24 +188,24 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.ht
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
-++ sort
 ++ ls '*.4.txt' '*.4m_matrix.txt'
 ++ uniq
+++ sort
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
 ++ ls '*.5.txt' '*.5m_matrix.txt'
-++ sort
 ++ uniq
+++ sort
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
-++ ls '*.6.txt' '*.6m_matrix.txt'
 ++ uniq
 ++ sort
+++ ls '*.6.txt' '*.6m_matrix.txt'
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
 ++ sort
-++ ls '*.7.txt' '*.7m_matrix.txt'
 ++ uniq
+++ ls '*.7.txt' '*.7m_matrix.txt'
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man8
 ++ sort
@@ -1855,6 +1855,512 @@ finalizing index lists...
 writing tag file...
 Running plantuml with JAVA...
 Running dot...
+Generating dot graphs using 5 parallel threads...
+Running dot for graph 1/497
+Running dot for graph 2/497
+Running dot for graph 3/497
+Running dot for graph 4/497
+Running dot for graph 5/497
+Running dot for graph 6/497
+Running dot for graph 7/497
+Running dot for graph 8/497
+Running dot for graph 9/497
+Running dot for graph 10/497
+Running dot for graph 11/497
+Running dot for graph 12/497
+Running dot for graph 13/497
+Running dot for graph 14/497
+Running dot for graph 15/497
+Running dot for graph 16/497
+Running dot for graph 17/497
+Running dot for graph 18/497
+Running dot for graph 19/497
+Running dot for graph 20/497
+Running dot for graph 21/497
+Running dot for graph 22/497
+Running dot for graph 23/497
+Running dot for graph 24/497
+Running dot for graph 25/497
+Running dot for graph 26/497
+Running dot for graph 27/497
+Running dot for graph 28/497
+Running dot for graph 29/497
+Running dot for graph 30/497
+Running dot for graph 31/497
+Running dot for graph 32/497
+Running dot for graph 33/497
+Running dot for graph 34/497
+Running dot for graph 35/497
+Running dot for graph 36/497
+Running dot for graph 37/497
+Running dot for graph 38/497
+Running dot for graph 39/497
+Running dot for graph 40/497
+Running dot for graph 41/497
+Running dot for graph 42/497
+Running dot for graph 43/497
+Running dot for graph 44/497
+Running dot for graph 45/497
+Running dot for graph 46/497
+Running dot for graph 47/497
+Running dot for graph 48/497
+Running dot for graph 49/497
+Running dot for graph 50/497
+Running dot for graph 51/497
+Running dot for graph 52/497
+Running dot for graph 53/497
+Running dot for graph 54/497
+Running dot for graph 55/497
+Running dot for graph 56/497
+Running dot for graph 57/497
+Running dot for graph 58/497
+Running dot for graph 59/497
+Running dot for graph 60/497
+Running dot for graph 61/497
+Running dot for graph 62/497
+Running dot for graph 63/497
+Running dot for graph 64/497
+Running dot for graph 65/497
+Running dot for graph 66/497
+Running dot for graph 67/497
+Running dot for graph 68/497
+Running dot for graph 69/497
+Running dot for graph 70/497
+Running dot for graph 71/497
+Running dot for graph 72/497
+Running dot for graph 73/497
+Running dot for graph 74/497
+Running dot for graph 75/497
+Running dot for graph 76/497
+Running dot for graph 77/497
+Running dot for graph 78/497
+Running dot for graph 79/497
+Running dot for graph 80/497
+Running dot for graph 81/497
+Running dot for graph 82/497
+Running dot for graph 83/497
+Running dot for graph 84/497
+Running dot for graph 85/497
+Running dot for graph 86/497
+Running dot for graph 87/497
+Running dot for graph 88/497
+Running dot for graph 89/497
+Running dot for graph 90/497
+Running dot for graph 91/497
+Running dot for graph 92/497
+Running dot for graph 93/497
+Running dot for graph 94/497
+Running dot for graph 95/497
+Running dot for graph 96/497
+Running dot for graph 97/497
+Running dot for graph 98/497
+Running dot for graph 99/497
+Running dot for graph 100/497
+Running dot for graph 101/497
+Running dot for graph 102/497
+Running dot for graph 103/497
+Running dot for graph 104/497
+Running dot for graph 105/497
+Running dot for graph 106/497
+Running dot for graph 107/497
+Running dot for graph 108/497
+Running dot for graph 109/497
+Running dot for graph 110/497
+Running dot for graph 111/497
+Running dot for graph 112/497
+Running dot for graph 113/497
+Running dot for graph 114/497
+Running dot for graph 115/497
+Running dot for graph 116/497
+Running dot for graph 117/497
+Running dot for graph 118/497
+Running dot for graph 119/497
+Running dot for graph 120/497
+Running dot for graph 121/497
+Running dot for graph 122/497
+Running dot for graph 123/497
+Running dot for graph 124/497
+Running dot for graph 125/497
+Running dot for graph 126/497
+Running dot for graph 127/497
+Running dot for graph 128/497
+Running dot for graph 129/497
+Running dot for graph 130/497
+Running dot for graph 131/497
+Running dot for graph 132/497
+Running dot for graph 133/497
+Running dot for graph 134/497
+Running dot for graph 135/497
+Running dot for graph 136/497
+Running dot for graph 137/497
+Running dot for graph 138/497
+Running dot for graph 139/497
+Running dot for graph 140/497
+Running dot for graph 141/497
+Running dot for graph 142/497
+Running dot for graph 143/497
+Running dot for graph 144/497
+Running dot for graph 145/497
+Running dot for graph 146/497
+Running dot for graph 147/497
+Running dot for graph 148/497
+Running dot for graph 149/497
+Running dot for graph 150/497
+Running dot for graph 151/497
+Running dot for graph 152/497
+Running dot for graph 153/497
+Running dot for graph 154/497
+Running dot for graph 155/497
+Running dot for graph 156/497
+Running dot for graph 157/497
+Running dot for graph 158/497
+Running dot for graph 159/497
+Running dot for graph 160/497
+Running dot for graph 161/497
+Running dot for graph 162/497
+Running dot for graph 163/497
+Running dot for graph 164/497
+Running dot for graph 165/497
+Running dot for graph 166/497
+Running dot for graph 167/497
+Running dot for graph 168/497
+Running dot for graph 169/497
+Running dot for graph 170/497
+Running dot for graph 171/497
+Running dot for graph 172/497
+Running dot for graph 173/497
+Running dot for graph 174/497
+Running dot for graph 175/497
+Running dot for graph 176/497
+Running dot for graph 177/497
+Running dot for graph 178/497
+Running dot for graph 179/497
+Running dot for graph 180/497
+Running dot for graph 181/497
+Running dot for graph 182/497
+Running dot for graph 183/497
+Running dot for graph 184/497
+Running dot for graph 185/497
+Running dot for graph 186/497
+Running dot for graph 187/497
+Running dot for graph 188/497
+Running dot for graph 189/497
+Running dot for graph 190/497
+Running dot for graph 191/497
+Running dot for graph 192/497
+Running dot for graph 193/497
+Running dot for graph 194/497
+Running dot for graph 195/497
+Running dot for graph 196/497
+Running dot for graph 197/497
+Running dot for graph 198/497
+Running dot for graph 199/497
+Running dot for graph 200/497
+Running dot for graph 201/497
+Running dot for graph 202/497
+Running dot for graph 203/497
+Running dot for graph 204/497
+Running dot for graph 205/497
+Running dot for graph 206/497
+Running dot for graph 207/497
+Running dot for graph 208/497
+Running dot for graph 209/497
+Running dot for graph 210/497
+Running dot for graph 211/497
+Running dot for graph 212/497
+Running dot for graph 213/497
+Running dot for graph 214/497
+Running dot for graph 215/497
+Running dot for graph 216/497
+Running dot for graph 217/497
+Running dot for graph 218/497
+Running dot for graph 219/497
+Running dot for graph 220/497
+Running dot for graph 221/497
+Running dot for graph 222/497
+Running dot for graph 223/497
+Running dot for graph 224/497
+Running dot for graph 225/497
+Running dot for graph 226/497
+Running dot for graph 227/497
+Running dot for graph 228/497
+Running dot for graph 229/497
+Running dot for graph 230/497
+Running dot for graph 231/497
+Running dot for graph 232/497
+Running dot for graph 233/497
+Running dot for graph 234/497
+Running dot for graph 235/497
+Running dot for graph 236/497
+Running dot for graph 237/497
+Running dot for graph 238/497
+Running dot for graph 239/497
+Running dot for graph 240/497
+Running dot for graph 241/497
+Running dot for graph 242/497
+Running dot for graph 243/497
+Running dot for graph 244/497
+Running dot for graph 245/497
+Running dot for graph 246/497
+Running dot for graph 247/497
+Running dot for graph 248/497
+Running dot for graph 249/497
+Running dot for graph 250/497
+Running dot for graph 251/497
+Running dot for graph 252/497
+Running dot for graph 253/497
+Running dot for graph 254/497
+Running dot for graph 255/497
+Running dot for graph 256/497
+Running dot for graph 257/497
+Running dot for graph 258/497
+Running dot for graph 259/497
+Running dot for graph 260/497
+Running dot for graph 261/497
+Running dot for graph 262/497
+Running dot for graph 263/497
+Running dot for graph 264/497
+Running dot for graph 265/497
+Running dot for graph 266/497
+Running dot for graph 267/497
+Running dot for graph 268/497
+Running dot for graph 269/497
+Running dot for graph 270/497
+Running dot for graph 271/497
+Running dot for graph 272/497
+Running dot for graph 273/497
+Running dot for graph 274/497
+Running dot for graph 275/497
+Running dot for graph 276/497
+Running dot for graph 277/497
+Running dot for graph 278/497
+Running dot for graph 279/497
+Running dot for graph 280/497
+Running dot for graph 281/497
+Running dot for graph 282/497
+Running dot for graph 283/497
+Running dot for graph 284/497
+Running dot for graph 285/497
+Running dot for graph 286/497
+Running dot for graph 287/497
+Running dot for graph 288/497
+Running dot for graph 289/497
+Running dot for graph 290/497
+Running dot for graph 291/497
+Running dot for graph 292/497
+Running dot for graph 293/497
+Running dot for graph 294/497
+Running dot for graph 295/497
+Running dot for graph 296/497
+Running dot for graph 297/497
+Running dot for graph 298/497
+Running dot for graph 299/497
+Running dot for graph 300/497
+Running dot for graph 301/497
+Running dot for graph 302/497
+Running dot for graph 303/497
+Running dot for graph 304/497
+Running dot for graph 305/497
+Running dot for graph 306/497
+Running dot for graph 307/497
+Running dot for graph 308/497
+Running dot for graph 309/497
+Running dot for graph 310/497
+Running dot for graph 311/497
+Running dot for graph 312/497
+Running dot for graph 313/497
+Running dot for graph 314/497
+Running dot for graph 315/497
+Running dot for graph 316/497
+Running dot for graph 317/497
+Running dot for graph 318/497
+Running dot for graph 319/497
+Running dot for graph 320/497
+Running dot for graph 321/497
+Running dot for graph 322/497
+Running dot for graph 323/497
+Running dot for graph 324/497
+Running dot for graph 325/497
+Running dot for graph 326/497
+Running dot for graph 327/497
+Running dot for graph 328/497
+Running dot for graph 329/497
+Running dot for graph 330/497
+Running dot for graph 331/497
+Running dot for graph 332/497
+Running dot for graph 333/497
+Running dot for graph 334/497
+Running dot for graph 335/497
+Running dot for graph 336/497
+Running dot for graph 337/497
+Running dot for graph 338/497
+Running dot for graph 339/497
+Running dot for graph 340/497
+Running dot for graph 341/497
+Running dot for graph 342/497
+Running dot for graph 343/497
+Running dot for graph 344/497
+Running dot for graph 345/497
+Running dot for graph 346/497
+Running dot for graph 347/497
+Running dot for graph 348/497
+Running dot for graph 349/497
+Running dot for graph 350/497
+Running dot for graph 351/497
+Running dot for graph 352/497
+Running dot for graph 353/497
+Running dot for graph 354/497
+Running dot for graph 355/497
+Running dot for graph 356/497
+Running dot for graph 357/497
+Running dot for graph 358/497
+Running dot for graph 359/497
+Running dot for graph 360/497
+Running dot for graph 361/497
+Running dot for graph 362/497
+Running dot for graph 363/497
+Running dot for graph 364/497
+Running dot for graph 365/497
+Running dot for graph 366/497
+Running dot for graph 367/497
+Running dot for graph 368/497
+Running dot for graph 369/497
+Running dot for graph 370/497
+Running dot for graph 371/497
+Running dot for graph 372/497
+Running dot for graph 373/497
+Running dot for graph 374/497
+Running dot for graph 375/497
+Running dot for graph 376/497
+Running dot for graph 377/497
+Running dot for graph 378/497
+Running dot for graph 379/497
+Running dot for graph 380/497
+Running dot for graph 381/497
+Running dot for graph 382/497
+Running dot for graph 383/497
+Running dot for graph 384/497
+Running dot for graph 385/497
+Running dot for graph 386/497
+Running dot for graph 387/497
+Running dot for graph 388/497
+Running dot for graph 389/497
+Running dot for graph 390/497
+Running dot for graph 391/497
+Running dot for graph 392/497
+Running dot for graph 393/497
+Running dot for graph 394/497
+Running dot for graph 395/497
+Running dot for graph 396/497
+Running dot for graph 397/497
+Running dot for graph 398/497
+Running dot for graph 399/497
+Running dot for graph 400/497
+Running dot for graph 401/497
+Running dot for graph 402/497
+Running dot for graph 403/497
+Running dot for graph 404/497
+Running dot for graph 405/497
+Running dot for graph 406/497
+Running dot for graph 407/497
+Running dot for graph 408/497
+Running dot for graph 409/497
+Running dot for graph 410/497
+Running dot for graph 411/497
+Running dot for graph 412/497
+Running dot for graph 413/497
+Running dot for graph 414/497
+Running dot for graph 415/497
+Running dot for graph 416/497
+Running dot for graph 417/497
+Running dot for graph 418/497
+Running dot for graph 419/497
+Running dot for graph 420/497
+Running dot for graph 421/497
+Running dot for graph 422/497
+Running dot for graph 423/497
+Running dot for graph 424/497
+Running dot for graph 425/497
+Running dot for graph 426/497
+Running dot for graph 427/497
+Running dot for graph 428/497
+Running dot for graph 429/497
+Running dot for graph 430/497
+Running dot for graph 431/497
+Running dot for graph 432/497
+Running dot for graph 433/497
+Running dot for graph 434/497
+Running dot for graph 435/497
+Running dot for graph 436/497
+Running dot for graph 437/497
+Running dot for graph 438/497
+Running dot for graph 439/497
+Running dot for graph 440/497
+Running dot for graph 441/497
+Running dot for graph 442/497
+Running dot for graph 443/497
+Running dot for graph 444/497
+Running dot for graph 445/497
+Running dot for graph 446/497
+Running dot for graph 447/497
+Running dot for graph 448/497
+Running dot for graph 449/497
+Running dot for graph 450/497
+Running dot for graph 451/497
+Running dot for graph 452/497
+Running dot for graph 453/497
+Running dot for graph 454/497
+Running dot for graph 455/497
+Running dot for graph 456/497
+Running dot for graph 457/497
+Running dot for graph 458/497
+Running dot for graph 459/497
+Running dot for graph 460/497
+Running dot for graph 461/497
+Running dot for graph 462/497
+Running dot for graph 463/497
+Running dot for graph 464/497
+Running dot for graph 465/497
+Running dot for graph 466/497
+Running dot for graph 467/497
+Running dot for graph 468/497
+Running dot for graph 469/497
+Running dot for graph 470/497
+Running dot for graph 471/497
+Running dot for graph 472/497
+Running dot for graph 473/497
+Running dot for graph 474/497
+Running dot for graph 475/497
+Running dot for graph 476/497
+Running dot for graph 477/497
+Running dot for graph 478/497
+Running dot for graph 479/497
+Running dot for graph 480/497
+Running dot for graph 481/497
+Running dot for graph 482/497
+Running dot for graph 483/497
+Running dot for graph 484/497
+Running dot for graph 485/497
+Running dot for graph 486/497
+Running dot for graph 487/497
+Running dot for graph 488/497
+Running dot for graph 489/497
+Running dot for graph 490/497
+Running dot for graph 491/497
+Running dot for graph 492/497
+Running dot for graph 493/497
+Running dot for graph 494/497
+Running dot for graph 495/497
+Running dot for graph 496/497
+Running dot for graph 497/497
+Patching output file 1/8
+Patching output file 2/8
+Patching output file 3/8
+Patching output file 4/8
+Patching output file 5/8
+Patching output file 6/8
+Patching output file 7/8
+Patching output file 8/8
 lookup cache used 718/65536 hits=253630 misses=764
 finished...
 + make man
@@ -1862,11 +2368,11 @@ mandb: warning: $MANPATH set, inserting /etc/manpath.config
 Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/../man/man3'. Wait...
 Purging old database entries in /home/urbanjs/venus/V600/github/M_matrix/src/../man...
 Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man...
-mandb: warning: failed to store entry for put_into_lala(3m_matrix)
-mandb: warning: failed to store entry for M_matrix(3m_matrix)
-mandb: warning: failed to store entry for ifin_lala(3m_matrix)
-mandb: warning: failed to store entry for get_from_lala(3m_matrix)
 mandb: warning: failed to store entry for lala(3m_matrix)
+mandb: warning: failed to store entry for M_matrix(3m_matrix)
+mandb: warning: failed to store entry for put_into_lala(3m_matrix)
+mandb: warning: failed to store entry for get_from_lala(3m_matrix)
+mandb: warning: failed to store entry for ifin_lala(3m_matrix)
 done.
 Checking for stray cats under /home/urbanjs/venus/V600/github/M_matrix/src/../man...
 Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat8...
@@ -2029,207 +2535,6 @@ EXAMPLES
 
 
 				 July 22, 2023		 lala.1.man(1m_matrix)
-ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
-
-
-
-NAME
-  ifin_lala(3f) - [M_matrix] test if variable name exists in lala()
-  LICENSE(MIT)
-
-SYNOPSIS
-  logical function ifin_lala(varname)
-
-  character(len=*),intent(in) :: varname
-
-DESCRIPTION
-  Determine if a variable name currently exists in lala().
-
-RETURNS
-  ifin_lala
-    TRUE if varname exists in lala, else FALSE.
-
-EXAMPLE
-  sample program:
-
-       program demo_ifin_lala
-       use M_matrix, only : ifin_lala
-       implicit none
-	  write(*,*)'eps ',ifin_lala('eps')
-	  write(*,*)'unknown ',ifin_lala('unknown')
-       end program demo_ifin_lala
-
-  Results:
-
-      eps  T
-      unknown  F
-
-
-
-
-				 July 22, 2023		  ifin_lala(3m_matrix)
-M_matrix(3m_matrix)					   M_matrix(3m_matrix)
-
-
-
-NAME
-  M_matrix(3f) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algebra
-  Fortran Facility (LALA) LICENSE(MIT)
-
-
-DESCRIPTION
-  The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
-  which allows for interacting with a Fortran program using Matlab
-
-  or Octave-like commands.
-    LALA is also usable as a simple one-line language. It is a WIP (Work In
-    Progress) but is already useful.
-
-    •  You can pass intrinsic-type data easily between your Fortran program
-       and the LALA utility.
-
-    •  blocks of LALA commands may be passed to lala(3f) as well.
-
-    •  external files containing lala(3f) commands may be read to create data
-       or as configuration files.
-
-    •  LALA commands may be recorded and played back.
-
-    •  a command-line based command history allowed for recalling and editing
-       input.
-
-    •  a stand-alone program lets you create and test LALA files. It is a
-       flexible calculator utility all by itself.
-
-    •  a built-in help command describes the many functions and commands
-
-    •  a user-added Fortran routine may be called via the USER() function.
-
-  All together, this allows lala(3f) to be used for self-describing
-  configuration and data files, inspecting data in existing programs,
-  transferring small amounts of data between programs or assisting in
-  debugging and development, unit testing and macro-level timing.
-
-EXAMPLE
-  Sample program:
-
-      program demo_M_matrix
-      use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
-      !real,allocatable 	    :: r
-      !complex,allocatable	    :: cvec(:)
-      integer,allocatable	   :: iarr(:,:)
-      character(len=:),allocatable :: t(:)
-      integer			   :: ierr
-      integer			   :: i
-
-      ! store some data into lala(3)
-      call put_into_lala('A',[1,2,3,4,5]*10.5,ierr)
-      write(*,*)'is A defined in LALA?',ifin_lala('A')
-      call lala('A/2.0')
-
-      ! pass some commands to lala(3f)
-      call lala([character(len=80) :: &
-      &'PI=atan(1)*4		   ', &
-      &"mytitle='this is my title';", &
-      &'littlearray=<		   ', &
-      &'   1 2 3;		   ', &
-      &'   4 5 6;		   ', &
-      &'   7 8 9;		   ', &
-      &'>			   ', &
-      &'S=sum(A)		   ', &
-      &'I=inv(littlearray);	   ', &
-      &'B=littlearray*sin(PI/3)    ', &
-      &"save('keepB',B) 	   ", &
-      &''])
-
-      ! read a file containing lala(3f) commands
-      call lala("exec('mycommands');")
-
-      ! interactively interact with lala(3f) interpreter
-      call lala()
-
-      ! get some data from LALA into the calling program
-      call get_from_lala('littlearray',iarr,ierr)
-      write(*,'(a)')'IN CALLING PROGRAM IARR='
-      write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
-
-      call get_from_lala('mytitle',t,ierr)
-      write(*,*)'IN CALLING PROGRAM T=',t
-
-      end program demo_M_matrix
-
-
-
-				 July 22, 2023		   M_matrix(3m_matrix)
-put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
-
-
-
-NAME
-  put_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
-  LICENSE(MIT)
-
-SYNOPSIS
-  subroutine put_into_lala(varname,A,IERR)
-
-     character(len=*),intent(in)	      :: varname
-     [INTRINSIC_TYPE],allocatable,intent(in)  :: a(:,:)
-     integer,intent(out)		      :: ierr
-
-
-DESCRIPTION
-  Define a variable in the lala(3f) utility with a variable declared in the
-  calling program.
-
-OPTIONS
-  VARNAME Name of lala(3f) variable to retrieve
-
-    A May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.  May be a
-      scalar, vector, or MxN matrix.
-
-RETURNS
-  IERR
-    Zero if no error occurred
-
-EXAMPLE
-  sample program:
-
-     program demo_put_into_lala
-     use M_matrix, only : lala, get_from_lala, put_into_lala
-     implicit none
-     integer :: ierr
-
-	! store some data from the program into lala(3f)
-	call put_into_lala('A',[1,2,3,4,5,6,7,8,9],ierr)
-	call put_into_lala('B',[1.1,2.2,3.3],ierr)
-	call put_into_lala('C',"This is my title",ierr)
-
-	! call lala(3f) and display the values
-	call lala([character(len=80) :: &
-	& 'who,A,B', &
-	& 'display(C);', &
-	& '', &
-	& ''])
-
-     end program demo_put_into_lala
-
-  Results:
-
-       > Your current variables are...
-       > C  B  A  eps  flops  eye  rand
-       >using 33 out of 200000 elements
-       >
-       > A  =
-       >     1.    2.	 3.    4.    5.    6.	 7.    8.    9.
-       >
-       > B  =
-       >    1.1000    2.2000	3.3000
-       >This is my title
-
-
-
-
-				 July 22, 2023	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -2864,6 +3169,168 @@ EXAMPLE
 
 
 				 July 22, 2023		       lala(3m_matrix)
+M_matrix(3m_matrix)					   M_matrix(3m_matrix)
+
+
+
+NAME
+  M_matrix(3f) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algebra
+  Fortran Facility (LALA) LICENSE(MIT)
+
+
+DESCRIPTION
+  The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
+  which allows for interacting with a Fortran program using Matlab
+
+  or Octave-like commands.
+    LALA is also usable as a simple one-line language. It is a WIP (Work In
+    Progress) but is already useful.
+
+    •  You can pass intrinsic-type data easily between your Fortran program
+       and the LALA utility.
+
+    •  blocks of LALA commands may be passed to lala(3f) as well.
+
+    •  external files containing lala(3f) commands may be read to create data
+       or as configuration files.
+
+    •  LALA commands may be recorded and played back.
+
+    •  a command-line based command history allowed for recalling and editing
+       input.
+
+    •  a stand-alone program lets you create and test LALA files. It is a
+       flexible calculator utility all by itself.
+
+    •  a built-in help command describes the many functions and commands
+
+    •  a user-added Fortran routine may be called via the USER() function.
+
+  All together, this allows lala(3f) to be used for self-describing
+  configuration and data files, inspecting data in existing programs,
+  transferring small amounts of data between programs or assisting in
+  debugging and development, unit testing and macro-level timing.
+
+EXAMPLE
+  Sample program:
+
+      program demo_M_matrix
+      use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
+      !real,allocatable 	    :: r
+      !complex,allocatable	    :: cvec(:)
+      integer,allocatable	   :: iarr(:,:)
+      character(len=:),allocatable :: t(:)
+      integer			   :: ierr
+      integer			   :: i
+
+      ! store some data into lala(3)
+      call put_into_lala('A',[1,2,3,4,5]*10.5,ierr)
+      write(*,*)'is A defined in LALA?',ifin_lala('A')
+      call lala('A/2.0')
+
+      ! pass some commands to lala(3f)
+      call lala([character(len=80) :: &
+      &'PI=atan(1)*4		   ', &
+      &"mytitle='this is my title';", &
+      &'littlearray=<		   ', &
+      &'   1 2 3;		   ', &
+      &'   4 5 6;		   ', &
+      &'   7 8 9;		   ', &
+      &'>			   ', &
+      &'S=sum(A)		   ', &
+      &'I=inv(littlearray);	   ', &
+      &'B=littlearray*sin(PI/3)    ', &
+      &"save('keepB',B) 	   ", &
+      &''])
+
+      ! read a file containing lala(3f) commands
+      call lala("exec('mycommands');")
+
+      ! interactively interact with lala(3f) interpreter
+      call lala()
+
+      ! get some data from LALA into the calling program
+      call get_from_lala('littlearray',iarr,ierr)
+      write(*,'(a)')'IN CALLING PROGRAM IARR='
+      write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
+
+      call get_from_lala('mytitle',t,ierr)
+      write(*,*)'IN CALLING PROGRAM T=',t
+
+      end program demo_M_matrix
+
+
+
+				 July 22, 2023		   M_matrix(3m_matrix)
+put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
+
+
+
+NAME
+  put_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
+  LICENSE(MIT)
+
+SYNOPSIS
+  subroutine put_into_lala(varname,A,IERR)
+
+     character(len=*),intent(in)	      :: varname
+     [INTRINSIC_TYPE],allocatable,intent(in)  :: a(:,:)
+     integer,intent(out)		      :: ierr
+
+
+DESCRIPTION
+  Define a variable in the lala(3f) utility with a variable declared in the
+  calling program.
+
+OPTIONS
+  VARNAME Name of lala(3f) variable to retrieve
+
+    A May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.  May be a
+      scalar, vector, or MxN matrix.
+
+RETURNS
+  IERR
+    Zero if no error occurred
+
+EXAMPLE
+  sample program:
+
+     program demo_put_into_lala
+     use M_matrix, only : lala, get_from_lala, put_into_lala
+     implicit none
+     integer :: ierr
+
+	! store some data from the program into lala(3f)
+	call put_into_lala('A',[1,2,3,4,5,6,7,8,9],ierr)
+	call put_into_lala('B',[1.1,2.2,3.3],ierr)
+	call put_into_lala('C',"This is my title",ierr)
+
+	! call lala(3f) and display the values
+	call lala([character(len=80) :: &
+	& 'who,A,B', &
+	& 'display(C);', &
+	& '', &
+	& ''])
+
+     end program demo_put_into_lala
+
+  Results:
+
+       > Your current variables are...
+       > C  B  A  eps  flops  eye  rand
+       >using 33 out of 200000 elements
+       >
+       > A  =
+       >     1.    2.	 3.    4.    5.    6.	 7.    8.    9.
+       >
+       > B  =
+       >    1.1000    2.2000	3.3000
+       >This is my title
+
+
+
+
+				 July 22, 2023	      put_into_lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -2976,6 +3443,45 @@ EXAMPLE
 
 
 				 July 22, 2023	      get_from_lala(3m_matrix)
+ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
+
+
+
+NAME
+  ifin_lala(3f) - [M_matrix] test if variable name exists in lala()
+  LICENSE(MIT)
+
+SYNOPSIS
+  logical function ifin_lala(varname)
+
+  character(len=*),intent(in) :: varname
+
+DESCRIPTION
+  Determine if a variable name currently exists in lala().
+
+RETURNS
+  ifin_lala
+    TRUE if varname exists in lala, else FALSE.
+
+EXAMPLE
+  sample program:
+
+       program demo_ifin_lala
+       use M_matrix, only : ifin_lala
+       implicit none
+	  write(*,*)'eps ',ifin_lala('eps')
+	  write(*,*)'unknown ',ifin_lala('unknown')
+       end program demo_ifin_lala
+
+  Results:
+
+      eps  T
+      unknown  F
+
+
+
+
+				 July 22, 2023		  ifin_lala(3m_matrix)
 + make ship
 : make easily distributed archive files of manpages
 mkdir -p ../docs
@@ -3006,41 +3512,8 @@ rm -f ../example/demo_adjustc ../example/demo_base ../example/demo_change ../exa
 >>>> fpm test
 + cd ../..
 + fpm test
- + mkdir -p build/dependencies
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_framework/.git/
-From https://github.com/urbanjost/M_framework
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_msg/.git/
-From https://github.com/urbanjost/M_msg
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_strings/.git/
-From https://github.com/urbanjost/M_strings
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_history/.git/
-From https://github.com/urbanjost/M_history
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_CLI2/.git/
-From https://github.com/urbanjost/M_CLI2
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_list/.git/
-From https://github.com/urbanjost/M_list
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_io/.git/
-From https://github.com/urbanjost/M_io
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_LA/.git/
-From https://github.com/urbanjost/M_LA
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_intrinsics/.git/
-From https://github.com/urbanjost/M_intrinsics
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_match/.git/
-From https://github.com/urbanjost/M_match
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_escape/.git/
-remote: Repository not found.
-fatal: repository 'https://github.com/urbanjost/M_escape.git/' not found
-<ERROR> *cmd_run* Model error: Error while fetching git repository for remote dependency
+fatal: your current branch 'master' does not have any commits yet
+<ERROR> *cmd_run* Model error: Error while retrieving commit information
 STOP 1
 + echo '>>>> make BOOK html document'
 >>>> make BOOK html document
@@ -3101,19 +3574,19 @@ ________________________________________________________________________________
 + echo 'function loadthem(){'
 + '[' M_matrix = INDEX ']'
 + uniq
-+ read NAME
-+ echo M_matrix.3m_matrix.html
 + tr -d '()'
++ echo M_matrix.3m_matrix.html
 + awk '{printf "%s.%s.html\n",$1,$2}'
-+ grep -i '(3M_matrix)'
++ read NAME
 + man -k '\[M_matrix\>'
 + uniq
 + env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
-+ man --section 3m_matrix -k .
 + grep -i '(3M_matrix)'
-+ grep -vi '(3M_matrix)'
-+ man -k '\[M_matrix\>'
++ grep -i '(3M_matrix)'
++ man --section 3m_matrix -k .
 + env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
++ man -k '\[M_matrix\>'
++ grep -vi '(3M_matrix)'
 + '[' -r ../../docs//M_matrix.3m_matrix.html..html ']'
 + read NAME
 + '[' -r ../../docs//M_matrix.3m_matrix.html ']'
@@ -3187,31 +3660,31 @@ urbanjost   userguide    wv        xin
 >>>> update GPF project and documents
 + unset GITHUB
 + make.one libGPF
-1136221 (process ID) old priority 0, new priority 19
+1209942 (process ID) old priority 0, new priority 19
 W-A-R-N-I-N-G: no ccheck.c file (required for configured versions)
 + echo '>>>> run test'
 >>>> run test
 + cd ../../test
 + ccall test_suite_M_matrix.f90
-*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_1137560
-+ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_1137560
-+ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_1137560
+*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_1210992
++ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_1210992
++ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_1210992
 + CCALL_DELETE_DIR=TRUE
-+ FULLNAME=/dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ FULLNAME=/dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
 + SPLIT
 + sed -e 's/ -/@ -/g'
 + tr @ '\012'
-+ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
 + echo NAME test_suite_M_matrix.f90
 NAME test_suite_M_matrix.f90
 + echo /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
 /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-+ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
-+ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
++ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
 + grep
- -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
+ -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
 + grep
- -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
+ -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
 + set
  -x
 + set
@@ -3222,7 +3695,7 @@ NAME test_suite_M_matrix.f90
  -frecord-marker=4
  -I.
  -DTESTPRG
- -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
+ -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
  -o /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
  -Wall
  -Wextra
@@ -3254,17 +3727,17 @@ NAME test_suite_M_matrix.f90
  -Bdynamic
  -L/usr/lib/x86_64-linux-gnu
  -lX11
-/dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90:2:5:
+/dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90:2:5:
 
     2 | use M_matrix, only : lala, get_from_lala, put_into_lala
       |     1
 Fatal Error: Cannot open module file ‘m_matrix.mod’ for reading at (1): No such file or directory
 compilation terminated.
-+ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
-a - /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
++ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
+a - /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
 + set +x
 /home/urbanjs/venus/V600/LIBRARY/CYGWIN/scripts_regression/goodbad: test_suite_M_matrix.1 0 test_suite_M_matrix start --section 1
-*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_1137560
+*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_1210992
 + test_suite_M_matrix
 /home/urbanjs/venus/V600/github/github_scripts/bash/GPF_build_module: line 208: test_suite_M_matrix: command not found
 + echo '>>>> GPF_fman'
@@ -3291,17 +3764,17 @@ a - /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
 + cat
 + cat
 + COUNT=0
-+ ls get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
 + read NAME
++ ls get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
 + SHORTNAME=get_from_lala
 + COUNT=1
 + cat
 ++ TOCHARACTER
 ++ :
-++ cat get_from_lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
-++ sed -e 's/$/'\'', \&/'
+++ cat get_from_lala.3m_matrix.man
 ++ sed -e 's/^/'\''/'
+++ sed -e 's/$/'\'', \&/'
 ++ cat
 + read NAME
 + SHORTNAME=ifin_lala
@@ -3309,32 +3782,32 @@ a - /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
 + cat
 ++ TOCHARACTER
 ++ :
-++ cat ifin_lala.3m_matrix.man
-++ sed -e 's/^/'\''/'
-++ cat
-++ sed -e 's/$/'\'', \&/'
 ++ sed -e 's/'\''/'\'''\''/g'
+++ cat
+++ sed -e 's/^/'\''/'
+++ sed -e 's/$/'\'', \&/'
+++ cat ifin_lala.3m_matrix.man
 + read NAME
 + SHORTNAME=lala
 + COUNT=3
 + cat
 ++ TOCHARACTER
 ++ :
+++ sed -e 's/'\''/'\'''\''/g'
 ++ cat lala.3m_matrix.man
+++ cat
 ++ sed -e 's/^/'\''/'
 ++ sed -e 's/$/'\'', \&/'
-++ cat
-++ sed -e 's/'\''/'\'''\''/g'
 + read NAME
 + SHORTNAME=M_matrix
 + COUNT=4
 + cat
 ++ TOCHARACTER
 ++ :
-++ sed -e 's/'\''/'\'''\''/g'
 ++ cat M_matrix.3m_matrix.man
-++ cat
+++ sed -e 's/'\''/'\'''\''/g'
 ++ sed -e 's/$/'\'', \&/'
+++ cat
 ++ sed -e 's/^/'\''/'
 + read NAME
 + SHORTNAME=put_into_lala
@@ -3342,15 +3815,15 @@ a - /dev/shm/CCALL_Linux_gfortran_1137560/test_suite_M_matrix.1137560.f90
 + cat
 ++ TOCHARACTER
 ++ :
-++ sed -e 's/'\''/'\'''\''/g'
 ++ cat put_into_lala.3m_matrix.man
-++ cat
 ++ sed -e 's/^/'\''/'
+++ cat
 ++ sed -e 's/$/'\'', \&/'
+++ sed -e 's/'\''/'\'''\''/g'
 + read NAME
 + END_MODULE
 + cat
 + cat
 + ls -ld /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
--rw-rw-r-- 1 urbanjs urbanjs 45867 Jul 22 15:42 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
+-rw-rw-r-- 1 urbanjs urbanjs 45867 Jul 22 15:51 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
 + cat
