@@ -20,9 +20,9 @@
 >>>> DOCS          => /home/urbanjs/venus/V600/github/M_matrix/docs
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man1
-++ ls lala.1.man '*.1m_matrix.man'
-++ uniq
 ++ sort
+++ uniq
+++ ls lala.1.man '*.1m_matrix.man'
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for lala.1.man'
 >>>> processing manpage and HTML for lala.1.man
@@ -31,11 +31,11 @@
 ++ basename lala.1.man .1m_matrix.man
 + SHORTNAME=lala.1.man
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1 SHORTNAME lala.1.man
-+ env AUX_FILENAME=lala.1.man man2html
-+ txt2man -s 1m_matrix -t lala.1.man lala.1.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
++ txt2man -s 1m_matrix -t lala.1.man lala.1.man
++ env AUX_FILENAME=lala.1.man man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html cdb9e9f9-103f-4c9e-9d27-cfabf86f7f59
+man2html f8bff111-de6f-483e-aee0-1a8df5f19074
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -43,14 +43,14 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
-++ uniq
 ++ sort
 ++ ls '*.2.man' '*.2m_matrix.man'
+++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
+++ ls '*.3.man' get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
 ++ sort
 ++ uniq
-++ ls '*.3.man' get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for get_from_lala.3m_matrix.man'
 >>>> processing manpage and HTML for get_from_lala.3m_matrix.man
@@ -59,11 +59,11 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:
 ++ basename get_from_lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=get_from_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix SHORTNAME get_from_lala
-+ txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
 + env AUX_FILENAME=get_from_lala man2html
++ txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html bb1407a9-90e2-440a-b8f9-c3991a576ca7
+man2html 6039154e-f06e-44bf-9ec2-641a300a7086
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -81,7 +81,7 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.ht
 + env AUX_FILENAME=ifin_lala man2html
 + txt2man -s 3m_matrix -t ifin_lala ifin_lala.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 8b6b2236-fe83-4447-a32b-c574168663af
+man2html be961749-e4cd-450c-9a0c-3c9d0db85fb8
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -95,11 +95,11 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html:4
 ++ basename lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix SHORTNAME lala
-+ txt2man -s 3m_matrix -t lala lala.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
 + env AUX_FILENAME=lala man2html
++ txt2man -s 3m_matrix -t lala lala.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 05976bc6-cd2d-4a63-9cc7-d279d76a311b
+man2html 8634c104-6677-4f15-beaa-9e36e5298d88
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -113,11 +113,11 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html:45:<h5
 ++ basename M_matrix.3m_matrix.man .3m_matrix.man
 + SHORTNAME=M_matrix
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix SHORTNAME M_matrix
-+ txt2man -s 3m_matrix -t M_matrix M_matrix.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
 + env AUX_FILENAME=M_matrix man2html
++ txt2man -s 3m_matrix -t M_matrix M_matrix.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 434636e3-0c66-4e02-a245-b83015f193a9
+man2html 6588d3d7-7fbd-46a8-bb42-fc1355c163bc
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -135,7 +135,7 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html:45
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 + env AUX_FILENAME=put_into_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 50907783-82ac-4c73-9e47-f2ade1f868ef
+man2html b0959622-432d-4a31-875d-b81c6eb0c1c1
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
 CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
 BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
@@ -143,29 +143,29 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.ht
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
-++ ls '*.4.man' '*.4m_matrix.man'
-++ uniq
 ++ sort
+++ uniq
+++ ls '*.4.man' '*.4m_matrix.man'
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
 ++ ls '*.5.man' '*.5m_matrix.man'
-++ uniq
 ++ sort
+++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
+++ uniq
 ++ ls '*.6.man' '*.6m_matrix.man'
 ++ sort
-++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
-++ ls '*.7.man' '*.7m_matrix.man'
 ++ sort
+++ ls '*.7.man' '*.7m_matrix.man'
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man8
 ++ sort
-++ ls '*.8.man' '*.8m_matrix.man'
 ++ uniq
+++ ls '*.8.man' '*.8m_matrix.man'
 + cat
 >>>> .txt files to MAN DIRECTORY
 >>>> MANOUT        => /home/urbanjs/venus/V600/github/M_matrix/man
@@ -179,33 +179,33 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.ht
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
 ++ sort
-++ uniq
 ++ ls '*.2.txt' '*.2m_matrix.txt'
+++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
 ++ ls '*.3.txt' '*.3m_matrix.txt'
-++ sort
 ++ uniq
+++ sort
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
+++ sort
 ++ ls '*.4.txt' '*.4m_matrix.txt'
 ++ uniq
-++ sort
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
-++ ls '*.5.txt' '*.5m_matrix.txt'
 ++ uniq
+++ ls '*.5.txt' '*.5m_matrix.txt'
 ++ sort
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
-++ uniq
 ++ sort
 ++ ls '*.6.txt' '*.6m_matrix.txt'
+++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
 ++ sort
-++ uniq
 ++ ls '*.7.txt' '*.7m_matrix.txt'
+++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man8
 ++ sort
@@ -1855,512 +1855,6 @@ finalizing index lists...
 writing tag file...
 Running plantuml with JAVA...
 Running dot...
-Generating dot graphs using 5 parallel threads...
-Running dot for graph 1/497
-Running dot for graph 2/497
-Running dot for graph 3/497
-Running dot for graph 4/497
-Running dot for graph 5/497
-Running dot for graph 6/497
-Running dot for graph 7/497
-Running dot for graph 8/497
-Running dot for graph 9/497
-Running dot for graph 10/497
-Running dot for graph 11/497
-Running dot for graph 12/497
-Running dot for graph 13/497
-Running dot for graph 14/497
-Running dot for graph 15/497
-Running dot for graph 16/497
-Running dot for graph 17/497
-Running dot for graph 18/497
-Running dot for graph 19/497
-Running dot for graph 20/497
-Running dot for graph 21/497
-Running dot for graph 22/497
-Running dot for graph 23/497
-Running dot for graph 24/497
-Running dot for graph 25/497
-Running dot for graph 26/497
-Running dot for graph 27/497
-Running dot for graph 28/497
-Running dot for graph 29/497
-Running dot for graph 30/497
-Running dot for graph 31/497
-Running dot for graph 32/497
-Running dot for graph 33/497
-Running dot for graph 34/497
-Running dot for graph 35/497
-Running dot for graph 36/497
-Running dot for graph 37/497
-Running dot for graph 38/497
-Running dot for graph 39/497
-Running dot for graph 40/497
-Running dot for graph 41/497
-Running dot for graph 42/497
-Running dot for graph 43/497
-Running dot for graph 44/497
-Running dot for graph 45/497
-Running dot for graph 46/497
-Running dot for graph 47/497
-Running dot for graph 48/497
-Running dot for graph 49/497
-Running dot for graph 50/497
-Running dot for graph 51/497
-Running dot for graph 52/497
-Running dot for graph 53/497
-Running dot for graph 54/497
-Running dot for graph 55/497
-Running dot for graph 56/497
-Running dot for graph 57/497
-Running dot for graph 58/497
-Running dot for graph 59/497
-Running dot for graph 60/497
-Running dot for graph 61/497
-Running dot for graph 62/497
-Running dot for graph 63/497
-Running dot for graph 64/497
-Running dot for graph 65/497
-Running dot for graph 66/497
-Running dot for graph 67/497
-Running dot for graph 68/497
-Running dot for graph 69/497
-Running dot for graph 70/497
-Running dot for graph 71/497
-Running dot for graph 72/497
-Running dot for graph 73/497
-Running dot for graph 74/497
-Running dot for graph 75/497
-Running dot for graph 76/497
-Running dot for graph 77/497
-Running dot for graph 78/497
-Running dot for graph 79/497
-Running dot for graph 80/497
-Running dot for graph 81/497
-Running dot for graph 82/497
-Running dot for graph 83/497
-Running dot for graph 84/497
-Running dot for graph 85/497
-Running dot for graph 86/497
-Running dot for graph 87/497
-Running dot for graph 88/497
-Running dot for graph 89/497
-Running dot for graph 90/497
-Running dot for graph 91/497
-Running dot for graph 92/497
-Running dot for graph 93/497
-Running dot for graph 94/497
-Running dot for graph 95/497
-Running dot for graph 96/497
-Running dot for graph 97/497
-Running dot for graph 98/497
-Running dot for graph 99/497
-Running dot for graph 100/497
-Running dot for graph 101/497
-Running dot for graph 102/497
-Running dot for graph 103/497
-Running dot for graph 104/497
-Running dot for graph 105/497
-Running dot for graph 106/497
-Running dot for graph 107/497
-Running dot for graph 108/497
-Running dot for graph 109/497
-Running dot for graph 110/497
-Running dot for graph 111/497
-Running dot for graph 112/497
-Running dot for graph 113/497
-Running dot for graph 114/497
-Running dot for graph 115/497
-Running dot for graph 116/497
-Running dot for graph 117/497
-Running dot for graph 118/497
-Running dot for graph 119/497
-Running dot for graph 120/497
-Running dot for graph 121/497
-Running dot for graph 122/497
-Running dot for graph 123/497
-Running dot for graph 124/497
-Running dot for graph 125/497
-Running dot for graph 126/497
-Running dot for graph 127/497
-Running dot for graph 128/497
-Running dot for graph 129/497
-Running dot for graph 130/497
-Running dot for graph 131/497
-Running dot for graph 132/497
-Running dot for graph 133/497
-Running dot for graph 134/497
-Running dot for graph 135/497
-Running dot for graph 136/497
-Running dot for graph 137/497
-Running dot for graph 138/497
-Running dot for graph 139/497
-Running dot for graph 140/497
-Running dot for graph 141/497
-Running dot for graph 142/497
-Running dot for graph 143/497
-Running dot for graph 144/497
-Running dot for graph 145/497
-Running dot for graph 146/497
-Running dot for graph 147/497
-Running dot for graph 148/497
-Running dot for graph 149/497
-Running dot for graph 150/497
-Running dot for graph 151/497
-Running dot for graph 152/497
-Running dot for graph 153/497
-Running dot for graph 154/497
-Running dot for graph 155/497
-Running dot for graph 156/497
-Running dot for graph 157/497
-Running dot for graph 158/497
-Running dot for graph 159/497
-Running dot for graph 160/497
-Running dot for graph 161/497
-Running dot for graph 162/497
-Running dot for graph 163/497
-Running dot for graph 164/497
-Running dot for graph 165/497
-Running dot for graph 166/497
-Running dot for graph 167/497
-Running dot for graph 168/497
-Running dot for graph 169/497
-Running dot for graph 170/497
-Running dot for graph 171/497
-Running dot for graph 172/497
-Running dot for graph 173/497
-Running dot for graph 174/497
-Running dot for graph 175/497
-Running dot for graph 176/497
-Running dot for graph 177/497
-Running dot for graph 178/497
-Running dot for graph 179/497
-Running dot for graph 180/497
-Running dot for graph 181/497
-Running dot for graph 182/497
-Running dot for graph 183/497
-Running dot for graph 184/497
-Running dot for graph 185/497
-Running dot for graph 186/497
-Running dot for graph 187/497
-Running dot for graph 188/497
-Running dot for graph 189/497
-Running dot for graph 190/497
-Running dot for graph 191/497
-Running dot for graph 192/497
-Running dot for graph 193/497
-Running dot for graph 194/497
-Running dot for graph 195/497
-Running dot for graph 196/497
-Running dot for graph 197/497
-Running dot for graph 198/497
-Running dot for graph 199/497
-Running dot for graph 200/497
-Running dot for graph 201/497
-Running dot for graph 202/497
-Running dot for graph 203/497
-Running dot for graph 204/497
-Running dot for graph 205/497
-Running dot for graph 206/497
-Running dot for graph 207/497
-Running dot for graph 208/497
-Running dot for graph 209/497
-Running dot for graph 210/497
-Running dot for graph 211/497
-Running dot for graph 212/497
-Running dot for graph 213/497
-Running dot for graph 214/497
-Running dot for graph 215/497
-Running dot for graph 216/497
-Running dot for graph 217/497
-Running dot for graph 218/497
-Running dot for graph 219/497
-Running dot for graph 220/497
-Running dot for graph 221/497
-Running dot for graph 222/497
-Running dot for graph 223/497
-Running dot for graph 224/497
-Running dot for graph 225/497
-Running dot for graph 226/497
-Running dot for graph 227/497
-Running dot for graph 228/497
-Running dot for graph 229/497
-Running dot for graph 230/497
-Running dot for graph 231/497
-Running dot for graph 232/497
-Running dot for graph 233/497
-Running dot for graph 234/497
-Running dot for graph 235/497
-Running dot for graph 236/497
-Running dot for graph 237/497
-Running dot for graph 238/497
-Running dot for graph 239/497
-Running dot for graph 240/497
-Running dot for graph 241/497
-Running dot for graph 242/497
-Running dot for graph 243/497
-Running dot for graph 244/497
-Running dot for graph 245/497
-Running dot for graph 246/497
-Running dot for graph 247/497
-Running dot for graph 248/497
-Running dot for graph 249/497
-Running dot for graph 250/497
-Running dot for graph 251/497
-Running dot for graph 252/497
-Running dot for graph 253/497
-Running dot for graph 254/497
-Running dot for graph 255/497
-Running dot for graph 256/497
-Running dot for graph 257/497
-Running dot for graph 258/497
-Running dot for graph 259/497
-Running dot for graph 260/497
-Running dot for graph 261/497
-Running dot for graph 262/497
-Running dot for graph 263/497
-Running dot for graph 264/497
-Running dot for graph 265/497
-Running dot for graph 266/497
-Running dot for graph 267/497
-Running dot for graph 268/497
-Running dot for graph 269/497
-Running dot for graph 270/497
-Running dot for graph 271/497
-Running dot for graph 272/497
-Running dot for graph 273/497
-Running dot for graph 274/497
-Running dot for graph 275/497
-Running dot for graph 276/497
-Running dot for graph 277/497
-Running dot for graph 278/497
-Running dot for graph 279/497
-Running dot for graph 280/497
-Running dot for graph 281/497
-Running dot for graph 282/497
-Running dot for graph 283/497
-Running dot for graph 284/497
-Running dot for graph 285/497
-Running dot for graph 286/497
-Running dot for graph 287/497
-Running dot for graph 288/497
-Running dot for graph 289/497
-Running dot for graph 290/497
-Running dot for graph 291/497
-Running dot for graph 292/497
-Running dot for graph 293/497
-Running dot for graph 294/497
-Running dot for graph 295/497
-Running dot for graph 296/497
-Running dot for graph 297/497
-Running dot for graph 298/497
-Running dot for graph 299/497
-Running dot for graph 300/497
-Running dot for graph 301/497
-Running dot for graph 302/497
-Running dot for graph 303/497
-Running dot for graph 304/497
-Running dot for graph 305/497
-Running dot for graph 306/497
-Running dot for graph 307/497
-Running dot for graph 308/497
-Running dot for graph 309/497
-Running dot for graph 310/497
-Running dot for graph 311/497
-Running dot for graph 312/497
-Running dot for graph 313/497
-Running dot for graph 314/497
-Running dot for graph 315/497
-Running dot for graph 316/497
-Running dot for graph 317/497
-Running dot for graph 318/497
-Running dot for graph 319/497
-Running dot for graph 320/497
-Running dot for graph 321/497
-Running dot for graph 322/497
-Running dot for graph 323/497
-Running dot for graph 324/497
-Running dot for graph 325/497
-Running dot for graph 326/497
-Running dot for graph 327/497
-Running dot for graph 328/497
-Running dot for graph 329/497
-Running dot for graph 330/497
-Running dot for graph 331/497
-Running dot for graph 332/497
-Running dot for graph 333/497
-Running dot for graph 334/497
-Running dot for graph 335/497
-Running dot for graph 336/497
-Running dot for graph 337/497
-Running dot for graph 338/497
-Running dot for graph 339/497
-Running dot for graph 340/497
-Running dot for graph 341/497
-Running dot for graph 342/497
-Running dot for graph 343/497
-Running dot for graph 344/497
-Running dot for graph 345/497
-Running dot for graph 346/497
-Running dot for graph 347/497
-Running dot for graph 348/497
-Running dot for graph 349/497
-Running dot for graph 350/497
-Running dot for graph 351/497
-Running dot for graph 352/497
-Running dot for graph 353/497
-Running dot for graph 354/497
-Running dot for graph 355/497
-Running dot for graph 356/497
-Running dot for graph 357/497
-Running dot for graph 358/497
-Running dot for graph 359/497
-Running dot for graph 360/497
-Running dot for graph 361/497
-Running dot for graph 362/497
-Running dot for graph 363/497
-Running dot for graph 364/497
-Running dot for graph 365/497
-Running dot for graph 366/497
-Running dot for graph 367/497
-Running dot for graph 368/497
-Running dot for graph 369/497
-Running dot for graph 370/497
-Running dot for graph 371/497
-Running dot for graph 372/497
-Running dot for graph 373/497
-Running dot for graph 374/497
-Running dot for graph 375/497
-Running dot for graph 376/497
-Running dot for graph 377/497
-Running dot for graph 378/497
-Running dot for graph 379/497
-Running dot for graph 380/497
-Running dot for graph 381/497
-Running dot for graph 382/497
-Running dot for graph 383/497
-Running dot for graph 384/497
-Running dot for graph 385/497
-Running dot for graph 386/497
-Running dot for graph 387/497
-Running dot for graph 388/497
-Running dot for graph 389/497
-Running dot for graph 390/497
-Running dot for graph 391/497
-Running dot for graph 392/497
-Running dot for graph 393/497
-Running dot for graph 394/497
-Running dot for graph 395/497
-Running dot for graph 396/497
-Running dot for graph 397/497
-Running dot for graph 398/497
-Running dot for graph 399/497
-Running dot for graph 400/497
-Running dot for graph 401/497
-Running dot for graph 402/497
-Running dot for graph 403/497
-Running dot for graph 404/497
-Running dot for graph 405/497
-Running dot for graph 406/497
-Running dot for graph 407/497
-Running dot for graph 408/497
-Running dot for graph 409/497
-Running dot for graph 410/497
-Running dot for graph 411/497
-Running dot for graph 412/497
-Running dot for graph 413/497
-Running dot for graph 414/497
-Running dot for graph 415/497
-Running dot for graph 416/497
-Running dot for graph 417/497
-Running dot for graph 418/497
-Running dot for graph 419/497
-Running dot for graph 420/497
-Running dot for graph 421/497
-Running dot for graph 422/497
-Running dot for graph 423/497
-Running dot for graph 424/497
-Running dot for graph 425/497
-Running dot for graph 426/497
-Running dot for graph 427/497
-Running dot for graph 428/497
-Running dot for graph 429/497
-Running dot for graph 430/497
-Running dot for graph 431/497
-Running dot for graph 432/497
-Running dot for graph 433/497
-Running dot for graph 434/497
-Running dot for graph 435/497
-Running dot for graph 436/497
-Running dot for graph 437/497
-Running dot for graph 438/497
-Running dot for graph 439/497
-Running dot for graph 440/497
-Running dot for graph 441/497
-Running dot for graph 442/497
-Running dot for graph 443/497
-Running dot for graph 444/497
-Running dot for graph 445/497
-Running dot for graph 446/497
-Running dot for graph 447/497
-Running dot for graph 448/497
-Running dot for graph 449/497
-Running dot for graph 450/497
-Running dot for graph 451/497
-Running dot for graph 452/497
-Running dot for graph 453/497
-Running dot for graph 454/497
-Running dot for graph 455/497
-Running dot for graph 456/497
-Running dot for graph 457/497
-Running dot for graph 458/497
-Running dot for graph 459/497
-Running dot for graph 460/497
-Running dot for graph 461/497
-Running dot for graph 462/497
-Running dot for graph 463/497
-Running dot for graph 464/497
-Running dot for graph 465/497
-Running dot for graph 466/497
-Running dot for graph 467/497
-Running dot for graph 468/497
-Running dot for graph 469/497
-Running dot for graph 470/497
-Running dot for graph 471/497
-Running dot for graph 472/497
-Running dot for graph 473/497
-Running dot for graph 474/497
-Running dot for graph 475/497
-Running dot for graph 476/497
-Running dot for graph 477/497
-Running dot for graph 478/497
-Running dot for graph 479/497
-Running dot for graph 480/497
-Running dot for graph 481/497
-Running dot for graph 482/497
-Running dot for graph 483/497
-Running dot for graph 484/497
-Running dot for graph 485/497
-Running dot for graph 486/497
-Running dot for graph 487/497
-Running dot for graph 488/497
-Running dot for graph 489/497
-Running dot for graph 490/497
-Running dot for graph 491/497
-Running dot for graph 492/497
-Running dot for graph 493/497
-Running dot for graph 494/497
-Running dot for graph 495/497
-Running dot for graph 496/497
-Running dot for graph 497/497
-Patching output file 1/8
-Patching output file 2/8
-Patching output file 3/8
-Patching output file 4/8
-Patching output file 5/8
-Patching output file 6/8
-Patching output file 7/8
-Patching output file 8/8
 lookup cache used 718/65536 hits=253630 misses=764
 finished...
 + make man
@@ -2368,11 +1862,11 @@ mandb: warning: $MANPATH set, inserting /etc/manpath.config
 Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/../man/man3'. Wait...
 Purging old database entries in /home/urbanjs/venus/V600/github/M_matrix/src/../man...
 Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man...
-mandb: warning: failed to store entry for lala(3m_matrix)
-mandb: warning: failed to store entry for M_matrix(3m_matrix)
 mandb: warning: failed to store entry for put_into_lala(3m_matrix)
-mandb: warning: failed to store entry for get_from_lala(3m_matrix)
+mandb: warning: failed to store entry for M_matrix(3m_matrix)
 mandb: warning: failed to store entry for ifin_lala(3m_matrix)
+mandb: warning: failed to store entry for get_from_lala(3m_matrix)
+mandb: warning: failed to store entry for lala(3m_matrix)
 done.
 Checking for stray cats under /home/urbanjs/venus/V600/github/M_matrix/src/../man...
 Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat8...
@@ -2535,6 +2029,207 @@ EXAMPLES
 
 
 				 July 22, 2023		 lala.1.man(1m_matrix)
+ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
+
+
+
+NAME
+  ifin_lala(3f) - [M_matrix] test if variable name exists in lala()
+  LICENSE(MIT)
+
+SYNOPSIS
+  logical function ifin_lala(varname)
+
+  character(len=*),intent(in) :: varname
+
+DESCRIPTION
+  Determine if a variable name currently exists in lala().
+
+RETURNS
+  ifin_lala
+    TRUE if varname exists in lala, else FALSE.
+
+EXAMPLE
+  sample program:
+
+       program demo_ifin_lala
+       use M_matrix, only : ifin_lala
+       implicit none
+	  write(*,*)'eps ',ifin_lala('eps')
+	  write(*,*)'unknown ',ifin_lala('unknown')
+       end program demo_ifin_lala
+
+  Results:
+
+      eps  T
+      unknown  F
+
+
+
+
+				 July 22, 2023		  ifin_lala(3m_matrix)
+M_matrix(3m_matrix)					   M_matrix(3m_matrix)
+
+
+
+NAME
+  M_matrix(3f) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algebra
+  Fortran Facility (LALA) LICENSE(MIT)
+
+
+DESCRIPTION
+  The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
+  which allows for interacting with a Fortran program using Matlab
+
+  or Octave-like commands.
+    LALA is also usable as a simple one-line language. It is a WIP (Work In
+    Progress) but is already useful.
+
+    •  You can pass intrinsic-type data easily between your Fortran program
+       and the LALA utility.
+
+    •  blocks of LALA commands may be passed to lala(3f) as well.
+
+    •  external files containing lala(3f) commands may be read to create data
+       or as configuration files.
+
+    •  LALA commands may be recorded and played back.
+
+    •  a command-line based command history allowed for recalling and editing
+       input.
+
+    •  a stand-alone program lets you create and test LALA files. It is a
+       flexible calculator utility all by itself.
+
+    •  a built-in help command describes the many functions and commands
+
+    •  a user-added Fortran routine may be called via the USER() function.
+
+  All together, this allows lala(3f) to be used for self-describing
+  configuration and data files, inspecting data in existing programs,
+  transferring small amounts of data between programs or assisting in
+  debugging and development, unit testing and macro-level timing.
+
+EXAMPLE
+  Sample program:
+
+      program demo_M_matrix
+      use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
+      !real,allocatable 	    :: r
+      !complex,allocatable	    :: cvec(:)
+      integer,allocatable	   :: iarr(:,:)
+      character(len=:),allocatable :: t(:)
+      integer			   :: ierr
+      integer			   :: i
+
+      ! store some data into lala(3)
+      call put_into_lala('A',[1,2,3,4,5]*10.5,ierr)
+      write(*,*)'is A defined in LALA?',ifin_lala('A')
+      call lala('A/2.0')
+
+      ! pass some commands to lala(3f)
+      call lala([character(len=80) :: &
+      &'PI=atan(1)*4		   ', &
+      &"mytitle='this is my title';", &
+      &'littlearray=<		   ', &
+      &'   1 2 3;		   ', &
+      &'   4 5 6;		   ', &
+      &'   7 8 9;		   ', &
+      &'>			   ', &
+      &'S=sum(A)		   ', &
+      &'I=inv(littlearray);	   ', &
+      &'B=littlearray*sin(PI/3)    ', &
+      &"save('keepB',B) 	   ", &
+      &''])
+
+      ! read a file containing lala(3f) commands
+      call lala("exec('mycommands');")
+
+      ! interactively interact with lala(3f) interpreter
+      call lala()
+
+      ! get some data from LALA into the calling program
+      call get_from_lala('littlearray',iarr,ierr)
+      write(*,'(a)')'IN CALLING PROGRAM IARR='
+      write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
+
+      call get_from_lala('mytitle',t,ierr)
+      write(*,*)'IN CALLING PROGRAM T=',t
+
+      end program demo_M_matrix
+
+
+
+				 July 22, 2023		   M_matrix(3m_matrix)
+put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
+
+
+
+NAME
+  put_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
+  LICENSE(MIT)
+
+SYNOPSIS
+  subroutine put_into_lala(varname,A,IERR)
+
+     character(len=*),intent(in)	      :: varname
+     [INTRINSIC_TYPE],allocatable,intent(in)  :: a(:,:)
+     integer,intent(out)		      :: ierr
+
+
+DESCRIPTION
+  Define a variable in the lala(3f) utility with a variable declared in the
+  calling program.
+
+OPTIONS
+  VARNAME Name of lala(3f) variable to retrieve
+
+    A May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.  May be a
+      scalar, vector, or MxN matrix.
+
+RETURNS
+  IERR
+    Zero if no error occurred
+
+EXAMPLE
+  sample program:
+
+     program demo_put_into_lala
+     use M_matrix, only : lala, get_from_lala, put_into_lala
+     implicit none
+     integer :: ierr
+
+	! store some data from the program into lala(3f)
+	call put_into_lala('A',[1,2,3,4,5,6,7,8,9],ierr)
+	call put_into_lala('B',[1.1,2.2,3.3],ierr)
+	call put_into_lala('C',"This is my title",ierr)
+
+	! call lala(3f) and display the values
+	call lala([character(len=80) :: &
+	& 'who,A,B', &
+	& 'display(C);', &
+	& '', &
+	& ''])
+
+     end program demo_put_into_lala
+
+  Results:
+
+       > Your current variables are...
+       > C  B  A  eps  flops  eye  rand
+       >using 33 out of 200000 elements
+       >
+       > A  =
+       >     1.    2.	 3.    4.    5.    6.	 7.    8.    9.
+       >
+       > B  =
+       >    1.1000    2.2000	3.3000
+       >This is my title
+
+
+
+
+				 July 22, 2023	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -3169,168 +2864,6 @@ EXAMPLE
 
 
 				 July 22, 2023		       lala(3m_matrix)
-M_matrix(3m_matrix)					   M_matrix(3m_matrix)
-
-
-
-NAME
-  M_matrix(3f) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algebra
-  Fortran Facility (LALA) LICENSE(MIT)
-
-
-DESCRIPTION
-  The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
-  which allows for interacting with a Fortran program using Matlab
-
-  or Octave-like commands.
-    LALA is also usable as a simple one-line language. It is a WIP (Work In
-    Progress) but is already useful.
-
-    •  You can pass intrinsic-type data easily between your Fortran program
-       and the LALA utility.
-
-    •  blocks of LALA commands may be passed to lala(3f) as well.
-
-    •  external files containing lala(3f) commands may be read to create data
-       or as configuration files.
-
-    •  LALA commands may be recorded and played back.
-
-    •  a command-line based command history allowed for recalling and editing
-       input.
-
-    •  a stand-alone program lets you create and test LALA files. It is a
-       flexible calculator utility all by itself.
-
-    •  a built-in help command describes the many functions and commands
-
-    •  a user-added Fortran routine may be called via the USER() function.
-
-  All together, this allows lala(3f) to be used for self-describing
-  configuration and data files, inspecting data in existing programs,
-  transferring small amounts of data between programs or assisting in
-  debugging and development, unit testing and macro-level timing.
-
-EXAMPLE
-  Sample program:
-
-      program demo_M_matrix
-      use M_matrix, only : lala, put_into_lala, get_from_lala, ifin_lala
-      !real,allocatable 	    :: r
-      !complex,allocatable	    :: cvec(:)
-      integer,allocatable	   :: iarr(:,:)
-      character(len=:),allocatable :: t(:)
-      integer			   :: ierr
-      integer			   :: i
-
-      ! store some data into lala(3)
-      call put_into_lala('A',[1,2,3,4,5]*10.5,ierr)
-      write(*,*)'is A defined in LALA?',ifin_lala('A')
-      call lala('A/2.0')
-
-      ! pass some commands to lala(3f)
-      call lala([character(len=80) :: &
-      &'PI=atan(1)*4		   ', &
-      &"mytitle='this is my title';", &
-      &'littlearray=<		   ', &
-      &'   1 2 3;		   ', &
-      &'   4 5 6;		   ', &
-      &'   7 8 9;		   ', &
-      &'>			   ', &
-      &'S=sum(A)		   ', &
-      &'I=inv(littlearray);	   ', &
-      &'B=littlearray*sin(PI/3)    ', &
-      &"save('keepB',B) 	   ", &
-      &''])
-
-      ! read a file containing lala(3f) commands
-      call lala("exec('mycommands');")
-
-      ! interactively interact with lala(3f) interpreter
-      call lala()
-
-      ! get some data from LALA into the calling program
-      call get_from_lala('littlearray',iarr,ierr)
-      write(*,'(a)')'IN CALLING PROGRAM IARR='
-      write(*,'(1x,*(g0,1x))')(IARR(i,:),new_line('A'),i=1,size(iarr,dim=1))
-
-      call get_from_lala('mytitle',t,ierr)
-      write(*,*)'IN CALLING PROGRAM T=',t
-
-      end program demo_M_matrix
-
-
-
-				 July 22, 2023		   M_matrix(3m_matrix)
-put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
-
-
-
-NAME
-  put_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
-  LICENSE(MIT)
-
-SYNOPSIS
-  subroutine put_into_lala(varname,A,IERR)
-
-     character(len=*),intent(in)	      :: varname
-     [INTRINSIC_TYPE],allocatable,intent(in)  :: a(:,:)
-     integer,intent(out)		      :: ierr
-
-
-DESCRIPTION
-  Define a variable in the lala(3f) utility with a variable declared in the
-  calling program.
-
-OPTIONS
-  VARNAME Name of lala(3f) variable to retrieve
-
-    A May be of TYPE INTEGER, REAL, CHARACTER, LOGICAL or COMPLEX.  May be a
-      scalar, vector, or MxN matrix.
-
-RETURNS
-  IERR
-    Zero if no error occurred
-
-EXAMPLE
-  sample program:
-
-     program demo_put_into_lala
-     use M_matrix, only : lala, get_from_lala, put_into_lala
-     implicit none
-     integer :: ierr
-
-	! store some data from the program into lala(3f)
-	call put_into_lala('A',[1,2,3,4,5,6,7,8,9],ierr)
-	call put_into_lala('B',[1.1,2.2,3.3],ierr)
-	call put_into_lala('C',"This is my title",ierr)
-
-	! call lala(3f) and display the values
-	call lala([character(len=80) :: &
-	& 'who,A,B', &
-	& 'display(C);', &
-	& '', &
-	& ''])
-
-     end program demo_put_into_lala
-
-  Results:
-
-       > Your current variables are...
-       > C  B  A  eps  flops  eye  rand
-       >using 33 out of 200000 elements
-       >
-       > A  =
-       >     1.    2.	 3.    4.    5.    6.	 7.    8.    9.
-       >
-       > B  =
-       >    1.1000    2.2000	3.3000
-       >This is my title
-
-
-
-
-				 July 22, 2023	      put_into_lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -3443,45 +2976,6 @@ EXAMPLE
 
 
 				 July 22, 2023	      get_from_lala(3m_matrix)
-ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
-
-
-
-NAME
-  ifin_lala(3f) - [M_matrix] test if variable name exists in lala()
-  LICENSE(MIT)
-
-SYNOPSIS
-  logical function ifin_lala(varname)
-
-  character(len=*),intent(in) :: varname
-
-DESCRIPTION
-  Determine if a variable name currently exists in lala().
-
-RETURNS
-  ifin_lala
-    TRUE if varname exists in lala, else FALSE.
-
-EXAMPLE
-  sample program:
-
-       program demo_ifin_lala
-       use M_matrix, only : ifin_lala
-       implicit none
-	  write(*,*)'eps ',ifin_lala('eps')
-	  write(*,*)'unknown ',ifin_lala('unknown')
-       end program demo_ifin_lala
-
-  Results:
-
-      eps  T
-      unknown  F
-
-
-
-
-				 July 22, 2023		  ifin_lala(3m_matrix)
 + make ship
 : make easily distributed archive files of manpages
 mkdir -p ../docs
@@ -3512,8 +3006,54 @@ rm -f ../example/demo_adjustc ../example/demo_base ../example/demo_change ../exa
 >>>> fpm test
 + cd ../..
 + fpm test
-fatal: your current branch 'master' does not have any commits yet
-<ERROR> *cmd_run* Model error: Error while retrieving commit information
+ + mkdir -p build/dependencies
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_framework/.git/
+From https://github.com/urbanjost/M_framework
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_msg/.git/
+From https://github.com/urbanjost/M_msg
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_strings/.git/
+From https://github.com/urbanjost/M_strings
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_history/.git/
+From https://github.com/urbanjost/M_history
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_CLI2/.git/
+From https://github.com/urbanjost/M_CLI2
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_list/.git/
+From https://github.com/urbanjost/M_list
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_io/.git/
+From https://github.com/urbanjost/M_io
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_LA/.git/
+From https://github.com/urbanjost/M_LA
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_intrinsics/.git/
+From https://github.com/urbanjost/M_intrinsics
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_match/.git/
+From https://github.com/urbanjost/M_match
+ * branch            HEAD       -> FETCH_HEAD
+Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_attr/.git/
+From https://github.com/urbanjost/M_attr
+ * branch            HEAD       -> FETCH_HEAD
+ Warning: Dependency M_framework does not enforce module naming, but project does. 
+ Warning: Dependency M_msg does not enforce module naming, but project does. 
+ ERROR: Module m_help in build/dependencies/M_msg/src/M_help.f90 does not match its package name (M_msg).
+ ERROR: Module m_journal in build/dependencies/M_msg/src/M_journal.f90 does not match its package name (M_msg).
+ ERROR: Module m_verify in build/dependencies/M_msg/src/M_verify.F90 does not match its package name (M_msg).
+ Warning: Dependency M_history does not enforce module naming, but project does. 
+ Warning: Dependency M_CLI2 does not enforce module naming, but project does. 
+ Warning: Dependency M_list does not enforce module naming, but project does. 
+ Warning: Dependency M_io does not enforce module naming, but project does. 
+ Warning: Dependency M_intrinsics does not enforce module naming, but project does. 
+ Warning: Dependency M_match does not enforce module naming, but project does. 
+ Warning: Dependency M_attr does not enforce module naming, but project does. 
+        Hint: Try disabling module naming in the manifest: [build] module-naming=false . 
+<ERROR> *cmd_run* Model error: The package contains invalid module names. Naming conventions are being requested.
 STOP 1
 + echo '>>>> make BOOK html document'
 >>>> make BOOK html document
@@ -3573,19 +3113,19 @@ ________________________________________________________________________________
 + cat
 + echo 'function loadthem(){'
 + '[' M_matrix = INDEX ']'
-+ uniq
-+ tr -d '()'
 + echo M_matrix.3m_matrix.html
++ tr -d '()'
 + awk '{printf "%s.%s.html\n",$1,$2}'
-+ read NAME
-+ man -k '\[M_matrix\>'
-+ uniq
 + env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
++ uniq
++ uniq
++ read NAME
 + grep -i '(3M_matrix)'
++ man -k '\[M_matrix\>'
 + grep -i '(3M_matrix)'
 + man --section 3m_matrix -k .
-+ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
 + man -k '\[M_matrix\>'
++ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
 + grep -vi '(3M_matrix)'
 + '[' -r ../../docs//M_matrix.3m_matrix.html..html ']'
 + read NAME
@@ -3660,31 +3200,31 @@ urbanjost   userguide    wv        xin
 >>>> update GPF project and documents
 + unset GITHUB
 + make.one libGPF
-1209942 (process ID) old priority 0, new priority 19
+1581921 (process ID) old priority 0, new priority 19
 W-A-R-N-I-N-G: no ccheck.c file (required for configured versions)
 + echo '>>>> run test'
 >>>> run test
 + cd ../../test
 + ccall test_suite_M_matrix.f90
-*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_1210992
-+ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_1210992
-+ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_1210992
+*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_1585743
++ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_1585743
++ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_1585743
 + CCALL_DELETE_DIR=TRUE
-+ FULLNAME=/dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
++ FULLNAME=/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
 + SPLIT
 + sed -e 's/ -/@ -/g'
 + tr @ '\012'
-+ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
++ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
 + echo NAME test_suite_M_matrix.f90
 NAME test_suite_M_matrix.f90
 + echo /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
 /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-+ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
-+ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
++ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
++ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
 + grep
- -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
+ -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
 + grep
- -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
+ -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
 + set
  -x
 + set
@@ -3695,7 +3235,7 @@ NAME test_suite_M_matrix.f90
  -frecord-marker=4
  -I.
  -DTESTPRG
- -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
+ -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
  -o /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
  -Wall
  -Wextra
@@ -3727,19 +3267,1101 @@ NAME test_suite_M_matrix.f90
  -Bdynamic
  -L/usr/lib/x86_64-linux-gnu
  -lX11
-/dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90:2:5:
+/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:6:33:
 
-    2 | use M_matrix, only : lala, get_from_lala, put_into_lala
-      |     1
-Fatal Error: Cannot open module file ‘m_matrix.mod’ for reading at (1): No such file or directory
-compilation terminated.
-+ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
-a - /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
+    6 | doubleprecision   :: arr(lda,lda),x(lda,lda)
+      |                                 1
+Warning: Unused variable ‘arr’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:27:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                           1
+Warning: Unused variable ‘i’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:35:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                                   1
+Warning: Unused variable ‘ierr’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:29:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                             1
+Warning: Unused variable ‘j’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:22:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                      1
+Warning: Unused variable ‘m’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:24:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                        1
+Warning: Unused variable ‘n’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:6:44:
+
+    6 | doubleprecision   :: arr(lda,lda),x(lda,lda)
+      |                                            1
+Warning: Unused variable ‘x’ declared at (1) [-Wunused-variable]
++ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
+a - /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
 + set +x
 /home/urbanjs/venus/V600/LIBRARY/CYGWIN/scripts_regression/goodbad: test_suite_M_matrix.1 0 test_suite_M_matrix start --section 1
-*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_1210992
+/home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
+*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_1585743
 + test_suite_M_matrix
-/home/urbanjs/venus/V600/github/github_scripts/bash/GPF_build_module: line 208: test_suite_M_matrix: command not found
+================================================================================
+abs   abs(X) is the absolute value, or complex modulus,
+      of the elements of X .
+
+________________________________________________________________________________
+a-b is zero
+expected sum is OK
+a = -b as expected
+abs PASSED
+================================================================================
+ans   Variable created automatically when expressions are not
+      assigned to anything else.
+
+ans PASSED
+================================================================================
+atan  atan(X) is the arctangent of X . See "BASIC" .
+
+________________________________________________________________________________
+test if near PI OK
+2nd test if near PI OK
+atan PASSED
+================================================================================
+base  base(X,B) is a vector containing the base B representation
+      of X. This is often used in conjunction with "display".
+      "display(X,B)" is the same as "display(base(X,B))". For example,
+      "display(4*atan(1),16)" prints the hexadecimal representation of pi.
+
+base PASSED
+================================================================================
+chol  Cholesky factorization. "chol(X)" uses only the diagonal
+      and upper triangle of X. The lower triangular is assumed to be
+      the (complex conjugate) transpose of the upper. If X is positive
+      definite, then "R = chol(X)" produces an upper triangular R so
+      that R'*R = X . If X is not positive definite, an error message
+      is printed.
+
+chol PASSED
+================================================================================
+chop  Truncate arithmetic. "chop(P)" causes P places to be chopped
+      off after each arithmetic operation in subsequent computations. This
+      means P hexadecimal digits on some computers and P octal digits
+      on others. "chop(0)" restores full precision.
+
+chop PASSED
+================================================================================
+clear  Erases all variables, except "eps", "flop", "eye" and "rand".
+       X = <> erases only variable X . So does "clear X".
+
+clear PASSED
+================================================================================
+cond  Condition number in 2-norm. "cond(X)" is the ratio of the
+      largest singular value of X to the smallest.
+
+cond PASSED
+================================================================================
+conjg  "conjg(X)" is the complex conjugate of X .
+
+conjg PASSED
+================================================================================
+cos   cos(X) is the cosine of X . See "BASIC" .
+
+________________________________________________________________________________
+HALF-PI OK
+ZERO OK
+PI OK
+TWO PI OK
+-TWO PI OK
+-2000 PI OK
+
+ PI  =
+    3.1416
+
+ P  =
+    -1.
+
+ PP  =
+     1.
+
+ Z  =
+     1.
+
+ HP  =
+    6.1232D-17
+cos PASSED
+================================================================================
+debug  "debu(1)" turns on verbose low-level debugging for the developer,
+       "debu(0)" turns it back off.
+
+debug PASSED
+================================================================================
+det   "det(X)" is the determinant of the square matrix X .
+
+det PASSED
+================================================================================
+diag  If V is a row or column vector with N components,
+      "diag(V,K)" is a square matrix of order "N+abs(K)" with the
+      elements of V on the K-th diagonal. K = 0 is the main diagonal,
+      K > 0 is above the main diagonal and K < 0 is below the main
+      diagonal. "diag(V)" simply puts V on the main diagonal. eg.
+
+         diag(-M:M) + diag(ones(2*M,1),1) + diag(ones(2*M,1),-1)
+
+      produces a tridiagonal matrix of order 2*M+1 .
+
+      If X is a matrix, "diag(X,K)" is a column vector formed from the
+      elements of the K-th diagonal of X.  "diag(X)" is the main diagonal
+      of X.  "diag(diag(X))" is a diagonal matrix .
+
+diag PASSED
+================================================================================
+diary  "diary('file')" causes a copy of all subsequent terminal input and
+       most of the resulting output to be written on the file. "diary(0)"
+       turns it off. See "FILE".
+
+diary PASSED
+[H[2J
+================================================================================
+display  "display(X)" prints X in a compact format.
+
+      If base >= 2 is specified the values are printed as numeric
+      values in the specified base.
+
+           display(0:10,10 ) // display values in base 10
+           display(0:10,16 ) // display values as hexadecimal values
+           display(0:10,2 )  // display values as binary numbers
+
+      If no base is specified and all the elements of X are integers
+      between 0 and 255, then X is interpreted as LALA text and printed
+      accordingly.
+
+         <>display('the analysis is complete')
+           the analysis is complete
+         display(32:126) // print the printable default LALA characters
+
+      Otherwise or if the base is one, + , - and blank are printed for
+      positive, negative and zero elements.
+
+         display(rand(24,80)-rand(24,80))
+
+      Imaginary parts are ignored.
+
+      Note that "display(X,B)" is the same as "display(base(X,B))" except
+      for base 1 except it forces "display" to display numeric values.
+
+      "display" has an alias of "disp".
+
+________________________________________________________________________________
+#--------------#
+|              |
+|    WARNING   |
+|              |
+#--------------#
+display PASSED
+================================================================================
+delete  "delete('filename')" deletes the given file.
+
+delete PASSED
+================================================================================
+eig   Eigenvalues and eigenvectors.
+      "eig(X)" is a vector containing the eigenvalues of a square
+      matrix X.
+      "<V,D> = eig(X)" produces a diagonal matrix D of
+      eigenvalues and a full matrix V whose columns are the
+      corresponding eigenvectors so that X*V = V*D .
+
+eig PASSED
+================================================================================
+else  Used with "if".
+
+ELSE PASSED
+================================================================================
+end   Terminates the scope of "for", "while" and "if" statements.
+      Without "end"s, "for" and "while" repeat all statements up to
+      the end of the line. Each "end" is paired with the closest
+      previous unpaired "for" or "while" and serves to terminate its
+      scope. The line
+
+         for I=1:N, for J=1:N, A(I,J)=1/(I+J-1); A
+
+      would cause A to be printed N**2 times, once for each new
+      element. On the other hand, the line
+
+         for I=1:N, for J=1:N, A(I,J)=1/(I+J-1); end, end, A
+
+      will lead to only the final printing of A.
+      Similar considerations apply to "while".
+
+      See "exit" (terminates execution of loops or of LALA itself).
+
+END PASSED
+================================================================================
+eps   Floating point relative accuracy. A permanent variable
+      whose value is initially the distance from 1.0 to the next largest
+      floating point number. The value is changed by "chop", and other
+      values may be assigned. "eps" is used as a default tolerance by "pinv"
+      and "rank".
+
+________________________________________________________________________________
+
+ myeps  =
+    2.2204D-16
+eps matches expected value
+eps PASSED
+================================================================================
+exec  "exec('file',k)" obtains subsequent LALA input from an
+      external file. The printing of input is controlled by the
+      optional parameter k .
+
+      Files are searched for by the given name. If not found, it is searched
+      for in the colon-separated directory names in the environment variable
+      LALA_PATH. It is looked for first literally by the given name, and then
+      by the name suffixed with ".la".
+
+      "include" is an alias for "exec".
+
+         If k = 0 , there is no echo, prompt or pause. This is the
+                    default if the exec command is followed by a semicolon.
+         If k = 1 , the input is echoed.
+         If k = 2 , the LALA prompt <> is printed.
+         If k = 3 , there will be echos and prompts, but no pauses.
+                    This is the the default if the exec command is not
+                    followed by a semicolon.
+         If k = 4 , LALA pauses before each prompt and waits for a
+                    null line to continue.
+         If k = 7 , there will be echos, prompts and pauses. This is
+                    useful for demonstrations on video terminals.
+
+      "exec"'s may be nested, i.e. the text in the file may contain
+      "exec" of another file.
+
+      "exec" may not be recursive, as Fortran (currently) does not allow
+      for multiple opens of a file.
+
+      "exec"s may also be driven by "for" and "while" loops.
+
+exec PASSED
+================================================================================
+exit  Causes termination of a "for" or "while" loop.
+      If not in a loop, terminates execution of LALA.
+      Also see "quit".
+
+exit PASSED
+================================================================================
+exp   exp(X) is the exponential of X , e to the X . See "BASIC".
+
+exp PASSED
+================================================================================
+eye   Identity matrix. "eye(N)" is the N by N identity matrix.
+      "eye(M,N)" is an M by N matrix with 1's on the diagonal and
+      zeros elsewhere. "eye(A)" is the same size as A. "eye"
+      with no arguments is an identity matrix of whatever order
+      is appropriate in the context. For example "A + 3*eye"
+      adds 3 to each diagonal element of A.
+
+eye PASSED
+================================================================================
+flops  Count of floating point operations.
+
+       "flops" is a permanently defined row vector with two elements.
+       "flops(1)" is the cpu time consumed by the the previous
+       statement. "flops(2)" is a cumulative total. "flops" can be used
+       in the same way as any other vector. "flops(2) = 0" resets the
+       cumulative total. In addition, "flops(1)" will be printed whenever
+       a statement is terminated by an extra comma. For example,
+
+         X = inv(A);,
+
+       or
+
+         cond(A), (as the last statement on the line).
+flops PASSED
+================================================================================
+for   Repeat statements a specific number of times.
+
+         for variable = expr, statement, ..., statement, end
+
+      The "end" at the end of a line may be omitted. The comma before the
+      "end" may also be omitted. The columns of the expression are stored
+      one at a time in the variable and then the following statements,
+      up to the "end", are executed.  The expression is often of the form
+      X:Y, in which case its columns are simply scalars. Some examples
+      (assume N has already been assigned a value).
+
+       for I = 1:N, for J = 1:N, A(I,J) = 1/(I+J-1);
+       for J = 2:N-1, A(J,J) = J; end; A
+       for S = 1.0: -0.1: 0.0, ... steps S with increments of -0.1 .
+       for E = eye(N), ... sets E to the unit N-vectors.
+       for V = A, ... has the same effect as
+       for J = 1:N, V = A(:,J); ... except J is also set here.
+
+for PASSED
+================================================================================
+help  topic|SECTION_NAME
+
+      "help" gives assistance. It is equivalent to "help SUMMARY"
+      by default.
+
+      o  "help" with no options lists common topic and section names.
+      o  The special topic "topics" shows all topic lines.
+      o  The special topic "manual" displays all the help text.
+      o  The special topic "search" shows lines from the manual
+         containing the subsequent string
+
+         Enter "h" at the "continue ..." prompt for additional options.
+
+      For example:
+
+         help        // a list of common topics and section names
+         help topics // a list of topics including the first line of
+                     // the topic.
+         help abs    // produces help on the function "abs".
+         help FLOW   // the entire section on flow control is displayed.
+         help manual // show all the help text
+         help help   // obviously prints this message.
+         help search factor // show all lines containing "factor".
+
+      Alternatively, To place all the documenation in a file, use
+      "help manual" and enter "w help.txt" at the "continue .." prompt.
+help PASSED
+================================================================================
+hess  Hessenberg form. The Hessenberg form of a matrix is zero
+      below the first subdiagonal. If the matrix is symmetric or
+      Hermitian, the form is tridiagonal. <P,H> = "hess(A)" produces a
+      unitary matrix P and a Hessenberg matrix H so that A = P*H*P'. By
+      itself, "hess(A)" returns H.
+
+got back the original
+hess PASSED
+================================================================================
+if    Conditionally execute statements
+
+      SIMPLE FORM
+       Enter
+
+         if expression rop expression, statements
+
+      where rop is =, <, >, <=, >=, or <> (not equal). The
+      statements are executed once if the indicated comparison
+      between the real parts of the first components of the two
+      expressions is true, otherwise the statements are skipped.
+
+      EXAMPLE
+        Enter
+
+         if abs(i-j) = 1, a(i,j) = -1;
+
+      More complicated forms use "end" in the same way it is used with
+      "for" and "while" and use "else" as an abbreviation for "end",
+
+         if expression not rop expression
+
+      EXAMPLE
+        Enter
+
+         for i = 1:n, for j = 1:n, ...
+            if i = j, a(i,j) = 2; else if abs(i-j) = 1, a(i,j) = -1; ...
+            else a(i,j) = 0;
+
+      An easier way to accomplish the same thing is
+
+         a = 2*eye(n);
+         for i = 1:n-1, a(i,i+1) = -1; a(i+1,i) = -1;
+
+________________________________________________________________________________
+matches
+if PASSED
+================================================================================
+imag  "imag(X)" is the imaginary part of X .
+
+imag PASSED
+================================================================================
+invh  Inverse Hilbert matrix. "invh(N)" is the inverse of a N_by_N
+      Hilbert matrix (which is a famous example of a badly conditioned
+      matrix). The result is exact for N less than about 15, depending
+      upon the computer.
+
+         for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);
+
+      generates the NxN Hilbert matrix.
+
+      "invh" has an alias of "inverse_hilbert" and "invhilb".
+
+
+ N  =
+     5.
+inverse Hilbert PASSED
+invh PASSED
+================================================================================
+inv   "inv(X)" is the inverse of the square matrix X . A warning
+      message is printed if X is badly scaled or nearly
+      singular.
+
+inv PASSED
+================================================================================
+kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It
+      is also denoted by X .*. Y . The result is a large matrix
+      formed by taking all possible products between the elements
+      of X and those of Y . For example, if X is 2 by 3, then
+      X .*. Y is
+
+            < x(1,1)*Y  x(1,2)*Y  x(1,3)*Y
+              x(2,1)*Y  x(2,2)*Y  x(2,3)*Y >
+
+      The five-point discrete Laplacian for an n-by-n grid can be
+      generated by
+
+            T = diag(ones(n-1,1),1);  T = T + T';  I = eye(T);
+            A = T.*.I + I.*.T - 4*eye;
+
+      Just in case they might be useful, LALA includes
+      constructions called Kronecker tensor quotients, denoted by
+      X ./. Y and X .\. Y . They are obtained by replacing the
+      element-wise multiplications in X .*. Y with divisions.
+
+
+ S1  =
+     0.
+
+ S2  =
+     0.
+kron(A,B) check PASSED
+A .*. B check PASSED
+kron PASSED
+================================================================================
+lines  An internal count is kept of the number of lines of output
+       since the last input. Whenever this count approaches a
+       limit, the user is asked whether or not to suppress
+       printing until the next input. Initially the limit is 21.
+       "lines(N)" resets the limit to N .
+
+lines PASSED
+================================================================================
+load  "load('file')" retrieves all the variables from the file .
+      See FILE and "save" for more details. To prepare your own
+      file for "load"ing, change the "read" to "write" in the code
+      given under "save".
+
+ Your current variables are...
+ test_Variable  c  b  A  eps  flops  eye  rand
+using 35 out of 200000 elements
+ Your current variables are...
+ eps  flops  eye  rand
+using 5 out of 200000 elements
+End of file
+ Your current variables are...
+ test_Variable  c  b  A  eps  flops  eye  rand
+using 35 out of 200000 elements
+load of A PASSED
+load of b PASSED
+load of c PASSED
+load of test_variable PASSED
+load PASSED
+================================================================================
+log   log(X) is the natural logarithm of X.
+
+      Complex results are produced if X is not positive, or has
+      nonpositive eigenvalues.
+
+      See "BASIC".
+
+log PASSED
+================================================================================
+long   See "short" also.
+
+       Determine output format. All computations are done in
+       complex arithmetic and double precision if it is available.
+       "short" and "long" merely switch between different output
+       formats.
+
+        long     // Scaled fixed point format with about 15 digits.
+        long e   // Floating point format with about 15 digits.
+        long z   // System dependent format, often hexadecimal.
+
+long PASSED
+================================================================================
+lu    Factors from Gaussian elimination. <L,U> = LU(X) stores a
+      upper triangular matrix in U and a 'psychologically lower
+      triangular matrix', i.e. a product of lower triangular and
+      permutation matrices, in L , so that X = L*U . By itself,
+      "lu(X)" returns the output from CGEFA .
+
+lu PASSED
+================================================================================
+magic  Magic square. "magic(N)" is an N by N matrix constructed
+       from the integers 1 through N**2 with equal row, column and
+       diagonal sums. N must be a positive whole number not equal to two.
+
+
+ N  =
+    10.
+________________________________________________________________________________
+magic shape OK
+magic SUM OK
+magic PASSED
+================================================================================
+norm  computes the norm or P-norm of X
+
+      norm(X,P) computes the P-norm of X. P=2 is the default, which defines
+      the standard norm.
+
+      For matrices..
+          norm(X,1)      is the 1-norm of X; ie. the largest column sum
+                         of X.
+
+          norm(X,2)      the largest singular value of X.
+          or norm(X)
+
+          norm(X,'inf')  is the infinity norm of X; ie. the largest row
+                         sum of X.
+
+          norm(X,'fro')  is the F-norm, i.e. "sqrt(sum(diag(X'*X)))" .
+
+      For vectors..
+          norm(V,P)      the same as sum(V(I)**P)**(1/P) .
+                         ??? what about negative values of (I) and odd P? abs() or not
+
+          norm(V,2)      the square root of the sum of the squares of
+          or norm(V)     the entries of V.
+
+          norm(V,'inf')  the value is max(abs(V)) .
+________________________________________________________________________________
+norm PASSED
++
+================================================================================
+ones  All ones. "ones(N)" is an N by N matrix of ones. "ones(M,N)"
+      is an M by N matrix of ones . "ones(A)" is the same size as A and
+      all ones .
+
+         a=magic(4)
+         a=a+ones(a)*3 // Add 3 to each element of "a"
+
+________________________________________________________________________________
+ones SUM OK
+ones shape OK
+ones DELTA OK
+ones PASSED
+================================================================================
+orth  Orthogonalization. "Q = orth(X)" is a matrix with
+      orthonormal columns, i.e. Q'*Q = eye, which span the same
+      space as the columns of X .
+
+orth PASSED
+================================================================================
+pinv  Pseudoinverse.
+
+      "X = pinv(A)" produces a matrix X of the same dimensions as A'
+      so that A*X*A = A , X*A*X = X and AX and XA are Hermitian . The
+      computation is based on "svd(A)" and any singular values less
+      than a tolerance are treated as zero. The default tolerance is
+      "norm(shape(A),'inf')*norM(A)*eps". This tolerance may be overridden
+      with "X = pinv(A,tol)". See "rank".
+
+pinv PASSED
+================================================================================
+plot  "plot(X,Y)" produces a plot of the elements of Y against
+      those of X. plot(Y) is the same as plot(1:n,Y) where n is the number
+      of elements in Y. plot(X,Y,P) or "plot(X,Y,p1,...,pk)" passes the
+      optional parameter vector P or scalars p1 through pk to the plot
+      routine. The default plot routine is a crude printer-plot. This
+      version writes the data as a simple X Y table into a scratch file
+      called "scratch.dat" and then calls the command
+
+        xy scratch.dat [options]
+
+      Hopefully, you have the command xy(1) in your search path.
+      If not, you can make one by creating a script that calls
+      a plotting utility.
+
+         t = 0:50;
+         plot( t.*cos(t), t.*sin(t) )
+         opts=' -m -1 -title test plot -d pdf'
+         plot( t.*cos(t), t.*sin(t),opts)
+plot PASSED
+================================================================================
+poly  Characteristic polynomial.
+
+      If A is an N by N matrix, "poly(A)" is a column vector with
+      N+1 elements which are the coefficients of the characteristic
+      polynomial, "det(lambda*eye - A)" .
+
+      If V is a vector, "poly(V)" is a vector whose elements are the
+      coefficients of the polynomial whose roots are the elements of V
+      . For vectors, "roots" and "poly" are inverse functions of each
+      other, up to ordering, scaling, and roundoff error.
+
+      "roots(poly(1:20))" generates Wilkinson's famous example.
+
+poly PASSED
+================================================================================
+print  "print('file',X)" prints X on the file using the current
+       format determined by "short", "long z", etc. See FILE.
+
+print PASSED
+================================================================================
+prod  "prod(X)" is the product of all the elements of X .
+
+prod(a) PASSED
+d PASSED
+prod PASSED
+================================================================================
+qr    Orthogonal-triangular decomposition.  "<Q,R> = qr(X)" produces an
+      upper triangular matrix R of the same
+      dimension as X and a unitary matrix Q so that X = Q*R .
+
+      "<Q,R,E> = qr(X)" produces a permutation matrix E, an upper
+      triangular R with decreasing diagonal elements and a unitary Q
+      so that X*E = Q*R .  By itself, "qr(X)" returns the output of
+      "cqrdc". "triu(qr(X))" is R .
+
+qr PASSED
+================================================================================
+quit  From the terminal, causes return to the operating system
+      or other program which invoked LALA. From inside an
+      "exec", causes return to the invoking "exec", or to the
+      terminal.
+quit PASSED
+================================================================================
+rand  Random numbers and matrices. "rand(N)" is an N by N matrix
+      with random entries. "rand(M,N)" is an M by N matrix with
+      random entries. "rand(A)" is the same size as A. "rand"
+      with no arguments is a scalar whose value changes each time
+      it is referenced.
+
+      Ordinarily, random numbers are uniformly distributed in
+      the interval "(0.0,1.0). rand('normal')" switches to a
+      normal distribution with mean 0.0 and variance 1.0.
+      "rand('uniform')" switches back to the uniform distribution.
+      "rand('seed')" returns the current value of the seed for the
+      generator. "rand('seed',n)" sets the seed to n.
+      "rand('seed',0)" resets the seed to 0, its value when LALA
+      is first entered.
+
+rand PASSED
+================================================================================
+rank  Rank. "K = rank(X)" is the number of singular values of X
+      that are larger than "norm(shape(X),'inf')*norm(X)*eps".
+      "K = rank(X,tol)" is the number of singular values of X that
+      are larger than tol.
+
+rank PASSED
+================================================================================
+rat   An experimental function which attempts to remove the
+      roundoff error from results that should be "simple"
+      rational numbers.
+      "rat(X)" approximates each element of X by a continued
+      fraction of the form
+
+                a/b = d1 + 1/(d2 + 1/(d3 + ... + 1/dk))
+
+      with k <= len, integer di and abs(di) <= max . The default
+      values of the parameters are len = 5 and max = 100.
+      "rat(len,max)" changes the default values. Increasing either
+      len or max increases the number of possible fractions.
+      "<A,B> = rat(X)" produces integer matrices A and B so that
+
+                A ./ B  =  rat(X)
+
+      Some examples:
+
+            long
+            T = invh(6), X = inv(T)
+            <A,B> = rat(X)
+            H = A ./ B, S = inv(H)
+
+            short e
+            d = 1:8,  e = ones(d),  A = abs(d'*e - e'*d)
+            X = inv(A)
+            rat(X)
+            display(ans)
+
+rat PASSED
+================================================================================
+rcond  "rcond(X)" is an estimate for the reciprocal of the
+       condition of X in the 1-norm obtained by the LINPACK
+       condition estimator. If X is well conditioned, rcond(X)
+       is near 1.0. If X is badly conditioned, rcond(X) is
+       near 0.0.
+       <R, Z> = rcond(A) sets R to rcond(A) and also produces a
+       vector Z so that
+
+                 norm(A*Z,1) = R*norm(A,1)*norm(Z,1)
+
+       So, if rcond(A) is small, then Z is an approximate null
+       vector.
+
+rcond PASSED
+================================================================================
+real  "real(X)" is the real part of X.
+
+real PASSED
+================================================================================
+roots  Find polynomial roots. "roots(C)" computes the roots of the
+       polynomial whose coefficients are the elements of the vector C.
+       If C has N+1 components, the polynomial is
+
+          C(1)*X**N + ... + C(N)*X + C(N+1)
+
+       See "poly".
+
+roots PASSED
+================================================================================
+round  "round(X)" rounds the elements of X to the nearest integers.
+
+________________________________________________________________________________
+round of array plus random small fraction PASSED
+
+ tally  =
+     0.    0.
+round delta of original and randomized PASSED
+
+ tally  =
+     0.    0.    0.
+round PASSED
+
+ N  =
+     3.
+
+ M  =
+     1.
++
+================================================================================
+rref  "rref(A)" is the reduced row echelon form of the rectangular
+      matrix. rref(A,B) is the same as rref(<A,B>) .
+
+rref PASSED
+================================================================================
+save  "save('file')" stores all the current variables in a file.
+      "save('file',X)" saves only X . See FILE .
+
+      The variables may be retrieved later by "load('file')" or by your
+      own program using the following code for each matrix.  The lines
+      involving "ximag" may be eliminated if everything is known to
+      be real.
+
+        > ! attach LUN to 'file', then ...
+        > doubleprecision :: xreal(mmax,nmax)
+        > doubleprecision :: ximag(mmax,nmax)
+        > character(len=32) :: id
+        > read(LUN,'(a32,3i9)') id,m,n,img
+        > do j = 1, n
+        >    read(LUN,'(4z18)') (xreal(i,j), i=1,m)
+        >    if (img .ne. 0) read(LUN,102) (ximag(i,j),i=1,m)
+        > enddo
+        > ! The formats used are system dependent. These are typical.
+        > ! See SUBROUTINE mat_savlod(3f) in your local implementation
+        > ! of LALA.
+
+ Your current variables are...
+ test_Variable  c  b  A  eps  flops  eye  rand
+using 35 out of 200000 elements
+ Your current variables are...
+ eps  flops  eye  rand
+using 5 out of 200000 elements
+End of file
+ Your current variables are...
+ test_Variable  c  b  A  eps  flops  eye  rand
+using 35 out of 200000 elements
+save of A PASSED
+save of b PASSED
+save of c PASSED
+save of test_variable PASSED
+save PASSED
+================================================================================
+schur  Schur decomposition. "<U,T> = schur(X)" produces an upper
+       triangular matrix T , with the eigenvalues of X on the
+       diagonal, and a unitary matrix U so that X = U*T*U' and
+       U'*U = eye . By itself, "schur(X)" returns T .
+
+schur PASSED
+================================================================================
+semi  "semi" toggles the action of semicolons at the end of lines.
+      It will make semicolons cause rather than suppress printing.
+      A second "semi" restores the initial interpretation.
+semi PASSED
+================================================================================
+short  See "long" also.
+       Determine output format. All computations are done in
+       complex arithmetic and double precision if it is available.
+       "short" and "long" merely switch between different output
+       formats.
+
+        short    // Scaled fixed point format with about 5 digits.
+        short e  // Floating point format with about 5 digits.
+
+short PASSED
+================================================================================
+sh    Starts the command shell interactively, using the command defined by
+      the environment variable SHELL. Note that in addition any line
+      starting with an exclamation (!) is passed to the system for
+      execution.
+sh PASSED
+================================================================================
+sin   sin(X) is the sine of X. See "BASIC".
+
+sin PASSED
+================================================================================
+shape  If X is an M by N matrix, then shape(X) is <M, N> .
+       Can also be used with a multiple assignment,
+            <M, N> = shape(X) .
+
+X is 11
+Y is  5
+shape of a OK
+shape of b OK
+shape of c OK
+shape PASSED
+================================================================================
+sqrt  sqrt(X) is the square root of X. See "BASIC". Complex
+      results are produced if X is not positive, or has
+      nonpositive eigenvalues.
+sqrt PASSED
+================================================================================
+sum   "sum(X)" is the sum of all the elements of X.
+      "sum(diag(X))" is the trace of X.
+
+________________________________________________________________________________
+sum SUM OF 'a' OK
+sum shape OK
+sum ARRAY OK
+sum PASSED
+================================================================================
+svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
+      diagonal matrix S , of the same dimension as X and with
+      nonnegative diagonal elements in decreasing order, and
+      unitary matrices U and V so that X = U*S*V' .
+
+      By itself, "svd(X)" returns a vector containing the singular
+      values.
+
+      "<U,S,V> = svd(X,0)" produces the "economy size"
+      decomposition. If X is m by n with m > n, then only the
+      first n columns of U are computed and S is n by n .
+
+svd PASSED
+================================================================================
+tril  Lower triangle. "tril(X)" is the lower triangular part of X.
+      "tril(X,K)" is the elements on and below the K-th diagonal of
+      X. K = 0 is the main diagonal, K > 0 is above the main
+      diagonal and K < 0 is below the main diagonal.
+
+
+ tally  =
+     0.    0.
+
+ tally  =
+     0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.
+tril PASSED
+================================================================================
+triu  Upper triangle. "triu(X)" is the upper triangular part of X.
+      "triu(X,K)" is the elements on and above the K-th diagonal of X. K
+      = 0 is the main diagonal, K > 0 is above the main diagonal and K <
+      0 is below the main diagonal.
+
+triu PASSED
+================================================================================
+user  Allows personal Fortran subroutines to be linked into
+      LALA. The subroutine should have the heading
+
+         SUBROUTINE USER(A,M,N,S,T)
+         REAL or DOUBLEPRECISION A(M,N),S,T
+
+      The LALA statement "Y = user(X,s,t)" results in a call to the
+      subroutine with a copy of the matrix X stored in the argument A,
+      its column and row dimensions in M and N, and the scalar parameters
+      s and t stored in S and T. If s and t are omitted, they are set
+      to 0.0. After the return, A is stored in Y. The dimensions M and
+      N may be reset within the subroutine. The statement Y = "user(K)"
+      results in a call with M = 1, N = 1 and A(1,1) = "float(K)". After
+      the subroutine has been written, it must be compiled and linked
+      to the LALA object code within the local operating system.
+
+user PASSED
+================================================================================
+while  Repeat statements an indefinite number of times.
+
+          while expr rop expr, statement, ..., statement, end
+
+       where rop is =, <, >, <=, >=, or <> (not equal). The "end"
+       at the end of a line may be omitted. The comma before the
+       "end" may also be omitted. The commas may be replaced by
+       semicolons to avoid printing. The statements are
+       repeatedly executed as long as the indicated comparison
+       between the real parts of the first components of the two
+       expressions is true.
+
+       EXAMPLE
+       (assume a matrix A is already defined).
+
+        E = 0*A; F = E + eye; N = 1;
+        while norm(E+F-E,1) > 0, E = E + F; F = A*F/N; N = N + 1;
+        E
+
+while PASSED
+================================================================================
+who   Lists current variables.
+who PASSED
+================================================================================
+doc   does nothing at the moment
+
+doc PASSED
+================================================================================
+what  does nothing for now
+
+what PASSED
+================================================================================
+lala  A placeholder for a new command.
+
+lala PASSED
+================================================================================
+zeros
+      Returns a matrix of all zeros.
+
+         zeros(N)    returns an N by N matrix of zeroes.
+         zeros(M,N)  returns an M by N matrix of zeroes.
+         zeros(X)    returns a matrix of zeroes of the same order as X.
+________________________________________________________________________________
+zeros SUM OK
+zeros shape OK
+zeros DELTA OK
+zeros PASSED
+================================================================================
+general tests: avg
+
+ tally  =
+     0.    0.
+avg PASSED
+================================================================================
+general expression tests
+
+ tally  =
+     0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     COLUMNS     1 THRU    12
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     COLUMNS    13 THRU    13
+     0.
+
+ answers  =
+     7.   14.   56.    3.  256.
+
+ expected  =
+     7.   14.   56.    3.  256.
+general expr  PASSED
+
+ tally  =
+     COLUMNS     1 THRU    12
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     COLUMNS    13 THRU    18
+     0.    0.    0.    0.    0.    0.
+================================================================================
+general expression dots
+
+ tally  =
+     0.    0.
+general dots PASSED
+================================================================================
+general pascal test
+
+ L5  =
+     1.    0.    0.    0.    0.
+     1.    1.    0.    0.    0.
+     1.    2.    1.    0.    0.
+     1.    3.    3.    1.    0.
+     1.    4.    6.    4.    1.
+
+ S5  =
+     1.    1.    1.    1.    1.
+     1.    2.    3.    4.    5.
+     1.    3.    6.   10.   15.
+     1.    4.   10.   20.   35.
+     1.    5.   15.   35.   70.
+
+ U5  =
+     1.    1.    1.    1.    1.
+     0.    1.    2.    3.    4.
+     0.    0.    1.    3.    6.
+     0.    0.    0.    1.    4.
+     0.    0.    0.    0.    1.
+
+ L  =
+     1.
+
+ L  =
+     1.    0.
+     1.    1.
+
+ L  =
+     1.    0.    0.
+     1.    1.    0.
+     1.    2.    1.
+
+ L  =
+     1.    0.    0.    0.
+     1.    1.    0.    0.
+     1.    2.    1.    0.
+     1.    3.    3.    1.
+
+ L  =
+     1.    0.    0.    0.    0.
+     1.    1.    0.    0.    0.
+     1.    2.    1.    0.    0.
+     1.    3.    3.    1.    0.
+     1.    4.    6.    4.    1.
+
+ ans  =
+     0.    0.    0.    0.    0.
+     0.    0.    0.    0.    0.
+     0.    0.    0.    0.    0.
+     0.    0.    0.    0.    0.
+     0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.
+pascal L5 passed
+general pascal PASSED
+================================================================================
+ 	
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+
+ clr  =
+     COLUMNS     1 THRU    12
+   100.  105.  115.  112.  108.   97.  121.   40.   91.   50.   55.   44.
+     COLUMNS    13 THRU    24
+    57.   49.   44.   39.   72.   39.   44.   50.   55.   44.   57.   49.
+     COLUMNS    25 THRU    31
+    44.   39.   50.   74.   39.   93.   41.
+[H[2J
+general char PASSED
 + echo '>>>> GPF_fman'
 >>>> GPF_fman
 + '[' -d doc/ ']'
@@ -3771,33 +4393,33 @@ a - /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
 + cat
 ++ TOCHARACTER
 ++ :
-++ sed -e 's/'\''/'\'''\''/g'
 ++ cat get_from_lala.3m_matrix.man
+++ sed -e 's/'\''/'\'''\''/g'
+++ cat
 ++ sed -e 's/^/'\''/'
 ++ sed -e 's/$/'\'', \&/'
-++ cat
 + read NAME
 + SHORTNAME=ifin_lala
 + COUNT=2
 + cat
 ++ TOCHARACTER
 ++ :
+++ cat ifin_lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
+++ sed -e 's/$/'\'', \&/'
 ++ cat
 ++ sed -e 's/^/'\''/'
-++ sed -e 's/$/'\'', \&/'
-++ cat ifin_lala.3m_matrix.man
 + read NAME
 + SHORTNAME=lala
 + COUNT=3
 + cat
 ++ TOCHARACTER
 ++ :
-++ sed -e 's/'\''/'\'''\''/g'
 ++ cat lala.3m_matrix.man
-++ cat
-++ sed -e 's/^/'\''/'
 ++ sed -e 's/$/'\'', \&/'
+++ sed -e 's/^/'\''/'
+++ cat
+++ sed -e 's/'\''/'\'''\''/g'
 + read NAME
 + SHORTNAME=M_matrix
 + COUNT=4
@@ -3805,10 +4427,10 @@ a - /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
 ++ TOCHARACTER
 ++ :
 ++ cat M_matrix.3m_matrix.man
-++ sed -e 's/'\''/'\'''\''/g'
 ++ sed -e 's/$/'\'', \&/'
 ++ cat
 ++ sed -e 's/^/'\''/'
+++ sed -e 's/'\''/'\'''\''/g'
 + read NAME
 + SHORTNAME=put_into_lala
 + COUNT=5
@@ -3816,14 +4438,14 @@ a - /dev/shm/CCALL_Linux_gfortran_1210992/test_suite_M_matrix.1210992.f90
 ++ TOCHARACTER
 ++ :
 ++ cat put_into_lala.3m_matrix.man
-++ sed -e 's/^/'\''/'
+++ sed -e 's/'\''/'\'''\''/g'
 ++ cat
 ++ sed -e 's/$/'\'', \&/'
-++ sed -e 's/'\''/'\'''\''/g'
+++ sed -e 's/^/'\''/'
 + read NAME
 + END_MODULE
 + cat
 + cat
 + ls -ld /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
--rw-rw-r-- 1 urbanjs urbanjs 45867 Jul 22 15:51 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
+-rw-rw-r-- 1 urbanjs urbanjs 45867 Jul 22 18:42 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
 + cat

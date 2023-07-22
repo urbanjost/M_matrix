@@ -82,7 +82,7 @@ use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real
 
 use M_strings,    only : value_to_string, lower, v2s, s2v
 use M_framework,  only : journal
-use M_msg,        only : help_command
+use M_help,       only : help_command
 use M_history,    only : redo
 use M_list,       only : insert, locate, replace, remove
 use M_io,         only : lookfor
