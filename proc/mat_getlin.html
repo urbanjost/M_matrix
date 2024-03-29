@@ -1,3 +1,5 @@
+<!-- -*- mode: jinja2 -*- -->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -10,85 +12,59 @@
 
     <title>mat_getlin &ndash; M_matrix</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">M_matrix </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +72,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 1.9% of total for procedures.">114 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 1.9% of total for procedures.">114 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/M_matrix.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/m_matrix.f90.html'>M_matrix.F90</a></li>
-              <li><a href='../module/m_matrix.html'>M_matrix</a></li>
-          <li class="active">mat_getlin</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/m_matrix.f90.html'>M_matrix.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/m_matrix.html'>M_matrix</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mat_getlin</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -133,22 +113,21 @@
       <div id="sidebar">
       <h3>Contents</h3>
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-0">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-0" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-i~17">i</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-ios~2">ios</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-istat">istat</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-j~9">j</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-k~9">k</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-l~4">l</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-mline~2">mline</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-n~7">n</a>
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../proc/mat_getlin.html#variable-i~33">i</a>
+            <a class="list-group-item" href="../proc/mat_getlin.html#variable-ios~4">ios</a>
+            <a class="list-group-item" href="../proc/mat_getlin.html#variable-istat~2">istat</a>
+            <a class="list-group-item" href="../proc/mat_getlin.html#variable-j~23">j</a>
+            <a class="list-group-item" href="../proc/mat_getlin.html#variable-k~21">k</a>
+            <a class="list-group-item" href="../proc/mat_getlin.html#variable-l~5">l</a>
+            <a class="list-group-item" href="../proc/mat_getlin.html#variable-mline~5">mline</a>
+            <a class="list-group-item" href="../proc/mat_getlin.html#variable-n~26">n</a>
             <a class="list-group-item" href="../proc/mat_getlin.html#variable-retu">retu</a>
             <a class="list-group-item" href="../proc/mat_getlin.html#variable-shift_mline">shift_mline</a>
         </div>
@@ -164,14 +143,13 @@
   
   
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#funcs-0">Functions</a>
-        </h3>
-      </div>
-      <div id="funcs-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#funcs-0"
+         aria-expanded="false" aria-controls="funcs-0">
+         <h4 class="card-header bg-primary text-white">Functions</h4>
+      </a>
+      <div id="funcs-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../proc/mat_getlin.html#proc-get_pseudo_line">get_pseudo_line</a>
         </div>
       </div>
@@ -184,8 +162,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/mat_getlin.html#src">mat_getlin</a>
       </div>
@@ -208,87 +187,22 @@
     <br>
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-1">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-i~17">i</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-ios~2">ios</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-istat">istat</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-j~9">j</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-k~9">k</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-l~4">l</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-mline~2">mline</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-n~7">n</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-retu">retu</a>
-            <a class="list-group-item" href="../proc/mat_getlin.html#variable-shift_mline">shift_mline</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#funcs-1">Functions</a>
-        </h3>
-      </div>
-      <div id="funcs-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../proc/mat_getlin.html#proc-get_pseudo_line">get_pseudo_line</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/mat_getlin.html#src">mat_getlin</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     <section>    
       <h2>Variables</h2>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-i~17"></span>
+              <span class="anchor" id="variable-i~33"></span>
               integer,
             </td>
               <td>public</td>
@@ -305,7 +219,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ios~2"></span>
+              <span class="anchor" id="variable-ios~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -322,7 +236,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-istat"></span>
+              <span class="anchor" id="variable-istat~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -339,7 +253,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-j~9"></span>
+              <span class="anchor" id="variable-j~23"></span>
               integer,
             </td>
               <td>public</td>
@@ -356,7 +270,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-k~9"></span>
+              <span class="anchor" id="variable-k~21"></span>
               integer,
             </td>
               <td>public</td>
@@ -373,7 +287,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-l~4"></span>
+              <span class="anchor" id="variable-l~5"></span>
               integer,
             </td>
               <td>public</td>
@@ -390,7 +304,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mline~2"></span>
+              <span class="anchor" id="variable-mline~5"></span>
               character(len=GG_LINELEN),
             </td>
               <td>public</td>
@@ -407,7 +321,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-n~7"></span>
+              <span class="anchor" id="variable-n~26"></span>
               integer,
             </td>
               <td>public</td>
@@ -434,7 +348,7 @@ parameter
             <td>::</td>
             <td><strong>retu</strong>(GG_MAX_NAME_LENGTH)</td>
 <td> =</td>
-                <td>[iachar(['q', 'u', 'i', 't', ' ', ' ', ' ']), GG_PAD(8:)]</td>
+                <td>[iachar([&#39;q&#39;, &#39;u&#39;, &#39;i&#39;, &#39;t&#39;, &#39; &#39;, &#39; &#39;, &#39; &#39;]), GG_PAD(8:)]</td>
             <td>
                 
             </td>
@@ -469,10 +383,10 @@ parameter
  
     <section>
     <h2>Functions</h2>
-      <div class="panel panel-default">
-    <div class="panel-heading codesum"><span class="anchor" id="proc-get_pseudo_line"></span><h3> function get_pseudo_line() result(line)  
+      <div class="card">
+    <div class="card-header codesum"><span class="anchor" id="proc-get_pseudo_line"></span> <h3> function <a href='mat_getlin.html#proc-get_pseudo_line'>get_pseudo_line</a>() result(line)  
 </h3></div>
-    <div class="panel-body">
+    <div class="card-body">
           
   
 
@@ -491,51 +405,52 @@ parameter
     <br>
 
 
+
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">mat_getlin</span><span class="p">()</span><span class="w"> </span><span class="c">! get a new input line</span>
+    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">mat_getlin</span><span class="p">()</span><span class="w"> </span><span class="c">! get a new input line</span>
 
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mline</span><span class="w"></span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">shift_mline</span><span class="w"></span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mline</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">shift_mline</span>
 
-<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">istat</span><span class="w"></span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">retu</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;q&#39;</span><span class="p">,</span><span class="s1">&#39;u&#39;</span><span class="p">,</span><span class="s1">&#39;i&#39;</span><span class="p">,</span><span class="s1">&#39;t&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">8</span><span class="p">:)]</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">l</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">ios</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">istat</span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">retu</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;q&#39;</span><span class="p">,</span><span class="s1">&#39;u&#39;</span><span class="p">,</span><span class="s1">&#39;i&#39;</span><span class="p">,</span><span class="s1">&#39;t&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">8</span><span class="p">:)]</span>
+<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span>
+<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">l</span>
+<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
+<span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">ios</span>
 <span class="c">!.......................................................................</span>
-<span class="w">   </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="c">!.......................................................................</span>
 <span class="w">   </span><span class="mi">11</span><span class="w"> </span><span class="k">continue</span>
 
 <span class="k">      </span><span class="n">G_BUF</span><span class="p">(:</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="n">blank</span><span class="w">      </span><span class="c">! blank out buffer before reading into it</span>
-<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_LINELEN</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_LINELEN</span><span class="o">+</span><span class="mi">1</span>
 
 <span class="w">      </span><span class="c">! get line of input and place it in line buffer</span>
 <span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="mf">1.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_RIO</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">STDIN</span><span class="p">)</span><span class="k">then</span>
-<span class="k">         </span><span class="n">mline</span><span class="o">=</span><span class="n">get_pseudo_line</span><span class="p">()</span><span class="w"></span>
-<span class="w">         </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_INPUT_LUN</span><span class="w"></span>
-<span class="w">      </span><span class="n">elseif</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_RIO</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">STDIN</span><span class="p">)</span><span class="k">then</span>
-<span class="k">         </span><span class="n">mline</span><span class="o">=</span><span class="n">get_pseudo_line</span><span class="p">()</span><span class="w"></span>
+<span class="k">         </span><span class="n">mline</span><span class="o">=</span><span class="n">get_pseudo_line</span><span class="p">()</span>
+<span class="w">         </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_INPUT_LUN</span>
+<span class="w">      </span><span class="k">elseif</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="mf">0.</span><span class="nb">and</span><span class="p">.</span><span class="n">G_RIO</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">STDIN</span><span class="p">)</span><span class="k">then</span>
+<span class="k">         </span><span class="n">mline</span><span class="o">=</span><span class="n">get_pseudo_line</span><span class="p">()</span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">mline</span><span class="p">(:)</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="w"></span>
+<span class="k">         </span><span class="n">mline</span><span class="p">(:)</span><span class="o">=</span><span class="s1">&#39; &#39;</span>
 <span class="w">         </span><span class="k">read</span><span class="p">(</span><span class="n">G_RIO</span><span class="p">,</span><span class="s1">&#39;(a)&#39;</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">)</span><span class="w"> </span><span class="n">mline</span><span class="w">       </span><span class="c">! read input line from file</span>
 <span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">ios</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">             if</span><span class="p">(</span><span class="nb">is_iostat_end</span><span class="p">(</span><span class="n">ios</span><span class="p">))</span><span class="k">then</span><span class="w">           </span><span class="c">! hit end of file</span>
 <span class="w">                </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_LIN</span><span class="p">(</span><span class="n">l</span><span class="p">),</span><span class="n">retu</span><span class="p">)</span><span class="w"> </span><span class="c">! store QUIT onto G_LIN(L) to simulate RETURN command</span>
-<span class="w">                </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">4</span><span class="w"></span>
-<span class="w">                </span><span class="k">goto</span><span class="w"> </span><span class="mi">45</span><span class="w"></span>
+<span class="w">                </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">4</span>
+<span class="w">                </span><span class="k">goto</span><span class="w"> </span><span class="mi">45</span>
 <span class="w">             </span><span class="k">else</span>
-<span class="k">                goto</span><span class="w"> </span><span class="mi">15</span><span class="w"></span>
+<span class="k">                goto</span><span class="w"> </span><span class="mi">15</span>
 <span class="w">             </span><span class="k">endif</span>
 <span class="k">         endif</span>
 <span class="k">      endif</span>
-<span class="k">      if</span><span class="p">(</span><span class="n">G_ECHO</span><span class="p">)</span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(*(g0))&#39;</span><span class="p">)</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">shift_mline</span><span class="o">=</span><span class="nb">adjustl</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span><span class="w"></span>
+<span class="k">      if</span><span class="p">(</span><span class="n">G_ECHO</span><span class="p">)</span><span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(*(g0))&#39;</span><span class="p">)</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="nb">trim</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span>
+<span class="w">      </span><span class="n">shift_mline</span><span class="o">=</span><span class="nb">adjustl</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">shift_mline</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;??&#39;</span><span class="p">)</span><span class="k">then</span><span class="w">            </span><span class="c">! edit command line history</span>
-<span class="w">         </span><span class="n">mline</span><span class="o">=</span><span class="s1">&#39;. &#39;</span><span class="o">//</span><span class="n">mline</span><span class="p">(</span><span class="mi">3</span><span class="p">:)</span><span class="w"></span>
+<span class="w">         </span><span class="n">mline</span><span class="o">=</span><span class="s1">&#39;. &#39;</span><span class="o">//</span><span class="n">mline</span><span class="p">(</span><span class="mi">3</span><span class="p">:)</span>
 <span class="w">      </span><span class="k">endif</span>
 
 <span class="k">      if</span><span class="p">(</span><span class="n">G_RIO</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">stdin</span><span class="p">)</span><span class="k">then</span>
@@ -547,87 +462,87 @@ parameter
 <span class="w">                                   </span><span class="c">! (unless the input line is the &quot;r&quot; command)</span>
 
 <span class="w">      </span><span class="c">! look for other lines to immediately process and then ignore</span>
-<span class="w">      </span><span class="n">shift_mline</span><span class="o">=</span><span class="nb">adjustl</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">shift_mline</span><span class="o">=</span><span class="nb">adjustl</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span>
 <span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">shift_mline</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;#&#39;</span><span class="p">)</span><span class="k">then</span>
 <span class="k">         </span><span class="n">mline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="w">                                                      </span><span class="c">! ignore lines with a # as first non-blank character</span>
-<span class="w">      </span><span class="n">elseif</span><span class="p">(</span><span class="n">shift_mline</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;!&#39;</span><span class="p">)</span><span class="k">then</span>
+<span class="w">      </span><span class="k">elseif</span><span class="p">(</span><span class="n">shift_mline</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;!&#39;</span><span class="p">)</span><span class="k">then</span>
 <span class="k">         if</span><span class="p">(</span><span class="n">shift_mline</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="s1">&#39;!&#39;</span><span class="p">)</span><span class="k">then</span>
 <span class="k">            call </span><span class="nb">get_environment_variable</span><span class="p">(</span><span class="s1">&#39;SHELL&#39;</span><span class="p">,</span><span class="n">shift_mline</span><span class="p">)</span><span class="w">         </span><span class="c">! get command to execute</span>
 <span class="w">            </span><span class="k">call </span><span class="nb">execute_command_line</span><span class="p">(</span><span class="n">shift_mline</span><span class="p">,</span><span class="n">cmdstat</span><span class="o">=</span><span class="n">istat</span><span class="p">)</span><span class="w">       </span><span class="c">! call system shell</span>
 <span class="w">         </span><span class="k">else</span>
 <span class="k">            call </span><span class="nb">execute_command_line</span><span class="p">(</span><span class="n">shift_mline</span><span class="p">(</span><span class="mi">2</span><span class="p">:),</span><span class="n">cmdstat</span><span class="o">=</span><span class="n">istat</span><span class="p">)</span><span class="w">   </span><span class="c">! call system shell</span>
 <span class="w">         </span><span class="k">endif</span>
-<span class="k">         </span><span class="n">mline</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="w"></span>
+<span class="k">         </span><span class="n">mline</span><span class="o">=</span><span class="s1">&#39;&#39;</span>
 <span class="w">      </span><span class="k">endif</span>
 
 <span class="k">      call </span><span class="n">mat_str2buf</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w">    </span><span class="c">! convert input line to &quot;Hollerith&quot; buffer</span>
 <span class="c">!.......................................................................</span>
 <span class="w">   </span><span class="mi">15</span><span class="w"> </span><span class="k">continue</span>
-<span class="k">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="k">      </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="o">-</span><span class="mi">1</span>
 <span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">n</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="mi">1</span><span class="p">)</span><span class="k">then</span>
-<span class="k">         </span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="n">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">G_BUF</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">blank</span><span class="p">)</span><span class="k">then</span>
+<span class="k">         </span><span class="n">n</span><span class="o">=</span><span class="mi">1</span>
+<span class="w">      </span><span class="k">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">G_BUF</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">blank</span><span class="p">)</span><span class="k">then</span>
 <span class="k">         goto</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="c">! trim off trailing spaces</span>
 <span class="w">      </span><span class="k">endif</span>
 
 <span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="nb">mod</span><span class="p">(</span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">              call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="c">! convert ADE buffer to character</span>
 <span class="w">              </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">,</span><span class="n">mline</span><span class="p">)</span><span class="w"> </span><span class="c">! just to standard output</span>
-<span class="w">      </span><span class="k">endif</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span>
 <span class="c">!.......................................................................</span>
-<span class="w">      </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+<span class="w">      </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
 <span class="w">         </span><span class="k">do </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">G_CHARSET_SIZE</span><span class="w">  </span><span class="c">! make sure this letter is in set of LALA characters and get its LALA number</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">30</span><span class="w"></span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">k</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">30</span>
 <span class="w">         </span><span class="k">enddo</span>
 <span class="k">         call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39;Unknown character at column &#39;</span><span class="p">,</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="c">! this is not a known character</span>
-<span class="w">         </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_EOL</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="w">         </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_EOL</span><span class="o">+</span><span class="mi">1</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">GG_EOL</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">            </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="k">            </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="w">            </span><span class="k">goto</span><span class="w"> </span><span class="mi">11</span><span class="w">   </span><span class="c">! Unknown character , K not changed. get new line</span>
 <span class="w">         </span><span class="k">endif</span>
 <span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">GG_EOL</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
-<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">le</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span><span class="w"></span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">le</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">cycle</span>
 <span class="c">!</span>
 <span class="w">   </span><span class="mi">30</span><span class="w">    </span><span class="k">continue</span>
 <span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">slash</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="w"> </span><span class="k">exit</span><span class="w">     </span><span class="c">! if // rest is comment</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">dot</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="p">))</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">11</span><span class="w">    </span><span class="c">! if .. line continuation</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="n">bslash</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">                    </span><span class="c">! if \ in column 1</span>
-<span class="w">            </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
-<span class="w">               </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">               </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="w"></span>
+<span class="w">            </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">            </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
+<span class="w">               </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">               </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span>
 <span class="w">            </span><span class="k">enddo</span>
-<span class="k">            goto</span><span class="w"> </span><span class="mi">15</span><span class="w"></span>
+<span class="k">            goto</span><span class="w"> </span><span class="mi">15</span>
 <span class="w">         </span><span class="k">endif</span>
-<span class="k">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="w"></span>
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="mi">1024</span><span class="p">)</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">1024</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39;input buffer limit exceeded=&#39;</span><span class="p">,</span><span class="n">l</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">enddo</span><span class="w"></span>
+<span class="k">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="mi">1024</span><span class="p">)</span><span class="w"> </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">l</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">1024</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39;input buffer limit exceeded=&#39;</span><span class="p">,</span><span class="n">l</span><span class="p">)</span>
+<span class="w">      </span><span class="k">enddo</span>
 <span class="c">!.......................................................................</span>
 <span class="w">   </span><span class="mi">45</span><span class="w"> </span><span class="k">CONTINUE</span><span class="w">      </span><span class="c">! line is ready, reset line pointers</span>
-<span class="w">      </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_EOL</span><span class="p">;</span><span class="n">G_LIN</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span><span class="o">=</span><span class="n">blank</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_EOL</span><span class="p">;</span><span class="n">G_LIN</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">:)</span><span class="o">=</span><span class="n">blank</span>
+<span class="w">      </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l</span>
+<span class="w">      </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">      </span><span class="k">call </span><span class="n">mat_getch</span><span class="p">()</span><span class="w"> </span><span class="c">! load first character onto G_CHRA</span>
 
 <span class="k">contains</span>
 
-<span class="k">function </span><span class="n">get_pseudo_line</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">line</span><span class="p">)</span><span class="w"></span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">line</span><span class="w"></span>
+<span class="k">function </span><span class="n">get_pseudo_line</span><span class="p">()</span><span class="w"> </span><span class="k">result</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">line</span>
 <span class="c">! reallocating all the time is inefficient</span>
-<span class="w">   </span><span class="n">line</span><span class="o">=</span><span class="n">G_PSEUDO_FILE</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="n">line</span><span class="o">=</span><span class="n">G_PSEUDO_FILE</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">size</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">).</span><span class="n">gt</span><span class="p">.</span><span class="mi">1</span><span class="p">)</span><span class="k">then</span>
-<span class="k">      </span><span class="n">G_PSEUDO_FILE</span><span class="o">=</span><span class="n">G_PSEUDO_FILE</span><span class="p">(</span><span class="mi">2</span><span class="p">:)</span><span class="w"></span>
+<span class="k">      </span><span class="n">G_PSEUDO_FILE</span><span class="o">=</span><span class="n">G_PSEUDO_FILE</span><span class="p">(</span><span class="mi">2</span><span class="p">:)</span>
 <span class="w">   </span><span class="k">else</span>
-<span class="k">      </span><span class="n">G_PSEUDO_FILE</span><span class="o">=</span><span class="p">[</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="p">]</span><span class="w"></span>
+<span class="k">      </span><span class="n">G_PSEUDO_FILE</span><span class="o">=</span><span class="p">[</span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="p">]</span>
 <span class="w">   </span><span class="k">endif</span>
-<span class="k">end function </span><span class="n">get_pseudo_line</span><span class="w"></span>
+<span class="k">end function </span><span class="n">get_pseudo_line</span>
 
-<span class="k">end subroutine </span><span class="n">mat_getlin</span><span class="w"></span>
+<span class="k">end subroutine </span><span class="n">mat_getlin</span>
 </pre></div>
 
     </section>
@@ -640,32 +555,27 @@ parameter
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>M_matrix was developed by John S. Urban<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>M_matrix was developed by John S. Urban<br>&copy; 2024 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-07-22 19:55              </p>
+ on 2024-03-29 03:44              </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">

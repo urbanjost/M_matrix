@@ -1,3 +1,5 @@
+<!-- -*- mode: jinja2 -*- -->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -10,85 +12,59 @@
 
     <title>mat_stack_get &ndash; M_matrix</title>
 
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-
-         <script src="../js/jquery-2.1.3.min.js"></script>
-         <script src="../js/svg-pan-zoom.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="../js/svg-pan-zoom.min.js"></script>
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
           <a class="navbar-brand" href="../index.html">M_matrix </a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
-              <a href="#" class="dropdown-toggle"
-                 data-toggle="dropdown" role="button"
-                 aria-haspopup="true"
-                 aria-expanded="false">
-                 Contents <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                    <li><a href="../lists/files.html">Source Files</a></li>
-                  <li><a href="../lists/modules.html">Modules</a></li>
-                  <li><a href="../lists/procedures.html">Procedures</a></li>
-                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
-                  <li><a href="../lists/types.html">Derived Types</a></li>
-                  <li><a href="../lists/programs.html">Programs</a></li>
-              </ul>
-            </li>
-                <li class="visible-xs hidden-sm visible-lg">
-                  <a href="../lists/files.html">Source Files</a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
                 </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/modules.html">Modules</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/procedures.html">Procedures</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/absint.html">Abstract Interfaces</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/types.html">Derived Types</a>
-              </li>
-              <li class="visible-xs hidden-sm visible-lg">
-                <a href="../lists/programs.html">Programs</a>
-              </li>
-          </ul>
-            <form action="../search.html" class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
               </div>
-              <!--
-                  <button type="submit" class="btn btn-default">Submit</button>
-                  -->
-            </form>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
 
     <div class="container">
   <div class="row">
@@ -96,33 +72,37 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="row" id="info-bar">
-    <div class="col-lg-12">
-      <div class="well well-sm">
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-          <li id="statements"><i class="fa fa-list-ol"></i>
-            <a data-toggle="tooltip"
-               data-placement="bottom" data-html="true"
-               title=" 1.8% of total for procedures.">110 statements</a>
-          </li>
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip"
+                 data-bs-placement="bottom" data-html="true"
+                 title=" 1.8% of total for procedures.">110 statements</a>
+            </li>
 
-            <li id="source-file">
+            <li class="list-inline-item" id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/M_matrix.F90"> Source File</a>
             </li>
         </ul>
-        <ol class="breadcrumb in-well text-right">
-              <li><a href='../sourcefile/m_matrix.f90.html'>M_matrix.F90</a></li>
-              <li><a href='../module/m_matrix.html'>M_matrix</a></li>
-          <li class="active">mat_stack_get</li>
-        </ol>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/m_matrix.f90.html'>M_matrix.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/m_matrix.html'>M_matrix</a></li>
+            <li class="breadcrumb-item active" aria-current="page">mat_stack_get</li>
+          </ol>
+        </nav>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    $('[data-bs-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -133,30 +113,29 @@
       <div id="sidebar">
       <h3>Contents</h3>
   
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-0">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-0" class="panel-collapse collapse">
-        <div class="list-group">
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
             <a class="list-group-item" href="../proc/mat_stack_get.html#variable-current_location">current_location</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-i~29">i</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-j~23">j</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-k~22">k</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-l2~8">l2</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-l3~4">l3</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-li~3">li</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-i~31">i</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-j~21">j</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-k~19">k</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-l2~7">l2</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-l3~3">l3</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-li~4">li</a>
             <a class="list-group-item" href="../proc/mat_stack_get.html#variable-lj~6">lj</a>
             <a class="list-group-item" href="../proc/mat_stack_get.html#variable-ll~9">ll</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-location~14">location</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-ls~13">ls</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-m~15">m</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-mk">mk</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-location~11">location</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-ls~11">ls</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-m~19">m</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-mk~2">mk</a>
             <a class="list-group-item" href="../proc/mat_stack_get.html#variable-mn~8">mn</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-mnk">mnk</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-n~20">n</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-mnk~2">mnk</a>
+            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-n~24">n</a>
         </div>
       </div>
     </div>
@@ -178,8 +157,9 @@
   
   
   
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/mat_stack_get.html#src">mat_stack_get</a>
       </div>
@@ -201,16 +181,16 @@
         <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Intent</th><th>Optional</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-id~12"></span>
+              <span class="anchor" id="variable-id~9"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -228,76 +208,17 @@
 
     <br>
 
-    <section class="visible-xs visible-sm hidden-md">
-        <h3>Contents</h3>
-  
-      <div class="panel panel-primary">
-      <div class="panel-heading text-left">
-        <h3 class="panel-title">
-          <a data-toggle="collapse" href="#vars-1">Variables</a>
-        </h3>
-      </div>
-      <div id="vars-1" class="panel-collapse collapse">
-        <div class="list-group">
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-current_location">current_location</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-i~29">i</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-j~23">j</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-k~22">k</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-l2~8">l2</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-l3~4">l3</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-li~3">li</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-lj~6">lj</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-ll~9">ll</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-location~14">location</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-ls~13">ls</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-m~15">m</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-mk">mk</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-mn~8">mn</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-mnk">mnk</a>
-            <a class="list-group-item" href="../proc/mat_stack_get.html#variable-n~20">n</a>
-        </div>
-      </div>
-    </div>
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    <div class="panel panel-primary">
-      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
-      <div class="list-group">
-        <a class="list-group-item" href="../proc/mat_stack_get.html#src">mat_stack_get</a>
-      </div>
-    </div>
-
-
-    </section>
-    <br class="visible-xs visible-sm hidden-md">
-
 
     <section>    
       <h2>Variables</h2>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th>Type</th>
-<th>Visibility</th>        <th>Attributes</th>
-        <th></th>
-        <th>Name</th>
-<th></th><th>Initial</th>        <th></th>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
     </thead>
     <tbody>
         <tr>
@@ -319,7 +240,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-i~29"></span>
+              <span class="anchor" id="variable-i~31"></span>
               integer,
             </td>
               <td>public</td>
@@ -336,7 +257,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-j~23"></span>
+              <span class="anchor" id="variable-j~21"></span>
               integer,
             </td>
               <td>public</td>
@@ -353,7 +274,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-k~22"></span>
+              <span class="anchor" id="variable-k~19"></span>
               integer,
             </td>
               <td>public</td>
@@ -370,7 +291,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-l2~8"></span>
+              <span class="anchor" id="variable-l2~7"></span>
               integer,
             </td>
               <td>public</td>
@@ -387,7 +308,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-l3~4"></span>
+              <span class="anchor" id="variable-l3~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -404,7 +325,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-li~3"></span>
+              <span class="anchor" id="variable-li~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -455,7 +376,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-location~14"></span>
+              <span class="anchor" id="variable-location~11"></span>
               integer,
             </td>
               <td>public</td>
@@ -472,7 +393,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ls~13"></span>
+              <span class="anchor" id="variable-ls~11"></span>
               integer,
             </td>
               <td>public</td>
@@ -489,7 +410,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-m~15"></span>
+              <span class="anchor" id="variable-m~19"></span>
               integer,
             </td>
               <td>public</td>
@@ -506,7 +427,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mk"></span>
+              <span class="anchor" id="variable-mk~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -540,7 +461,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mnk"></span>
+              <span class="anchor" id="variable-mnk~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -557,7 +478,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-n~20"></span>
+              <span class="anchor" id="variable-n~24"></span>
               integer,
             </td>
               <td>public</td>
@@ -584,142 +505,143 @@
     
 
 
+
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">mat_stack_get</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"></span>
+    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">mat_stack_get</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
 
 <span class="c">! ident_29=&quot;@(#) M_matrix mat_stack_get(3fp) get variables from storage&quot;</span>
 
-<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">id</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">j</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">k</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">location</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">l2</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">l3</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">li</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">lj</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">current_location</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">ll</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">ls</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">m</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">mk</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">mn</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">mnk</span><span class="w"></span>
-<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">id</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">j</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">k</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">location</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">l2</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">l3</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">li</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">lj</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">current_location</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">ll</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">ls</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">m</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">mk</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">mn</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">mnk</span>
+<span class="kt">integer</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">n</span>
 
 <span class="w">   </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">G_TOP_OF_SAVED</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">ID</span><span class="p">)</span><span class="w">    </span><span class="c">! copy ID to next blank entry in G_VAR_IDS in case it is not there(?)</span>
 
 <span class="w">   </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="w">                      </span><span class="c">! start at bottom and search up through names till find the name</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mat_eqid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">:,</span><span class="n">k</span><span class="p">),</span><span class="w"> </span><span class="n">id</span><span class="p">))</span><span class="k">exit</span><span class="w">             </span><span class="c">! if found name exit loop</span>
-<span class="w">   </span><span class="k">enddo</span><span class="w"></span>
+<span class="w">   </span><span class="k">enddo</span>
 <span class="w">   </span><span class="c">! if (?)</span>
 <span class="w">   </span><span class="c">! or if matched the name inserted above did not find it.</span>
 <span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">ge</span><span class="p">.</span><span class="w"> </span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">G_TOP_OF_SAVED</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">      </span><span class="n">G_FIN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="k">      </span><span class="n">G_FIN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 <span class="w">      </span><span class="k">return</span>
 <span class="k">   endif</span>
 
 <span class="k">   </span><span class="n">current_location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w">                               </span><span class="c">! found it, so this is the location where the data begins</span>
 <span class="w">   </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">                                             </span><span class="c">! VECT(ARG)</span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">99</span><span class="w"></span>
-<span class="w">      </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">MN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">99</span>
+<span class="w">      </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">      </span><span class="n">MN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
 <span class="w">      </span><span class="n">MNK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w">                            </span><span class="c">! number of values in this variable</span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">MN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MNK</span><span class="w"></span>
-<span class="w">      </span><span class="k">DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MN</span><span class="w"></span>
-<span class="w">        </span><span class="n">LL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
-<span class="w">        </span><span class="n">LS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_location</span><span class="o">+</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
-<span class="w">        </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">LS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LL</span><span class="p">))</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">MN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MNK</span>
+<span class="w">      </span><span class="k">DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">MN</span>
+<span class="w">        </span><span class="n">LL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">        </span><span class="n">LS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_location</span><span class="o">+</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">        </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">LS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LL</span><span class="p">))</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">        </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">LS</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="n">current_location</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">LS</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="n">current_location</span><span class="o">+</span><span class="n">MNK</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">           call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span><span class="w">          </span><span class="c">! Subscript out of range</span>
 <span class="w">           </span><span class="k">return</span>
 <span class="k">        endif</span>
-<span class="k">        </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LS</span><span class="p">)</span><span class="w"></span>
-<span class="w">        </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LS</span><span class="p">)</span><span class="w"></span>
+<span class="k">        </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LS</span><span class="p">)</span>
+<span class="w">        </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LS</span><span class="p">)</span>
 <span class="w">      </span><span class="k">enddo</span>
-<span class="k">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MN</span><span class="w"></span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MN</span><span class="w"></span>
-<span class="w">      </span><span class="k">goto</span><span class="w"> </span><span class="mi">99</span><span class="w"></span>
-<span class="w">   </span><span class="n">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">                                              </span><span class="c">! MATRIX(ARG,ARG)</span>
-<span class="w">      </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">99</span><span class="w"></span>
-<span class="w">      </span><span class="n">L2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">L3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">L2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">N</span><span class="w"></span>
-<span class="w">      </span><span class="n">MK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">MNK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="k">DO </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="w"></span>
-<span class="w">         </span><span class="k">DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="w"></span>
-<span class="w">           </span><span class="n">LI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
-<span class="w">           </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">LI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LI</span><span class="p">))</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">           </span><span class="n">LJ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">L2</span><span class="o">+</span><span class="n">J</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
-<span class="w">           </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">LJ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">L2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LJ</span><span class="p">))</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">           </span><span class="n">LS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">LI</span><span class="o">-</span><span class="n">location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">LJ</span><span class="o">-</span><span class="n">L2</span><span class="p">)</span><span class="o">*</span><span class="n">MK</span><span class="w"></span>
+<span class="k">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MN</span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MN</span>
+<span class="w">      </span><span class="k">goto</span><span class="w"> </span><span class="mi">99</span>
+<span class="w">   </span><span class="k">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">                                              </span><span class="c">! MATRIX(ARG,ARG)</span>
+<span class="w">      </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">      </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">99</span>
+<span class="w">      </span><span class="n">L2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+<span class="w">      </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+<span class="w">      </span><span class="n">L3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">L2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">N</span>
+<span class="w">      </span><span class="n">MK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+<span class="w">      </span><span class="n">MNK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+<span class="w">      </span><span class="k">DO </span><span class="n">J</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N</span>
+<span class="w">         </span><span class="k">DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">M</span>
+<span class="w">           </span><span class="n">LI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">           </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">LI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LI</span><span class="p">))</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="n">LJ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">L2</span><span class="o">+</span><span class="n">J</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">           </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">LJ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">L2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LJ</span><span class="p">))</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">           </span><span class="n">LS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">current_location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">LI</span><span class="o">-</span><span class="n">location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">LJ</span><span class="o">-</span><span class="n">L2</span><span class="p">)</span><span class="o">*</span><span class="n">MK</span>
 <span class="w">           </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">LS</span><span class="p">.</span><span class="n">LT</span><span class="p">.</span><span class="n">current_location</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">LS</span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="n">current_location</span><span class="o">+</span><span class="n">MNK</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">              call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span><span class="w"></span>
+<span class="k">              call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span>
 <span class="w">              </span><span class="k">return</span>
 <span class="k">           endif</span>
-<span class="k">           </span><span class="n">LL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">L3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">J</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">M</span><span class="w"></span>
-<span class="w">           </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LS</span><span class="p">)</span><span class="w"></span>
-<span class="w">           </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LS</span><span class="p">)</span><span class="w"></span>
+<span class="k">           </span><span class="n">LL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">L3</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">J</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">M</span>
+<span class="w">           </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LS</span><span class="p">)</span>
+<span class="w">           </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LS</span><span class="p">)</span>
 <span class="w">         </span><span class="k">enddo</span>
 <span class="k">      enddo</span>
-<span class="k">      </span><span class="n">MN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="o">*</span><span class="n">N</span><span class="w"></span>
-<span class="w">      </span><span class="k">call </span><span class="n">mat_wcopy</span><span class="p">(</span><span class="n">MN</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">L3</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">L3</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">N</span><span class="w"></span>
-<span class="w">      </span><span class="k">goto</span><span class="w"> </span><span class="mi">99</span><span class="w"></span>
-<span class="w">   </span><span class="n">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">      </span><span class="n">MN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="o">*</span><span class="n">N</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_wcopy</span><span class="p">(</span><span class="n">MN</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">L3</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">L3</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">N</span>
+<span class="w">      </span><span class="k">goto</span><span class="w"> </span><span class="mi">99</span>
+<span class="w">   </span><span class="k">elseif</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">      call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span><span class="w">                                                     </span><span class="c">! Subscript out of range</span>
 <span class="w">      </span><span class="k">return</span>
 <span class="k">   else</span><span class="w">                                                                    </span><span class="c">! SCALAR</span>
-<span class="w">      </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
 <span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">         call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span><span class="w">  </span><span class="c">! Too many names</span>
 <span class="w">         </span><span class="k">return</span>
 <span class="k">      endif</span>
 
-<span class="k">      </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="w"></span>
+<span class="k">      </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span>
 
 <span class="w">      </span><span class="c">!  LOAD VARIABLE TO TOP OF STACK</span>
-<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"></span>
-<span class="w">      </span><span class="n">MN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+<span class="w">      </span><span class="n">MN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
 
-<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">too_much_memory</span><span class="p">(</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">MN</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">return</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">too_much_memory</span><span class="p">(</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">MN</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">return</span>
 
 <span class="w">      </span><span class="c">!  IF RAND, MATFN6 GENERATES RANDOM NUMBER</span>
 <span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">K</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">G_FIN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="w"></span>
-<span class="w">         </span><span class="n">G_FUN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="w"></span>
+<span class="k">         </span><span class="n">G_FIN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span>
+<span class="w">         </span><span class="n">G_FUN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span>
 <span class="w">         </span><span class="k">return</span>
 <span class="k">      endif</span>
-<span class="k">      call </span><span class="n">mat_wcopy</span><span class="p">(</span><span class="n">MN</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">current_location</span><span class="p">),</span><span class="w">   </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">current_location</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">                               </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="w">         </span><span class="p">&amp;</span><span class="w"></span>
-<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="k">      call </span><span class="n">mat_wcopy</span><span class="p">(</span><span class="n">MN</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">current_location</span><span class="p">),</span><span class="w">   </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">current_location</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">                               </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="w">         </span><span class="p">&amp;</span>
+<span class="w">                        </span><span class="p">&amp;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
 <span class="w">   </span><span class="k">endif</span>
 
 <span class="mi">99</span><span class="w"> </span><span class="k">continue</span>
-<span class="k">   </span><span class="n">G_FIN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
-<span class="w">   </span><span class="n">G_FUN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="k">   </span><span class="n">G_FIN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
+<span class="w">   </span><span class="n">G_FUN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
 
-<span class="k">END SUBROUTINE </span><span class="n">MAT_STACK_GET</span><span class="w"></span>
+<span class="k">END SUBROUTINE </span><span class="n">MAT_STACK_GET</span>
 </pre></div>
 
     </section>
@@ -732,32 +654,27 @@
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row">
-          <div class="col-xs-6 col-md-6"><p>M_matrix was developed by John S. Urban<br>&copy; 2023 
+        <div class="row justify-content-between">
+          <div class="col"><p>M_matrix was developed by John S. Urban<br>&copy; 2024 
 </p>
           </div>
-          <div class="col-xs-6 col-md-6">
-            <p class="text-right">
+          <div class="col">
+            <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2023-07-22 19:55              </p>
+ on 2024-03-29 03:44              </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript
-         ================================================== -->
-         <!-- Placed at the end of the document so the pages load faster -->
-    <!--
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        -->
-        <script src="../js/bootstrap.min.js"></script>
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <script src="../js/ie10-viewport-bug-workaround.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
 
-        <!-- MathJax JavaScript
+    <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">
