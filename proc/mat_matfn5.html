@@ -1,5 +1,3 @@
-<!-- -*- mode: jinja2 -*- -->
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,59 +10,85 @@
 
     <title>mat_matfn5 &ndash; M_matrix</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/pygments.css" rel="stylesheet">
     <link href="../css/font-awesome.min.css" rel="stylesheet">
     <link href="../css/local.css" rel="stylesheet">
       <link  href="../tipuesearch/tipuesearch.css" rel="stylesheet">
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="../js/svg-pan-zoom.min.js"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+         <script src="../js/jquery-2.1.3.min.js"></script>
+         <script src="../js/svg-pan-zoom.min.js"></script>
+
   </head>
 
   <body>
 
     <!-- Fixed navbar -->
-    <div class="container-fluid mb-sm-4 mb-xl-2">
-      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container">
-          <a class="navbar-brand" href="../index.html">M_matrix </a>
-          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
-                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
-                  <span class="navbar-toggler-icon">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
           </button>
-
-          <div id="navbar" class="navbar-collapse collapse">
-            <ul class="navbar-nav">
-                  <li class="nav-item">
-                    <a class="nav-link" href="../lists/files.html">Source Files</a>
-                  </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="../lists/modules.html">Modules</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="../lists/programs.html">Programs</a>
-                </li>
-            </ul>
-              <div class="d-flex align-items-end flex-grow-1">
-                <form action="../search.html" role="search" class="ms-auto">
-                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
-                </form>
-              </div>
-          </div><!--/.nav-collapse -->
+          <a class="navbar-brand" href="../index.html">M_matrix </a>
         </div>
-      </nav>
-    </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="dropdown hidden-xs visible-sm visible-md hidden-lg">
+              <a href="#" class="dropdown-toggle"
+                 data-toggle="dropdown" role="button"
+                 aria-haspopup="true"
+                 aria-expanded="false">
+                 Contents <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                    <li><a href="../lists/files.html">Source Files</a></li>
+                  <li><a href="../lists/modules.html">Modules</a></li>
+                  <li><a href="../lists/procedures.html">Procedures</a></li>
+                  <li><a href="../lists/absint.html">Abstract Interfaces</a></li>
+                  <li><a href="../lists/types.html">Derived Types</a></li>
+                  <li><a href="../lists/programs.html">Programs</a></li>
+              </ul>
+            </li>
+                <li class="visible-xs hidden-sm visible-lg">
+                  <a href="../lists/files.html">Source Files</a>
+                </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/modules.html">Modules</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/procedures.html">Procedures</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/absint.html">Abstract Interfaces</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/types.html">Derived Types</a>
+              </li>
+              <li class="visible-xs hidden-sm visible-lg">
+                <a href="../lists/programs.html">Programs</a>
+              </li>
+          </ul>
+            <form action="../search.html" class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+              </div>
+              <!--
+                  <button type="submit" class="btn btn-default">Submit</button>
+                  -->
+            </form>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
 
     <div class="container">
   <div class="row">
@@ -72,37 +96,33 @@
       <small>Subroutine</small>
       
     </h1>
-      <div class="container p-2 mb-4 bg-light border rounded-3">
-    <div class="row align-items-center justify-content-between" id="info-bar">
-      <div class="col">
+      <div class="row" id="info-bar">
+    <div class="col-lg-12">
+      <div class="well well-sm">
         <ul class="list-inline" style="margin-bottom:0px;display:inline">
 
-            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
-              <a data-bs-toggle="tooltip"
-                 data-bs-placement="bottom" data-html="true"
-                 title=" 5.0% of total for procedures.">304 statements</a>
-            </li>
+          <li id="statements"><i class="fa fa-list-ol"></i>
+            <a data-toggle="tooltip"
+               data-placement="bottom" data-html="true"
+               title=" 5.0% of total for procedures.">304 statements</a>
+          </li>
 
-            <li class="list-inline-item" id="source-file">
+            <li id="source-file">
               <i class="fa fa-code"></i>
               <a href="../src/M_matrix.F90"> Source File</a>
             </li>
         </ul>
-      </div>
-      <div class="col">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb justify-content-end mb-0">
-                <li class="breadcrumb-item"><a href='../sourcefile/m_matrix.f90.html'>M_matrix.F90</a></li>
-                <li class="breadcrumb-item"><a href='../module/m_matrix.html'>M_matrix</a></li>
-            <li class="breadcrumb-item active" aria-current="page">mat_matfn5</li>
-          </ol>
-        </nav>
+        <ol class="breadcrumb in-well text-right">
+              <li><a href='../sourcefile/m_matrix.f90.html'>M_matrix.F90</a></li>
+              <li><a href='../module/m_matrix.html'>M_matrix</a></li>
+          <li class="active">mat_matfn5</li>
+        </ol>
       </div>
     </div>
   </div>
   <script>
     $(function () {
-    $('[data-bs-toggle="tooltip"]').tooltip()
+    $('[data-toggle="tooltip"]').tooltip()
     })
   </script>
 
@@ -113,41 +133,42 @@
       <div id="sidebar">
       <h3>Contents</h3>
   
-      <div class="card mb-4">
-      <a data-bs-toggle="collapse" href="#vars-0"
-         aria-expanded="false" aria-controls="vars-0">
-         <h4 class="card-header bg-primary text-white">Variables</h4>
-      </a>
-      <div id="vars-0" class="collapse">
-        <div class="list-group list-group-flush">
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-0">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-0" class="panel-collapse collapse">
+        <div class="list-group">
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-b">b</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ch~2">ch</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-eps~5">eps</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ch">ch</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-eps~4">eps</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-errmsg">errmsg</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-flag">flag</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-i~30">i</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-id~8">id</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-i~22">i</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-id~6">id</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-img">img</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-j~20">j</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-k~18">k</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-j~14">j</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-k~14">k</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-l2~6">l2</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ll~8">ll</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-location~10">location</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ll~5">ll</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-location~8">location</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lrat">lrat</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ls~10">ls</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ls~7">ls</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lun">lun</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lunit~2">lunit</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lw~2">lw</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lx">lx</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ly">ly</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-m~18">m</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-m~9">m</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-mline~4">mline</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-mn~7">mn</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-mn~3">mn</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-mrat">mrat</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-n~23">n</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-s~12">s</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-n~12">n</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-s~7">s</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-space_left">space_left</a>
-            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-t~11">t</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-t~6">t</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-tdum">tdum</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-text">text</a>
             <a class="list-group-item" href="../proc/mat_matfn5.html#variable-top2">top2</a>
@@ -172,9 +193,8 @@
   
   
   
-  
-    <div class="card card-primary">
-      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
       <div class="list-group">
         <a class="list-group-item" href="../proc/mat_matfn5.html#src">mat_matfn5</a>
       </div>
@@ -198,17 +218,91 @@
     <br>
     <br>
 
+    <section class="visible-xs visible-sm hidden-md">
+        <h3>Contents</h3>
+  
+      <div class="panel panel-primary">
+      <div class="panel-heading text-left">
+        <h3 class="panel-title">
+          <a data-toggle="collapse" href="#vars-1">Variables</a>
+        </h3>
+      </div>
+      <div id="vars-1" class="panel-collapse collapse">
+        <div class="list-group">
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-b">b</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ch">ch</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-eps~4">eps</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-errmsg">errmsg</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-flag">flag</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-i~22">i</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-id~6">id</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-img">img</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-j~14">j</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-k~14">k</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-l2~6">l2</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ll~5">ll</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-location~8">location</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lrat">lrat</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ls~7">ls</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lun">lun</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lunit~2">lunit</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lw~2">lw</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-lx">lx</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-ly">ly</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-m~9">m</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-mline~4">mline</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-mn~3">mn</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-mrat">mrat</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-n~12">n</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-s~7">s</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-space_left">space_left</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-t~6">t</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-tdum">tdum</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-text">text</a>
+            <a class="list-group-item" href="../proc/mat_matfn5.html#variable-top2">top2</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="panel panel-primary">
+      <div class="panel-heading text-left"><h3 class="panel-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/mat_matfn5.html#src">mat_matfn5</a>
+      </div>
+    </div>
+
+
+    </section>
+    <br class="visible-xs visible-sm hidden-md">
+
 
     <section>    
       <h2>Variables</h2>
       <table class="table table-striped varlist">
     <thead>
       <tr>
-        <th scope="col">Type</th>
-<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
-        <th scope="col"></th>
-        <th scope="col">Name</th>
-<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+        <th>Type</th>
+<th>Visibility</th>        <th>Attributes</th>
+        <th></th>
+        <th>Name</th>
+<th></th><th>Initial</th>        <th></th>
     </thead>
     <tbody>
         <tr>
@@ -230,7 +324,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ch~2"></span>
+              <span class="anchor" id="variable-ch"></span>
               integer,
             </td>
               <td>public</td>
@@ -247,7 +341,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-eps~5"></span>
+              <span class="anchor" id="variable-eps~4"></span>
               doubleprecision,
             </td>
               <td>public</td>
@@ -298,7 +392,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-i~30"></span>
+              <span class="anchor" id="variable-i~22"></span>
               integer,
             </td>
               <td>public</td>
@@ -315,7 +409,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-id~8"></span>
+              <span class="anchor" id="variable-id~6"></span>
               integer,
             </td>
               <td>public</td>
@@ -349,7 +443,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-j~20"></span>
+              <span class="anchor" id="variable-j~14"></span>
               integer,
             </td>
               <td>public</td>
@@ -366,7 +460,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-k~18"></span>
+              <span class="anchor" id="variable-k~14"></span>
               integer,
             </td>
               <td>public</td>
@@ -400,7 +494,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ll~8"></span>
+              <span class="anchor" id="variable-ll~5"></span>
               integer,
             </td>
               <td>public</td>
@@ -417,7 +511,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-location~10"></span>
+              <span class="anchor" id="variable-location~8"></span>
               integer,
             </td>
               <td>public</td>
@@ -451,7 +545,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-ls~10"></span>
+              <span class="anchor" id="variable-ls~7"></span>
               integer,
             </td>
               <td>public</td>
@@ -553,7 +647,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-m~18"></span>
+              <span class="anchor" id="variable-m~9"></span>
               integer,
             </td>
               <td>public</td>
@@ -587,7 +681,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-mn~7"></span>
+              <span class="anchor" id="variable-mn~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -621,7 +715,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-n~23"></span>
+              <span class="anchor" id="variable-n~12"></span>
               integer,
             </td>
               <td>public</td>
@@ -638,7 +732,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-s~12"></span>
+              <span class="anchor" id="variable-s~7"></span>
               doubleprecision,
             </td>
               <td>public</td>
@@ -672,7 +766,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-t~11"></span>
+              <span class="anchor" id="variable-t~6"></span>
               doubleprecision,
             </td>
               <td>public</td>
@@ -750,143 +844,142 @@
     
 
 
-
     
     <section>
     <h2><span class="anchor" id="src"></span>Source Code</h2>
-    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">mat_matfn5</span><span class="p">()</span>
+    <div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">mat_matfn5</span><span class="p">()</span><span class="w"></span>
 
 <span class="c">! ident_28=&quot;@(#) M_matrix mat_matfn5(3fp) file handling and other I/O&quot;</span>
 
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">mline</span>
-<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">errmsg</span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w">  </span><span class="kd">::</span><span class="w"> </span><span class="n">mline</span><span class="w"></span>
+<span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span><span class="w">         </span><span class="kd">::</span><span class="w"> </span><span class="n">errmsg</span><span class="w"></span>
 <span class="kt">integer</span><span class="p">,</span><span class="k">save</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">flag</span><span class="o">=</span><span class="mi">0</span><span class="w">  </span><span class="c">! should be saved or set at each call?</span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">save</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">lrat</span><span class="o">=</span><span class="mi">5</span>
-<span class="kt">integer</span><span class="p">,</span><span class="k">save</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">mrat</span><span class="o">=</span><span class="mi">100</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">ch</span><span class="p">,</span><span class="n">top2</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">id</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span>
-<span class="n">doubleprecision</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">eps</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">tdum</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="kt">logical</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">text</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">location</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">img</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">space_left</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">l2</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">ll</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">ls</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">lun</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">lunit</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">lw</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">lx</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">ly</span>
-<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">mn</span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">save</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">lrat</span><span class="o">=</span><span class="mi">5</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">save</span><span class="w">               </span><span class="kd">::</span><span class="w"> </span><span class="n">mrat</span><span class="o">=</span><span class="mi">100</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">ch</span><span class="p">,</span><span class="n">top2</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">id</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="w"></span>
+<span class="n">doubleprecision</span><span class="w">            </span><span class="kd">::</span><span class="w"> </span><span class="n">eps</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">tdum</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="kt">logical</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">text</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">location</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">img</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">space_left</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">l2</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">ll</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">ls</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">lun</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">lunit</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">lw</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">lx</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">ly</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                    </span><span class="kd">::</span><span class="w"> </span><span class="n">mn</span><span class="w"></span>
 <span class="c">!</span>
-<span class="w">   </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
-<span class="w">   </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
-<span class="w">   </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">   </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">   </span><span class="c">!  functions/G_FIN</span>
 <span class="w">   </span><span class="c">!  exec save load prin diar disp base line char plot rat  debu doc  delete</span>
 <span class="w">   </span><span class="c">!    1    2    3    4    5    6    7    8    9   10   11   12   13      14</span>
 
-<span class="w">   </span><span class="k">select case</span><span class="p">(</span><span class="n">G_FIN</span><span class="p">)</span>
+<span class="w">   </span><span class="k">select case</span><span class="p">(</span><span class="n">G_FIN</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">case</span><span class="p">(:</span><span class="mi">5</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">14</span><span class="p">)</span><span class="w"> </span><span class="c">! setup for filename parameter</span>
 
-<span class="w">         </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">*</span><span class="n">n</span>
+<span class="w">         </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="w"></span>
 
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_SYM</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">semi</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="k">            </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="w">         </span><span class="k">else</span>
-<span class="k">            </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+<span class="k">            </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="w"></span>
 <span class="w">         </span><span class="k">endif</span>
 
 <span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">ge</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">            </span><span class="c">! if more than one parameter on exec(&#39;filename&#39;,flag) get value of FLAG</span>
-<span class="w">            </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span>
-<span class="w">            </span><span class="n">top2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span>
-<span class="w">            </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">-</span><span class="mi">1</span>
-<span class="w">            </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
-<span class="w">            </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
-<span class="w">         </span><span class="k">endif</span>
+<span class="w">            </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span><span class="w"></span>
+<span class="w">            </span><span class="n">top2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"></span>
+<span class="w">            </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">            </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">endif</span><span class="w"></span>
 
 <span class="w">         </span><span class="c">! if a single character and a digit set LUN to that so exec(0) works</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mn</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">1</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">).</span><span class="n">LT</span><span class="p">.</span><span class="mi">1</span><span class="mf">0.0d0</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            </span><span class="n">lun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span>
+<span class="k">            </span><span class="n">lun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span><span class="w"></span>
 <span class="w">         </span><span class="k">else</span>
-<span class="k">            </span><span class="n">lun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span>
-<span class="w">            </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">GG_LINELEN</span>
-<span class="w">               </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span>
-<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="p">.</span><span class="n">le</span><span class="p">.</span><span class="w"> </span><span class="n">mn</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">))</span>
-<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">mn</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blank</span>
+<span class="k">            </span><span class="n">lun</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">            </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">GG_LINELEN</span><span class="w"></span>
+<span class="w">               </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="p">.</span><span class="n">le</span><span class="p">.</span><span class="w"> </span><span class="n">mn</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">))</span><span class="w"></span>
+<span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="n">mn</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blank</span><span class="w"></span>
 <span class="w">               </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="mi">0</span><span class="w"> </span><span class="p">.</span><span class="nb">or</span><span class="p">.</span><span class="w"> </span><span class="n">ch</span><span class="p">.</span><span class="n">ge</span><span class="p">.</span><span class="n">g_charset_size</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">                  call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">38</span><span class="p">)</span>
+<span class="k">                  call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">38</span><span class="p">)</span><span class="w"></span>
 <span class="w">                  </span><span class="k">return</span>
 <span class="k">               endif</span>
-<span class="k">               </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ch</span>
+<span class="k">               </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ch</span><span class="w"></span>
 <span class="w">            </span><span class="k">enddo</span>
 <span class="k">         endif</span>
-<span class="k">      end select</span>
+<span class="k">      end select</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
-<span class="w">      </span><span class="n">FUN5</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">select case</span><span class="p">(</span><span class="n">G_FIN</span><span class="p">)</span>
+<span class="w">      </span><span class="n">FUN5</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">select case</span><span class="p">(</span><span class="n">G_FIN</span><span class="p">)</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">                                               </span><span class="c">! command::exec</span>
 <span class="w">      </span><span class="n">EXEC_CMD</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
-<span class="k">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span>
+<span class="k">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="p">:),</span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">filename</span><span class="w"></span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">lun</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">                                  </span><span class="c">! exec(0)</span>
-<span class="w">         </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_INPUT_LUN</span>
-<span class="w">         </span><span class="n">G_ERR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">99</span>
+<span class="w">         </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_INPUT_LUN</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_ERR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">99</span><span class="w"></span>
 <span class="w">      </span><span class="k">else</span>
-<span class="k">         </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
-<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
-<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_PTZ</span>
-<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_RIO</span>
-<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-<span class="w">         </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">7</span>
-<span class="w">         </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">flag</span>
-<span class="w">         </span><span class="n">G_PTZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_PT</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">4</span>
+<span class="k">         </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_PTZ</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_RIO</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_LIN</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">7</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">flag</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_PTZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_PT</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">4</span><span class="w"></span>
 
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RIO</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="n">G_INPUT_LUN</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span>
+<span class="k">            </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="w"></span>
 <span class="w">         </span><span class="k">endif</span>
 
-<span class="k">         </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">         </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 
-<span class="w">         </span><span class="n">filename</span><span class="o">=</span><span class="n">find_exec_file</span><span class="p">(</span><span class="n">ade2str</span><span class="p">(</span><span class="n">G_BUF</span><span class="p">))</span>
+<span class="w">         </span><span class="n">filename</span><span class="o">=</span><span class="n">find_exec_file</span><span class="p">(</span><span class="n">ade2str</span><span class="p">(</span><span class="n">G_BUF</span><span class="p">))</span><span class="w"></span>
 <span class="w">         </span><span class="k">call </span><span class="n">mat_str2buf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w">    </span><span class="c">! convert input line to ADE buffer</span>
-<span class="w">         </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">G_RIO</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;old&#39;</span><span class="p">)</span>
+<span class="w">         </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">G_RIO</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;old&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="n">G_FILE_OPEN_ERROR</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_INPUT_LUN</span>
-<span class="w">            </span><span class="n">G_ERR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">99</span>
+<span class="k">            </span><span class="n">G_RIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_INPUT_LUN</span><span class="w"></span>
+<span class="w">            </span><span class="n">G_ERR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">99</span><span class="w"></span>
 <span class="w">         </span><span class="k">endif</span>
 
 <span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">flag</span><span class="w"> </span><span class="p">.</span><span class="n">ge</span><span class="p">.</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39; PAUSE MODE. Enter blank lines.&#39;</span><span class="p">)</span>
+<span class="k">            call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39; PAUSE MODE. Enter blank lines.&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">endif</span>
 
-<span class="k">         </span><span class="n">G_SYM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_EOL</span>
-<span class="w">         </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="k">         </span><span class="n">G_SYM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_EOL</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="w">      </span><span class="k">endif</span>
-<span class="k">      endblock </span><span class="n">EXEC_CMD</span>
+<span class="k">      endblock </span><span class="n">EXEC_CMD</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="c">! COMMAND::SAVE</span>
-<span class="w">      </span><span class="n">lunit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">      </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">lunit</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span>
-<span class="w">      </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">4</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_MAX_NUMBER_OF_NAMES</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">top2</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">),</span><span class="n">G_SYN</span><span class="p">)</span>
+<span class="w">      </span><span class="n">lunit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">lunit</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">4</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">top2</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">k</span><span class="p">),</span><span class="n">G_SYN</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">do</span>
-<span class="k">         </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-<span class="w">         </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">GG_MAX_NAME_LENGTH</span>
-<span class="w">            </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
-<span class="w">            </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span>
+<span class="k">         </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">GG_MAX_NAME_LENGTH</span><span class="w"></span>
+<span class="w">            </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="w"></span>
 <span class="w">         </span><span class="k">enddo</span>
-<span class="k">         </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mat_wasum</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">         </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">G_FILE_OPEN_ERROR</span><span class="p">)</span><span class="k">call </span><span class="n">mat_savlod</span><span class="p">(</span><span class="n">lunit</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">img</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span>
-<span class="w">         </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="o">-</span><span class="mi">1</span>
+<span class="k">         </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mat_wasum</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="n">img</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">G_FILE_OPEN_ERROR</span><span class="p">)</span><span class="k">call </span><span class="n">mat_savlod</span><span class="p">(</span><span class="n">lunit</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">m</span><span class="p">,</span><span class="n">n</span><span class="p">,</span><span class="n">img</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span><span class="w"></span>
+<span class="w">         </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
 <span class="k">      enddo</span>
 <span class="k">      call </span><span class="n">mat_files</span><span class="p">(</span><span class="o">-</span><span class="n">lunit</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"> </span><span class="c">! close unit</span>
@@ -894,48 +987,48 @@
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span><span class="w"> </span><span class="c">! COMMAND::DELETE</span>
 <span class="w">         </span><span class="n">DELETE_IT</span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
-<span class="k">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">templun</span>
-<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ios</span>
-<span class="w">         </span><span class="k">call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span>
-<span class="w">         </span><span class="k">open</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="n">mline</span><span class="p">,</span><span class="n">newunit</span><span class="o">=</span><span class="n">templun</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">,</span><span class="n">iomsg</span><span class="o">=</span><span class="n">errmsg</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;old&#39;</span><span class="p">)</span>
+<span class="k">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">templun</span><span class="w"></span>
+<span class="w">         </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ios</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">open</span><span class="p">(</span><span class="k">file</span><span class="o">=</span><span class="n">mline</span><span class="p">,</span><span class="n">newunit</span><span class="o">=</span><span class="n">templun</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">,</span><span class="n">iomsg</span><span class="o">=</span><span class="n">errmsg</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;old&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="n">ios</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39;ERROR:&#39;</span><span class="p">,</span><span class="n">errmsg</span><span class="p">)</span>
-<span class="w">            </span><span class="n">G_ERR</span><span class="o">=</span><span class="mi">999</span>
-<span class="w">            </span><span class="k">exit </span><span class="n">FUN5</span>
+<span class="k">            call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39;ERROR:&#39;</span><span class="p">,</span><span class="n">errmsg</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">G_ERR</span><span class="o">=</span><span class="mi">999</span><span class="w"></span>
+<span class="w">            </span><span class="k">exit </span><span class="n">FUN5</span><span class="w"></span>
 <span class="w">         </span><span class="k">endif</span>
-<span class="k">         close</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="n">templun</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">,</span><span class="n">iomsg</span><span class="o">=</span><span class="n">errmsg</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span>
+<span class="k">         close</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="n">templun</span><span class="p">,</span><span class="n">iostat</span><span class="o">=</span><span class="n">ios</span><span class="p">,</span><span class="n">iomsg</span><span class="o">=</span><span class="n">errmsg</span><span class="p">,</span><span class="n">status</span><span class="o">=</span><span class="s1">&#39;delete&#39;</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="n">ios</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39;ERROR:&#39;</span><span class="p">,</span><span class="n">errmsg</span><span class="p">)</span>
-<span class="w">            </span><span class="n">G_ERR</span><span class="o">=</span><span class="mi">999</span>
-<span class="w">            </span><span class="k">exit </span><span class="n">FUN5</span>
+<span class="k">            call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39;ERROR:&#39;</span><span class="p">,</span><span class="n">errmsg</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">G_ERR</span><span class="o">=</span><span class="mi">999</span><span class="w"></span>
+<span class="w">            </span><span class="k">exit </span><span class="n">FUN5</span><span class="w"></span>
 <span class="w">         </span><span class="k">endif</span>
 <span class="k">         </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">  </span><span class="c">! do not set &quot;ans&quot; to filename</span>
-<span class="w">         </span><span class="k">endblock </span><span class="n">DELETE_IT</span>
+<span class="w">         </span><span class="k">endblock </span><span class="n">DELETE_IT</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="c">! command::load</span>
-<span class="w">      </span><span class="k">call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"></span>
 
-<span class="w">      </span><span class="n">lunit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="w">      </span><span class="n">lunit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
 <span class="w">      </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">LUNIT</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"> </span><span class="c">! open the unit</span>
-<span class="w">      </span><span class="k">call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="k">do</span>
-<span class="k">         </span><span class="n">space_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">location</span>
+<span class="k">         </span><span class="n">space_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">location</span><span class="w"></span>
 <span class="w">         </span><span class="k">IF</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">G_FILE_OPEN_ERROR</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            call </span><span class="n">mat_savlod</span><span class="p">(</span><span class="n">lunit</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">img</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">space_left</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span>
-<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span>
+<span class="k">            call </span><span class="n">mat_savlod</span><span class="p">(</span><span class="n">lunit</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">img</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">space_left</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="w"> </span><span class="p">&amp;</span><span class="w"></span>
+<span class="w">                </span><span class="p">&amp;</span><span class="w"> </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span><span class="w"></span>
 <span class="w">         </span><span class="k">endif</span>
 
-<span class="k">         </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="k">         </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">mn</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="n">img</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">mat_rset</span><span class="p">(</span><span class="n">mn</span><span class="p">,</span><span class="mf">0.0d0</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">            if</span><span class="w"> </span><span class="p">(</span><span class="n">img</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">mat_rset</span><span class="p">(</span><span class="n">mn</span><span class="p">,</span><span class="mf">0.0d0</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">            </span><span class="c">!do i = 1, GG_MAX_NAME_LENGTH</span>
 <span class="w">            </span><span class="c">!   do j=1,G_CHARSET_SIZE</span>
@@ -951,10 +1044,10 @@
 <span class="w">            </span><span class="c">!   enddo</span>
 <span class="w">            </span><span class="c">!enddo</span>
 
-<span class="w">            </span><span class="n">G_SYM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">semi</span>
-<span class="w">            </span><span class="n">G_RHS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">            </span><span class="k">call </span><span class="n">MAT_STACK_PUT</span><span class="p">(</span><span class="n">ID</span><span class="p">)</span>
-<span class="w">            </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="n">G_SYM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">semi</span><span class="w"></span>
+<span class="w">            </span><span class="n">G_RHS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">            </span><span class="k">call </span><span class="n">MAT_STACK_PUT</span><span class="p">(</span><span class="n">ID</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <span class="w">         </span><span class="k">else</span>
 <span class="k">            exit</span>
 <span class="k">         endif</span>
@@ -963,177 +1056,177 @@
 
 <span class="k">      call </span><span class="n">mat_files</span><span class="p">(</span><span class="o">-</span><span class="n">lunit</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"> </span><span class="c">! close unit</span>
 
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="c">! command::print</span>
-<span class="w">      </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">                       </span><span class="c">! hold</span>
 <span class="w">      </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">999999</span><span class="w">                         </span><span class="c">! turn off paging of output</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">mat_print</span><span class="p">(</span><span class="n">G_SYN</span><span class="p">,</span><span class="n">top2</span><span class="p">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">mat_print</span><span class="p">(</span><span class="n">G_SYN</span><span class="p">,</span><span class="n">top2</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">      </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w">                       </span><span class="c">! restore</span>
 
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"> </span><span class="c">! command::diary</span>
-<span class="w">      </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span><span class="w"> </span><span class="c">!     COMMAND::DISPLAY</span>
 <span class="mi">60</span><span class="w">    </span><span class="k">continue</span>
-<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">G_FIN</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">7</span><span class="p">)</span><span class="k">goto</span><span class="w"> </span><span class="mi">65</span>
+<span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">G_FIN</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">7</span><span class="p">)</span><span class="k">goto</span><span class="w"> </span><span class="mi">65</span><span class="w"></span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">ge</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="k">then</span>
 <span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">39</span><span class="p">)</span><span class="w">           </span><span class="c">! Incorrect number of arguments</span>
 <span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mf">1.0d0</span><span class="p">)</span><span class="k">then</span><span class="w">       </span><span class="c">! test if base is 0</span>
 <span class="w">            </span><span class="k">call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span><span class="w">                          </span><span class="c">! Argument out of range</span>
-<span class="w">            </span><span class="k">exit </span><span class="n">FUN5</span>
+<span class="w">            </span><span class="k">exit </span><span class="n">FUN5</span><span class="w"></span>
 <span class="w">         </span><span class="k">endif</span>
-<span class="k">         </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+<span class="k">         </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span><span class="w"></span>
 <span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">1</span><span class="p">)</span><span class="k">then</span>
-<span class="k">            goto</span><span class="w"> </span><span class="mi">65</span>
+<span class="k">            goto</span><span class="w"> </span><span class="mi">65</span><span class="w"></span>
 <span class="w">         </span><span class="k">endif</span>
 <span class="k">      else</span>
-<span class="k">         </span><span class="n">b</span><span class="o">=</span><span class="mi">10</span>
+<span class="k">         </span><span class="n">b</span><span class="o">=</span><span class="mi">10</span><span class="w"></span>
 <span class="w">      </span><span class="k">endif</span>
-<span class="k">      </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">*</span><span class="n">n</span>
-<span class="w">      </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span>
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mn</span>
-<span class="w">        </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span>
-<span class="w">        </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LS</span><span class="p">))</span>
-<span class="w">        </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="p">.</span><span class="n">ge</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">G_CHARSET_SIZE</span><span class="p">)</span>
-<span class="w">        </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="nb">dble</span><span class="p">(</span><span class="n">ch</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="k">      </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="w"></span>
+<span class="w">      </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mn</span><span class="w"></span>
+<span class="w">        </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">        </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LS</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="p">.</span><span class="n">ge</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="n">ch</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">G_CHARSET_SIZE</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="p">(</span><span class="nb">dble</span><span class="p">(</span><span class="n">ch</span><span class="p">).</span><span class="n">eq</span><span class="p">.</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">enddo</span>
 <span class="k">      if</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">le</span><span class="p">.</span><span class="mi">1</span><span class="p">)</span><span class="n">text</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.</span><span class="w"> </span><span class="c">! for forcing non-text display when values are in range of text</span>
 
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">m</span>
-<span class="w">         </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
-<span class="w">           </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">m</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blank</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plus</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">minus</span>
-<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">))</span>
-<span class="w">           </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ch</span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="w"></span>
+<span class="w">         </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+<span class="w">           </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="p">(</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">m</span><span class="w"></span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blank</span><span class="w"></span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="w"> </span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">plus</span><span class="w"></span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="w"> </span><span class="mf">0.0d0</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">minus</span><span class="w"></span>
+<span class="w">           </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">))</span><span class="w"></span>
+<span class="w">           </span><span class="n">G_BUF</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ch</span><span class="w"></span>
 <span class="w">         </span><span class="k">enddo</span>
-<span class="k">         call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
-<span class="w">         </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span>
+<span class="k">         call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">n</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">enddo</span>
-<span class="k">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">      </span><span class="k">exit </span><span class="n">FUN5</span>
+<span class="k">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">      </span><span class="k">exit </span><span class="n">FUN5</span><span class="w"></span>
 <span class="c">!. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</span>
 <span class="c">!     command::base</span>
 <span class="w">   </span><span class="mi">65</span><span class="w"> </span><span class="k">CONTINUE</span>
 <span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">         call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">39</span><span class="p">)</span><span class="w">                         </span><span class="c">! Incorrect number of arguments</span>
-<span class="w">         </span><span class="k">exit </span><span class="n">FUN5</span>
+<span class="w">         </span><span class="k">exit </span><span class="n">FUN5</span><span class="w"></span>
 <span class="w">      </span><span class="k">endif</span>
 <span class="k">      if</span><span class="w"> </span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">le</span><span class="p">.</span><span class="w"> </span><span class="mf">1.0d0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span><span class="w">     </span><span class="c">! test if base is &lt;= 0</span>
 <span class="w">         </span><span class="k">call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span><span class="w">                         </span><span class="c">! Argument out of range</span>
-<span class="w">         </span><span class="k">exit </span><span class="n">FUN5</span>
+<span class="w">         </span><span class="k">exit </span><span class="n">FUN5</span><span class="w"></span>
 <span class="w">      </span><span class="k">endif</span>
-<span class="k">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
-<span class="w">      </span><span class="n">l2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span>
-<span class="w">      </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">-</span><span class="mi">1</span>
-<span class="w">      </span><span class="n">G_RHS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">      </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
-<span class="w">      </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
-<span class="w">      </span><span class="n">eps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span>
-<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">m</span>
-<span class="w">         </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span>
-<span class="w">         </span><span class="n">ll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span>
-<span class="w">         </span><span class="k">call </span><span class="n">mat_base</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ll</span><span class="p">),</span><span class="n">b</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">),</span><span class="n">n</span><span class="p">)</span>
+<span class="k">      </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">l2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_RHS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">eps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">m</span><span class="w"></span>
+<span class="w">         </span><span class="n">ls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l2</span><span class="o">+</span><span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="w"></span>
+<span class="w">         </span><span class="n">ll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">mat_base</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ll</span><span class="p">),</span><span class="n">b</span><span class="p">,</span><span class="n">eps</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">ls</span><span class="p">),</span><span class="n">n</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">enddo</span>
-<span class="k">      call </span><span class="n">mat_rset</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="mf">0.0d0</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">l2</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">mat_wcopy</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">l2</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">l2</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span>
-<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span>
-<span class="w">      </span><span class="k">call </span><span class="n">mat_stack1</span><span class="p">(</span><span class="n">quote</span><span class="p">)</span>
-<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_FIN</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">60</span>
+<span class="k">      call </span><span class="n">mat_rset</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="mf">0.0d0</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">l2</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_wcopy</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">l2</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">l2</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_stack1</span><span class="p">(</span><span class="n">quote</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_FIN</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">60</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
-<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"></span>
 <span class="c">!     command::lines</span>
-<span class="w">      </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="c">!!! BROKEN BY GOING TO ASCII. ELIMINATE OR CORRECT</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span><span class="w"> </span><span class="c">!     COMMAND::CHAR                   ! does currently not do anything</span>
-<span class="w">      </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">IABS</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)))</span>
+<span class="w">      </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">IABS</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)))</span><span class="w"></span>
 <span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">M</span><span class="o">*</span><span class="n">N</span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="mi">1</span><span class="w"> </span><span class="p">.</span><span class="nb">OR</span><span class="p">.</span><span class="w"> </span><span class="n">K</span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="n">G_CHARSET_SIZE</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
 <span class="k">         call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span><span class="w"> </span><span class="c">! Argument out of range</span>
-<span class="w">         </span><span class="k">exit </span><span class="n">FUN5</span>
+<span class="w">         </span><span class="k">exit </span><span class="n">FUN5</span><span class="w"></span>
 <span class="w">      </span><span class="k">endif</span>
-<span class="k">      </span><span class="n">CH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">K</span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="k">      </span><span class="n">CH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">K</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="w"> </span><span class="c">!     COMMAND::PLOT</span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">82</span>
-<span class="w">      </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="o">*</span><span class="n">N</span>
-<span class="w">      </span><span class="k">DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N</span>
-<span class="w">         </span><span class="n">LL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span>
-<span class="w">         </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dble</span><span class="p">(</span><span class="n">I</span><span class="p">)</span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">GE</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">goto</span><span class="w"> </span><span class="mi">82</span><span class="w"></span>
+<span class="w">      </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="o">*</span><span class="n">N</span><span class="w"></span>
+<span class="w">      </span><span class="k">DO </span><span class="n">I</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="w"></span>
+<span class="w">         </span><span class="n">LL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="o">+</span><span class="n">I</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">         </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">LL</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dble</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">enddo</span>
-<span class="k">      call </span><span class="n">mat_plot</span><span class="p">(</span><span class="n">STDOUT</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">N</span><span class="p">,</span><span class="n">TDUM</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">      </span><span class="k">exit </span><span class="n">FUN5</span>
+<span class="k">      call </span><span class="n">mat_plot</span><span class="p">(</span><span class="n">STDOUT</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">N</span><span class="p">,</span><span class="n">TDUM</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">      </span><span class="k">exit </span><span class="n">FUN5</span><span class="w"></span>
 <span class="c">!. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .</span>
 
 <span class="w">   </span><span class="mi">82</span><span class="w"> </span><span class="k">continue</span>
-<span class="k">      IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="o">*</span><span class="n">N</span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_RHS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span>
-<span class="w">      </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
-<span class="w">      </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="k">      IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">EQ</span><span class="p">.</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">M</span><span class="o">*</span><span class="n">N</span><span class="w"></span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">K</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_RHS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
 <span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">.</span><span class="n">NE</span><span class="p">.</span><span class="w"> </span><span class="n">N</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-<span class="w">         </span><span class="k">exit </span><span class="n">FUN5</span>
+<span class="k">         call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">exit </span><span class="n">FUN5</span><span class="w"></span>
 <span class="w">      </span><span class="k">endif</span>
-<span class="k">      </span><span class="n">LX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
-<span class="w">      </span><span class="n">LY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
-<span class="w">      </span><span class="k">call </span><span class="n">mat_plot</span><span class="p">(</span><span class="n">STDOUT</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LX</span><span class="p">),</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LY</span><span class="p">),</span><span class="n">N</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">K</span><span class="p">)</span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="k">      </span><span class="n">LX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">LY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">IF</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">GT</span><span class="p">.</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_plot</span><span class="p">(</span><span class="n">STDOUT</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LX</span><span class="p">),</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">LY</span><span class="p">),</span><span class="n">N</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">K</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="c">! COMMAND::RAT</span>
 <span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_RHS</span><span class="w"> </span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
-<span class="k">         </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">*</span><span class="n">n</span>
-<span class="w">         </span><span class="n">l2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span>
-<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_lhs</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">l2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mn</span>
-<span class="w">         </span><span class="n">lw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mn</span>
+<span class="k">         </span><span class="n">mn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="o">*</span><span class="n">n</span><span class="w"></span>
+<span class="w">         </span><span class="n">l2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w"></span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_lhs</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">l2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mn</span><span class="w"></span>
+<span class="w">         </span><span class="n">lw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">mn</span><span class="w"></span>
 
 <span class="w">         </span><span class="k">if</span><span class="p">(</span><span class="n">too_much_memory</span><span class="p">(</span><span class="w"> </span><span class="n">lw</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">lrat</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_TOP_OF_SAVED</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">return</span>
 
-<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">G_lhs</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">         </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l2</span>
-<span class="w">         </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span>
-<span class="w">         </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span>
-<span class="w">         </span><span class="k">call </span><span class="n">mat_rset</span><span class="p">(</span><span class="n">G_lhs</span><span class="o">*</span><span class="n">mn</span><span class="p">,</span><span class="mf">0.0d0</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span>
-<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mn</span>
-<span class="w">            </span><span class="k">call </span><span class="n">mat_rat</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">lrat</span><span class="p">,</span><span class="n">mrat</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">lw</span><span class="p">))</span>
-<span class="w">            </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span>
-<span class="w">            </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">l2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span>
-<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_lhs</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mat_flop</span><span class="p">(</span><span class="n">s</span><span class="o">/</span><span class="n">t</span><span class="p">)</span>
-<span class="w">            </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">            </span><span class="n">l2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">         if</span><span class="w"> </span><span class="p">(</span><span class="n">G_lhs</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l2</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">m</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="w"></span>
+<span class="w">         </span><span class="k">call </span><span class="n">mat_rset</span><span class="p">(</span><span class="n">G_lhs</span><span class="o">*</span><span class="n">mn</span><span class="p">,</span><span class="mf">0.0d0</span><span class="p">,</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">         </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">mn</span><span class="w"></span>
+<span class="w">            </span><span class="k">call </span><span class="n">mat_rat</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">),</span><span class="n">lrat</span><span class="p">,</span><span class="n">mrat</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">lw</span><span class="p">))</span><span class="w"></span>
+<span class="w">            </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="w"></span>
+<span class="w">            </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">l2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">t</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_lhs</span><span class="w"> </span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mat_flop</span><span class="p">(</span><span class="n">s</span><span class="o">/</span><span class="n">t</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">location</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">            </span><span class="n">l2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
 <span class="w">         </span><span class="k">enddo</span>
 <span class="k">      else</span>
-<span class="k">         </span><span class="n">mrat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span>
-<span class="w">         </span><span class="n">lrat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
-<span class="w">         </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
-<span class="w">         </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
-<span class="w">      </span><span class="k">endif</span>
+<span class="k">         </span><span class="n">mrat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span><span class="w"></span>
+<span class="w">         </span><span class="n">lrat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">         </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">      </span><span class="k">endif</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span><span class="w"> </span><span class="c">!     COMMAND::DEBUG</span>
-<span class="w">      </span><span class="n">G_DEBUG_LEVEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span>
-<span class="w">      </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39; DEBUG &#39;</span><span class="p">,</span><span class="n">G_DEBUG_LEVEL</span><span class="p">)</span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="n">G_DEBUG_LEVEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">location</span><span class="p">))</span><span class="w"></span>
+<span class="w">      </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39; DEBUG &#39;</span><span class="p">,</span><span class="n">G_DEBUG_LEVEL</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">13</span><span class="p">)</span><span class="w"> </span><span class="c">!     COMMAND::SHOW</span>
-<span class="w">      </span><span class="k">call </span><span class="n">printit</span><span class="p">()</span>
-<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">      </span><span class="k">call </span><span class="n">printit</span><span class="p">()</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
-<span class="w">      </span><span class="k">end select </span><span class="n">FUN5</span>
+<span class="w">      </span><span class="k">end select </span><span class="n">FUN5</span><span class="w"></span>
 <span class="c">!===================================================================================================================================</span>
-<span class="k">end subroutine </span><span class="n">mat_matfn5</span>
+<span class="k">end subroutine </span><span class="n">mat_matfn5</span><span class="w"></span>
 </pre></div>
 
     </section>
@@ -1146,27 +1239,32 @@
     </div> <!-- /container -->
     <footer>
       <div class="container">
-        <div class="row justify-content-between">
-          <div class="col"><p>M_matrix was developed by John S. Urban<br>&copy; 2024 
+        <div class="row">
+          <div class="col-xs-6 col-md-6"><p>M_matrix was developed by John S. Urban<br>&copy; 2023 
 </p>
           </div>
-          <div class="col">
-            <p class="text-end">
+          <div class="col-xs-6 col-md-6">
+            <p class="text-right">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2024-03-29 03:44              </p>
+ on 2023-07-22 19:55              </p>
           </div>
         </div>
         <br>
       </div> <!-- /container -->
     </footer>
 
-    <!-- Bootstrap core JavaScript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>    
+    <!-- Bootstrap core JavaScript
+         ================================================== -->
+         <!-- Placed at the end of the document so the pages load faster -->
+    <!--
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <script src="../js/ie10-viewport-bug-workaround.js"></script>
 
-    <!-- MathJax JavaScript
+        <!-- MathJax JavaScript
              ================================================== -->
              <!-- Placed at the end of the document so the pages load faster -->
         <script type="text/x-mathjax-config">
