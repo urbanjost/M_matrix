@@ -1,0 +1,8 @@
+build/*
+FODDER/*
+src/source/
+app/source/
+man/
+bugs/
+src/source/GPF_build_module.out
+

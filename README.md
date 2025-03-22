@@ -1,3 +1,4 @@
+![docs](docs/images/matrix.gif)
 # M_matrix
 
 This module contains the lala(Los Alamos Linear Algebra) procedure,

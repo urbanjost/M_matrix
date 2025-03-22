@@ -1,0 +1,32 @@
+// my data definition file
+
+title="this is my title";
+
+A=[1 2 3; 4 5 6; 7 8 9];
+
+//
+// sin table
+//
+PI=atan(1)*4;
+step=0.05; myarray=[sin(0)];
+for I=step:step:(2*PI), myarray=[myarray,sin(I)];
+
+//
+// read file if environment variable is set 
+//
+MATRC=getenv('MATRC')
+if MATRC <> ' ', ...
+   display('reading your personal configuration file'), ...
+   exec(getenv('MATRC')), ...
+end;
+
+//
+// display information if environment variable VERBOSE="TRUE"
+//
+if getenv('VERBOSE') = "TRUE", ...
+   plot(myarray);
+   display(["TITLE IS " title]); ...
+   display(["HOME IS  " getenv('HOME')]); ...
+   A, myarray, long; PI, short; ...
+   who ...
+end
