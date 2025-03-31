@@ -45,3 +45,50 @@ end subroutine get_scalar_class_from_lala
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
+subroutine expand_variables(line)
+!@(#) brute force variable substitution. maybe add something like wordexp(3c) with command expansion?
+! this is just to try the concept. Either use wordexp or an equivalent to replicate "here document" processing.
+! note no automatic continuation of the line if it extends past allowed length
+! the way this is written it would do recursive substitution and does not know when there is just not a match
+character(len=*)             :: line
+character(len=:),allocatable :: temp,search,name
+integer                      :: i
+integer                      :: j
+integer                      :: ibug
+character(len=4096)          :: scratch
+
+if(index(line,'${') /= 0 ) )then
+   temp=trim(line)
+   INFINITE: do i=1,len_trim(line)
+      istart= index(temp,'${')
+      if(istart /= 0)then
+         iend=index(temp,'}')
+         if(iend.eq.0)cycle
+         name=temp(istart+2:iend-1)
+      endif
+   enddo INFINITE
+   line=temp
+endif
+
+end subroutine expand_variables
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================
+pure recursive function qsort(values) result(sorted)
+! concise quicksort from @arjen and @beliavsky shows recursion,
+! array sections, and vectorized comparisons.
+!
+intrinsic pack, size
+real, intent(in) :: values(:)
+real             :: sorted(size(values))
+   if (size(values) > 1) then
+      sorted = &
+      & [qsort(pack(values(2:),values(2:)<values(1))), values(1), &
+      & qsort(pack(values(2:),values(2:)>=values(1)))]
+   else
+      sorted = values
+   endif
+end function qsort
+!===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
+!===================================================================================================================================

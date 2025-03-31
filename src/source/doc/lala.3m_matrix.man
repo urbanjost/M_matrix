@@ -56,7 +56,7 @@ OPTIONS
    If a CMD is passed and no previous initialization call was made the
    scratch space will be allocated to 200000.
 
-EXAMPLE
+EXAMPLES
 
   Example 1:
 

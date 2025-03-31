@@ -1,0 +1,56 @@
+\hypertarget{pow_8txt}{}\doxysection{/home/urbanjs/venus/\+V600/github/\+M\+\_\+matrix/src/source/pow.txt File Reference}
+\label{pow_8txt}\index{/home/urbanjs/venus/V600/github/M\_matrix/src/source/pow.txt@{/home/urbanjs/venus/V600/github/M\_matrix/src/source/pow.txt}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+NP ! shape of exponent integer \+::L\+O\+C\+P\+\_\+\+S\+T\+A\+RT ! \mbox{\hyperlink{GPF_8txt_ab7d04b0f5f4ce2b442d411f74dac2e19}{location}} of first exponent integer \+::L\+O\+CP L\+O\+C\+O\+U\+T\+\_\+\+S\+T\+A\+RT \mbox{\hyperlink{pow_8txt_a591d97f408de67d60738f226fb10c00f}{IF}} (G\+\_\+\+R\+HS .E\+Q. 2) \mbox{\hyperlink{test1_8txt_ab997fb21bef012bb466f3fafefe8f35d}{then}} L\+O\+C\+P\+\_\+\+S\+T\+A\+RT
+\end{DoxyCompactItemize}
+\doxysubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+NP ! shape of exponent integer \+::L\+O\+C\+P\+\_\+\+S\+T\+A\+RT ! \mbox{\hyperlink{GPF_8txt_ab7d04b0f5f4ce2b442d411f74dac2e19}{location}} of first exponent integer \+::L\+O\+CP \mbox{\hyperlink{pow_8txt_adf33094cd142ca416eba417c456410f2}{L\+O\+C\+O\+UT}}
+\item 
+NP ! shape of exponent integer \+::L\+O\+C\+P\+\_\+\+S\+T\+A\+RT ! \mbox{\hyperlink{GPF_8txt_ab7d04b0f5f4ce2b442d411f74dac2e19}{location}} of first exponent integer \+::L\+O\+CP \mbox{\hyperlink{pow_8txt_a1e2db6373fde820688e56f9a9b9884d6}{L\+O\+C\+I\+N\+\_\+\+S\+T\+A\+RT}}
+\item 
+NP ! shape of exponent integer \+::L\+O\+C\+P\+\_\+\+S\+T\+A\+RT ! \mbox{\hyperlink{GPF_8txt_ab7d04b0f5f4ce2b442d411f74dac2e19}{location}} of first exponent integer \+::L\+O\+CP L\+O\+C\+O\+U\+T\+\_\+\+S\+T\+A\+RT \mbox{\hyperlink{test1_8txt_aeaa87295020e1111fdb763522930f934}{M}} $\ast$\mbox{\hyperlink{test1_8txt_a4022e3ba0b80add8a3f7296344f89334}{N}} \mbox{\hyperlink{pow_8txt_aa7ca1ca682012e8444a5a8ef807b903a}{L\+O\+C\+IN}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{pow_8txt_a591d97f408de67d60738f226fb10c00f}\label{pow_8txt_a591d97f408de67d60738f226fb10c00f}} 
+\index{pow.txt@{pow.txt}!IF@{IF}}
+\index{IF@{IF}!pow.txt@{pow.txt}}
+\doxysubsubsection{\texorpdfstring{IF()}{IF()}}
+{\footnotesize\ttfamily NP ! shape of exponent integer \+:: L\+O\+C\+P\+\_\+\+S\+T\+A\+RT ! \mbox{\hyperlink{GPF_8txt_ab7d04b0f5f4ce2b442d411f74dac2e19}{location}} of first exponent integer \+:: L\+O\+CP L\+O\+C\+O\+U\+T\+\_\+\+S\+T\+A\+RT IF (\begin{DoxyParamCaption}\item[{G\+\_\+\+R\+HS .E\+Q.}]{2 }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\mbox{\Hypertarget{pow_8txt_aa7ca1ca682012e8444a5a8ef807b903a}\label{pow_8txt_aa7ca1ca682012e8444a5a8ef807b903a}} 
+\index{pow.txt@{pow.txt}!LOCIN@{LOCIN}}
+\index{LOCIN@{LOCIN}!pow.txt@{pow.txt}}
+\doxysubsubsection{\texorpdfstring{LOCIN}{LOCIN}}
+{\footnotesize\ttfamily NP ! shape of exponent integer\+::\+L\+O\+C\+P\+\_\+\+S\+T\+A\+RT ! \mbox{\hyperlink{GPF_8txt_ab7d04b0f5f4ce2b442d411f74dac2e19}{location}} of first exponent integer\+::\+L\+O\+CP integer\+::\+L\+O\+C\+IN}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=  \mbox{\hyperlink{pow_8txt_a1e2db6373fde820688e56f9a9b9884d6}{LOCIN\_START}} +\mbox{\hyperlink{test1_8txt_af663590be765e359bbba03df2f670888}{J}}-\/1}
+\DoxyCodeLine{            \mbox{\hyperlink{pow_8txt_adf33094cd142ca416eba417c456410f2}{LOCOUT}} = LOCOUT\_START+\mbox{\hyperlink{test1_8txt_af663590be765e359bbba03df2f670888}{J}}-\/1}
+\DoxyCodeLine{          call mat\_wpow(GM\_REALS(\mbox{\hyperlink{pow_8txt_aa7ca1ca682012e8444a5a8ef807b903a}{LOCIN}}),GM\_IMAGS(\mbox{\hyperlink{pow_8txt_aa7ca1ca682012e8444a5a8ef807b903a}{LOCIN}}),GM\_REALS(\mbox{\hyperlink{pow_8txt_adf33094cd142ca416eba417c456410f2}{LOCOUT}}),GM\_IMAGS(\mbox{\hyperlink{pow_8txt_adf33094cd142ca416eba417c456410f2}{LOCOUT}}),GM\_REALS(LOCP\_START),GM\_IMAGS(LOCP\_START))}
+\DoxyCodeLine{         enddo}
+\DoxyCodeLine{      elseif(MP.eq.M .and. NP .eq. \mbox{\hyperlink{test1_8txt_a4022e3ba0b80add8a3f7296344f89334}{N}})\mbox{\hyperlink{test1_8txt_ab997fb21bef012bb466f3fafefe8f35d}{then}}}
+\DoxyCodeLine{         DO \mbox{\hyperlink{test1_8txt_af663590be765e359bbba03df2f670888}{J}} = 1}
+
+\end{DoxyCode}
+\mbox{\Hypertarget{pow_8txt_a1e2db6373fde820688e56f9a9b9884d6}\label{pow_8txt_a1e2db6373fde820688e56f9a9b9884d6}} 
+\index{pow.txt@{pow.txt}!LOCIN\_START@{LOCIN\_START}}
+\index{LOCIN\_START@{LOCIN\_START}!pow.txt@{pow.txt}}
+\doxysubsubsection{\texorpdfstring{LOCIN\_START}{LOCIN\_START}}
+{\footnotesize\ttfamily NP ! shape of exponent integer \+:: L\+O\+C\+P\+\_\+\+S\+T\+A\+RT ! \mbox{\hyperlink{GPF_8txt_ab7d04b0f5f4ce2b442d411f74dac2e19}{location}} of first exponent integer \+:: L\+O\+CP L\+O\+C\+I\+N\+\_\+\+S\+T\+A\+RT}
+
+\mbox{\Hypertarget{pow_8txt_adf33094cd142ca416eba417c456410f2}\label{pow_8txt_adf33094cd142ca416eba417c456410f2}} 
+\index{pow.txt@{pow.txt}!LOCOUT@{LOCOUT}}
+\index{LOCOUT@{LOCOUT}!pow.txt@{pow.txt}}
+\doxysubsubsection{\texorpdfstring{LOCOUT}{LOCOUT}}
+{\footnotesize\ttfamily NP ! shape of exponent integer \+:: L\+O\+C\+P\+\_\+\+S\+T\+A\+RT ! \mbox{\hyperlink{GPF_8txt_ab7d04b0f5f4ce2b442d411f74dac2e19}{location}} of first exponent integer \+:: L\+O\+CP L\+O\+C\+O\+UT}
+

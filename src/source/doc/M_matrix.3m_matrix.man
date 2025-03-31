@@ -5,7 +5,7 @@ NAME
 DESCRIPTION
 The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
 which allows for interacting with a Fortran program using Matlab
-or Octave-like commands.  LALA is also usable as a simple one-line
+or Octave-like commands. LALA is also usable as a simple one-line
 language. It is a WIP (Work In Progress) but is already useful.
 
   * You can pass intrinsic-type data easily between your Fortran
@@ -26,7 +26,7 @@ configuration and data files, inspecting data in existing programs,
 transferring small amounts of data between programs or assisting in
 debugging and development, unit testing and macro-level timing.
 
-EXAMPLE
+EXAMPLES
   Sample program:
 
     program demo_M_matrix

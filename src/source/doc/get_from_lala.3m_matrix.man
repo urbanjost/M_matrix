@@ -24,7 +24,7 @@ RETURNS
           May be a scalar, vector, or MxN matrix.
    IERR   Zero if no error occurred
 
-EXAMPLE
+EXAMPLES
   sample program:
 
    program demo_get_from_lala

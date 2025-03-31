@@ -20,7 +20,7 @@ OPTIONS
 RETURNS
    IERR   Zero if no error occurred
 
-EXAMPLE
+EXAMPLES
   sample program:
 
    program demo_put_into_lala

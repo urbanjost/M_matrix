@@ -8,8 +8,7 @@
 + prep F90 GITHUB --noenv --comment doxygen --verbose -i M_matrix.FF -o ../M_matrix.F90
 + verbose mode on
 + -->> M_matrix::mat_str2buf(3fp): convert CHARACTER TO ADE array vector
-+ -->>M_LA::mat_wdiv(3fp): c = a/b"
-+ -->>M_LA::mat_wlog(3fp): y = log(x)"
++ -->> brute force variable substitution. maybe add something like wordexp(3c) with command expansion?
 + grep -qi '^$IFDEF  *C *$' M_matrix.FF
 + cd doc
 + set -xv
@@ -20,9 +19,9 @@
 >>>> DOCS          => /home/urbanjs/venus/V600/github/M_matrix/docs
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man1
+++ ls lala.1.man '*.1m_matrix.man'
 ++ sort
 ++ uniq
-++ ls lala.1.man '*.1m_matrix.man'
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for lala.1.man'
 >>>> processing manpage and HTML for lala.1.man
@@ -31,15 +30,14 @@
 ++ basename lala.1.man .1m_matrix.man
 + SHORTNAME=lala.1.man
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1 SHORTNAME lala.1.man
-+ tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 + txt2man -s 1m_matrix -t lala.1.man lala.1.man
 + env AUX_FILENAME=lala.1.man man2html
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html f8bff111-de6f-483e-aee0-1a8df5f19074
+man2html f233ae54-c153-4dc1-a180-6b3de8fe0280
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
-CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
-BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
-AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
+/home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html converted
++ sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
@@ -59,15 +57,14 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html:
 ++ basename get_from_lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=get_from_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix SHORTNAME get_from_lala
++ txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
 + env AUX_FILENAME=get_from_lala man2html
-+ txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 6039154e-f06e-44bf-9ec2-641a300a7086
+man2html 15916414-cf3c-404d-9dfe-5048ad26cc15
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
-CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
-BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
-AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
+/home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html converted
++ sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for ifin_lala.3m_matrix.man'
@@ -78,14 +75,13 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.ht
 + SHORTNAME=ifin_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix SHORTNAME ifin_lala
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
-+ env AUX_FILENAME=ifin_lala man2html
 + txt2man -s 3m_matrix -t ifin_lala ifin_lala.3m_matrix.man
++ env AUX_FILENAME=ifin_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html be961749-e4cd-450c-9a0c-3c9d0db85fb8
+man2html 39cff9db-c761-44da-bc78-38bd9fe2c925
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
-CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
-BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
-AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
+/home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html converted
++ sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for lala.3m_matrix.man'
@@ -95,15 +91,14 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html:4
 ++ basename lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix SHORTNAME lala
++ txt2man -s 3m_matrix -t lala lala.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
 + env AUX_FILENAME=lala man2html
-+ txt2man -s 3m_matrix -t lala lala.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 8634c104-6677-4f15-beaa-9e36e5298d88
+man2html 23774503-0232-4b35-8e97-905ed624b3b1
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
-CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
-BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
-AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
+/home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html converted
++ sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for M_matrix.3m_matrix.man'
@@ -113,15 +108,14 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html:45:<h5
 ++ basename M_matrix.3m_matrix.man .3m_matrix.man
 + SHORTNAME=M_matrix
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix SHORTNAME M_matrix
++ txt2man -s 3m_matrix -t M_matrix M_matrix.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
 + env AUX_FILENAME=M_matrix man2html
-+ txt2man -s 3m_matrix -t M_matrix M_matrix.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 6588d3d7-7fbd-46a8-bb42-fc1355c163bc
+man2html 33fa2416-f841-47c5-8087-8f3a5595a327
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
-CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
-BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
-AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
+/home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html converted
++ sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for put_into_lala.3m_matrix.man'
@@ -135,17 +129,16 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html:45
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 + env AUX_FILENAME=put_into_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html b0959622-432d-4a31-875d-b81c6eb0c1c1
+man2html cb6fc80a-35b3-4f80-ad6e-5dc0d753453a
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
-CHANGING FILE /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html  [index.html][https://github.com/urbanjost/M_matrix]
-BEFORE: /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html:45:<h5><a href="index.html">[UP]</a></h5>
-AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html:45:<h5><a href="https://github.com/urbanjost/M_matrix">[UP]</a></h5>
+/home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html converted
++ sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
+++ ls '*.4.man' '*.4m_matrix.man'
 ++ sort
 ++ uniq
-++ ls '*.4.man' '*.4m_matrix.man'
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
 ++ ls '*.5.man' '*.5m_matrix.man'
@@ -153,9 +146,9 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.ht
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
-++ uniq
 ++ ls '*.6.man' '*.6m_matrix.man'
 ++ sort
+++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
 ++ sort
@@ -178,58 +171,58 @@ AFTER:  /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.ht
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
-++ sort
 ++ ls '*.2.txt' '*.2m_matrix.txt'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
 ++ ls '*.3.txt' '*.3m_matrix.txt'
-++ uniq
 ++ sort
+++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
-++ sort
 ++ ls '*.4.txt' '*.4m_matrix.txt'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
-++ uniq
 ++ ls '*.5.txt' '*.5m_matrix.txt'
 ++ sort
+++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
-++ sort
 ++ ls '*.6.txt' '*.6m_matrix.txt'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
-++ sort
 ++ ls '*.7.txt' '*.7m_matrix.txt'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man8
+++ ls '*.8.txt' '*.8m_matrix.txt'
 ++ sort
 ++ uniq
-++ ls '*.8.txt' '*.8m_matrix.txt'
 + echo '>>>> *.htm files to HTML and ROFF'
 >>>> *.htm files to HTML and ROFF
 + cd doc
 + for NUM in 1 2 3 4 5 6 7 8
-++ ls '*.htm'
+++ ls '*.1*.htm'
 + for NUM in 1 2 3 4 5 6 7 8
-++ ls '*.htm'
+++ ls '*.2*.htm'
 + for NUM in 1 2 3 4 5 6 7 8
-++ ls '*.htm'
+++ ls '*.3*.htm'
 + for NUM in 1 2 3 4 5 6 7 8
-++ ls '*.htm'
+++ ls '*.4*.htm'
 + for NUM in 1 2 3 4 5 6 7 8
-++ ls '*.htm'
+++ ls '*.5*.htm'
 + for NUM in 1 2 3 4 5 6 7 8
-++ ls '*.htm'
+++ ls '*.6*.htm'
 + for NUM in 1 2 3 4 5 6 7 8
-++ ls '*.htm'
+++ ls '*.7*.htm'
 + for NUM in 1 2 3 4 5 6 7 8
-++ ls '*.htm'
+++ ls '*.8*.htm'
 + echo '>>>> *.html files to DOC DIRECTORY'
 >>>> *.html files to DOC DIRECTORY
 + cd doc
@@ -311,17 +304,43 @@ Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat
 8 man subdirectories contained newer manual pages.
 6 manual pages were added.
 0 stray cats were added.
-+ col -b
++ cat -s
 ++ pwd
 + env MANWIDTH=256 MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -k .
 + col -b
++ col -b
 ++ pwd
 + env MANWIDTH=80 MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -Tutf8 --regex '.*'
+++ dirname /home/urbanjs/venus/V600/github/github_scripts/bash/GPF_build_module
++ export DIR=/home/urbanjs/venus/V600/github/github_scripts/bash
++ DIR=/home/urbanjs/venus/V600/github/github_scripts/bash
+++ uuidgen
++ export TMPFILE=/tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
++ TMPFILE=/tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
++ trap 'rm -f /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md' EXIT
++ echo '>>>> Build standalone slidy HTML document from man-pages'
+>>>> Build standalone slidy HTML document from man-pages
++ cd ../..
++ pandoc --metadata title=M_matrix --from=man --to=gfm man/man3/get_from_lala.3m_matrix.gz man/man3/ifin_lala.3m_matrix.gz man/man3/lala.3m_matrix.gz man/man3/M_matrix.3m_matrix.gz man/man3/put_into_lala.3m_matrix.gz --standalone -o /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md --lua-filter /home/urbanjs/venus/V600/github/github_scripts/bash/deEmph.lua
+pandoc: Cannot decode byte '\x8b': Data.Text.Internal.Encoding.decodeUtf8: Invalid UTF-8 stream
++ sed -i -e 's/^#/##/' -e 's/^## NAME/# NAME/' /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
+sed: can't read /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md: No such file or directory
++ pandoc -t slidy --metadata title=M_matrix --from=gfm /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md --standalone --slide-level=1 -o docs/M_matrix_slidy.html
+pandoc: /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md: openBinaryFile: does not exist (No such file or directory)
+rm -f /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
+++ rm -f /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
 + echo '>>>> make easily distributed archive files of manpages'
 >>>> make easily distributed archive files of manpages
 + mkdir -p ../../docs
 + cd ../../man
 + gzip man3/get_from_lala.3m_matrix.gz man3/ifin_lala.3m_matrix.gz man3/lala.3m_matrix.gz man3/M_matrix.3m_matrix.gz man3/put_into_lala.3m_matrix.gz
+gzip: man3/get_from_lala.3m_matrix.gz already has .gz suffix -- unchanged
+gzip: man3/ifin_lala.3m_matrix.gz already has .gz suffix -- unchanged
+gzip: man3/lala.3m_matrix.gz already has .gz suffix -- unchanged
+gzip: man3/M_matrix.3m_matrix.gz already has .gz suffix -- unchanged
+gzip: man3/put_into_lala.3m_matrix.gz already has .gz suffix -- unchanged
++ gzip man1/lala.1.gz man3/get_from_lala.3m_matrix.gz man3/ifin_lala.3m_matrix.gz man3/lala.3m_matrix.gz man3/M_matrix.3m_matrix.gz man3/put_into_lala.3m_matrix.gz
+gzip: man1/lala.1.gz already has .gz suffix -- unchanged
 gzip: man3/get_from_lala.3m_matrix.gz already has .gz suffix -- unchanged
 gzip: man3/ifin_lala.3m_matrix.gz already has .gz suffix -- unchanged
 gzip: man3/lala.3m_matrix.gz already has .gz suffix -- unchanged
@@ -339,6 +358,7 @@ man3/lala.3m_matrix.gz
 man3/M_matrix.3m_matrix.gz
 man3/put_into_lala.3m_matrix.gz
 + gunzip man3/get_from_lala.3m_matrix.gz man3/ifin_lala.3m_matrix.gz man3/lala.3m_matrix.gz man3/M_matrix.3m_matrix.gz man3/put_into_lala.3m_matrix.gz
++ gunzip man1/lala.1.gz
 + echo '>>>> extract demo pages from manpages'
 >>>> extract demo pages from manpages
 + cd /home/urbanjs/venus/V600/github/M_matrix/man
@@ -358,11 +378,36 @@ man3/put_into_lala.3m_matrix.gz
      4	lala (3m_matrix)     - [M_matrix] initialize and/or pass commands to matrix l...
      5	M_matrix (3m_matrix) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algeb...
      6	put_into_lala (3m_matrix) - [M_matrix] return data from lala(3f) to calling p...
->>>> get_from_lala.3m_matrix
->>>> ifin_lala.3m_matrix
->>>> lala.3m_matrix
->>>> M_matrix.3m_matrix
->>>> put_into_lala.3m_matrix
+>>>> Extract get_from_lala.3m_matrix
++ man -Tutf8 -s 3m_matrix get_from_lala.3m_matrix
++ dos2unix -f -7
++ col -b -p
++ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
++ expand
+>>>> Extract ifin_lala.3m_matrix
++ man -Tutf8 -s 3m_matrix ifin_lala.3m_matrix
++ dos2unix -f -7
++ col -b -p
++ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
++ expand
+>>>> Extract lala.3m_matrix
++ man -Tutf8 -s 3m_matrix lala.3m_matrix
++ dos2unix -f -7
++ expand
++ col -b -p
++ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
+>>>> Extract M_matrix.3m_matrix
++ man -Tutf8 -s 3m_matrix M_matrix.3m_matrix
++ dos2unix -f -7
++ col -b -p
++ expand
++ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
+>>>> Extract put_into_lala.3m_matrix
++ man -Tutf8 -s 3m_matrix put_into_lala.3m_matrix
++ dos2unix -f -7
++ expand
++ col -b -p
++ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 lala.1.man(1m_matrix)					 lala.1.man(1m_matrix)
 
 
@@ -402,11 +447,11 @@ EXAMPLES
 
       # Example 1: introductory usage:
       lala
-      a=<1 2 3;5 4 6;7 8 9>
+      A=<1 2 3;5 4 6;7 8 9>
       b=<5;6;7>
-      a*b
-      b*a
-      det(a)
+      A*b
+      b*A
+      det(A)
       quit
 
   An explanation of Example 1:
@@ -504,7 +549,7 @@ EXAMPLES
 
 
 
-				 July 22, 2023		 lala.1.man(1m_matrix)
+				March 31, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 
@@ -525,7 +570,7 @@ RETURNS
   ifin_lala
     TRUE if varname exists in lala, else FALSE.
 
-EXAMPLE
+EXAMPLES
   sample program:
 
        program demo_ifin_lala
@@ -543,7 +588,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023		  ifin_lala(3m_matrix)
+				March 31, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 
@@ -555,11 +600,9 @@ NAME
 
 DESCRIPTION
   The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
-  which allows for interacting with a Fortran program using Matlab
-
-  or Octave-like commands.
-    LALA is also usable as a simple one-line language. It is a WIP (Work In
-    Progress) but is already useful.
+  which allows for interacting with a Fortran program using Matlab or Octave-
+  like commands. LALA is also usable as a simple one-line language. It is a
+  WIP (Work In Progress) but is already useful.
 
     •  You can pass intrinsic-type data easily between your Fortran program
        and the LALA utility.
@@ -586,7 +629,7 @@ DESCRIPTION
   transferring small amounts of data between programs or assisting in
   debugging and development, unit testing and macro-level timing.
 
-EXAMPLE
+EXAMPLES
   Sample program:
 
       program demo_M_matrix
@@ -636,7 +679,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023		   M_matrix(3m_matrix)
+				March 31, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 
@@ -667,7 +710,7 @@ RETURNS
   IERR
     Zero if no error occurred
 
-EXAMPLE
+EXAMPLES
   sample program:
 
      program demo_put_into_lala
@@ -705,7 +748,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023	      put_into_lala(3m_matrix)
+				March 31, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -774,7 +817,7 @@ OPTIONS
   If a CMD is passed and no previous initialization call was made the scratch
   space will be allocated to 200000.
 
-EXAMPLE
+EXAMPLES
   Example 1:
 
 	program demo_LALA
@@ -1339,7 +1382,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023		       lala(3m_matrix)
+				March 31, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -1376,7 +1419,7 @@ RETURNS
   IERR
     Zero if no error occurred
 
-EXAMPLE
+EXAMPLES
   sample program:
 
      program demo_get_from_lala
@@ -1451,7 +1494,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023	      get_from_lala(3m_matrix)
+				March 31, 2025	      get_from_lala(3m_matrix)
 + echo '>>>> run make'
 >>>> run make
 + cd ..
@@ -1470,6 +1513,8 @@ warning: source html/images is not a readable file or directory... skipping.
 /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:432: warning: Found ';' while parsing initializer list! (doxygen could be confused by a macro call without semicolon)
 /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:2974: warning: Found ';' while parsing initializer list! (doxygen could be confused by a macro call without semicolon)
 /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:3030: warning: Found ';' while parsing initializer list! (doxygen could be confused by a macro call without semicolon)
+/home/urbanjs/venus/V600/github/M_matrix/src/source/GPF.txt:99: warning: Found ';' while parsing initializer list! (doxygen could be confused by a macro call without semicolon)
+/home/urbanjs/venus/V600/github/M_matrix/src/source/GPF.txt:283: warning: Found ';' while parsing initializer list! (doxygen could be confused by a macro call without semicolon)
 /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:407: warning: documented symbol '< 4 2 0 > x since they can easily be added to the system COLUMNS AND SUBMATRICES Individual elements of a matrix can be accessed by giving their subscripts in eg TAB' was not declared or defined.
 /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:433: warning: documented symbol 'A changes all but the outer edge of the lower triangle and then prints the final matrix for< h, cos(pi *h)> prints a table of cosines< X, D > for A *v displays one at a time The WHILE clause allows statements to be repeated an indefinite number of times The general form is WHILE expr relop END where relop<, ><=, > or' was not declared or defined.
 /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt:1284: warning: documented symbol '< > QUOTE LINE STATEMENT CLAUSE EXPR COMMAND EXPR< ><<-|||--------||---------||-<,<-|STATEMENT|-> NAME' was not declared or defined.
@@ -1520,6 +1565,8 @@ Prepassing fixed form of /home/urbanjs/venus/V600/github/M_matrix/src/source/FOD
 Parsing file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mold.f90...
 Preprocessing /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt...
 Parsing file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt...
+Preprocessing /home/urbanjs/venus/V600/github/M_matrix/src/source/GPF.txt...
+Parsing file /home/urbanjs/venus/V600/github/M_matrix/src/source/GPF.txt...
 Building group list...
 Building directory list...
 Building namespace list...
@@ -1578,6 +1625,7 @@ Parsing code for file /home/urbanjs/venus/V600/github/M_matrix/src/mainpage.txt.
 Parsing code for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mmm.f90...
 Parsing code for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mold.f90...
 Parsing code for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt...
+Parsing code for file /home/urbanjs/venus/V600/github/M_matrix/src/source/GPF.txt...
 Generating file documentation...
 Generating docs for file /home/urbanjs/venus/V600/github/M_matrix/src/mainpage.txt...
 Generating docs for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/mmm.f90...
@@ -1789,6 +1837,7 @@ Generating caller graph for function wswap
 Generating docs for file /home/urbanjs/venus/V600/github/M_matrix/src/source/FODDER/test1.txt...
 Generating caller graph for function p
 Generating caller graph for function y
+Generating docs for file /home/urbanjs/venus/V600/github/M_matrix/src/source/GPF.txt...
 Generating page documentation...
 Generating group documentation...
 Generating class documentation...
@@ -1855,13 +1904,15 @@ finalizing index lists...
 writing tag file...
 Running plantuml with JAVA...
 Running dot...
-lookup cache used 718/65536 hits=253630 misses=764
+lookup cache used 984/65536 hits=356107 misses=1030
 finished...
 + make man
 mandb: warning: $MANPATH set, inserting /etc/manpath.config
-Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/../man/man3'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/../man/man1'. Wait...
 Purging old database entries in /home/urbanjs/venus/V600/github/M_matrix/src/../man...
 Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man...
+mandb: warning: failed to store entry for lala(1)
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/../man/man3'. Wait...
 mandb: warning: failed to store entry for put_into_lala(3m_matrix)
 mandb: warning: failed to store entry for M_matrix(3m_matrix)
 mandb: warning: failed to store entry for ifin_lala(3m_matrix)
@@ -1877,13 +1928,13 @@ Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../ma
 Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat2...
 Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat5...
 Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/../man/cat7...
-1 man subdirectory contained newer manual pages.
-5 manual pages were added.
+2 man subdirectories contained newer manual pages.
+6 manual pages were added.
 0 stray cats were added.
 0 old database entries were purged.
 get_from_lala(3f) (3m_matrix) [get_from_lala] - (unknown subject)
 ifin_lala(3f) (3m_matrix) [ifin_lala] - (unknown subject)
-lala (1)	     - interpret matrix expressions using a shell-like interface
+lala(1f) (1) [lala]  - (unknown subject)
 LALA(3f) (3m_matrix) [lala] - (unknown subject)
 M_matrix(3f) (3m_matrix) [M_matrix] - (unknown subject)
 put_from_lala(3f) (3m_matrix) [put_into_lala] - (unknown subject)
@@ -1926,11 +1977,11 @@ EXAMPLES
 
       # Example 1: introductory usage:
       lala
-      a=<1 2 3;5 4 6;7 8 9>
+      A=<1 2 3;5 4 6;7 8 9>
       b=<5;6;7>
-      a*b
-      b*a
-      det(a)
+      A*b
+      b*A
+      det(A)
       quit
 
   An explanation of Example 1:
@@ -2028,7 +2079,7 @@ EXAMPLES
 
 
 
-				 July 22, 2023		 lala.1.man(1m_matrix)
+				March 31, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 
@@ -2049,7 +2100,7 @@ RETURNS
   ifin_lala
     TRUE if varname exists in lala, else FALSE.
 
-EXAMPLE
+EXAMPLES
   sample program:
 
        program demo_ifin_lala
@@ -2067,7 +2118,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023		  ifin_lala(3m_matrix)
+				March 31, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 
@@ -2079,11 +2130,9 @@ NAME
 
 DESCRIPTION
   The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
-  which allows for interacting with a Fortran program using Matlab
-
-  or Octave-like commands.
-    LALA is also usable as a simple one-line language. It is a WIP (Work In
-    Progress) but is already useful.
+  which allows for interacting with a Fortran program using Matlab or Octave-
+  like commands. LALA is also usable as a simple one-line language. It is a
+  WIP (Work In Progress) but is already useful.
 
     •  You can pass intrinsic-type data easily between your Fortran program
        and the LALA utility.
@@ -2110,7 +2159,7 @@ DESCRIPTION
   transferring small amounts of data between programs or assisting in
   debugging and development, unit testing and macro-level timing.
 
-EXAMPLE
+EXAMPLES
   Sample program:
 
       program demo_M_matrix
@@ -2160,7 +2209,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023		   M_matrix(3m_matrix)
+				March 31, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 
@@ -2191,7 +2240,7 @@ RETURNS
   IERR
     Zero if no error occurred
 
-EXAMPLE
+EXAMPLES
   sample program:
 
      program demo_put_into_lala
@@ -2229,7 +2278,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023	      put_into_lala(3m_matrix)
+				March 31, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -2298,7 +2347,7 @@ OPTIONS
   If a CMD is passed and no previous initialization call was made the scratch
   space will be allocated to 200000.
 
-EXAMPLE
+EXAMPLES
   Example 1:
 
 	program demo_LALA
@@ -2863,7 +2912,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023		       lala(3m_matrix)
+				March 31, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -2900,7 +2949,7 @@ RETURNS
   IERR
     Zero if no error occurred
 
-EXAMPLE
+EXAMPLES
   sample program:
 
      program demo_get_from_lala
@@ -2975,23 +3024,7 @@ EXAMPLE
 
 
 
-				 July 22, 2023	      get_from_lala(3m_matrix)
-+ make ship
-: make easily distributed archive files of manpages
-mkdir -p ../docs
-cd ../man/man3;\
-   gzip *.3m_strings;\
-   zip -r ../../docs/manpages.zip *gz;\
-   tar cvfz ../../docs/manpages.tgz *gz;\
-   gunzip *.3m_strings.gz
-gzip: *.3m_strings: No such file or directory
-	zip warning: expected 5 entries but found 3
-
-zip error: Zip file structure invalid (../../docs/manpages.zip)
-tar: *gz: Cannot stat: No such file or directory
-tar: Exiting with failure status due to previous errors
-gzip: *.3m_strings.gz: No such file or directory
-make: *** [Makefile:150: ship] Error 1
+				March 31, 2025	      get_from_lala(3m_matrix)
 + make help
 : make    '-- build M_strings M_strings_oop module'
 : run     '-- run manpage demo programs and test program'
@@ -3006,309 +3039,78 @@ rm -f ../example/demo_adjustc ../example/demo_base ../example/demo_change ../exa
 >>>> fpm test
 + cd ../..
 + fpm test
- + mkdir -p build/dependencies
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_framework/.git/
-From https://github.com/urbanjost/M_framework
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_msg/.git/
-From https://github.com/urbanjost/M_msg
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_strings/.git/
-From https://github.com/urbanjost/M_strings
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_history/.git/
-From https://github.com/urbanjost/M_history
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_CLI2/.git/
-From https://github.com/urbanjost/M_CLI2
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_list/.git/
-From https://github.com/urbanjost/M_list
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_io/.git/
-From https://github.com/urbanjost/M_io
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_LA/.git/
-From https://github.com/urbanjost/M_LA
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_intrinsics/.git/
-From https://github.com/urbanjost/M_intrinsics
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_match/.git/
-From https://github.com/urbanjost/M_match
- * branch            HEAD       -> FETCH_HEAD
-Initialized empty Git repository in /home/urbanjs/venus/V600/github/M_matrix/build/dependencies/M_attr/.git/
-From https://github.com/urbanjost/M_attr
- * branch            HEAD       -> FETCH_HEAD
- Warning: Dependency M_framework does not enforce module naming, but project does. 
- Warning: Dependency M_msg does not enforce module naming, but project does. 
- ERROR: Module m_help in build/dependencies/M_msg/src/M_help.f90 does not match its package name (M_msg).
- ERROR: Module m_journal in build/dependencies/M_msg/src/M_journal.f90 does not match its package name (M_msg).
- ERROR: Module m_verify in build/dependencies/M_msg/src/M_verify.F90 does not match its package name (M_msg).
- Warning: Dependency M_history does not enforce module naming, but project does. 
- Warning: Dependency M_CLI2 does not enforce module naming, but project does. 
- Warning: Dependency M_list does not enforce module naming, but project does. 
- Warning: Dependency M_io does not enforce module naming, but project does. 
- Warning: Dependency M_intrinsics does not enforce module naming, but project does. 
- Warning: Dependency M_match does not enforce module naming, but project does. 
- Warning: Dependency M_attr does not enforce module naming, but project does. 
-        Hint: Try disabling module naming in the manifest: [build] module-naming=false . 
-<ERROR> *cmd_run* Model error: The package contains invalid module names. Naming conventions are being requested.
-STOP 1
-+ echo '>>>> make BOOK html document'
->>>> make BOOK html document
-+ env MANPATH=../../man mandb -c
-mandb: warning: $MANPATH set, ignoring /etc/manpath.config
-Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man1'. Wait...
-Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man...
-Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man3'. Wait...
-Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man2'. Wait...
-Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man4'. Wait...
-Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man6'. Wait...
-Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man7'. Wait...
-Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man8'. Wait...
-Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man5'. Wait...
-done.
-Checking for stray cats under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man...
-Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat8...
-Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat1...
-Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat3...
-Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat4...
-Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat6...
-Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat2...
-Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat5...
-Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat7...
-8 man subdirectories contained newer manual pages.
-6 manual pages were added.
-0 stray cats were added.
-+ env OUTPUT_DIR=../../docs/ MAN_CMD=man MANPATH=../../man GPF_book M_matrix m_matrix
-Creating book M_matrix
-                                                                
-                                                                
- XX   XX                                            X           
-  X   X                            X                            
-  XX XX                            X                            
-  XX XX          XXX X    XXXX    XXXX   XXX XX   XXX    XXX XXX
-  X X X           X X X       X    X       XX  X    X     X   X 
-  X X X           X X X   XXXXX    X       X        X      XXX  
-  X   X           X X X  X    X    X       X        X      XXX  
-  X   X           X X X  X    X    X  X    X        X     X   X 
- XXX XXX         XX X XX  XXXX X    XX   XXXXX    XXXXX  XXX XXX
-                                                                
-        XXXXXXXX                                                
-/home/urbanjs/venus/V600/github/github_scripts/bash/GPF_book:
-________________________________________________________________________________
-   TOPIC      M_matrix
-   SECTION    m_matrix
-   OUTPUT_DIR ../../docs/
-   MAN_CMD    man
-   MANPATH    ../../man
-________________________________________________________________________________
-+ HTML
-+ cat
-+ cat
-++ date +%Y-%m-%d
-+ cat
-+ cat
-+ cat
-+ echo 'function loadthem(){'
-+ '[' M_matrix = INDEX ']'
-+ echo M_matrix.3m_matrix.html
-+ tr -d '()'
-+ awk '{printf "%s.%s.html\n",$1,$2}'
-+ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
-+ uniq
-+ uniq
-+ read NAME
-+ grep -i '(3M_matrix)'
-+ man -k '\[M_matrix\>'
-+ grep -i '(3M_matrix)'
-+ man --section 3m_matrix -k .
-+ man -k '\[M_matrix\>'
-+ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
-+ grep -vi '(3M_matrix)'
-+ '[' -r ../../docs//M_matrix.3m_matrix.html..html ']'
-+ read NAME
-+ '[' -r ../../docs//M_matrix.3m_matrix.html ']'
-+ echo 'append("M_matrix.3m_matrix.html");'
-+ read NAME
-+ '[' -r ../../docs//get_from_lala.3m_matrix.html ']'
-+ echo 'append("get_from_lala.3m_matrix.html");'
-+ read NAME
-+ '[' -r ../../docs//ifin_lala.3m_matrix.html ']'
-+ echo 'append("ifin_lala.3m_matrix.html");'
-+ read NAME
-+ '[' -r ../../docs//lala.3m_matrix.html ']'
-+ echo 'append("lala.3m_matrix.html");'
-+ read NAME
-+ '[' -r ../../docs//put_into_lala.3m_matrix.html ']'
-+ echo 'append("put_into_lala.3m_matrix.html");'
-+ read NAME
-+ echo '}'
-+ exit
-+ echo '>>>> make HTML index to manpages'
->>>> make HTML index to manpages
-+ env MANPATH=../../man OUTDIR=../../docs GPF_manpage_index
-making HTML index for section 1 in ../../docs/man1.html
-FOUND 1 for section 1
-<GPF_manpage_index><MANPATH>../../man
-<GPF_manpage_index><NAME>lala<SECT>(1)<DASH>-
-making HTML index for section 2 in ../../docs/man2.html
-FOUND 0 for section 2
-making HTML index for section 3 in ../../docs/man3.html
-FOUND 5 for section 3
-<GPF_manpage_index><MANPATH>../../man
-<GPF_manpage_index><NAME>M_matrix<SECT>(3m_matrix)<DASH>-
-<GPF_manpage_index><NAME>get_from_lala<SECT>(3m_matrix)<DASH>-
-<GPF_manpage_index><NAME>ifin_lala<SECT>(3m_matrix)<DASH>-
-<GPF_manpage_index><NAME>lala<SECT>(3m_matrix)<DASH>-
-<GPF_manpage_index><NAME>put_into_lala<SECT>(3m_matrix)<DASH>-
-making HTML index for section 4 in ../../docs/man4.html
-FOUND 0 for section 4
-making HTML index for section 5 in ../../docs/man5.html
-FOUND 0 for section 5
-making HTML index for section 6 in ../../docs/man6.html
-FOUND 0 for section 6
-making HTML index for section 7 in ../../docs/man7.html
-FOUND 0 for section 7
-making HTML index for section 8 in ../../docs/man8.html
-FOUND 0 for section 8
-making HTML index for Fortran Intrinsics for section 3 in ../../docs/man3i.html
-FOUND 0 for section 3
-making HTML index for Fortran Intrinsics for section 7 in ../../docs/man7i.html
-FOUND 0 for section 7
-sed: can't read ../../docs/*.[37]fortran.html: No such file or directory
-+ echo '>>>> spell check'
->>>> spell check
-+ spell ../../README.md
-+ xargs -n 8
-+ column -t
-Alamos      CHANGELOG    EXPE      Forsythe  Fortran   IARR         INI      JSON
-LALA        Moler        NAMELIST  Neumann   TOML      YAML         ai       ais
-alfa        allocatable  anorm     ar        ars       atan         attr     boug
-br          brs          cd        cdiv      ci        cnt          config   cr
-cvec        deflator     dev       diag      disp      doxygen      eig      el
-embeddable  emm          ferr      fhelp     fortran   fpm          fv       gif
-github      hierarchial  html      https     iarr      ierr         ifin     imag
-inv         io           ip        jacobi    jacstep   journaling   keepB    kron
-lala        lanczos      lang      lanstep   len       littlearray  longley  md
-mgs         mycommands   mytitle   ncen      ort       pbar         pdq      pdqstep
-qrstep      rosser       rqi       serr      similiar  sl           sm       smm
-sn          sqrt         subexec   th        toml      tryall       tty      txt
-urbanjost   userguide    wv        xin
-+ echo '>>>> update GPF project and documents'
->>>> update GPF project and documents
-+ unset GITHUB
-+ make.one libGPF
-1581921 (process ID) old priority 0, new priority 19
-W-A-R-N-I-N-G: no ccheck.c file (required for configured versions)
-+ echo '>>>> run test'
->>>> run test
-+ cd ../../test
-+ ccall test_suite_M_matrix.f90
-*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_1585743
-+ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_1585743
-+ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_1585743
-+ CCALL_DELETE_DIR=TRUE
-+ FULLNAME=/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
-+ SPLIT
-+ sed -e 's/ -/@ -/g'
-+ tr @ '\012'
-+ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
-+ echo NAME test_suite_M_matrix.f90
-NAME test_suite_M_matrix.f90
-+ echo /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-/home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-+ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
-+ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
-+ grep
- -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
-+ grep
- -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
-+ set
- -x
-+ set
- -v
-+ gfortran
- -fbacktrace
- -fdump-core
- -frecord-marker=4
- -I.
- -DTESTPRG
- -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
- -o /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
- -Wall
- -Wextra
- -Bstatic
- -I/home/urbanjs/venus/V600/lib/Linux_gfortran
- -J/home/urbanjs/venus/V600/lib/Linux_gfortran
- -L/home/urbanjs/venus/V600/lib/Linux_gfortran
- -lkon
- -lDL
- -lMULTI
- -lrandlib
- -lrandlibf90
- -lncarsa
- -lvopl
- -lGPF
- -lGPF_C
- -lncurses
- -lcurl
- -lSTUG
- -lsqlite3
- -lquadmath
- -lm
- -Wunreachable-code
- -Wunused
- -Wuninitialized
- -g
- -O
- -fcoarray=single
- -Bdynamic
- -L/usr/lib/x86_64-linux-gnu
- -lX11
-/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:6:33:
+Project is up to date
+................................................................................
+test_1
 
-    6 | doubleprecision   :: arr(lda,lda),x(lda,lda)
-      |                                 1
-Warning: Unused variable ‘arr’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:27:
+ p  =
+     7.
 
-    5 | integer           :: m,n, i,j, ierr
-      |                           1
-Warning: Unused variable ‘i’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:35:
+ n  =
+    16.
 
-    5 | integer           :: m,n, i,j, ierr
-      |                                   1
-Warning: Unused variable ‘ierr’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:29:
+ mu  =
+    1.0D+03 *
+    0.1017    0.3877    0.3193    0.2607    0.1174    1.9545    0.0653
 
-    5 | integer           :: m,n, i,j, ierr
-      |                             1
-Warning: Unused variable ‘j’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:22:
+ X  =
+   -0.4470   -0.3985   -0.2314   -0.3772   -0.3644   -0.4067   -0.3672
+   -0.3154   -0.3332   -0.2399   -0.4269   -0.3263   -0.3525   -0.3084
+   -0.3226   -0.3368    0.1350   -0.3676   -0.2840   -0.2983   -0.3783
+   -0.2914   -0.2678    0.0436   -0.3549   -0.2411   -0.2440   -0.3036
+   -0.1311   -0.1525   -0.3024    0.1827   -0.1985   -0.1898   -0.1541
+   -0.0857   -0.1057   -0.3485    0.3663   -0.1542   -0.1356   -0.1234
+   -0.0642   -0.0580   -0.3656    0.3489   -0.0865   -0.0813   -0.0241
+   -0.0402   -0.0639    0.1063    0.2758   -0.0447   -0.0271   -0.1144
+   -0.0115    0.0254   -0.0799    0.1637   -0.0013    0.0271    0.0516
+    0.0698    0.0818   -0.1026    0.0929    0.0486    0.0813    0.1867
+    0.1608    0.1431   -0.0711    0.0710    0.1121    0.1356    0.2097
+    0.2182    0.1477    0.4111    0.0112    0.1680    0.1898    0.0879
+    0.2612    0.2468    0.1712   -0.0203    0.2206    0.2440    0.2454
+    0.2995    0.2985    0.2038   -0.0344    0.2949    0.2983    0.3122
+    0.3354    0.3389    0.4456   -0.0129    0.3871    0.3525    0.2951
+    0.3641    0.4343    0.2248    0.0817    0.4698    0.4067    0.3848
 
-    5 | integer           :: m,n, i,j, ierr
-      |                      1
-Warning: Unused variable ‘m’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:5:24:
+ corr  =
+    1.0000    0.9916    0.6206    0.4647    0.9792    0.9911    0.9709
+    0.9916    1.0000    0.6043    0.4464    0.9911    0.9953    0.9836
+    0.6206    0.6043    1.0000   -0.1774    0.6866    0.6683    0.5025
+    0.4647    0.4464   -0.1774    1.0000    0.3644    0.4172    0.4573
+    0.9792    0.9911    0.6866    0.3644    1.0000    0.9940    0.9604
+    0.9911    0.9953    0.6683    0.4172    0.9940    1.0000    0.9713
+    0.9709    0.9836    0.5025    0.4573    0.9604    0.9713    1.0000
 
-    5 | integer           :: m,n, i,j, ierr
-      |                        1
-Warning: Unused variable ‘n’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90:6:44:
+ beta  =
+   -3.482258634594421D+03
+    1.506187227124484D-02
+   -3.581917929257409D-02
+   -2.020229803816908D-02
+   -1.033226867173703D-02
+   -5.110410565317738D-02
+    1.829151464612817D+00
+EXPECTED and BETA should be the same
 
-    6 | doubleprecision   :: arr(lda,lda),x(lda,lda)
-      |                                            1
-Warning: Unused variable ‘x’ declared at (1) [-Wunused-variable]
-+ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
-a - /dev/shm/CCALL_Linux_gfortran_1585743/test_suite_M_matrix.1585743.f90
-+ set +x
-/home/urbanjs/venus/V600/LIBRARY/CYGWIN/scripts_regression/goodbad: test_suite_M_matrix.1 0 test_suite_M_matrix start --section 1
-/home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_1585743
-+ test_suite_M_matrix
+ eps  =
+    2.220446049250313D-16
+
+ delta  =
+    0.000000000000000D+00
+    5.204170427930421D-18
+    0.000000000000000D+00
+    0.000000000000000D+00
+   -1.734723475976807D-18
+   -6.938893903907228D-18
+    2.220446049250313D-16
+
+ delta  =
+     0.
+     0.
+     0.
+     0.
+     0.
+     0.
+     0.
+PASSED
 ================================================================================
 abs   abs(X) is the absolute value, or complex modulus,
       of the elements of X .
@@ -3319,10 +3121,39 @@ expected sum is OK
 a = -b as expected
 abs PASSED
 ================================================================================
+all   all(X) returns FALSE(ie. 0) if any element value is FALSE(0).
+      Otherwise, it returns TRUE(ie. 1).
+
+      0 is regarded as false and "not 0" signifies true in general in
+      lala(1). so if F=0 and T=1
+
+          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)
+          all(T,F,T,F,T]) // produces 0 (which is a FALSE value)
+
+________________________________________________________________________________
+all('a') OK
+all(a) shape OK
+all PASSED
+================================================================================
 ans   Variable created automatically when expressions are not
       assigned to anything else.
 
 ans PASSED
+================================================================================
+any   any(X) returns TRUE(ie. 1) if any element value is TRUE(non-zero).
+
+      0 is regarded as false and "not 0" signifies true in general in
+      lala(1).
+
+          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)
+          all(T,F,F,F,F]) // produces 1 (which is a TRUE value)
+          all(F,F,F,F,F]) // produces 0 (which is a FALSE value)
+
+________________________________________________________________________________
+any('a') OK
+any('a') OK
+any(a) shape OK
+any PASSED
 ================================================================================
 atan  atan(X) is the arctangent of X . See "BASIC" .
 
@@ -3414,8 +3245,8 @@ diag  If V is a row or column vector with N components,
       produces a tridiagonal matrix of order 2*M+1 .
 
       If X is a matrix, "diag(X,K)" is a column vector formed from the
-      elements of the K-th diagonal of X.  "diag(X)" is the main diagonal
-      of X.  "diag(diag(X))" is a diagonal matrix .
+      elements of the K-th diagonal of X. "diag(X)" is the main diagonal
+      of X. "diag(diag(X))" is a diagonal matrix .
 
 diag PASSED
 ================================================================================
@@ -3474,6 +3305,7 @@ eig   Eigenvalues and eigenvectors.
       eigenvalues and a full matrix V whose columns are the
       corresponding eigenvectors so that X*V = V*D .
 
+
 eig PASSED
 ================================================================================
 else  Used with "if".
@@ -3512,6 +3344,103 @@ ________________________________________________________________________________
     2.2204D-16
 eps matches expected value
 eps PASSED
+================================================================================
+lt    "lt(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is less than the one in Y.
+      Otherwise, the element is set to 0. Only the REAL component of the
+      numbers is tested.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+          count_of_true_results=sum(lt(X,Y))
+
+________________________________________________________________________________
+lt shape OK
+lt PASSED
+================================================================================
+le    "le(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is less than or equal to the one
+      in Y; if X is greater than Y the element of the answer is 0. Only
+      the REAL component of the numbers is tested.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+________________________________________________________________________________
+le shape OK
+le PASSED
+================================================================================
+eq    "eq(X,Y)" is an elemental function that sets element values to 1
+      if the elements are equal, and to 0 if they are not.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+          // return 1 if all elements are zero, else 1
+          allzero=all(eq(X,0))
+
+________________________________________________________________________________
+eq shape OK
+eq PASSED
+================================================================================
+ge    "ge(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is greater than or equal to the
+      one in Y; if X is less than Y the element of the answer is 0. Only
+      the REAL component of the numbers is tested.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+________________________________________________________________________________
+ge shape OK
+ge PASSED
+================================================================================
+gt    "gt(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is greater than to the one in Y;
+      if X is less than or equal to Y the returned element in the answer
+      is 0. Only the REAL component of the numbers is tested.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+________________________________________________________________________________
+gt shape OK
+gt PASSED
+================================================================================
+ne    "ne(X,Y)" is an elemental function that sets element values to 1
+      if the elements are not equal, and to 0 if they are not equal.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+________________________________________________________________________________
+ne shape OK
+ne PASSED
+================================================================================
+maxval  "maxval(A)" returns the maximum real component found in the
+        elements of A
+
+________________________________________________________________________________
+maxval OF 'a' OK
+maxval shape OK
+maxval ARRAY OK
+maxval PASSED
+================================================================================
+minval  "minval(A)" returns the minimum real component found in the
+        elements of A
+
+________________________________________________________________________________
+minval OF 'a' OK
+minval shape OK
+minval ARRAY OK
+minval PASSED
 ================================================================================
 exec  "exec('file',k)" obtains subsequent LALA input from an
       external file. The printing of input is controlled by the
@@ -3588,7 +3517,7 @@ for   Repeat statements a specific number of times.
       The "end" at the end of a line may be omitted. The comma before the
       "end" may also be omitted. The columns of the expression are stored
       one at a time in the variable and then the following statements,
-      up to the "end", are executed.  The expression is often of the form
+      up to the "end", are executed. The expression is often of the form
       X:Y, in which case its columns are simply scalars. Some examples
       (assume N has already been assigned a value).
 
@@ -3612,21 +3541,21 @@ help  topic|SECTION_NAME
       o  The special topic "search" shows lines from the manual
          containing the subsequent string
 
-         Enter "h" at the "continue ..." prompt for additional options.
+         Enter "h" at the "help:" prompt for additional options.
 
       For example:
 
          help        // a list of common topics and section names
          help topics // a list of topics including the first line of
                      // the topic.
-         help abs    // produces help on the function "abs".
+         help abs    // are_any_trueuces help on the function "abs".
          help FLOW   // the entire section on flow control is displayed.
          help manual // show all the help text
          help help   // obviously prints this message.
          help search factor // show all lines containing "factor".
 
-      Alternatively, To place all the documenation in a file, use
-      "help manual" and enter "w help.txt" at the "continue .." prompt.
+      Alternatively, To place all the documentation in a file, use
+      "help manual" and enter "w help.txt" at the "help:" prompt.
 help PASSED
 ================================================================================
 hess  Hessenberg form. The Hessenberg form of a matrix is zero
@@ -3898,24 +3827,45 @@ poly  Characteristic polynomial.
 
 poly PASSED
 ================================================================================
+pow   For a scalar exponent pow(X,exponent) raises each element of X to
+      the specified power. pow(X,Y) raise each element in X by the
+      corresponding element in Y.  X and Y must have the same shape.
+
+         A=magic(3);
+         pow(A,3)
+
+________________________________________________________________________________
+
+ answ  =
+   512.    1.  216.
+    27.  125.  343.
+    64.  729.    8.
+pow OF 'a' OK
+pow shape OK
+pow ARRAY OK
+pow PASSED
+================================================================================
 print  "print('file',X)" prints X on the file using the current
        format determined by "short", "long z", etc. See FILE.
 
 print PASSED
 ================================================================================
-prod  "prod(X)" is the product of all the elements of X .
+prod  "prod(X)" is the product of all the elements of X.
+
+           A=prod(1:10) // the factorial of 10
+           B=2*3*4*5*6*7*8*9*10
 
 prod(a) PASSED
 d PASSED
 prod PASSED
 ================================================================================
-qr    Orthogonal-triangular decomposition.  "<Q,R> = qr(X)" produces an
+qr    Orthogonal-triangular decomposition. "<Q,R> = qr(X)" produces an
       upper triangular matrix R of the same
       dimension as X and a unitary matrix Q so that X = Q*R .
 
       "<Q,R,E> = qr(X)" produces a permutation matrix E, an upper
       triangular R with decreasing diagonal elements and a unitary Q
-      so that X*E = Q*R .  By itself, "qr(X)" returns the output of
+      so that X*E = Q*R . By itself, "qr(X)" returns the output of
       "cqrdc". "triu(qr(X))" is R .
 
 qr PASSED
@@ -4039,7 +3989,7 @@ save  "save('file')" stores all the current variables in a file.
       "save('file',X)" saves only X . See FILE .
 
       The variables may be retrieved later by "load('file')" or by your
-      own program using the following code for each matrix.  The lines
+      own program using the following code for each matrix. The lines
       involving "ximag" may be eliminated if everything is known to
       be real.
 
@@ -4099,6 +4049,1464 @@ sh    Starts the command shell interactively, using the command defined by
       the environment variable SHELL. Note that in addition any line
       starting with an exclamation (!) is passed to the system for
       execution.
+
+sh PASSED
+================================================================================
+sin   sin(X) is the sine of X. See "BASIC".
+
+sin PASSED
+================================================================================
+shape  If X is an M by N matrix, then shape(X) is <M, N> .
+       Can also be used with a multiple assignment,
+            <M, N> = shape(X) .
+
+X is 11
+Y is  5
+shape of a OK
+shape of b OK
+shape of c OK
+shape PASSED
+================================================================================
+sqrt  sqrt(X) is the square root of X. See "BASIC". Complex
+      results are produced if X is not positive, or has
+      nonpositive eigenvalues.
+sqrt PASSED
+================================================================================
+sum   "sum(X)" is the sum of all the elements of X.
+      "sum(diag(X))" is the trace of X.
+
+________________________________________________________________________________
+sum SUM OF 'a' OK
+sum shape OK
+sum ARRAY OK
+sum PASSED
+================================================================================
+svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
+      diagonal matrix S , of the same dimension as X and with
+      nonnegative diagonal elements in decreasing order, and
+      unitary matrices U and V so that X = U*S*V' .
+
+      By itself, "svd(X)" returns a vector containing the singular
+      values.
+
+      "<U,S,V> = svd(X,0)" produces the "economy size"
+      decomposition. If X is m by n with m > n, then only the
+      first n columns of U are computed and S is n by n .
+
+svd PASSED
+================================================================================
+tril  Lower triangle. "tril(X)" is the lower triangular part of X.
+      "tril(X,K)" is the elements on and below the K-th diagonal of
+      X. K = 0 is the main diagonal, K > 0 is above the main
+      diagonal and K < 0 is below the main diagonal.
+
+
+ tally  =
+     0.    0.
+
+ tally  =
+     0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.
+tril PASSED
+================================================================================
+triu  Upper triangle. "triu(X)" is the upper triangular part of X.
+      "triu(X,K)" is the elements on and above the K-th diagonal of X. K
+      = 0 is the main diagonal, K > 0 is above the main diagonal and K <
+      0 is below the main diagonal.
+
+triu PASSED
+================================================================================
+user  Allows personal Fortran subroutines to be linked into
+      LALA. The subroutine should have the heading
+
+         SUBROUTINE USER(A,M,N,S,T)
+         REAL or DOUBLEPRECISION A(M,N),S,T
+
+      The LALA statement "Y = user(X,s,t)" results in a call to the
+      subroutine with a copy of the matrix X stored in the argument A,
+      its column and row dimensions in M and N, and the scalar parameters
+      s and t stored in S and T. If s and t are omitted, they are set
+      to 0.0. After the return, A is stored in Y. The dimensions M and
+      N may be reset within the subroutine. The statement Y = "user(K)"
+      results in a call with M = 1, N = 1 and A(1,1) = "float(K)". After
+      the subroutine has been written, it must be compiled and linked
+      to the LALA object code within the local operating system.
+
+user PASSED
+================================================================================
+while  Repeat statements an indefinite number of times.
+
+          while expr rop expr, statement, ..., statement, end
+
+       where rop is =, <, >, <=, >=, or <> (not equal). The "end"
+       at the end of a line may be omitted. The comma before the
+       "end" may also be omitted. The commas may be replaced by
+       semicolons to avoid printing. The statements are
+       repeatedly executed as long as the indicated comparison
+       between the real parts of the first components of the two
+       expressions is true.
+
+       EXAMPLE
+       (assume a matrix A is already defined).
+
+        E = 0*A; F = E + eye; N = 1;
+        while norm(E+F-E,1) > 0, E = E + F; F = A*F/N; N = N + 1;
+        E
+
+while PASSED
+================================================================================
+who   Lists current variables.
+who PASSED
+================================================================================
+doc   does nothing at the moment
+
+doc PASSED
+================================================================================
+what  does nothing for now
+
+what PASSED
+================================================================================
+lala  A placeholder for a new command.
+
+lala PASSED
+================================================================================
+zeros
+      Returns a matrix of all zeros.
+
+         zeros(N)    returns an N by N matrix of zeroes.
+         zeros(M,N)  returns an M by N matrix of zeroes.
+         zeros(X)    returns a matrix of zeroes of the same order as X.
+________________________________________________________________________________
+zeros SUM OK
+zeros shape OK
+zeros DELTA OK
+zeros PASSED
+================================================================================
+general tests: avg
+
+ tally  =
+     0.    0.
+avg PASSED
+================================================================================
+general expression tests
+
+ tally  =
+     0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+
+ tally  =
+     COLUMNS     1 THRU    12
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     COLUMNS    13 THRU    13
+     0.
+
+ answers  =
+     7.   14.   56.    3.  256.
+
+ expected  =
+     7.   14.   56.    3.  256.
+general expr  PASSED
+
+ tally  =
+     COLUMNS     1 THRU    12
+     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     COLUMNS    13 THRU    18
+     0.    0.    0.    0.    0.    0.
+================================================================================
+general expression dots
+
+ tally  =
+     0.    0.
+general dots PASSED
+================================================================================
+general pascal test
+
+ L5  =
+     1.    0.    0.    0.    0.
+     1.    1.    0.    0.    0.
+     1.    2.    1.    0.    0.
+     1.    3.    3.    1.    0.
+     1.    4.    6.    4.    1.
+
+ S5  =
+     1.    1.    1.    1.    1.
+     1.    2.    3.    4.    5.
+     1.    3.    6.   10.   15.
+     1.    4.   10.   20.   35.
+     1.    5.   15.   35.   70.
+
+ U5  =
+     1.    1.    1.    1.    1.
+     0.    1.    2.    3.    4.
+     0.    0.    1.    3.    6.
+     0.    0.    0.    1.    4.
+     0.    0.    0.    0.    1.
+
+ L  =
+     1.
+
+ L  =
+     1.    0.
+     1.    1.
+
+ L  =
+     1.    0.    0.
+     1.    1.    0.
+     1.    2.    1.
+
+ L  =
+     1.    0.    0.    0.
+     1.    1.    0.    0.
+     1.    2.    1.    0.
+     1.    3.    3.    1.
+
+ L  =
+     1.    0.    0.    0.    0.
+     1.    1.    0.    0.    0.
+     1.    2.    1.    0.    0.
+     1.    3.    3.    1.    0.
+     1.    4.    6.    4.    1.
+
+ ans  =
+     0.    0.    0.    0.    0.
+     0.    0.    0.    0.    0.
+     0.    0.    0.    0.    0.
+     0.    0.    0.    0.    0.
+     0.    0.    0.    0.    0.
+
+ tally  =
+     0.    0.
+pascal L5 passed
+general pascal PASSED
+================================================================================
+ 	
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+
+ clr  =
+     COLUMNS     1 THRU    12
+   100.  105.  115.  112.  108.   97.  121.   40.   91.   50.   55.   44.
+     COLUMNS    13 THRU    24
+    57.   49.   44.   39.   72.   39.   44.   50.   55.   44.   57.   49.
+     COLUMNS    25 THRU    31
+    44.   39.   50.   74.   39.   93.   41.
+[H[2J
+general char PASSED
++ echo '>>>> make BOOK html document'
+>>>> make BOOK html document
++ env MANPATH=../../man mandb -c
+mandb: warning: $MANPATH set, ignoring /etc/manpath.config
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man1'. Wait...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man3'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man2'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man4'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man6'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man7'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man8'. Wait...
+Updating index cache for path `/home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/man5'. Wait...
+done.
+Checking for stray cats under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat8...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat1...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat3...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat4...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat6...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat2...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat5...
+Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/src/source/../../man/cat7...
+8 man subdirectories contained newer manual pages.
+6 manual pages were added.
+0 stray cats were added.
++ env OUTPUT_DIR=../../docs/ MAN_CMD=man MANPATH=../../man GPF_book M_matrix m_matrix
+Creating book M_matrix
+                                                                
+                                                                
+ XX   XX                                            X           
+  X   X                            X                            
+  XX XX                            X                            
+  XX XX          XXX X    XXXX    XXXX   XXX XX   XXX    XXX XXX
+  X X X           X X X       X    X       XX  X    X     X   X 
+  X X X           X X X   XXXXX    X       X        X      XXX  
+  X   X           X X X  X    X    X       X        X      XXX  
+  X   X           X X X  X    X    X  X    X        X     X   X 
+ XXX XXX         XX X XX  XXXX X    XX   XXXXX    XXXXX  XXX XXX
+                                                                
+        XXXXXXXX                                                
+/home/urbanjs/venus/V600/github/github_scripts/bash/GPF_book:
+________________________________________________________________________________
+   TOPIC      M_matrix
+   SECTION    m_matrix
+   OUTPUT_DIR ../../docs/
+   MAN_CMD    man
+   MANPATH    ../../man
+________________________________________________________________________________
++ HTML
++ cat
++ cat
+++ date +%Y-%m-%d
++ cat
++ cat
++ cat
++ echo 'function loadthem(){'
++ '[' M_matrix = INDEX ']'
++ uniq
++ read NAME
++ echo M_matrix.3m_matrix.html
++ tr -d '()'
++ awk '{printf "%s.%s.html\n",$1,$2}'
++ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
++ man -k '\[M_matrix\>'
++ grep -i '(3M_matrix)'
++ uniq
++ man --section 3m_matrix -k .
++ grep -i '(3M_matrix)'
++ man -k '\[M_matrix\>'
++ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
++ grep -vi '(3M_matrix)'
++ '[' -r ../../docs//M_matrix.3m_matrix.html..html ']'
++ read NAME
++ '[' -r ../../docs//M_matrix.3m_matrix.html ']'
++ echo 'append("M_matrix.3m_matrix.html");'
++ read NAME
++ '[' -r ../../docs//get_from_lala.3m_matrix.html ']'
++ echo 'append("get_from_lala.3m_matrix.html");'
++ read NAME
++ '[' -r ../../docs//ifin_lala.3m_matrix.html ']'
++ echo 'append("ifin_lala.3m_matrix.html");'
++ read NAME
++ '[' -r ../../docs//lala.3m_matrix.html ']'
++ echo 'append("lala.3m_matrix.html");'
++ read NAME
++ '[' -r ../../docs//put_into_lala.3m_matrix.html ']'
++ echo 'append("put_into_lala.3m_matrix.html");'
++ read NAME
++ echo '}'
++ exit
++ echo '>>>> make HTML index to manpages'
+>>>> make HTML index to manpages
++ env MANPATH=../../man OUTDIR=../../docs GPF_manpage_index
+making HTML index for section 1 in ../../docs/man1.html
+FOUND 1 for section 1
+<GPF_manpage_index><MANPATH>../../man
+<GPF_manpage_index><NAME>lala<SECT>(1)<DASH>-
+making HTML index for section 2 in ../../docs/man2.html
+FOUND 0 for section 2
+making HTML index for section 3 in ../../docs/man3.html
+FOUND 5 for section 3
+<GPF_manpage_index><MANPATH>../../man
+<GPF_manpage_index><NAME>M_matrix<SECT>(3m_matrix)<DASH>-
+<GPF_manpage_index><NAME>get_from_lala<SECT>(3m_matrix)<DASH>-
+<GPF_manpage_index><NAME>ifin_lala<SECT>(3m_matrix)<DASH>-
+<GPF_manpage_index><NAME>lala<SECT>(3m_matrix)<DASH>-
+<GPF_manpage_index><NAME>put_into_lala<SECT>(3m_matrix)<DASH>-
+making HTML index for section 4 in ../../docs/man4.html
+FOUND 0 for section 4
+making HTML index for section 5 in ../../docs/man5.html
+FOUND 0 for section 5
+making HTML index for section 6 in ../../docs/man6.html
+FOUND 0 for section 6
+making HTML index for section 7 in ../../docs/man7.html
+FOUND 0 for section 7
+making HTML index for section 8 in ../../docs/man8.html
+FOUND 0 for section 8
+making HTML index for Fortran Intrinsics for section 3 in ../../docs/man3i.html
+FOUND 0 for section 3
+making HTML index for Fortran Intrinsics for section 7 in ../../docs/man7i.html
+FOUND 0 for section 7
+sed: can't read ../../docs/*.[37]fortran.html: No such file or directory
++ echo '>>>> spell check'
+>>>> spell check
++ spell ../../README.md
++ xargs -n 8
++ column -t
+Alamos      CHANGELOG    EXPE      Forsythe  Fortran   IARR         INI      JSON
+LALA        Moler        NAMELIST  Neumann   TOML      YAML         ai       ais
+alfa        allocatable  anorm     ar        ars       atan         attr     boug
+br          brs          cd        cdiv      ci        cnt          config   cr
+cvec        deflator     dev       diag      disp      doxygen      eig      el
+embeddable  emm          ferr      fhelp     fortran   fpm          fv       gif
+github      hierarchial  html      https     iarr      ierr         ifin     imag
+inv         io           ip        jacobi    jacstep   journaling   keepB    kron
+lala        lanczos      lang      lanstep   len       littlearray  longley  md
+mgs         mycommands   mytitle   ncen      ort       pbar         pdq      pdqstep
+qrstep      rosser       rqi       serr      similiar  sl           sm       smm
+sn          sqrt         subexec   th        toml      tryall       tty      txt
+urbanjost   userguide    wv        xin
++ echo '>>>> update GPF project and documents'
+>>>> update GPF project and documents
++ unset GITHUB
++ make.one libGPF
+2908822 (process ID) old priority 0, new priority 19
+W-A-R-N-I-N-G: no ccheck.c file (required for configured versions)
++ echo '>>>> run test'
+>>>> run test
++ cd ../../test
++ ccall test_suite_M_matrix.f90
+*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_2909308
++ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_2909308
++ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_2909308
++ CCALL_DELETE_DIR=TRUE
++ FULLNAME=/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ SPLIT
++ sed -e 's/ -/@ -/g'
++ tr @ '\012'
++ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ echo NAME test_suite_M_matrix.f90
+NAME test_suite_M_matrix.f90
++ echo /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
+/home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
++ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ grep
+ -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ grep
+ -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ set
+ -x
++ set
+ -v
++ gfortran
+ -fbacktrace
+ -fdump-core
+ -frecord-marker=4
+ -I.
+ -DTESTPRG
+ -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
+ -o /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
+ -Wall
+ -Wextra
+ -Bstatic
+ -I/home/urbanjs/venus/V600/lib/Linux_gfortran
+ -J/home/urbanjs/venus/V600/lib/Linux_gfortran
+ -L/home/urbanjs/venus/V600/lib/Linux_gfortran
+ -lkon
+ -lDL
+ -lMULTI
+ -lrandlib
+ -lrandlibf90
+ -lncarsa
+ -lvopl
+ -lGPF
+ -lGPF_C
+ -lncurses
+ -lcurl
+ -lSTUG
+ -lwif97
+ -lsqlite3
+ -lquadmath
+ -lm
+ -Wunreachable-code
+ -Wunused
+ -Wuninitialized
+ -g
+ -O
+ -fcoarray=single
+ -Bdynamic
+ -L/usr/lib/x86_64-linux-gnu
+ -lX11
+/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:6:33:
+
+    6 | doubleprecision   :: arr(lda,lda),x(lda,lda)
+      |                                 1
+Warning: Unused variable ‘arr’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:27:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                           1
+Warning: Unused variable ‘i’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:35:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                                   1
+Warning: Unused variable ‘ierr’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:29:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                             1
+Warning: Unused variable ‘j’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:22:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                      1
+Warning: Unused variable ‘m’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:24:
+
+    5 | integer           :: m,n, i,j, ierr
+      |                        1
+Warning: Unused variable ‘n’ declared at (1) [-Wunused-variable]
+/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:6:44:
+
+    6 | doubleprecision   :: arr(lda,lda),x(lda,lda)
+      |                                            1
+Warning: Unused variable ‘x’ declared at (1) [-Wunused-variable]
++ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
+a - /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ set +x
+/home/urbanjs/venus/V600/LIBRARY/CYGWIN/scripts_regression/goodbad: test_suite_M_matrix.1 0 test_suite_M_matrix start --section 1
+/home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
+*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_2909308
++ test_suite_M_matrix
+================================================================================
+abs   abs(X) is the absolute value, or complex modulus,
+      of the elements of X .
+
+________________________________________________________________________________
+a-b is zero
+expected sum is OK
+a = -b as expected
+abs PASSED
+================================================================================
+all   all(X) returns FALSE(ie. 0) if any element value is FALSE(0).
+      Otherwise, it returns TRUE(ie. 1).
+
+      0 is regarded as false and "not 0" signifies true in general in
+      lala(1). so if F=0 and T=1
+
+          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)
+          all(T,F,T,F,T]) // produces 0 (which is a FALSE value)
+
+________________________________________________________________________________
+all('a') OK
+all(a) shape OK
+all PASSED
+================================================================================
+ans   Variable created automatically when expressions are not
+      assigned to anything else.
+
+ans PASSED
+================================================================================
+any   any(X) returns TRUE(ie. 1) if any element value is TRUE(non-zero).
+
+      0 is regarded as false and "not 0" signifies true in general in
+      lala(1).
+
+          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)
+          all(T,F,F,F,F]) // produces 1 (which is a TRUE value)
+          all(F,F,F,F,F]) // produces 0 (which is a FALSE value)
+
+________________________________________________________________________________
+any('a') OK
+any('a') OK
+any(a) shape OK
+any PASSED
+================================================================================
+atan  atan(X) is the arctangent of X . See "BASIC" .
+
+________________________________________________________________________________
+test if near PI OK
+2nd test if near PI OK
+atan PASSED
+================================================================================
+base  base(X,B) is a vector containing the base B representation
+      of X. This is often used in conjunction with "display".
+      "display(X,B)" is the same as "display(base(X,B))". For example,
+      "display(4*atan(1),16)" prints the hexadecimal representation of pi.
+
+base PASSED
+================================================================================
+chol  Cholesky factorization. "chol(X)" uses only the diagonal
+      and upper triangle of X. The lower triangular is assumed to be
+      the (complex conjugate) transpose of the upper. If X is positive
+      definite, then "R = chol(X)" produces an upper triangular R so
+      that R'*R = X . If X is not positive definite, an error message
+      is printed.
+
+chol PASSED
+================================================================================
+chop  Truncate arithmetic. "chop(P)" causes P places to be chopped
+      off after each arithmetic operation in subsequent computations. This
+      means P hexadecimal digits on some computers and P octal digits
+      on others. "chop(0)" restores full precision.
+
+chop PASSED
+================================================================================
+clear  Erases all variables, except "eps", "flop", "eye" and "rand".
+       X = <> erases only variable X . So does "clear X".
+
+clear PASSED
+================================================================================
+cond  Condition number in 2-norm. "cond(X)" is the ratio of the
+      largest singular value of X to the smallest.
+
+cond PASSED
+================================================================================
+conjg  "conjg(X)" is the complex conjugate of X .
+
+conjg PASSED
+================================================================================
+cos   cos(X) is the cosine of X . See "BASIC" .
+
+________________________________________________________________________________
+HALF-PI OK
+ZERO OK
+PI OK
+TWO PI OK
+-TWO PI OK
+-2000 PI OK
+
+ PI  =
+    3.1416
+
+ P  =
+    -1.
+
+ PP  =
+     1.
+
+ Z  =
+     1.
+
+ HP  =
+    6.1232D-17
+cos PASSED
+================================================================================
+debug  "debu(1)" turns on verbose low-level debugging for the developer,
+       "debu(0)" turns it back off.
+
+debug PASSED
+================================================================================
+det   "det(X)" is the determinant of the square matrix X .
+
+det PASSED
+================================================================================
+diag  If V is a row or column vector with N components,
+      "diag(V,K)" is a square matrix of order "N+abs(K)" with the
+      elements of V on the K-th diagonal. K = 0 is the main diagonal,
+      K > 0 is above the main diagonal and K < 0 is below the main
+      diagonal. "diag(V)" simply puts V on the main diagonal. eg.
+
+         diag(-M:M) + diag(ones(2*M,1),1) + diag(ones(2*M,1),-1)
+
+      produces a tridiagonal matrix of order 2*M+1 .
+
+      If X is a matrix, "diag(X,K)" is a column vector formed from the
+      elements of the K-th diagonal of X. "diag(X)" is the main diagonal
+      of X. "diag(diag(X))" is a diagonal matrix .
+
+diag PASSED
+================================================================================
+diary  "diary('file')" causes a copy of all subsequent terminal input and
+       most of the resulting output to be written on the file. "diary(0)"
+       turns it off. See "FILE".
+
+diary PASSED
+[H[2J
+================================================================================
+display  "display(X)" prints X in a compact format.
+
+      If base >= 2 is specified the values are printed as numeric
+      values in the specified base.
+
+           display(0:10,10 ) // display values in base 10
+           display(0:10,16 ) // display values as hexadecimal values
+           display(0:10,2 )  // display values as binary numbers
+
+      If no base is specified and all the elements of X are integers
+      between 0 and 255, then X is interpreted as LALA text and printed
+      accordingly.
+
+         <>display('the analysis is complete')
+           the analysis is complete
+         display(32:126) // print the printable default LALA characters
+
+      Otherwise or if the base is one, + , - and blank are printed for
+      positive, negative and zero elements.
+
+         display(rand(24,80)-rand(24,80))
+
+      Imaginary parts are ignored.
+
+      Note that "display(X,B)" is the same as "display(base(X,B))" except
+      for base 1 except it forces "display" to display numeric values.
+
+      "display" has an alias of "disp".
+
+________________________________________________________________________________
+#--------------#
+|              |
+|    WARNING   |
+|              |
+#--------------#
+display PASSED
+================================================================================
+delete  "delete('filename')" deletes the given file.
+
+delete PASSED
+================================================================================
+eig   Eigenvalues and eigenvectors.
+      "eig(X)" is a vector containing the eigenvalues of a square
+      matrix X.
+      "<V,D> = eig(X)" produces a diagonal matrix D of
+      eigenvalues and a full matrix V whose columns are the
+      corresponding eigenvectors so that X*V = V*D .
+
+
+eig PASSED
+================================================================================
+else  Used with "if".
+
+ELSE PASSED
+================================================================================
+end   Terminates the scope of "for", "while" and "if" statements.
+      Without "end"s, "for" and "while" repeat all statements up to
+      the end of the line. Each "end" is paired with the closest
+      previous unpaired "for" or "while" and serves to terminate its
+      scope. The line
+
+         for I=1:N, for J=1:N, A(I,J)=1/(I+J-1); A
+
+      would cause A to be printed N**2 times, once for each new
+      element. On the other hand, the line
+
+         for I=1:N, for J=1:N, A(I,J)=1/(I+J-1); end, end, A
+
+      will lead to only the final printing of A.
+      Similar considerations apply to "while".
+
+      See "exit" (terminates execution of loops or of LALA itself).
+
+END PASSED
+================================================================================
+eps   Floating point relative accuracy. A permanent variable
+      whose value is initially the distance from 1.0 to the next largest
+      floating point number. The value is changed by "chop", and other
+      values may be assigned. "eps" is used as a default tolerance by "pinv"
+      and "rank".
+
+________________________________________________________________________________
+
+ myeps  =
+    2.2204D-16
+eps matches expected value
+eps PASSED
+================================================================================
+lt    "lt(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is less than the one in Y.
+      Otherwise, the element is set to 0. Only the REAL component of the
+      numbers is tested.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+          count_of_true_results=sum(lt(X,Y))
+
+________________________________________________________________________________
+lt shape OK
+lt PASSED
+================================================================================
+le    "le(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is less than or equal to the one
+      in Y; if X is greater than Y the element of the answer is 0. Only
+      the REAL component of the numbers is tested.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+________________________________________________________________________________
+le shape OK
+le PASSED
+================================================================================
+eq    "eq(X,Y)" is an elemental function that sets element values to 1
+      if the elements are equal, and to 0 if they are not.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+          // return 1 if all elements are zero, else 1
+          allzero=all(eq(X,0))
+
+________________________________________________________________________________
+eq shape OK
+eq PASSED
+================================================================================
+ge    "ge(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is greater than or equal to the
+      one in Y; if X is less than Y the element of the answer is 0. Only
+      the REAL component of the numbers is tested.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+________________________________________________________________________________
+ge shape OK
+ge PASSED
+================================================================================
+gt    "gt(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is greater than to the one in Y;
+      if X is less than or equal to Y the returned element in the answer
+      is 0. Only the REAL component of the numbers is tested.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+________________________________________________________________________________
+gt shape OK
+gt PASSED
+================================================================================
+ne    "ne(X,Y)" is an elemental function that sets element values to 1
+      if the elements are not equal, and to 0 if they are not equal.
+
+      X and Y must have the same number of elements but need not be the same
+      shape. The returned value has the shape of X unless X is scalar, in
+      which case the returned value has the shape of Y.
+
+________________________________________________________________________________
+ne shape OK
+ne PASSED
+================================================================================
+maxval  "maxval(A)" returns the maximum real component found in the
+        elements of A
+
+________________________________________________________________________________
+maxval OF 'a' OK
+maxval shape OK
+maxval ARRAY OK
+maxval PASSED
+================================================================================
+minval  "minval(A)" returns the minimum real component found in the
+        elements of A
+
+________________________________________________________________________________
+minval OF 'a' OK
+minval shape OK
+minval ARRAY OK
+minval PASSED
+================================================================================
+exec  "exec('file',k)" obtains subsequent LALA input from an
+      external file. The printing of input is controlled by the
+      optional parameter k .
+
+      Files are searched for by the given name. If not found, it is searched
+      for in the colon-separated directory names in the environment variable
+      LALA_PATH. It is looked for first literally by the given name, and then
+      by the name suffixed with ".la".
+
+      "include" is an alias for "exec".
+
+         If k = 0 , there is no echo, prompt or pause. This is the
+                    default if the exec command is followed by a semicolon.
+         If k = 1 , the input is echoed.
+         If k = 2 , the LALA prompt <> is printed.
+         If k = 3 , there will be echos and prompts, but no pauses.
+                    This is the the default if the exec command is not
+                    followed by a semicolon.
+         If k = 4 , LALA pauses before each prompt and waits for a
+                    null line to continue.
+         If k = 7 , there will be echos, prompts and pauses. This is
+                    useful for demonstrations on video terminals.
+
+      "exec"'s may be nested, i.e. the text in the file may contain
+      "exec" of another file.
+
+      "exec" may not be recursive, as Fortran (currently) does not allow
+      for multiple opens of a file.
+
+      "exec"s may also be driven by "for" and "while" loops.
+
+exec PASSED
+================================================================================
+exit  Causes termination of a "for" or "while" loop.
+      If not in a loop, terminates execution of LALA.
+      Also see "quit".
+
+exit PASSED
+================================================================================
+exp   exp(X) is the exponential of X , e to the X . See "BASIC".
+
+exp PASSED
+================================================================================
+eye   Identity matrix. "eye(N)" is the N by N identity matrix.
+      "eye(M,N)" is an M by N matrix with 1's on the diagonal and
+      zeros elsewhere. "eye(A)" is the same size as A. "eye"
+      with no arguments is an identity matrix of whatever order
+      is appropriate in the context. For example "A + 3*eye"
+      adds 3 to each diagonal element of A.
+
+eye PASSED
+================================================================================
+flops  Count of floating point operations.
+
+       "flops" is a permanently defined row vector with two elements.
+       "flops(1)" is the cpu time consumed by the the previous
+       statement. "flops(2)" is a cumulative total. "flops" can be used
+       in the same way as any other vector. "flops(2) = 0" resets the
+       cumulative total. In addition, "flops(1)" will be printed whenever
+       a statement is terminated by an extra comma. For example,
+
+         X = inv(A);,
+
+       or
+
+         cond(A), (as the last statement on the line).
+flops PASSED
+================================================================================
+for   Repeat statements a specific number of times.
+
+         for variable = expr, statement, ..., statement, end
+
+      The "end" at the end of a line may be omitted. The comma before the
+      "end" may also be omitted. The columns of the expression are stored
+      one at a time in the variable and then the following statements,
+      up to the "end", are executed. The expression is often of the form
+      X:Y, in which case its columns are simply scalars. Some examples
+      (assume N has already been assigned a value).
+
+       for I = 1:N, for J = 1:N, A(I,J) = 1/(I+J-1);
+       for J = 2:N-1, A(J,J) = J; end; A
+       for S = 1.0: -0.1: 0.0, ... steps S with increments of -0.1 .
+       for E = eye(N), ... sets E to the unit N-vectors.
+       for V = A, ... has the same effect as
+       for J = 1:N, V = A(:,J); ... except J is also set here.
+
+for PASSED
+================================================================================
+help  topic|SECTION_NAME
+
+      "help" gives assistance. It is equivalent to "help SUMMARY"
+      by default.
+
+      o  "help" with no options lists common topic and section names.
+      o  The special topic "topics" shows all topic lines.
+      o  The special topic "manual" displays all the help text.
+      o  The special topic "search" shows lines from the manual
+         containing the subsequent string
+
+         Enter "h" at the "help:" prompt for additional options.
+
+      For example:
+
+         help        // a list of common topics and section names
+         help topics // a list of topics including the first line of
+                     // the topic.
+         help abs    // are_any_trueuces help on the function "abs".
+         help FLOW   // the entire section on flow control is displayed.
+         help manual // show all the help text
+         help help   // obviously prints this message.
+         help search factor // show all lines containing "factor".
+
+      Alternatively, To place all the documentation in a file, use
+      "help manual" and enter "w help.txt" at the "help:" prompt.
+help PASSED
+================================================================================
+hess  Hessenberg form. The Hessenberg form of a matrix is zero
+      below the first subdiagonal. If the matrix is symmetric or
+      Hermitian, the form is tridiagonal. <P,H> = "hess(A)" produces a
+      unitary matrix P and a Hessenberg matrix H so that A = P*H*P'. By
+      itself, "hess(A)" returns H.
+
+got back the original
+hess PASSED
+================================================================================
+if    Conditionally execute statements
+
+      SIMPLE FORM
+       Enter
+
+         if expression rop expression, statements
+
+      where rop is =, <, >, <=, >=, or <> (not equal). The
+      statements are executed once if the indicated comparison
+      between the real parts of the first components of the two
+      expressions is true, otherwise the statements are skipped.
+
+      EXAMPLE
+        Enter
+
+         if abs(i-j) = 1, a(i,j) = -1;
+
+      More complicated forms use "end" in the same way it is used with
+      "for" and "while" and use "else" as an abbreviation for "end",
+
+         if expression not rop expression
+
+      EXAMPLE
+        Enter
+
+         for i = 1:n, for j = 1:n, ...
+            if i = j, a(i,j) = 2; else if abs(i-j) = 1, a(i,j) = -1; ...
+            else a(i,j) = 0;
+
+      An easier way to accomplish the same thing is
+
+         a = 2*eye(n);
+         for i = 1:n-1, a(i,i+1) = -1; a(i+1,i) = -1;
+
+________________________________________________________________________________
+matches
+if PASSED
+================================================================================
+imag  "imag(X)" is the imaginary part of X .
+
+imag PASSED
+================================================================================
+invh  Inverse Hilbert matrix. "invh(N)" is the inverse of a N_by_N
+      Hilbert matrix (which is a famous example of a badly conditioned
+      matrix). The result is exact for N less than about 15, depending
+      upon the computer.
+
+         for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);
+
+      generates the NxN Hilbert matrix.
+
+      "invh" has an alias of "inverse_hilbert" and "invhilb".
+
+
+ N  =
+     5.
+inverse Hilbert PASSED
+invh PASSED
+================================================================================
+inv   "inv(X)" is the inverse of the square matrix X . A warning
+      message is printed if X is badly scaled or nearly
+      singular.
+
+inv PASSED
+================================================================================
+kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It
+      is also denoted by X .*. Y . The result is a large matrix
+      formed by taking all possible products between the elements
+      of X and those of Y . For example, if X is 2 by 3, then
+      X .*. Y is
+
+            < x(1,1)*Y  x(1,2)*Y  x(1,3)*Y
+              x(2,1)*Y  x(2,2)*Y  x(2,3)*Y >
+
+      The five-point discrete Laplacian for an n-by-n grid can be
+      generated by
+
+            T = diag(ones(n-1,1),1);  T = T + T';  I = eye(T);
+            A = T.*.I + I.*.T - 4*eye;
+
+      Just in case they might be useful, LALA includes
+      constructions called Kronecker tensor quotients, denoted by
+      X ./. Y and X .\. Y . They are obtained by replacing the
+      element-wise multiplications in X .*. Y with divisions.
+
+
+ S1  =
+     0.
+
+ S2  =
+     0.
+kron(A,B) check PASSED
+A .*. B check PASSED
+kron PASSED
+================================================================================
+lines  An internal count is kept of the number of lines of output
+       since the last input. Whenever this count approaches a
+       limit, the user is asked whether or not to suppress
+       printing until the next input. Initially the limit is 21.
+       "lines(N)" resets the limit to N .
+
+lines PASSED
+================================================================================
+load  "load('file')" retrieves all the variables from the file .
+      See FILE and "save" for more details. To prepare your own
+      file for "load"ing, change the "read" to "write" in the code
+      given under "save".
+
+ Your current variables are...
+ test_Variable  c  b  A  eps  flops  eye  rand
+using 35 out of 200000 elements
+ Your current variables are...
+ eps  flops  eye  rand
+using 5 out of 200000 elements
+End of file
+ Your current variables are...
+ test_Variable  c  b  A  eps  flops  eye  rand
+using 35 out of 200000 elements
+load of A PASSED
+load of b PASSED
+load of c PASSED
+load of test_variable PASSED
+load PASSED
+================================================================================
+log   log(X) is the natural logarithm of X.
+
+      Complex results are produced if X is not positive, or has
+      nonpositive eigenvalues.
+
+      See "BASIC".
+
+log PASSED
+================================================================================
+long   See "short" also.
+
+       Determine output format. All computations are done in
+       complex arithmetic and double precision if it is available.
+       "short" and "long" merely switch between different output
+       formats.
+
+        long     // Scaled fixed point format with about 15 digits.
+        long e   // Floating point format with about 15 digits.
+        long z   // System dependent format, often hexadecimal.
+
+long PASSED
+================================================================================
+lu    Factors from Gaussian elimination. <L,U> = LU(X) stores a
+      upper triangular matrix in U and a 'psychologically lower
+      triangular matrix', i.e. a product of lower triangular and
+      permutation matrices, in L , so that X = L*U . By itself,
+      "lu(X)" returns the output from CGEFA .
+
+lu PASSED
+================================================================================
+magic  Magic square. "magic(N)" is an N by N matrix constructed
+       from the integers 1 through N**2 with equal row, column and
+       diagonal sums. N must be a positive whole number not equal to two.
+
+
+ N  =
+    10.
+________________________________________________________________________________
+magic shape OK
+magic SUM OK
+magic PASSED
+================================================================================
+norm  computes the norm or P-norm of X
+
+      norm(X,P) computes the P-norm of X. P=2 is the default, which defines
+      the standard norm.
+
+      For matrices..
+          norm(X,1)      is the 1-norm of X; ie. the largest column sum
+                         of X.
+
+          norm(X,2)      the largest singular value of X.
+          or norm(X)
+
+          norm(X,'inf')  is the infinity norm of X; ie. the largest row
+                         sum of X.
+
+          norm(X,'fro')  is the F-norm, i.e. "sqrt(sum(diag(X'*X)))" .
+
+      For vectors..
+          norm(V,P)      the same as sum(V(I)**P)**(1/P) .
+                         ??? what about negative values of (I) and odd P? abs() or not
+
+          norm(V,2)      the square root of the sum of the squares of
+          or norm(V)     the entries of V.
+
+          norm(V,'inf')  the value is max(abs(V)) .
+________________________________________________________________________________
+norm PASSED
++
+================================================================================
+ones  All ones. "ones(N)" is an N by N matrix of ones. "ones(M,N)"
+      is an M by N matrix of ones . "ones(A)" is the same size as A and
+      all ones .
+
+         a=magic(4)
+         a=a+ones(a)*3 // Add 3 to each element of "a"
+
+________________________________________________________________________________
+ones SUM OK
+ones shape OK
+ones DELTA OK
+ones PASSED
+================================================================================
+orth  Orthogonalization. "Q = orth(X)" is a matrix with
+      orthonormal columns, i.e. Q'*Q = eye, which span the same
+      space as the columns of X .
+
+orth PASSED
+================================================================================
+pinv  Pseudoinverse.
+
+      "X = pinv(A)" produces a matrix X of the same dimensions as A'
+      so that A*X*A = A , X*A*X = X and AX and XA are Hermitian . The
+      computation is based on "svd(A)" and any singular values less
+      than a tolerance are treated as zero. The default tolerance is
+      "norm(shape(A),'inf')*norM(A)*eps". This tolerance may be overridden
+      with "X = pinv(A,tol)". See "rank".
+
+pinv PASSED
+================================================================================
+plot  "plot(X,Y)" produces a plot of the elements of Y against
+      those of X. plot(Y) is the same as plot(1:n,Y) where n is the number
+      of elements in Y. plot(X,Y,P) or "plot(X,Y,p1,...,pk)" passes the
+      optional parameter vector P or scalars p1 through pk to the plot
+      routine. The default plot routine is a crude printer-plot. This
+      version writes the data as a simple X Y table into a scratch file
+      called "scratch.dat" and then calls the command
+
+        xy scratch.dat [options]
+
+      Hopefully, you have the command xy(1) in your search path.
+      If not, you can make one by creating a script that calls
+      a plotting utility.
+
+         t = 0:50;
+         plot( t.*cos(t), t.*sin(t) )
+         opts=' -m -1 -title test plot -d pdf'
+         plot( t.*cos(t), t.*sin(t),opts)
+plot PASSED
+================================================================================
+poly  Characteristic polynomial.
+
+      If A is an N by N matrix, "poly(A)" is a column vector with
+      N+1 elements which are the coefficients of the characteristic
+      polynomial, "det(lambda*eye - A)" .
+
+      If V is a vector, "poly(V)" is a vector whose elements are the
+      coefficients of the polynomial whose roots are the elements of V
+      . For vectors, "roots" and "poly" are inverse functions of each
+      other, up to ordering, scaling, and roundoff error.
+
+      "roots(poly(1:20))" generates Wilkinson's famous example.
+
+poly PASSED
+================================================================================
+pow   For a scalar exponent pow(X,exponent) raises each element of X to
+      the specified power. pow(X,Y) raise each element in X by the
+      corresponding element in Y.  X and Y must have the same shape.
+
+         A=magic(3);
+         pow(A,3)
+
+________________________________________________________________________________
+
+ answ  =
+   512.    1.  216.
+    27.  125.  343.
+    64.  729.    8.
+pow OF 'a' OK
+pow shape OK
+pow ARRAY OK
+pow PASSED
+================================================================================
+print  "print('file',X)" prints X on the file using the current
+       format determined by "short", "long z", etc. See FILE.
+
+print PASSED
+================================================================================
+prod  "prod(X)" is the product of all the elements of X.
+
+           A=prod(1:10) // the factorial of 10
+           B=2*3*4*5*6*7*8*9*10
+
+prod(a) PASSED
+d PASSED
+prod PASSED
+================================================================================
+qr    Orthogonal-triangular decomposition. "<Q,R> = qr(X)" produces an
+      upper triangular matrix R of the same
+      dimension as X and a unitary matrix Q so that X = Q*R .
+
+      "<Q,R,E> = qr(X)" produces a permutation matrix E, an upper
+      triangular R with decreasing diagonal elements and a unitary Q
+      so that X*E = Q*R . By itself, "qr(X)" returns the output of
+      "cqrdc". "triu(qr(X))" is R .
+
+qr PASSED
+================================================================================
+quit  From the terminal, causes return to the operating system
+      or other program which invoked LALA. From inside an
+      "exec", causes return to the invoking "exec", or to the
+      terminal.
+quit PASSED
+================================================================================
+rand  Random numbers and matrices. "rand(N)" is an N by N matrix
+      with random entries. "rand(M,N)" is an M by N matrix with
+      random entries. "rand(A)" is the same size as A. "rand"
+      with no arguments is a scalar whose value changes each time
+      it is referenced.
+
+      Ordinarily, random numbers are uniformly distributed in
+      the interval "(0.0,1.0). rand('normal')" switches to a
+      normal distribution with mean 0.0 and variance 1.0.
+      "rand('uniform')" switches back to the uniform distribution.
+      "rand('seed')" returns the current value of the seed for the
+      generator. "rand('seed',n)" sets the seed to n.
+      "rand('seed',0)" resets the seed to 0, its value when LALA
+      is first entered.
+
+rand PASSED
+================================================================================
+rank  Rank. "K = rank(X)" is the number of singular values of X
+      that are larger than "norm(shape(X),'inf')*norm(X)*eps".
+      "K = rank(X,tol)" is the number of singular values of X that
+      are larger than tol.
+
+rank PASSED
+================================================================================
+rat   An experimental function which attempts to remove the
+      roundoff error from results that should be "simple"
+      rational numbers.
+      "rat(X)" approximates each element of X by a continued
+      fraction of the form
+
+                a/b = d1 + 1/(d2 + 1/(d3 + ... + 1/dk))
+
+      with k <= len, integer di and abs(di) <= max . The default
+      values of the parameters are len = 5 and max = 100.
+      "rat(len,max)" changes the default values. Increasing either
+      len or max increases the number of possible fractions.
+      "<A,B> = rat(X)" produces integer matrices A and B so that
+
+                A ./ B  =  rat(X)
+
+      Some examples:
+
+            long
+            T = invh(6), X = inv(T)
+            <A,B> = rat(X)
+            H = A ./ B, S = inv(H)
+
+            short e
+            d = 1:8,  e = ones(d),  A = abs(d'*e - e'*d)
+            X = inv(A)
+            rat(X)
+            display(ans)
+
+rat PASSED
+================================================================================
+rcond  "rcond(X)" is an estimate for the reciprocal of the
+       condition of X in the 1-norm obtained by the LINPACK
+       condition estimator. If X is well conditioned, rcond(X)
+       is near 1.0. If X is badly conditioned, rcond(X) is
+       near 0.0.
+       <R, Z> = rcond(A) sets R to rcond(A) and also produces a
+       vector Z so that
+
+                 norm(A*Z,1) = R*norm(A,1)*norm(Z,1)
+
+       So, if rcond(A) is small, then Z is an approximate null
+       vector.
+
+rcond PASSED
+================================================================================
+real  "real(X)" is the real part of X.
+
+real PASSED
+================================================================================
+roots  Find polynomial roots. "roots(C)" computes the roots of the
+       polynomial whose coefficients are the elements of the vector C.
+       If C has N+1 components, the polynomial is
+
+          C(1)*X**N + ... + C(N)*X + C(N+1)
+
+       See "poly".
+
+roots PASSED
+================================================================================
+round  "round(X)" rounds the elements of X to the nearest integers.
+
+________________________________________________________________________________
+round of array plus random small fraction PASSED
+
+ tally  =
+     0.    0.
+round delta of original and randomized PASSED
+
+ tally  =
+     0.    0.    0.
+round PASSED
+
+ N  =
+     3.
+
+ M  =
+     1.
++
+================================================================================
+rref  "rref(A)" is the reduced row echelon form of the rectangular
+      matrix. rref(A,B) is the same as rref(<A,B>) .
+
+rref PASSED
+================================================================================
+save  "save('file')" stores all the current variables in a file.
+      "save('file',X)" saves only X . See FILE .
+
+      The variables may be retrieved later by "load('file')" or by your
+      own program using the following code for each matrix. The lines
+      involving "ximag" may be eliminated if everything is known to
+      be real.
+
+        > ! attach LUN to 'file', then ...
+        > doubleprecision :: xreal(mmax,nmax)
+        > doubleprecision :: ximag(mmax,nmax)
+        > character(len=32) :: id
+        > read(LUN,'(a32,3i9)') id,m,n,img
+        > do j = 1, n
+        >    read(LUN,'(4z18)') (xreal(i,j), i=1,m)
+        >    if (img .ne. 0) read(LUN,102) (ximag(i,j),i=1,m)
+        > enddo
+        > ! The formats used are system dependent. These are typical.
+        > ! See SUBROUTINE mat_savlod(3f) in your local implementation
+        > ! of LALA.
+
+ Your current variables are...
+ test_Variable  c  b  A  eps  flops  eye  rand
+using 35 out of 200000 elements
+ Your current variables are...
+ eps  flops  eye  rand
+using 5 out of 200000 elements
+End of file
+ Your current variables are...
+ test_Variable  c  b  A  eps  flops  eye  rand
+using 35 out of 200000 elements
+save of A PASSED
+save of b PASSED
+save of c PASSED
+save of test_variable PASSED
+save PASSED
+================================================================================
+schur  Schur decomposition. "<U,T> = schur(X)" produces an upper
+       triangular matrix T , with the eigenvalues of X on the
+       diagonal, and a unitary matrix U so that X = U*T*U' and
+       U'*U = eye . By itself, "schur(X)" returns T .
+
+schur PASSED
+================================================================================
+semi  "semi" toggles the action of semicolons at the end of lines.
+      It will make semicolons cause rather than suppress printing.
+      A second "semi" restores the initial interpretation.
+semi PASSED
+================================================================================
+short  See "long" also.
+       Determine output format. All computations are done in
+       complex arithmetic and double precision if it is available.
+       "short" and "long" merely switch between different output
+       formats.
+
+        short    // Scaled fixed point format with about 5 digits.
+        short e  // Floating point format with about 5 digits.
+
+short PASSED
+================================================================================
+sh    Starts the command shell interactively, using the command defined by
+      the environment variable SHELL. Note that in addition any line
+      starting with an exclamation (!) is passed to the system for
+      execution.
+
 sh PASSED
 ================================================================================
 sin   sin(X) is the sine of X. See "BASIC".
@@ -4386,58 +5794,58 @@ general char PASSED
 + cat
 + cat
 + COUNT=0
-+ read NAME
 + ls get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
++ read NAME
 + SHORTNAME=get_from_lala
 + COUNT=1
 + cat
 ++ TOCHARACTER
 ++ :
-++ cat get_from_lala.3m_matrix.man
+++ cat -s get_from_lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
-++ cat
 ++ sed -e 's/^/'\''/'
 ++ sed -e 's/$/'\'', \&/'
+++ cat
 + read NAME
 + SHORTNAME=ifin_lala
 + COUNT=2
 + cat
 ++ TOCHARACTER
 ++ :
-++ cat ifin_lala.3m_matrix.man
+++ cat -s ifin_lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
 ++ sed -e 's/$/'\'', \&/'
-++ cat
 ++ sed -e 's/^/'\''/'
+++ cat
 + read NAME
 + SHORTNAME=lala
 + COUNT=3
 + cat
 ++ TOCHARACTER
 ++ :
-++ cat lala.3m_matrix.man
-++ sed -e 's/$/'\'', \&/'
-++ sed -e 's/^/'\''/'
-++ cat
+++ cat -s lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
+++ cat
+++ sed -e 's/^/'\''/'
+++ sed -e 's/$/'\'', \&/'
 + read NAME
 + SHORTNAME=M_matrix
 + COUNT=4
 + cat
 ++ TOCHARACTER
 ++ :
-++ cat M_matrix.3m_matrix.man
-++ sed -e 's/$/'\'', \&/'
-++ cat
-++ sed -e 's/^/'\''/'
+++ cat -s M_matrix.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
+++ cat
+++ sed -e 's/$/'\'', \&/'
+++ sed -e 's/^/'\''/'
 + read NAME
 + SHORTNAME=put_into_lala
 + COUNT=5
 + cat
 ++ TOCHARACTER
 ++ :
-++ cat put_into_lala.3m_matrix.man
+++ cat -s put_into_lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
 ++ cat
 ++ sed -e 's/$/'\'', \&/'
@@ -4447,5 +5855,24 @@ general char PASSED
 + cat
 + cat
 + ls -ld /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
--rw-rw-r-- 1 urbanjs urbanjs 45867 Jul 22 18:42 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
+-rw-rw-r-- 1 urbanjs urbanjs 45871 Mar 31 06:13 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
 + cat
++ '[' -d /home/urbanjs/venus/V600/LIBRARY/libGPF/download/doc ']'
++ cp doc/get_from_lala.3m_matrix.man doc/ifin_lala.3m_matrix.man doc/lala.1.man doc/lala.3m_matrix.man doc/M_matrix.3m_matrix.man doc/put_into_lala.3m_matrix.man /home/urbanjs/venus/V600/LIBRARY/libGPF/download/doc/
++ echo '>>>> table of contents of manpages'
+>>>> table of contents of manpages
++ unzip -l ../../docs/manpages.zip
+Archive:  ../../docs/manpages.zip
+error [../../docs/manpages.zip]:  missing 6 bytes in zipfile
+  (attempting to process anyway)
+error [../../docs/manpages.zip]:  start of central directory not found;
+  zipfile corrupt.
+  (please check that you have transferred or created the zipfile in the
+  appropriate BINARY mode and that you have compiled UnZip properly)
++ tar tvfz ../../docs/manpages.tgz
+-rw-rw-r-- urbanjs/urbanjs 1692 2025-03-31 06:13 man1/lala.1.gz
+-rwxrwxrwx urbanjs/urbanjs 1722 2025-03-31 06:13 man3/get_from_lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs  557 2025-03-31 06:13 man3/ifin_lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs 7116 2025-03-31 06:13 man3/lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs 1481 2025-03-31 06:13 man3/M_matrix.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs  962 2025-03-31 06:13 man3/put_into_lala.3m_matrix.gz

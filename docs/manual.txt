@@ -6,11 +6,8 @@ M_matrix (3m_matrix) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algebra 
 put_into_lala (3m_matrix) - [M_matrix] return data from lala(3f) to calling program LICENSE(MIT)
 lala.1.man(1m_matrix)					 lala.1.man(1m_matrix)
 
-
-
 NAME
   lala(1f) - interpret matrix expressions using a shell-like interface
-
 
 SYNOPSIS
   lala [expression(s)] | [ --help| --version]
@@ -43,11 +40,11 @@ EXAMPLES
 
       # Example 1: introductory usage:
       lala
-      a=<1 2 3;5 4 6;7 8 9>
+      A=<1 2 3;5 4 6;7 8 9>
       b=<5;6;7>
-      a*b
-      b*a
-      det(a)
+      A*b
+      b*A
+      det(A)
       quit
 
   An explanation of Example 1:
@@ -82,7 +79,6 @@ EXAMPLES
     =		<---LALA response
 
 	  18.
-
 
   <> quit
     <--- you quit LALA
@@ -143,12 +139,8 @@ EXAMPLES
       q
       quit
 
-
-
-				 July 22, 2023		 lala.1.man(1m_matrix)
+				March 31, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
-
-
 
 NAME
   ifin_lala(3f) - [M_matrix] test if variable name exists in lala()
@@ -166,7 +158,7 @@ RETURNS
   ifin_lala
     TRUE if varname exists in lala, else FALSE.
 
-EXAMPLE
+EXAMPLES
   sample program:
 
        program demo_ifin_lala
@@ -181,26 +173,18 @@ EXAMPLE
       eps  T
       unknown  F
 
-
-
-
-				 July 22, 2023		  ifin_lala(3m_matrix)
+				March 31, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
-
-
 
 NAME
   M_matrix(3f) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algebra
   Fortran Facility (LALA) LICENSE(MIT)
 
-
 DESCRIPTION
   The M_matrix module contains the Linear Algebra Fortran Facility (LALA)
-  which allows for interacting with a Fortran program using Matlab
-
-  or Octave-like commands.
-    LALA is also usable as a simple one-line language. It is a WIP (Work In
-    Progress) but is already useful.
+  which allows for interacting with a Fortran program using Matlab or Octave-
+  like commands. LALA is also usable as a simple one-line language. It is a
+  WIP (Work In Progress) but is already useful.
 
     •  You can pass intrinsic-type data easily between your Fortran program
        and the LALA utility.
@@ -227,7 +211,7 @@ DESCRIPTION
   transferring small amounts of data between programs or assisting in
   debugging and development, unit testing and macro-level timing.
 
-EXAMPLE
+EXAMPLES
   Sample program:
 
       program demo_M_matrix
@@ -275,12 +259,8 @@ EXAMPLE
 
       end program demo_M_matrix
 
-
-
-				 July 22, 2023		   M_matrix(3m_matrix)
+				March 31, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
-
-
 
 NAME
   put_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
@@ -292,7 +272,6 @@ SYNOPSIS
      character(len=*),intent(in)	      :: varname
      [INTRINSIC_TYPE],allocatable,intent(in)  :: a(:,:)
      integer,intent(out)		      :: ierr
-
 
 DESCRIPTION
   Define a variable in the lala(3f) utility with a variable declared in the
@@ -308,7 +287,7 @@ RETURNS
   IERR
     Zero if no error occurred
 
-EXAMPLE
+EXAMPLES
   sample program:
 
      program demo_put_into_lala
@@ -343,13 +322,8 @@ EXAMPLE
        >    1.1000    2.2000	3.3000
        >This is my title
 
-
-
-
-				 July 22, 2023	      put_into_lala(3m_matrix)
+				March 31, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
-
-
 
 NAME
   LALA(3f) - [M_matrix] initialize and/or pass commands to matrix laboratory
@@ -362,7 +336,6 @@ SYNOPSIS
        character(len=*),intent(in),optional :: cmd
 	  or
        character(len=*),intent(in),optional :: cmd(:)
-
 
 DESCRIPTION
   LALA(3f) is modeled on MATLAB(3f) (MATrix LABoratory), a FORTRAN package
@@ -415,7 +388,7 @@ OPTIONS
   If a CMD is passed and no previous initialization call was made the scratch
   space will be allocated to 200000.
 
-EXAMPLE
+EXAMPLES
   Example 1:
 
 	program demo_LALA
@@ -978,12 +951,8 @@ EXAMPLE
        >       024.	0.	0.	0.     -4.
        >      ]
 
-
-
-				 July 22, 2023		       lala(3m_matrix)
+				March 31, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
-
-
 
 NAME
   get_from_lala(3f) - [M_matrix] return data from lala(3f) to calling program
@@ -996,7 +965,6 @@ SYNOPSIS
        [INTRINSIC_TYPE],allocatable,intent(out)  :: a(:,:)
        integer,intent(out)			 :: ierr
        logical,intent(in),optional		 :: fixed
-
 
 DESCRIPTION
   Given the name of a variable defined with lala(3f) commands return the
@@ -1017,7 +985,7 @@ RETURNS
   IERR
     Zero if no error occurred
 
-EXAMPLE
+EXAMPLES
   sample program:
 
      program demo_get_from_lala
@@ -1089,7 +1057,4 @@ EXAMPLE
      >in calling program ivec= 20
      > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
 
-
-
-
-				 July 22, 2023	      get_from_lala(3m_matrix)
+				March 31, 2025	      get_from_lala(3m_matrix)

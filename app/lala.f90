@@ -56,11 +56,11 @@ help_text=[ CHARACTER(LEN=128) :: &
 '                                                                          ',&
 '    # Example 1: introductory usage:                                      ',&
 '    lala                                                                  ',&
-'    a=<1 2 3;5 4 6;7 8 9>                                                 ',&
+'    A=<1 2 3;5 4 6;7 8 9>                                                 ',&
 '    b=<5;6;7>                                                             ',&
-'    a*b                                                                   ',&
-'    b*a                                                                   ',&
-'    det(a)                                                                ',&
+'    A*b                                                                   ',&
+'    b*A                                                                   ',&
+'    det(A)                                                                ',&
 '    quit                                                                  ',&
 '                                                                          ',&
 '   An explanation of Example 1:                                           ',&

@@ -6,11 +6,16 @@ integer           :: m,n, i,j, ierr
 doubleprecision   :: arr(lda,lda),x(lda,lda)
 logical           :: logs=.false.
 
-   !!logs=.true.
+   logs=.true.
    !!call lala(20000,echo=.true.)
 
+   if(logs)call lala( 'diary(''test_suite_M_matrix.log'');')
+   logs=.false.
+
       call test_abs ()     ! abs   abs(X) is the absolute value, or complex modulus, of the
+      call test_all ()     ! all   all(X) returns 1 if all elmements are non-zero.
    call test_ans ()     ! ans   Variable created automatically when expressions are not
+      call test_any ()     ! any   any(X) returns 1 if any elmement is non-zero, 
       call test_atan ()    ! atan  atan(X) is the arctangent of X . See HIGH .
    call test_base ()    ! base  base(X,B) is a vector containing the base B representation
    call test_chol ()    ! chol  Cholesky factorization. "chol(X)" uses only the diagonal
@@ -29,6 +34,14 @@ logical           :: logs=.false.
    call test_else ()    ! else  Used with "if".
    call test_end ()     ! end   Terminates the scope of "for", "while" and "if" statements.
       call test_eps ()     ! eps   Floating point relative accuracy. A permanent variable
+   call test_lt ()      ! lt   elementally return true(1) or false(0) for relational operator
+   call test_le ()      ! le   elementally return true(1) or false(0) for relational operator
+   call test_eq ()      ! eq   elementally return true(1) or false(0) for relational operator
+   call test_ge ()      ! ge   elementally return true(1) or false(0) for relational operator
+   call test_gt ()      ! gt   elementally return true(1) or false(0) for relational operator
+   call test_ne ()      ! ne   elementally return true(1) or false(0) for relational operator
+      call test_maxval ()  ! maxval  maximum real value 
+      call test_minval ()  ! minval  minimum real value
    call test_exec ()    ! exec  "exec('file',k)" obtains subsequent LALA input from an
    call test_exit ()    ! exit  Causes termination of a "for" or "while" loop.
    call test_exp ()     ! exp   exp(X) is the exponential of X , e to the X . See HIGH.
@@ -54,6 +67,7 @@ logical           :: logs=.false.
    call test_pinv ()    ! pinv  Pseudoinverse.
    call test_plot ()    ! plot  "plot(X,Y)" produces a plot of the elements of Y against
    call test_poly ()    ! poly  Characteristic polynomial.
+      call test_pow ()     ! pow   "pow(X,P)" raises each elment of X to the power P
    call test_print ()   ! print  "print('file',X)" prints X on the file using the current
       call test_prod ()    ! prod  "prod(X)" is the product of all the elements of X .
    call test_qr ()      ! qr    Orthogonal-triangular decomposition.  "<Q,R> = qr(X)" produces an
@@ -190,6 +204,153 @@ subroutine test_zeros()
   call lala( 'if sum(tally) = 0,display(''zeros PASSED''),else,display(''zeros FAILED'');tally')
 end subroutine test_zeros
 !-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_pow()
+  call lala( 'display(ones(80,1)''*61); help pow; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''pow.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=magic(3);')
+  call lala( 'c=pow(b,3);')
+  call lala('answ=[ 512 1 216 ; 27 125 343 ; 64 729 8 ]')
+  call lala(  &
+  & "if round(c)=answ,display('pow OF ''a'' OK'),tally=[tally,0];else,display('pow OF ''a'' FAILED');shape(a),tally=[tally,1];end")
+  call lala( &
+  & 'if shape(c) = [3,3] ,display(''pow shape OK'');tally=[tally,0];else,display(''pow shape BAD'');shape(a),tally=[tally,1];')
+  call lala( &
+  & 'if round(pow(a,2)) = a.*a,       &
+  &    display(''pow ARRAY OK''),     &
+  &    tally=[tally,0];               &
+  & else,                             &
+  &    display(''pow ARRAY FAILED''); &
+  &    tally=[tally,1]; &
+  & end')
+  call lala( 'if sum(tally) = 0,display(''pow PASSED''),else,display(''pow FAILED'');tally')
+end subroutine test_pow
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_lt()
+  call lala( 'display(ones(80,1)''*61); help lt; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''lt.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=magic(3);')
+  call lala( 'c=lt(a,b);')
+  call lala( &
+  & 'if shape(c) = [3,3] ,display(''lt shape OK'');tally=[tally,0];else,display(''lt shape BAD'');shape(a),tally=[tally,1];')
+  call lala( 'if sum(tally) = 0,display(''lt PASSED''),else,display(''lt FAILED'');tally')
+end subroutine test_lt
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_le()
+  call lala( 'display(ones(80,1)''*61); help le; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''le.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=magic(3);')
+  call lala( 'c=le(a,b);')
+  call lala( &
+  & 'if shape(c) = [3,3] ,display(''le shape OK'');tally=[tally,0];else,display(''le shape BAD'');shape(a),tally=[tally,1];')
+  call lala( 'if sum(tally) = 0,display(''le PASSED''),else,display(''le FAILED'');tally')
+end subroutine test_le
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_eq()
+  call lala( 'display(ones(80,1)''*61); help eq; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''eq.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=magic(3);')
+  call lala( 'c=eq(a,b);')
+  call lala( &
+  & 'if shape(c) = [3,3] ,display(''eq shape OK'');tally=[tally,0];else,display(''eq shape BAD'');shape(a),tally=[tally,1];')
+!  call lala( &
+!  & 'if eq(a,b) + b = 90, &
+!  &    display(''eq ARRAY OK''), &
+!  &    tally=[tally,0]; &
+!  & else, &
+!  &    display(''eq ARRAY FAILED''); &
+!  &    tally=[tally,1]; &
+!  & end')
+  call lala( 'if sum(tally) = 0,display(''eq PASSED''),else,display(''eq FAILED'');tally')
+end subroutine test_eq
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_ge()
+  call lala( 'display(ones(80,1)''*61); help ge; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''ge.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=magic(3);')
+  call lala( 'c=ge(a,b);')
+  call lala( &
+  & 'if shape(c) = [3,3] ,display(''ge shape OK'');tally=[tally,0];else,display(''ge shape BAD'');shape(a),tally=[tally,1];')
+  call lala( 'if sum(tally) = 0,display(''ge PASSED''),else,display(''ge FAILED'');tally')
+end subroutine test_ge
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_gt()
+  call lala( 'display(ones(80,1)''*61); help gt; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''gt.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=magic(3);')
+  call lala( 'c=gt(a,b);')
+  call lala( &
+  & 'if shape(c) = [3,3] ,display(''gt shape OK'');tally=[tally,0];else,display(''gt shape BAD'');shape(a),tally=[tally,1];')
+  call lala( 'if sum(tally) = 0,display(''gt PASSED''),else,display(''gt FAILED'');tally')
+end subroutine test_gt
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_ne()
+  call lala( 'display(ones(80,1)''*61); help ne; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''ne.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=magic(3);')
+  call lala( 'c=ne(a,b);')
+  call lala( &
+  & 'if shape(c) = [3,3] ,display(''ne shape OK'');tally=[tally,0];else,display(''ne shape BAD'');shape(a),tally=[tally,1];')
+  call lala( 'if sum(tally) = 0,display(''ne PASSED''),else,display(''ne FAILED'');tally')
+end subroutine test_ne
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_minval()
+  call lala( 'display(ones(80,1)''*61); help minval; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''minval.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=-magic(11);')
+  call lala( 'c=minval(a);')
+  call lala(  &
+  & "if c = 1,display('minval OF ''a'' OK'),tally=[tally,0];else,display('minval OF ''a'' FAILED');c,tally=[tally,1];end")
+  call lala( &
+  & 'if shape(c)=[1,1] ,display(''minval shape OK'');tally=[tally,0];else,display(''minval shape BAD'');shape(a),tally=[tally,1];')
+  call lala( &
+  & 'if minval(b)  = -121, &
+  &    display(''minval ARRAY OK''), &
+  &    tally=[tally,0]; &
+  & else, &
+  &    display(''minval ARRAY FAILED''); &
+  &    tally=[tally,1]; &
+  & end')
+  call lala( 'if sum(tally) = 0,display(''minval PASSED''),else,display(''minval FAILED'');tally')
+end subroutine test_minval
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_maxval()
+  call lala( 'display(ones(80,1)''*61); help maxval; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''maxval.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=magic(11);')
+  call lala( 'c=maxval(a);')
+  call lala(  &
+  & "if c = 9,display('maxval OF ''a'' OK'),tally=[tally,0];else,display('maxval OF ''a'' FAILED');c,tally=[tally,1];end")
+  call lala( &
+  & 'if shape(c)=[1,1] ,display(''maxval shape OK'');tally=[tally,0];else,display(''maxval shape BAD'');shape(a),tally=[tally,1];')
+  call lala( &
+  & 'if maxval(b)  = 121, &
+  &    display(''maxval ARRAY OK''), &
+  &    tally=[tally,0]; &
+  & else, &
+  &    display(''maxval ARRAY FAILED''); &
+  &    tally=[tally,1]; &
+  & end')
+  call lala( 'if sum(tally) = 0,display(''maxval PASSED''),else,display(''maxval FAILED'');tally')
+end subroutine test_maxval
+!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sum()
   call lala( 'display(ones(80,1)''*61); help sum; display(ones(80,1)''*95)')
   call lala( 'tally=[0];')
@@ -211,6 +372,38 @@ subroutine test_sum()
   & end')
   call lala( 'if sum(tally) = 0,display(''sum PASSED''),else,display(''sum FAILED'');tally')
 end subroutine test_sum
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_any()
+  call lala( 'display(ones(80,1)''*61); help any; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''any.log'');')
+  call lala( [ character(len=267) :: &
+
+  'a=<0 0 0; 0 0 0; 0 0 0>;', &
+  'b=any(a);', &
+  "if b = 0,display('any(''a'') OK'),tally=[tally,0];else,display('any(''a'') FAILED');shape(a),tally=[tally,1];end", &
+
+  'a=<0 0 0; 0 0 0; 1 0 0>;', &
+  'b=any(a);', &
+  "if b = 1,display('any(''a'') OK'),tally=[tally,0];else,display('any(''a'') FAILED');shape(a),tally=[tally,1];end", &
+
+  'if shape(b)= [1,1] ,display(''any(a) shape OK'');tally=[tally,0];else,display(''any(a) shape BAD'');shape(b),tally=[tally,1];', &
+  'if any(tally) = 0,display(''any PASSED''),else,display(''any FAILED'');tally', &
+  ''])
+end subroutine test_any
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_all()
+  call lala( 'display(ones(80,1)''*61); help all; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''all.log'');')
+  call lala( [ character(len=267) :: &
+  'a=<1 2 3; 4 5 6; 7 8 9>;', &
+  'b=all(a);', &
+  "if b = 1,display('all(''a'') OK'),tally=[tally,0];else,display('all(''a'') FAILED');shape(a),tally=[tally,1];end", &
+  'if shape(b)= [1,1] ,display(''all(a) shape OK'');tally=[tally,0];else,display(''all(a) shape BAD'');shape(b),tally=[tally,1];', &
+  'if all(tally) = 0,display(''all PASSED''),else,display(''all FAILED'');tally', &
+  ''])
+end subroutine test_all
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_abs ()
    call lala( 'display(ones(80,1)''*61); help abs; display(ones(80,1)''*95)')

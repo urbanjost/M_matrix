@@ -10,7 +10,7 @@ DESCRIPTION
 
 RETURNS
     ifin_lala  TRUE if varname exists in lala, else FALSE.
-EXAMPLE
+EXAMPLES
   sample program:
 
      program demo_ifin_lala

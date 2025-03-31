@@ -5,7 +5,7 @@ integer,parameter :: lda=10
 integer           :: m,n, i,j, ierr
 doubleprecision   :: arr(lda,lda),x(lda,lda)
 logical           :: logs=.false.
-   !!logs=.true.
+   logs=.true.
    !!call lala(2000,echo=.true.)
    call lala( 'display(ones(80,1)''*46)')
    call lala( 'display(''test_1'');clear;')
