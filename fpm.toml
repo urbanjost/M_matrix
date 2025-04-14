@@ -44,16 +44,16 @@ homepage = "https://github.com/urbanjost/M_matrix.git"
    #main="mat.f90"
 
 [dependencies]
-   M_framework   =  {  git  =  "https://github.com/urbanjost/M_framework.git"   }
-   M_msg         =  {  git  =  "https://github.com/urbanjost/M_msg.git"         }
-   M_strings     =  {  git  =  "https://github.com/urbanjost/M_strings.git"     }
-   M_history     =  {  git  =  "https://github.com/urbanjost/M_history.git"     }
-   M_CLI2        =  {  git  =  "https://github.com/urbanjost/M_CLI2.git"        }
-   M_list        =  {  git  =  "https://github.com/urbanjost/M_list.git"        }
-   M_io          =  {  git  =  "https://github.com/urbanjost/M_io.git"          }
-   M_LA          =  {  git  =  "https://github.com/urbanjost/M_LA.git"          }
-   M_intrinsics  =  {  git  =  "https://github.com/urbanjost/M_intrinsics.git"  }
-   M_time        =  {  git  =  "https://github.com/urbanjost/M_time"            }
+   #M_framework   =  {  git  =  "https://github.com/urbanjost/M_framework.git"   }
+   #M_msg         =  {  git  =  "https://github.com/urbanjost/M_msg.git"         }
+   #M_strings     =  {  git  =  "https://github.com/urbanjost/M_strings.git"     }
+   #M_history     =  {  git  =  "https://github.com/urbanjost/M_history.git"     }
+   #M_CLI2        =  {  git  =  "https://github.com/urbanjost/M_CLI2.git"        }
+   #M_list        =  {  git  =  "https://github.com/urbanjost/M_list.git"        }
+   #M_io          =  {  git  =  "https://github.com/urbanjost/M_io.git"          }
+   #M_LA          =  {  git  =  "https://github.com/urbanjost/M_LA.git"          }
+   #M_intrinsics  =  {  git  =  "https://github.com/urbanjost/M_intrinsics.git"  }
+   #M_time        =  {  git  =  "https://github.com/urbanjost/M_time"            }
    
    #M_framework    = { namespace = "GPF" }
    #M_msg          = { namespace = "GPF" }
@@ -66,17 +66,17 @@ homepage = "https://github.com/urbanjost/M_matrix.git"
    #M_intrinsics   = { namespace = "GPF" }
    #M_time         = { namespace = "GPF" }
 
-   #M_match       =  {  path  =  "GLINKS/M_match"       }
-   #M_framework   =  {  path  =  "GLINKS/M_framework"   }
-   #M_msg         =  {  path  =  "GLINKS/M_msg"         }
-   #M_strings     =  {  path  =  "GLINKS/M_strings"     }
-   #M_history     =  {  path  =  "GLINKS/M_history"     }
-   #M_CLI2        =  {  path  =  "GLINKS/M_CLI2"        }
-   #M_list        =  {  path  =  "GLINKS/M_list"        }
-   #M_io          =  {  path  =  "GLINKS/M_io"          }
-   #M_LA          =  {  path  =  "GLINKS/M_LA"          }
-   #M_intrinsics  =  {  path  =  "GLINKS/M_intrinsics"  }
-   #M_time        =  {  path  =  "GLINKS/M_time"        }
+   M_match       =  {  path  =  "GLINKS/M_match"       }
+   M_framework   =  {  path  =  "GLINKS/M_framework"   }
+   M_msg         =  {  path  =  "GLINKS/M_msg"         }
+   M_strings     =  {  path  =  "GLINKS/M_strings"     }
+   M_history     =  {  path  =  "GLINKS/M_history"     }
+   M_CLI2        =  {  path  =  "GLINKS/M_CLI2"        }
+   M_list        =  {  path  =  "GLINKS/M_list"        }
+   M_io          =  {  path  =  "GLINKS/M_io"          }
+   M_LA          =  {  path  =  "GLINKS/M_LA"          }
+   M_intrinsics  =  {  path  =  "GLINKS/M_intrinsics"  }
+   M_time        =  {  path  =  "GLINKS/M_time"        }
 #
 #To specify a build script to be used, put it in the library section of your fpm.toml file, like:
 [library]

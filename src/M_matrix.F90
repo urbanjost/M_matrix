@@ -179,6 +179,8 @@ use M_LA, only : mat_wpofa,  mat_wrscal,           mat_wscal,   mat_wset,    mat
 !!
 !!    ---------------------> FACTOR >---------------------->
 !!            |                                   |
+!!            |             |-< ^ <-|             |
+!!            |             |       |             |
 !!            |             |-< * <-|             |
 !!            |  |-------|  |       |  |-------|  |
 !!            |--|       |--|-< / <-|--|       |--|
@@ -211,7 +213,9 @@ use M_LA, only : mat_wpofa,  mat_wrscal,           mat_wscal,   mat_wset,    mat
 !!         |                                         |           |
 !!         |------------> > >-----> EXPR >-----> < >-|           |
 !!         |                                         |           |
-!!         |-----> FACTOR >---> ** >---> FACTOR >----|           |
+!!         |                  | ^  |                 |           |
+!!         |-----> FACTOR >--->    >---> FACTOR >----|           |
+!!         |                  | ** |                 |           |
 !!         |                                                     |
 !!         |------------> ' >-----> TEXT >-----> ' >-------------|
 !!
@@ -627,7 +631,7 @@ integer,parameter ::  z_up=90   ! Z
 integer,parameter ::  lbracket=91 ! [
 integer,parameter ::  bslash=92 ! backslash
 integer,parameter ::  rbracket=93 ! ]
-!integer,parameter ::  =94 ! ^
+integer,parameter ::  caret =94 ! ^
 integer,parameter ::  score=95  ! _
 !integer,parameter ::  =96 ! `
 integer,parameter ::  a_low=97  ! a
@@ -1689,8 +1693,8 @@ integer         :: i
       ! is dot part of number or operator
       syv = 0.0d0
       if (.not.(verify(achar(G_CHRA),digit)== 0) ) then ! not a number character
-         if (G_CHRA.eq.star.or.G_CHRA.eq.slash.or.G_CHRA.eq.bslash) goto 90
-         if (ss.eq.star .or. ss.eq.slash .or. ss.eq.bslash) goto 90
+         if (G_CHRA.eq.star.or.G_CHRA.eq.slash.or.G_CHRA.eq.bslash.or.G_CHRA.eq.caret) goto 90
+         if (ss.eq.star .or. ss.eq.slash .or. ss.eq.bslash .or. ss.eq.caret) goto 90
       endif
    endif
 
@@ -3633,7 +3637,7 @@ character(len=:),allocatable :: symbol
          if (G_SYM.eq.semi .or. G_SYM.eq.comma .or. G_SYM.eq.GG_EOL) goto 60
          if (G_SYM.eq.isname .and. mat_eqid(G_SYN,else)) goto 60
          if (G_SYM.eq.isname .and. mat_eqid(G_SYN,ennd)) goto 60
-         call mat_err(40)
+         call mat_err(40) ! 'Expecting statement terminator'
          if (G_ERR .gt. 0) goto 01
          goto 60
       case(3:5);   goto 91
@@ -5972,6 +5976,7 @@ integer           ::  n
 integer           ::  n2
 integer           ::  nexp
 integer           :: op_select
+logical           :: scalar
 
    l2 = G_VAR_DATALOC(G_ARGUMENT_POINTER)
    m2 = G_VAR_ROWS(G_ARGUMENT_POINTER)
@@ -6068,7 +6073,7 @@ integer           :: op_select
       if (m*n .eq. 1) goto 11
       if (m2*n2 .eq. 1) goto 10
       if (n .ne. m2) then
-         call mat_err(10)
+         call mat_err(10) ! 'Incompatible for MULTIPLICATION'
          exit do_op
       endif
       mn = m*n2
@@ -6106,7 +6111,7 @@ integer           :: op_select
       call mat_wscal(mn,sr,si,GM_REALS(l1),GM_IMAGS(l1),1)
       if (l1.ne.location) call mat_wcopy(mn,GM_REALS(l1),GM_IMAGS(l1),1,GM_REALS(location),GM_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case (-DSTAR) ! POWER
+   case (-DSTAR,CARET) ! POWER
       IF (M2*N2 .NE. 1) then
          call mat_err(30)
          exit do_op
@@ -6220,8 +6225,17 @@ integer           :: op_select
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (1000:2000-1) ! element-wise operations
       op = op -1000
-      if (m.ne.m2 .or. n.ne.n2) then
-         call mat_err(10)
+      scalar=.false.
+      if (op.eq.CARET .and. m2*n2.eq.1)then
+         scalar=.true.
+      elseif (m.ne.m2 .or. n.ne.n2) then
+         select case(op)
+         case(STAR);   call mat_err(10) ! 'Incompatible for MULTIPLICATION'
+         case(SLASH);  call mat_err(11) ! 'Incompatible for RIGHT DIVISION'
+         case(BSLASH); call mat_err(12) ! 'Incompatible for LEFT DIVISION'
+         case(CARET);  call mat_err(41) ! 'Incompatible for POWER'
+         case default
+         end select
          exit do_op
       endif
       mn = m*n
@@ -6230,17 +6244,20 @@ integer           :: op_select
          k = l2+i-1
          select case(op)
          case(STAR)
-         call mat_wmul(GM_REALS(J),GM_IMAGS(J), &
-                                        GM_REALS(K),GM_IMAGS(K), &
-                                        GM_REALS(J),GM_IMAGS(J))
+                    !  in1  in2 out
+         call mat_wmul(GM_REALS(J),GM_IMAGS(J), GM_REALS(K),GM_IMAGS(K), GM_REALS(J),GM_IMAGS(J))
          case(SLASH)
-         call mat_wdiv(GM_REALS(J),GM_IMAGS(J), &
-                                        GM_REALS(K),GM_IMAGS(K), &
-                                        GM_REALS(J),GM_IMAGS(J))
+         call mat_wdiv(GM_REALS(J),GM_IMAGS(J), GM_REALS(K),GM_IMAGS(K), GM_REALS(J),GM_IMAGS(J))
          case(BSLASH)
-         call mat_wdiv(GM_REALS(K),GM_IMAGS(K), &
-                                        GM_REALS(J),GM_IMAGS(J), &
-                                        GM_REALS(J),GM_IMAGS(J))
+         call mat_wdiv(GM_REALS(K),GM_IMAGS(K), GM_REALS(J),GM_IMAGS(J), GM_REALS(J),GM_IMAGS(J))
+         case(CARET)
+         if(scalar)then
+            !    mat_wpow(in_real,    in_imag,    out_real,   out_imag,   power_real, power_imag)
+            call mat_wpow(GM_REALS(J),GM_IMAGS(J),GM_REALS(J),GM_IMAGS(J),GM_REALS(l2),GM_IMAGS(l2))
+         else
+            !    mat_wpow(in_real,    in_imag,    out_real,   out_imag,   power_real, power_imag)
+            call mat_wpow(GM_REALS(J),GM_IMAGS(J),GM_REALS(J),GM_IMAGS(J),GM_REALS(K),GM_IMAGS(K))
+         endif
          end select
          IF (G_ERR .GT. 0) exit
       enddo
@@ -7040,7 +7057,7 @@ integer                   :: op
       op = dot
       call mat_getsym()
    endif
-   if (.not.(G_SYM.eq.star .or. G_SYM.eq.slash .or. G_SYM.eq.bslash)) then
+   if (.not.(G_SYM.eq.star .or. G_SYM.eq.slash .or. G_SYM.eq.bslash .or. G_SYM.eq.caret )) then
       return
    endif
 
@@ -10315,7 +10332,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'SUMMARY    A list of basic (case-sensitive) section and topic names             ',&
 '   .______________._________________________________________________________.   ',&
-'   |SYNTAX        | [ ] < > ( ) = .  , !  ; \ / '''' + - * : semi ? ./ .\ .*  | ',&
+'   |SYNTAX        | [] <> () = .  , !  ; \ / '''' + - * : ^ semi ? ./ .\ .*   | ',&
 '   |______________._________________________________________________________|   ',&
 '   |VARIABLES     | ans    clear who                                        |   ',&
 '   |______________._________________________________________________________|   ',&
@@ -10416,7 +10433,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      Added a few functions                                                     ',&
 '                                                                                ',&
-'       * pow      raise elements of an array to a power                         ',&
+'       * pow      raise elements of an array to a power and the                 ',&
+'                  equivalent .^ operator                                        ',&
+'       * ^        ^ was added as an alias of the ** operator                    ',&
 '       * reshape  added function to reshape arrays                              ',&
 '       * all      return 1 if all values are not zero,                          ',&
 '                  return 0 if any value is zero.                                ',&
@@ -10607,6 +10626,38 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      For the use of the colon in the "for" statement, See "for" .              ',&
 '                                                                                ',&
+'^     A ^ B                                                                     ',&
+'                                                                                ',&
+'         The expression A^p means A to the p-th power. It is defined if A       ',&
+'         is a square matrix and p is a scalar. If p is an integer greater       ',&
+'         than one, the power is computed by repeated multiplication. For        ',&
+'         other values of p the calculation involves the eigenvalues and         ',&
+'         eigenvectors of A.                                                     ',&
+'                                                                                ',&
+'         The expression A^p is evaluated by repeated multiplication if          ',&
+'         p is an integer greater than 1. Otherwise it is evaluated by           ',&
+'                                                                                ',&
+'               <X,D> = eig(A);                                                  ',&
+'               for j = 1:n, D(j,j) = exp(p*log(D(j,j)))                         ',&
+'               X*D/X                                                            ',&
+'                                                                                ',&
+'         This suffers from a potential loss of accuracy if X is badly           ',&
+'         conditioned. It was partly for this reason that the case p =           ',&
+'         1 is included in the general case. Comparison of A**1 with A           ',&
+'         gives some idea of the loss of accuracy for other values of p          ',&
+'         and for the elementary functions.                                      ',&
+'                                                                                ',&
+'      A .^ B                                                                    ',&
+'                                                                                ',&
+'         If A and B are the same shape A .^ B is an element-wise                ',&
+'         operation where each element of A is raised to the power in            ',&
+'         the corresponding element of B.                                        ',&
+'                                                                                ',&
+'         If B is a scalar, A .^ B raises each element of A to the power         ',&
+'         of B.                                                                  ',&
+'                                                                                ',&
+'         These elemental operations are equivalent to pow(A,B).                 ',&
+'                                                                                ',&
 'semi  "semi" toggles the action of semicolons at the end of lines.              ',&
 '      It will make semicolons cause rather than suppress printing.              ',&
 '      A second "semi" restores the initial interpretation.                      ',&
@@ -10676,8 +10727,17 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      the specified power. pow(X,Y) raise each element in X by the              ',&
 '      corresponding element in Y.  X and Y must have the same shape.            ',&
 '                                                                                ',&
-'         A=magic(3);                                                            ',&
-'         pow(A,3)                                                               ',&
+'          A=magic(3);                                                           ',&
+'          pow(A,3)                                                              ',&
+'                                                                                ',&
+'      Alternatively FOR loops can be used to perform most elemental operations: ',&
+'                                                                                ',&
+'          a=ones(A)      // create output array same size as input              ',&
+'          <m,n>=shape(A);for i=1:n, for j=1:m, a(i,j)=A(i,j)**3;                ',&
+'                                                                                ',&
+'      or for low whole number exponents elemental multiplication is sufficient  ',&
+'                                                                                ',&
+'          b = A .* A .* A // elemental multiplication                           ',&
 '                                                                                ',&
 'sin   sin(X) is the sine of X. See "BASIC".                                     ',&
 '                                                                                ',&

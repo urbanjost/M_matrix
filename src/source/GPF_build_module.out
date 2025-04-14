@@ -31,23 +31,23 @@
 + SHORTNAME=lala.1.man
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1 SHORTNAME lala.1.man
 + txt2man -s 1m_matrix -t lala.1.man lala.1.man
-+ env AUX_FILENAME=lala.1.man man2html
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
++ env AUX_FILENAME=lala.1.man man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html f233ae54-c153-4dc1-a180-6b3de8fe0280
+man2html bfe61792-2aaf-44a3-b0f1-f946801f5059
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
-++ sort
 ++ ls '*.2.man' '*.2m_matrix.man'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
-++ ls '*.3.man' get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
 ++ sort
+++ ls '*.3.man' get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
 ++ uniq
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for get_from_lala.3m_matrix.man'
@@ -61,7 +61,7 @@ man2html f233ae54-c153-4dc1-a180-6b3de8fe0280
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
 + env AUX_FILENAME=get_from_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 15916414-cf3c-404d-9dfe-5048ad26cc15
+man2html 4f6a4b13-ef03-4ee7-8802-d05cb532efa1
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
@@ -74,11 +74,11 @@ man2html 15916414-cf3c-404d-9dfe-5048ad26cc15
 ++ basename ifin_lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=ifin_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix SHORTNAME ifin_lala
-+ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
 + txt2man -s 3m_matrix -t ifin_lala ifin_lala.3m_matrix.man
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
 + env AUX_FILENAME=ifin_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 39cff9db-c761-44da-bc78-38bd9fe2c925
+man2html b9236342-d206-4640-92e2-de92fd3622d1
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
@@ -95,7 +95,7 @@ man2html 39cff9db-c761-44da-bc78-38bd9fe2c925
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
 + env AUX_FILENAME=lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 23774503-0232-4b35-8e97-905ed624b3b1
+man2html b6adc48b-7bd7-4799-8da4-dc21b4c31444
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
@@ -108,11 +108,11 @@ man2html 23774503-0232-4b35-8e97-905ed624b3b1
 ++ basename M_matrix.3m_matrix.man .3m_matrix.man
 + SHORTNAME=M_matrix
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix SHORTNAME M_matrix
-+ txt2man -s 3m_matrix -t M_matrix M_matrix.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
 + env AUX_FILENAME=M_matrix man2html
++ txt2man -s 3m_matrix -t M_matrix M_matrix.3m_matrix.man
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 33fa2416-f841-47c5-8087-8f3a5595a327
+man2html 7aa7394f-4d6d-43b5-bdcf-db06b59e1c50
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
@@ -126,10 +126,10 @@ man2html 33fa2416-f841-47c5-8087-8f3a5595a327
 + SHORTNAME=put_into_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix SHORTNAME put_into_lala
 + txt2man -s 3m_matrix -t put_into_lala put_into_lala.3m_matrix.man
-+ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 + env AUX_FILENAME=put_into_lala man2html
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html cb6fc80a-35b3-4f80-ad6e-5dc0d753453a
+man2html d9773559-d4ae-42a7-a454-4cf5625ba37a
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
@@ -151,14 +151,14 @@ man2html cb6fc80a-35b3-4f80-ad6e-5dc0d753453a
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
-++ sort
 ++ ls '*.7.man' '*.7m_matrix.man'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man8
+++ ls '*.8.man' '*.8m_matrix.man'
 ++ sort
 ++ uniq
-++ ls '*.8.man' '*.8m_matrix.man'
 + cat
 >>>> .txt files to MAN DIRECTORY
 >>>> MANOUT        => /home/urbanjs/venus/V600/github/M_matrix/man
@@ -270,7 +270,7 @@ Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat
 6 manual pages were added.
 0 stray cats were added.
 ++ pwd
-+ env MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -k .
++ env MANPATH=/home/urbanjs/venus/V600/github/GLINKS/M_matrix/man man -k .
 get_from_lala (3m_matrix) - [M_matrix] return data from lala(3f) to calling p...
 ifin_lala (3m_matrix) - [M_matrix] test if variable name exists in lala() LIC...
 lala (1)             - interpret matrix expressions using a shell-like interface
@@ -305,30 +305,30 @@ Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat
 6 manual pages were added.
 0 stray cats were added.
 + cat -s
-++ pwd
-+ env MANWIDTH=256 MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -k .
-+ col -b
 + col -b
 ++ pwd
-+ env MANWIDTH=80 MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -Tutf8 --regex '.*'
++ env MANWIDTH=256 MANPATH=/home/urbanjs/venus/V600/github/GLINKS/M_matrix/man man -k .
++ col -b
+++ pwd
++ env MANWIDTH=80 MANPATH=/home/urbanjs/venus/V600/github/GLINKS/M_matrix/man man -Tutf8 --regex '.*'
 ++ dirname /home/urbanjs/venus/V600/github/github_scripts/bash/GPF_build_module
 + export DIR=/home/urbanjs/venus/V600/github/github_scripts/bash
 + DIR=/home/urbanjs/venus/V600/github/github_scripts/bash
 ++ uuidgen
-+ export TMPFILE=/tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
-+ TMPFILE=/tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
-+ trap 'rm -f /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md' EXIT
++ export TMPFILE=/tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md
++ TMPFILE=/tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md
++ trap 'rm -f /tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md' EXIT
 + echo '>>>> Build standalone slidy HTML document from man-pages'
 >>>> Build standalone slidy HTML document from man-pages
 + cd ../..
-+ pandoc --metadata title=M_matrix --from=man --to=gfm man/man3/get_from_lala.3m_matrix.gz man/man3/ifin_lala.3m_matrix.gz man/man3/lala.3m_matrix.gz man/man3/M_matrix.3m_matrix.gz man/man3/put_into_lala.3m_matrix.gz --standalone -o /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md --lua-filter /home/urbanjs/venus/V600/github/github_scripts/bash/deEmph.lua
++ pandoc --metadata title=M_matrix --from=man --to=gfm man/man3/get_from_lala.3m_matrix.gz man/man3/ifin_lala.3m_matrix.gz man/man3/lala.3m_matrix.gz man/man3/M_matrix.3m_matrix.gz man/man3/put_into_lala.3m_matrix.gz --standalone -o /tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md --lua-filter /home/urbanjs/venus/V600/github/github_scripts/bash/deEmph.lua
 pandoc: Cannot decode byte '\x8b': Data.Text.Internal.Encoding.decodeUtf8: Invalid UTF-8 stream
-+ sed -i -e 's/^#/##/' -e 's/^## NAME/# NAME/' /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
-sed: can't read /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md: No such file or directory
-+ pandoc -t slidy --metadata title=M_matrix --from=gfm /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md --standalone --slide-level=1 -o docs/M_matrix_slidy.html
-pandoc: /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md: openBinaryFile: does not exist (No such file or directory)
-rm -f /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
-++ rm -f /tmp/82e206e6-2697-4a32-898b-76f624578e41_2906936.md
++ sed -i -e 's/^#/##/' -e 's/^## NAME/# NAME/' /tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md
+sed: can't read /tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md: No such file or directory
++ pandoc -t slidy --metadata title=M_matrix --from=gfm /tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md --standalone --slide-level=1 -o docs/M_matrix_slidy.html
+pandoc: /tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md: openBinaryFile: does not exist (No such file or directory)
+rm -f /tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md
+++ rm -f /tmp/2523a8ca-cc8e-4917-80eb-f602975d0624_3126619.md
 + echo '>>>> make easily distributed archive files of manpages'
 >>>> make easily distributed archive files of manpages
 + mkdir -p ../../docs
@@ -381,21 +381,21 @@ man3/put_into_lala.3m_matrix.gz
 >>>> Extract get_from_lala.3m_matrix
 + man -Tutf8 -s 3m_matrix get_from_lala.3m_matrix
 + dos2unix -f -7
-+ col -b -p
 + sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
++ col -b -p
 + expand
 >>>> Extract ifin_lala.3m_matrix
 + man -Tutf8 -s 3m_matrix ifin_lala.3m_matrix
 + dos2unix -f -7
 + col -b -p
-+ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 + expand
++ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 >>>> Extract lala.3m_matrix
 + man -Tutf8 -s 3m_matrix lala.3m_matrix
 + dos2unix -f -7
-+ expand
 + col -b -p
 + sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
++ expand
 >>>> Extract M_matrix.3m_matrix
 + man -Tutf8 -s 3m_matrix M_matrix.3m_matrix
 + dos2unix -f -7
@@ -549,7 +549,7 @@ EXAMPLES
 
 
 
-				March 31, 2025		 lala.1.man(1m_matrix)
+				April 14, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 
@@ -588,7 +588,7 @@ EXAMPLES
 
 
 
-				March 31, 2025		  ifin_lala(3m_matrix)
+				April 14, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 
@@ -679,7 +679,7 @@ EXAMPLES
 
 
 
-				March 31, 2025		   M_matrix(3m_matrix)
+				April 14, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 
@@ -748,7 +748,7 @@ EXAMPLES
 
 
 
-				March 31, 2025	      put_into_lala(3m_matrix)
+				April 14, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -1382,7 +1382,7 @@ EXAMPLES
 
 
 
-				March 31, 2025		       lala(3m_matrix)
+				April 14, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -1494,7 +1494,7 @@ EXAMPLES
 
 
 
-				March 31, 2025	      get_from_lala(3m_matrix)
+				April 14, 2025	      get_from_lala(3m_matrix)
 + echo '>>>> run make'
 >>>> run make
 + cd ..
@@ -2079,7 +2079,7 @@ EXAMPLES
 
 
 
-				March 31, 2025		 lala.1.man(1m_matrix)
+				April 14, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 
@@ -2118,7 +2118,7 @@ EXAMPLES
 
 
 
-				March 31, 2025		  ifin_lala(3m_matrix)
+				April 14, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 
@@ -2209,7 +2209,7 @@ EXAMPLES
 
 
 
-				March 31, 2025		   M_matrix(3m_matrix)
+				April 14, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 
@@ -2278,7 +2278,7 @@ EXAMPLES
 
 
 
-				March 31, 2025	      put_into_lala(3m_matrix)
+				April 14, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -2912,7 +2912,7 @@ EXAMPLES
 
 
 
-				March 31, 2025		       lala(3m_matrix)
+				April 14, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -3024,7 +3024,7 @@ EXAMPLES
 
 
 
-				March 31, 2025	      get_from_lala(3m_matrix)
+				April 14, 2025	      get_from_lala(3m_matrix)
 + make help
 : make    '-- build M_strings M_strings_oop module'
 : run     '-- run manpage demo programs and test program'
@@ -3039,7 +3039,122 @@ rm -f ../example/demo_adjustc ../example/demo_base ../example/demo_change ../exa
 >>>> fpm test
 + cd ../..
 + fpm test
-Project is up to date
+ + mkdir -p build/dependencies
+[  0%]           M_framework__msg.F90
+[  1%]           M_framework__msg.F90  done.
+[  1%]        M_framework__timing.f90
+[  3%]        M_framework__timing.f90  done.
+[  3%]       M_framework__utility.f90
+[  5%]       M_framework__utility.f90  done.
+[  5%]                      M_msg.F90
+[  7%]                      M_msg.F90  done.
+[  7%]                  M_strings.F90
+[  8%]                  M_strings.F90  done.
+[  8%]                  M_history.f90
+[ 10%]                  M_history.f90  done.
+[ 10%]                     M_CLI2.F90
+[ 12%]                     M_CLI2.F90  done.
+[ 12%]                     M_list.f90
+[ 14%]                     M_list.f90  done.
+[ 14%]                       M_io.F90
+[ 15%]                       M_io.F90  done.
+[ 15%]                       M_LA.f90
+[ 17%]                       M_LA.f90  done.
+[ 17%]               M_intrinsics.f90
+[ 19%]               M_intrinsics.f90  done.
+[ 19%]          M_time__duplicate.f90
+[ 21%]          M_time__duplicate.f90  done.
+[ 21%]       M_framework__journal.f90
+[ 22%]       M_framework__journal.f90  done.
+[ 22%]        M_framework__verify.F90
+[ 24%]        M_framework__verify.F90  done.
+[ 24%]                  M_journal.f90
+[ 26%]                  M_journal.f90  done.
+[ 26%]                     M_time.F90
+[ 28%]                     M_time.F90  done.
+[ 28%]        M_framework__approx.F90
+[ 29%]        M_framework__approx.F90  done.
+[ 29%]                     M_help.f90
+[ 31%]                     M_help.f90  done.
+[ 31%]                M_framework.f90
+[ 33%]                M_framework.f90  done.
+[ 33%]                   M_matrix.F90
+[ 35%]                   M_matrix.F90  done.
+[ 35%]                  libM_matrix.a
+[ 36%]                  libM_matrix.a  done.
+[ 36%]                       lala.f90
+[ 38%]                       lala.f90  done.
+[ 38%]                     config.f90
+[ 40%]                     config.f90  done.
+[ 40%]         demo_get_from_lala.f90
+[ 42%]         demo_get_from_lala.f90  done.
+[ 42%]             demo_ifin_lala.f90
+[ 43%]             demo_ifin_lala.f90  done.
+[ 43%]                  demo_lala.f90
+[ 45%]                  demo_lala.f90  done.
+[ 45%]              demo_M_matrix.f90
+[ 47%]              demo_M_matrix.f90  done.
+[ 47%]         demo_put_into_lala.f90
+[ 49%]         demo_put_into_lala.f90  done.
+[ 49%]        minimal_interactive.f90
+[ 50%]        minimal_interactive.f90  done.
+[ 50%]                       pass.f90
+[ 52%]                       pass.f90  done.
+[ 52%] self_contained_config_file_exa
+[ 54%] self_contained_config_file_exa  done.
+[ 54%]                simple_exec.f90
+[ 56%]                simple_exec.f90  done.
+[ 56%]               single_lines.f90
+[ 57%]               single_lines.f90  done.
+[ 57%]                   try_exec.f90
+[ 59%]                   try_exec.f90  done.
+[ 59%]                         tv.f90
+[ 61%]                         tv.f90  done.
+[ 61%]               user_routine.f90
+[ 63%]               user_routine.f90  done.
+[ 63%]                        vec.f90
+[ 64%]                        vec.f90  done.
+[ 64%]                     test_1.f90
+[ 66%]                     test_1.f90  done.
+[ 66%]        test_suite_M_matrix.f90
+[ 68%]        test_suite_M_matrix.f90  done.
+[ 68%]                           lala
+[ 70%]                           lala  done.
+[ 70%]                         config
+[ 71%]                         config  done.
+[ 71%]             demo_get_from_lala
+[ 73%]             demo_get_from_lala  done.
+[ 73%]                 demo_ifin_lala
+[ 75%]                 demo_ifin_lala  done.
+[ 75%]                      demo_lala
+[ 77%]                      demo_lala  done.
+[ 77%]                  demo_M_matrix
+[ 78%]                  demo_M_matrix  done.
+[ 78%]             demo_put_into_lala
+[ 80%]             demo_put_into_lala  done.
+[ 80%]            minimal_interactive
+[ 82%]            minimal_interactive  done.
+[ 82%]                           pass
+[ 84%]                           pass  done.
+[ 84%] self_contained_config_file_exa
+[ 85%] self_contained_config_file_exa  done.
+[ 85%]                    simple_exec
+[ 87%]                    simple_exec  done.
+[ 87%]                   single_lines
+[ 89%]                   single_lines  done.
+[ 89%]                       try_exec
+[ 91%]                       try_exec  done.
+[ 91%]                             tv
+[ 92%]                             tv  done.
+[ 92%]                   user_routine
+[ 94%]                   user_routine  done.
+[ 94%]                            vec
+[ 96%]                            vec  done.
+[ 96%]                         test_1
+[ 98%]                         test_1  done.
+[ 98%]            test_suite_M_matrix
+[100%]            test_suite_M_matrix  done.
+[100%] Project compiled successfully.
 ................................................................................
 test_1
 
@@ -3831,8 +3946,17 @@ pow   For a scalar exponent pow(X,exponent) raises each element of X to
       the specified power. pow(X,Y) raise each element in X by the
       corresponding element in Y.  X and Y must have the same shape.
 
-         A=magic(3);
-         pow(A,3)
+          A=magic(3);
+          pow(A,3)
+
+      Alternatively FOR loops can be used to perform most elemental operations:
+
+          a=ones(A)      // create output array same size as input
+          <m,n>=shape(A);for i=1:n, for j=1:m, a(i,j)=A(i,j)**3;
+
+      or for low whole number exponents elemental multiplication is sufficient
+
+          b = A .* A .* A // elemental multiplication
 
 ________________________________________________________________________________
 
@@ -4370,16 +4494,16 @@ ________________________________________________________________________________
 + cat
 + cat
 + echo 'function loadthem(){'
-+ '[' M_matrix = INDEX ']'
 + uniq
-+ read NAME
++ '[' M_matrix = INDEX ']'
 + echo M_matrix.3m_matrix.html
-+ tr -d '()'
 + awk '{printf "%s.%s.html\n",$1,$2}'
++ uniq
 + env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
++ tr -d '()'
++ read NAME
 + man -k '\[M_matrix\>'
 + grep -i '(3M_matrix)'
-+ uniq
 + man --section 3m_matrix -k .
 + grep -i '(3M_matrix)'
 + man -k '\[M_matrix\>'
@@ -4439,8 +4563,8 @@ sed: can't read ../../docs/*.[37]fortran.html: No such file or directory
 + echo '>>>> spell check'
 >>>> spell check
 + spell ../../README.md
-+ xargs -n 8
 + column -t
++ xargs -n 8
 Alamos      CHANGELOG    EXPE      Forsythe  Fortran   IARR         INI      JSON
 LALA        Moler        NAMELIST  Neumann   TOML      YAML         ai       ais
 alfa        allocatable  anorm     ar        ars       atan         attr     boug
@@ -4458,31 +4582,31 @@ urbanjost   userguide    wv        xin
 >>>> update GPF project and documents
 + unset GITHUB
 + make.one libGPF
-2908822 (process ID) old priority 0, new priority 19
+3128767 (process ID) old priority 0, new priority 19
 W-A-R-N-I-N-G: no ccheck.c file (required for configured versions)
 + echo '>>>> run test'
 >>>> run test
 + cd ../../test
 + ccall test_suite_M_matrix.f90
-*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_2909308
-+ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_2909308
-+ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_2909308
+*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_3129250
++ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_3129250
++ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_3129250
 + CCALL_DELETE_DIR=TRUE
-+ FULLNAME=/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ FULLNAME=/dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90
 + SPLIT
-+ sed -e 's/ -/@ -/g'
 + tr @ '\012'
-+ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ sed -e 's/ -/@ -/g'
++ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90
 + echo NAME test_suite_M_matrix.f90
 NAME test_suite_M_matrix.f90
 + echo /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
 /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-+ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
-+ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90
++ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90
 + grep
- -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
+ -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90
 + grep
- -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
+ -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90
 + set
  -x
 + set
@@ -4493,7 +4617,7 @@ NAME test_suite_M_matrix.f90
  -frecord-marker=4
  -I.
  -DTESTPRG
- -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
+ -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90
  -o /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
  -Wall
  -Wextra
@@ -4526,47 +4650,47 @@ NAME test_suite_M_matrix.f90
  -Bdynamic
  -L/usr/lib/x86_64-linux-gnu
  -lX11
-/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:6:33:
+/dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90:6:33:
 
     6 | doubleprecision   :: arr(lda,lda),x(lda,lda)
       |                                 1
 Warning: Unused variable ‘arr’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:27:
+/dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90:5:27:
 
     5 | integer           :: m,n, i,j, ierr
       |                           1
 Warning: Unused variable ‘i’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:35:
+/dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90:5:35:
 
     5 | integer           :: m,n, i,j, ierr
       |                                   1
 Warning: Unused variable ‘ierr’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:29:
+/dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90:5:29:
 
     5 | integer           :: m,n, i,j, ierr
       |                             1
 Warning: Unused variable ‘j’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:22:
+/dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90:5:22:
 
     5 | integer           :: m,n, i,j, ierr
       |                      1
 Warning: Unused variable ‘m’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:5:24:
+/dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90:5:24:
 
     5 | integer           :: m,n, i,j, ierr
       |                        1
 Warning: Unused variable ‘n’ declared at (1) [-Wunused-variable]
-/dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90:6:44:
+/dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90:6:44:
 
     6 | doubleprecision   :: arr(lda,lda),x(lda,lda)
       |                                            1
 Warning: Unused variable ‘x’ declared at (1) [-Wunused-variable]
-+ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
-a - /dev/shm/CCALL_Linux_gfortran_2909308/test_suite_M_matrix.2909308.f90
++ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90
+a - /dev/shm/CCALL_Linux_gfortran_3129250/test_suite_M_matrix.3129250.f90
 + set +x
 /home/urbanjs/venus/V600/LIBRARY/CYGWIN/scripts_regression/goodbad: test_suite_M_matrix.1 0 test_suite_M_matrix start --section 1
 /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_2909308
+*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_3129250
 + test_suite_M_matrix
 ================================================================================
 abs   abs(X) is the absolute value, or complex modulus,
@@ -5288,8 +5412,17 @@ pow   For a scalar exponent pow(X,exponent) raises each element of X to
       the specified power. pow(X,Y) raise each element in X by the
       corresponding element in Y.  X and Y must have the same shape.
 
-         A=magic(3);
-         pow(A,3)
+          A=magic(3);
+          pow(A,3)
+
+      Alternatively FOR loops can be used to perform most elemental operations:
+
+          a=ones(A)      // create output array same size as input
+          <m,n>=shape(A);for i=1:n, for j=1:m, a(i,j)=A(i,j)**3;
+
+      or for low whole number exponents elemental multiplication is sufficient
+
+          b = A .* A .* A // elemental multiplication
 
 ________________________________________________________________________________
 
@@ -5803,9 +5936,9 @@ general char PASSED
 ++ :
 ++ cat -s get_from_lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
+++ cat
 ++ sed -e 's/^/'\''/'
 ++ sed -e 's/$/'\'', \&/'
-++ cat
 + read NAME
 + SHORTNAME=ifin_lala
 + COUNT=2
@@ -5814,9 +5947,9 @@ general char PASSED
 ++ :
 ++ cat -s ifin_lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
+++ cat
 ++ sed -e 's/$/'\'', \&/'
 ++ sed -e 's/^/'\''/'
-++ cat
 + read NAME
 + SHORTNAME=lala
 + COUNT=3
@@ -5824,10 +5957,10 @@ general char PASSED
 ++ TOCHARACTER
 ++ :
 ++ cat -s lala.3m_matrix.man
-++ sed -e 's/'\''/'\'''\''/g'
-++ cat
 ++ sed -e 's/^/'\''/'
 ++ sed -e 's/$/'\'', \&/'
+++ cat
+++ sed -e 's/'\''/'\'''\''/g'
 + read NAME
 + SHORTNAME=M_matrix
 + COUNT=4
@@ -5837,8 +5970,8 @@ general char PASSED
 ++ cat -s M_matrix.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
 ++ cat
-++ sed -e 's/$/'\'', \&/'
 ++ sed -e 's/^/'\''/'
+++ sed -e 's/$/'\'', \&/'
 + read NAME
 + SHORTNAME=put_into_lala
 + COUNT=5
@@ -5847,15 +5980,15 @@ general char PASSED
 ++ :
 ++ cat -s put_into_lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
+++ sed -e 's/^/'\''/'
 ++ cat
 ++ sed -e 's/$/'\'', \&/'
-++ sed -e 's/^/'\''/'
 + read NAME
 + END_MODULE
 + cat
 + cat
 + ls -ld /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
--rw-rw-r-- 1 urbanjs urbanjs 45871 Mar 31 06:13 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
+-rw-rw-r-- 1 urbanjs urbanjs 45871 Apr 14 03:08 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
 + cat
 + '[' -d /home/urbanjs/venus/V600/LIBRARY/libGPF/download/doc ']'
 + cp doc/get_from_lala.3m_matrix.man doc/ifin_lala.3m_matrix.man doc/lala.1.man doc/lala.3m_matrix.man doc/M_matrix.3m_matrix.man doc/put_into_lala.3m_matrix.man /home/urbanjs/venus/V600/LIBRARY/libGPF/download/doc/
@@ -5870,9 +6003,9 @@ error [../../docs/manpages.zip]:  start of central directory not found;
   (please check that you have transferred or created the zipfile in the
   appropriate BINARY mode and that you have compiled UnZip properly)
 + tar tvfz ../../docs/manpages.tgz
--rw-rw-r-- urbanjs/urbanjs 1692 2025-03-31 06:13 man1/lala.1.gz
--rwxrwxrwx urbanjs/urbanjs 1722 2025-03-31 06:13 man3/get_from_lala.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs  557 2025-03-31 06:13 man3/ifin_lala.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs 7116 2025-03-31 06:13 man3/lala.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs 1481 2025-03-31 06:13 man3/M_matrix.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs  962 2025-03-31 06:13 man3/put_into_lala.3m_matrix.gz
+-rw-rw-r-- urbanjs/urbanjs 1690 2025-04-14 03:07 man1/lala.1.gz
+-rwxrwxrwx urbanjs/urbanjs 1720 2025-04-14 03:07 man3/get_from_lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs  557 2025-04-14 03:07 man3/ifin_lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs 7116 2025-04-14 03:07 man3/lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs 1481 2025-04-14 03:07 man3/M_matrix.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs  962 2025-04-14 03:07 man3/put_into_lala.3m_matrix.gz

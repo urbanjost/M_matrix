@@ -145,7 +145,7 @@ version_text=[ CHARACTER(LEN=128) :: &
 'PRODUCT:        GPF (General Purpose Fortran) utilities and examples',&
 'PROGRAM:        lala(1)                                             ',&
 'DESCRIPTION:    interpret matrix operations using a shell-like interface',&
-'VERSION:        1.0, 19910403                                           ',&
+'VERSION:        1.1, 2025-04-14                                         ',&
 'AUTHOR:         John S. Urban; heavily based on the original by Cleve Moler',&
 'HOME PAGE:      http://www.urbanjost.altervista.org/index.html             ',&
 '']

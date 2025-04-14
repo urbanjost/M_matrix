@@ -6,6 +6,25 @@ list of notable changes including records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
+**2025-04-14**  John S. Urban  <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+  +  add ^ and .^ power operators.
+  + pow      raise elements of an array to a power
+  + reshape  added function to reshape arrays
+  + all      return 1 if all values are not zero,
+             return 0 if any value is zero.
+  + any      return 1 if any values are not zero,
+             return 0 if all value is zero.
+  + lt,le,eq,ge,gt,ne  added relational functions
+  + date_and_time      added additional representations of current
+                       time.
+  + fmtc,fmti,fmtr     convert numeric values to string
+  + pack               select array elements via a mask into a vector
+  + minval,maxval      extrema of real component of an array
+
+<!-- ======================================================================== -->
+---
 **2021-08-20**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: DIFF:

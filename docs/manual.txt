@@ -139,7 +139,7 @@ EXAMPLES
       q
       quit
 
-				March 31, 2025		 lala.1.man(1m_matrix)
+				April 14, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 NAME
@@ -173,7 +173,7 @@ EXAMPLES
       eps  T
       unknown  F
 
-				March 31, 2025		  ifin_lala(3m_matrix)
+				April 14, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 NAME
@@ -259,7 +259,7 @@ EXAMPLES
 
       end program demo_M_matrix
 
-				March 31, 2025		   M_matrix(3m_matrix)
+				April 14, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 NAME
@@ -322,7 +322,7 @@ EXAMPLES
        >    1.1000    2.2000	3.3000
        >This is my title
 
-				March 31, 2025	      put_into_lala(3m_matrix)
+				April 14, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 NAME
@@ -951,7 +951,7 @@ EXAMPLES
        >       024.	0.	0.	0.     -4.
        >      ]
 
-				March 31, 2025		       lala(3m_matrix)
+				April 14, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 NAME
@@ -1057,4 +1057,4 @@ EXAMPLES
      >in calling program ivec= 20
      > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
 
-				March 31, 2025	      get_from_lala(3m_matrix)
+				April 14, 2025	      get_from_lala(3m_matrix)
