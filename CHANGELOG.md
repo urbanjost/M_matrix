@@ -6,6 +6,18 @@ list of notable changes including records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
+**2025-04-18**  John S. Urban  <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+  + sum            added option to sum along rows or columns, and checks on
+                   parameters.
+
+### :red_circle: DIFF:
+  + rand           removed all overloading of "rand" and added randu(),
+                   randn(), and randseed().
+
+<!-- ======================================================================== -->
+---
 **2025-04-14**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: ADD:

@@ -16,6 +16,8 @@ BUGS
 ================================================================================
 BUG: base() not working for most bases
 ================================================================================
+BUG: if first command is randseed() get out-of-bounds error
+================================================================================
 option to list all exec files in current path
 ================================================================================
 would be very useful to add multiple user-defined functions
@@ -167,10 +169,6 @@ seems like the order should not matter
 but if first thing is a scalar instead of an array it works.
 
 if 10=2*5 <<-- works
-================================================================================
-if you give RAND an array to get the size of, and by bizarre coincidence it
-happens to match the string 'uniform' or 'normal' it will set the mode instead
-of just using the size.
 ================================================================================
 non-blank entry at prompt does not stop infinite loop
 
@@ -375,8 +373,8 @@ the read at the pause reads a line from the input instead of from the terminal
 when run with something like "lala < x".
 
 //  C = Kronecker product of A and B
-A=rand(4)
-B=rand(4)
+A=randu(4)
+B=randu(4)
 [m, n] = shape(A);
 for i = 1:m, ...
    ci = A(i,1)*B; ...
@@ -662,6 +660,7 @@ EXAMPLES
     end program demo_M_matrix
 $ENDBLOCK
 module M_matrix
+! https://orcid.org/0009-0000-9717-3407
 
 use,intrinsic :: iso_fortran_env, only : stderr=>ERROR_UNIT, stdin=>INPUT_UNIT, stdout=>OUTPUT_UNIT
 use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64, real32, real64, real128
@@ -671,7 +670,7 @@ use M_framework,  only : journal
 use M_help,       only : help_command
 use M_history,    only : redo
 use M_list,       only : insert, locate, replace, remove
-use M_io,         only : lookfor
+use M_io,         only : lookfor, which
 use M_intrinsics, only : help_intrinsics
 use M_time,       only : d2u, d2j, d2m, d2b, BAStime, d2o, dow
 
@@ -944,8 +943,6 @@ integer                  :: G_SYM_LEFT
 integer                  :: G_SYN(GG_MAX_NAME_LENGTH)
 !==================================================================================================================================!
 integer                  :: G_CURRENT_RANDOM_SEED
-integer                  :: G_CURRENT_RANDOM_TYPE     ! [0] uniform distribution
-                                                      ! [*] normal distribution
 integer                  :: G_FLOP_COUNTER(2)
 integer                  :: G_DEBUG_LEVEL             ! select which debug messages to display. zero (0) is off
 logical                  :: G_FILE_OPEN_ERROR         ! flag whether file open error occurred or not
@@ -1166,7 +1163,7 @@ integer,parameter :: blank=32 ! blank
 !integer,parameter :: doublequote=34 ! "
 !integer,parameter ::  =35 ! #
 !integer,parameter ::  =36 ! $
-!integer,parameter ::  =37 ! %
+integer,parameter ::  percent=37 ! %
 !integer,parameter ::  =38 ! &
 integer,parameter ::  quote=39  ! '
 integer,parameter ::  lparen=40 ! (
@@ -1584,7 +1581,7 @@ EXAMPLES
      > :lanczos:
 
      > [n,n] = shape(A);
-     > q1 = rand(n,1);
+     > q1 = randu(n,1);
      > ort
      > alpha = []; beta = [];
      > q = q1/norm(q1); r = A*q(:,1);
@@ -1983,7 +1980,6 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','
 
    call mat_help_text()                                                   ! initialize help text
    G_CURRENT_RANDOM_SEED = 0                                              ! random number seed
-   G_CURRENT_RANDOM_TYPE = 0                                              ! set the type of random numbers to compute
    G_LINECOUNT(2) = 23                                                    ! initial line limit for paging output
 
    G_TOP_OF_SAVED = GG_MAX_NUMBER_OF_NAMES-3  ! move up to allow room for the built-in values eps, flops, eye, rand
@@ -2162,6 +2158,7 @@ character(len=255)   :: msg
     case(42); msg='new shape is not the same size as input'
     case(43); msg='shapes are not conformant'
     case(44); msg='operation not defined for complex values'
+    case(45); msg='incorrect rank for argument'
     case default
        call journal('sc','*mat_err* internal error: unknown error code=',n)
        return
@@ -2261,7 +2258,7 @@ integer         :: i
       call mat_getval(syv)
       if (G_CHRA .ne. dot) goto 60
       call mat_getch() ! get next character
-   elseif (verify(achar(G_CHRA),digit//big//little//achar(score))== 0) then ! alphameric (0-9a-zA-Z_)
+   elseif (verify(achar(G_CHRA),digit//big//little//achar(score)//achar(percent))== 0) then ! alphameric (0-9a-zA-Z_)
       ! name
       G_SYM = isname
       G_SYN=blank
@@ -2269,7 +2266,7 @@ integer         :: i
       do i=2,GG_MAX_NAME_LENGTH
          call mat_getch() ! get next character
          ! if not alphanumeric and not special like eol
-         if (verify(achar(G_CHRA),digit//big//little//achar(score))== 0 ) then
+         if (verify(achar(G_CHRA),digit//big//little//achar(score)//achar(percent))== 0 ) then
             G_SYN(i) = G_CHRA
          else
             exit
@@ -2445,16 +2442,22 @@ integer :: mn
 integer :: n
 integer :: na
 integer :: nn
-integer,parameter :: unifor(GG_MAX_NAME_LENGTH) =  [iachar(['u','n','i','f','o','r','m']),GG_PAD(8:)]
-integer,parameter :: normal(GG_MAX_NAME_LENGTH) =  [iachar(['n','o','r','m','a','l',' ']),GG_PAD(8:)]
-integer,parameter :: seed(GG_MAX_NAME_LENGTH)   =  [iachar(['s','e','e','d',' ',' ',' ']),GG_PAD(8:)]
-integer           :: id(GG_MAX_NAME_LENGTH)
 doubleprecision   :: eps0,eps,s,sr,si,t
 character(len=80) :: message
 
-   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
-   m = G_VAR_ROWS(G_ARGUMENT_POINTER)
-   n = G_VAR_COLS(G_ARGUMENT_POINTER)
+   !write(*,*)'GOT HERE A:MAT_MATFN6:G_RHS:',G_RHS,':G_ARGUMENT_POINTER:',G_ARGUMENT_POINTER
+   if(G_ARGUMENT_POINTER.le.0)then
+      G_RHS=0
+      location = 1
+      m = 1
+      n = 1
+      G_ARGUMENT_POINTER=1
+   else
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      n = G_VAR_COLS(G_ARGUMENT_POINTER)
+   endif
+   !write(*,*)'GOT HERE B:MAT_MATFN6:M:',m,':N:',n,':G_RHS:',G_RHS,':LOCATION:',location,':G_ARGUMENT_POINTER:',G_ARGUMENT_POINTER
 
 !  functions/G_FIN
 !  magi diag sum  prod user eye  rand ones chop shape kron  tril triu zeros
@@ -2556,18 +2559,58 @@ character(len=80) :: message
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
 !===================================================================================================================================
    case(3) ! COMMAND::SUM
-      sr = 0.0d0
-      si = 0.0d0
+!      sr = 0.0d0
+!      si = 0.0d0
+!      mn = m*n
+!      do i = 1, mn
+!         ls = location+i-1
+!         sr = mat_flop(SR+GM_REALS(LS))
+!         si = mat_flop(SI+GM_IMAGS(LS))
+!      enddo
+!      GM_REALS(location) = sr
+!      GM_IMAGS(location) = si
+!      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+!      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
+
+      sum_command : block
+      real(kind=dp),allocatable :: sum_real(:), sum_imag(:)
+      integer :: dim
+      integer :: sz
+      dim=0
+      select case(G_RHS)
+      case(1)
+      case(2)  ! if two parameters assume second one is dimension
+         dim = int(GM_REALS(location))
+         if( dim.lt.0 .or. dim.gt.2 )then
+            call mat_err(21) ! Subscript out of range
+            return
+         endif
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+      sum_real = [0.0d0]
+      sum_imag = [0.0d0]
       mn = m*n
-      do i = 1, mn
-         ls = location+i-1
-         sr = mat_flop(SR+GM_REALS(LS))
-         si = mat_flop(SI+GM_IMAGS(LS))
-      enddo
-      GM_REALS(location) = sr
-      GM_IMAGS(location) = si
-      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      ! should do in a loop and call mat_flop on each number instead of sum to trim values?
+      if(dim.eq.0)then
+         sum_real = [ sum(gm_reals( location:location+mn-1 ) ) ]
+         sum_imag = [ sum(gm_imags( location:location+mn-1 ) ) ]
+         sz=1
+      else
+         sum_real = sum( reshape(gm_reals( location:location+mn-1 ),[m,n]), dim )
+         sum_imag = sum( reshape(gm_imags( location:location+mn-1 ),[m,n]), dim )
+         sz=size(sum_real)
+      endif
+      GM_REALS(location:location+sz-1) = sum_real
+      GM_IMAGS(location:location+sz-1) = sum_imag
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = sz
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
+      endblock sum_command
 !===================================================================================================================================
    case(4) ! COMMAND::PROD
       SR = 1.0D0
@@ -2707,10 +2750,11 @@ character(len=80) :: message
       endif
       exit FUN6
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case(6,7,8,16) ! COMMAND::EYE,
-                  ! COMMAND::RAND,
-                  ! COMMAND::ONES,
+   case(6,7,8,16) ! COMMAND::EYE
+                  ! COMMAND::RAND
+                  ! COMMAND::ONES
                   ! COMMAND::ZEROS
+      !write(*,*)'GOT HERE A:RAND:M:',m,':N:',n,':G_RHS:',G_RHS,':LOCATION:',location
       if (.not.(m.gt.1 .or. G_RHS.eq.0)) then
 
          if (G_RHS .eq. 2) then
@@ -2718,26 +2762,6 @@ character(len=80) :: message
             G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
             location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
             n = G_VAR_COLS(G_ARGUMENT_POINTER)
-         endif
-
-         if (G_FIN.eq.7.and.n.lt.GG_MAX_NAME_LENGTH)then        ! a call to RAND might be RAND('UNIFORM'|'SEED'|'NORMAL')
-            id=blank
-            do i = 1, min(GG_MAX_NAME_LENGTH,n)  ! in case it is one of these words store it in the ID array to test if it matches
-               ls = location+i-1
-               id(i) = int(GM_REALS(ls))
-            enddo
-            if(mat_eqid(id,unifor).or.mat_eqid(id,normal))then ! SWITCH UNIFORM AND NORMAL(if a matrix just happens to match, a bug)
-               G_CURRENT_RANDOM_TYPE = id(1) - unifor(1)        ! set random type to generate by seeing if first letter is a "u"
-               G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
-               exit FUN6
-            elseif (mat_eqid(id,seed)) then                     ! if a matrix just happens to match "seed" , a bug)
-               if (G_RHS .eq. 2) G_CURRENT_RANDOM_SEED = nn
-               GM_REALS(location) = G_CURRENT_RANDOM_SEED
-               G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
-               if (G_RHS .eq. 2) G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
-               G_VAR_COLS(G_ARGUMENT_POINTER) = 1
-               exit FUN6
-            endif
          endif
 
          if (n .le. 1) then
@@ -2769,18 +2793,7 @@ character(len=80) :: message
                  GM_REALS(ll) = 0.0d0
               endif
            case( 7 ) !::RAND
-              IF(G_CURRENT_RANDOM_TYPE.EQ.0) then
                  GM_REALS(ll)=mat_flop(mat_urand(G_CURRENT_RANDOM_SEED))
-              else
-                 do
-                    sr = 2.0d0*mat_urand(G_CURRENT_RANDOM_SEED)-1.0d0
-                    si = 2.0d0*mat_urand(G_CURRENT_RANDOM_SEED)-1.0d0
-                    t = sr*sr + si*si
-                    if (t .le. 1.0d0) exit
-                 enddo
-
-                 GM_REALS(ll) = mat_flop(sr*dsqrt((-(2.0d0*dlog(t)))/t))
-              endif
            case( 8 ) !::ONES
               GM_REALS(ll) = 1.0d0
            case( 16) !::ZEROS
@@ -3033,7 +3046,132 @@ character(len=80) :: message
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 !===================================================================================================================================
+   case(26,27) ! COMMAND::RANDU
+               ! COMMAND::RANDN
+      !write(*,*)'GOT HERE A:RANDU:M:',m,':N:',n,':G_RHS:',G_RHS,':LOCATION:',location
+      rands: block
+      integer :: rows
+      integer :: cols
+
+      ! check arguments
+
+      if(m*n.ne.1)then    ! argument should be a scalar
+         call mat_err(45) ! incorrect rank for argument
+         return
+      endif
+
+      select case(G_RHS)
+      case(1)
+         rows = int(GM_REALS(location))
+         cols = rows
+      case(2)
+         cols = int(GM_REALS(location))
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m= G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n= G_VAR_COLS(G_ARGUMENT_POINTER)
+         if(m*n.ne.1)then    ! argument should be a scalar
+            call mat_err(45) ! incorrect rank for argument
+            return
+         endif
+         rows = int(GM_REALS(location))
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+      if(rows.lt.1 .or. cols.lt.1)then
+         call mat_err(36) ! Argument out of range
+         return
+      endif
+
+      if(too_much_memory( location+rows*cols - G_VAR_DATALOC(G_TOP_OF_SAVED))) return
+
+      ! create random values
+
+      do j = 1, cols
+         do i = 1, rows
+           ll = location+i-1+(j-1)*rows  ! location to place value
+           select case(G_FIN)
+           case( 26)
+              GM_REALS(ll)=mat_flop(mat_urand(G_CURRENT_RANDOM_SEED))
+           case( 27)
+              do
+                 sr = 2.0d0*mat_urand(G_CURRENT_RANDOM_SEED)-1.0d0
+                 si = 2.0d0*mat_urand(G_CURRENT_RANDOM_SEED)-1.0d0
+                 t = sr*sr + si*si
+                 if (t .le. 1.0d0) exit
+              enddo
+              GM_REALS(ll) = mat_flop(sr*dsqrt((-(2.0d0*dlog(t)))/t))
+           end select
+           GM_IMAGS(ll) = 0.0d0          ! all of these functions set imaginary values to zero
+         enddo
+      enddo
+
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = rows
+      G_VAR_COLS(G_ARGUMENT_POINTER) = cols
+
+      endblock rands
+!===================================================================================================================================
+   case(28) ! COMMAND::RANDSEED
+      !write(*,*)'GOT HERE A:RANDSEED:M:',m,':N:',n,':G_RHS:',G_RHS,':LOCATION:',location
+      select case(G_RHS)
+      case(0)
+      case(1)
+         if(m*n.ne.1)then
+            call mat_err(45) ! incorrect rank for argument
+            return
+         endif
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+
+      if(too_much_memory( location+m*n - G_VAR_DATALOC(G_TOP_OF_SAVED))) return
+
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
+
+      if(G_RHS.eq.0)then
+         GM_REALS(location) = G_CURRENT_RANDOM_SEED
+      else
+         G_CURRENT_RANDOM_SEED = GM_REALS(location)
+         GM_REALS(location) = G_CURRENT_RANDOM_SEED
+      endif
+      GM_IMAGS(location) = 0.0d0
+!===================================================================================================================================
+!===================================================================================================================================
+   case(29) ! COMMAND::SORT
+      ! ignores imaginary component, change to sort rows and columns so could sort text, for example
+      sort_command : block
+      integer :: dim
+      integer :: sz
+      dim=0
+      select case(G_RHS)
+      case(1)
+      case(2)  ! if two parameters assume second one is dimension
+         dim = int(GM_REALS(location))
+         if( dim.lt.0 .or. dim.gt.2 )then
+            call mat_err(21) ! Subscript out of range
+            return
+         endif
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+      ! should do in a loop and call mat_flop on each number instead of sort to trim values?
+      mn = m*n
+      GM_REALS(location:location+mn-1) = qsort(gm_reals( location:location+mn-1 ) ) 
+      GM_IMAGS(location:location+mn-1) = 0.0d0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = mn
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
+      endblock sort_command
+!==================================================================================================================================!
    end select FUN6
+!==================================================================================================================================!
 end subroutine mat_matfn6
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -3147,6 +3285,10 @@ integer                           :: i
    case('fmtr');            selector=623
    case('maxval');          selector=624
    case('minval');          selector=625
+   case('randu','rand%uniform');  selector=626
+   case('randn','rand%normal');   selector=627
+   case('randseed');        selector=628
+   case('sort');            selector=629
 
    case default !  function name was not found
       G_FIN = 0
@@ -3160,6 +3302,7 @@ integer                           :: i
 
    if (G_RHS.eq.0 .and. selector.eq.606) G_FIN = 0
    if (G_RHS.eq.0 .and. selector.eq.607) G_FIN = 0
+   !write(*,*)'GOT HERE A:MAT_FUNS:NAME:',name,':G_FIN:',G_FIN,':G_RHS:',G_RHS
 end subroutine mat_funs
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -3935,7 +4078,7 @@ THE PARSER-INTERPRETER (10)
    matrix computations are required. They are interface routines which
    call the various LINPACK and EISPACK subroutines. MATFN5 primarily
    handles the file access tasks.
-$BLOCK
+$ENDBLOCK
 $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SUBROUTINE mat_parse()
 integer            :: id(GG_MAX_NAME_LENGTH)
@@ -4316,7 +4459,8 @@ FINISHED: block
         select case(G_CHRA)                  ! check next character
         case(comma,semi,GG_EOL)               ! next character is end of a command so good to go
            exit
-        case(iachar('0'):iachar('9'),iachar('a'):iachar('z'),iachar('A'):iachar('Z'),score) ! alphanumeric or a HELP command so good to go
+	! alphanumeric or a HELP command so good to go
+        case(iachar('0'):iachar('9'),iachar('a'):iachar('z'),iachar('A'):iachar('Z'),score,percent) 
            exit
         end select
 
@@ -4528,6 +4672,7 @@ integer           :: i
 integer           :: j
 integer           :: jmax
 integer           :: l
+integer           :: istat
 
 !!      if (k .gt. 0) write(lplot,01) (p(i), i=1,k)
 !!   01 FORMAT('Extra parameters',*(f5.1,/))
@@ -4582,7 +4727,9 @@ integer           :: l
 
    ! call the external program xy(1) converting the parameters to a string of options
    call journal('sc','xy xy.dat ',trim(string))
-   call execute_command_line('xy xy.dat '//trim(string))
+   if(which('xy')/='')then
+      call execute_command_line('xy xy.dat '//trim(string),cmdstat=istat)
+   endif
    close(unit=tlun,status='delete',iostat=ios)
 
 end subroutine mat_plot
@@ -6524,6 +6671,7 @@ integer             :: n
 
       !  IF RAND, MATFN6 GENERATES RANDOM NUMBER
       IF (K .EQ. GG_MAX_NUMBER_OF_NAMES) then
+         !write(*,*)'GOT HERE A:MAT_STACK_GET:'
          G_FIN = 7
          G_FUN = 6
          return
@@ -7344,12 +7492,15 @@ integer :: n
          call mat_getsym()
          if (G_SYM .eq. lparen .or. G_SYM.eq. lbrace) goto 42
          G_RHS = 0
+         !write(*,gen1)'GOT HERE A:MAT_FACTOR:G_FUN:',G_FUN,':G_FIN:',G_FIN
          call mat_funs(ID)
+         !write(*,gen1)'GOT HERE B:MAT_FACTOR:G_FUN:',G_FUN,':G_FIN:',G_FIN
          if (G_FIN .ne. 0) then
             call mat_err(25) ! Can not use function name as variable
             return
          endif
          call mat_stack_get(id)
+         !write(*,gen1)'GOT HERE C:MAT_FACTOR:MAT_STACK_GET:G_FUN:',G_FUN,':G_FIN:',G_FIN
          if (G_ERR .gt. 0) return
          if (G_FIN .eq. 7) goto 50
          if (G_FIN .eq. 0) call mat_copyid(G_IDS(1,G_PT+1),id)
@@ -7363,7 +7514,10 @@ integer :: n
       id(1) = BLANK
       if (G_SYM .eq. lparen .or. G_SYM.eq. lbrace) goto 42
       ! needs to allow for empty parenthesis() but does not
-      call mat_err(2)
+      !write(*,gen1)'GOT HERE B',char(G_SYM),char(G_CHRA)
+      if ( G_SYM .ne. rparen ) then
+         call mat_err(2) ! improper factor
+      endif
       return
    endif
 !======================================================================
@@ -7787,7 +7941,7 @@ EXAMPLES
     eps  T
     unknown  F
 
-$BLOCK
+$ENDBLOCK
 $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 function ifin_lala(varname)
 
@@ -7864,7 +8018,7 @@ EXAMPLES
    character(len=*),parameter  :: gen='(*(g0,1x))'
 
       ! create an array in LALA so have something to get
-      call lala('A=rand(4,5)*10.5,long,A')
+      call lala('A=randu(4,5)*10.5,long,A')
 
       ! get the array as a REAL array
       call get_from_lala('A',rarr,ierr)
@@ -7922,7 +8076,7 @@ EXAMPLES
    >in calling program ivec= 20
    > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
 
-$BLOCK
+$ENDBLOCK
 $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 subroutine get_double_from_lala(varname,A,type,IERR)
 
@@ -8046,7 +8200,7 @@ EXAMPLES
      >    1.1000    2.2000    3.3000
      >This is my title
 
-$BLOCK
+$ENDBLOCK
 $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 subroutine store_double_into_lala(varname,realxx,imagxx,ierr)
 
@@ -8929,7 +9083,7 @@ function mat_is_name(line) result (lout)
 character(len=*),parameter   :: int='0123456789'
 character(len=*),parameter   :: lower='abcdefghijklmnopqrstuvwxyz'
 character(len=*),parameter   :: upper='ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-character(len=*),parameter   :: allowed=upper//lower//int//'_'
+character(len=*),parameter   :: allowed=upper//lower//int//'_'//'%'
 character(len=*),intent(in)  :: line
 character(len=:),allocatable :: name
 logical                      :: lout
@@ -8983,7 +9137,7 @@ integer                        :: ii, jj, kk
 contains
 
 end program demo_M_list
-$BLOCK
+$ENDBLOCK
 $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 subroutine update(key,valin1,valin2,valin3)
 character(len=*),intent(in)      :: key
@@ -9409,8 +9563,7 @@ ELEMENTARY OPERATIONS
    including zero. "eps" is changed by "chop", which is described later
    in this manual.
 
-   The value of "rand" is a random variable, with a choice of a uniform
-   or a normal distribution.
+   The value of "rand" is a random variable using a uniform distribution.
 
    The name "eye" is used in place of "i" to denote identity matrices
    because "i" is often used as a subscript or as sqrt(-1). The dimensions
@@ -9487,7 +9640,8 @@ FUNCTIONS
       triu(A)          - Upper triangular part of A.
       norm(A,p)        - Norm with p = 1, 2 or 'Infinity'.
       eye(m,n)         - Portion of identity matrix.
-      rand(m,n)        - Matrix with random elements.
+      randu(m,n)       - Matrix with uniformly distributed random elements.
+      randn(m,n)       - Matrix with normally distributed random elements.
       ones(m,n)        - Matrix of all ones.
       magic(n)         - Interesting test matrices.
       invh(n)          - Inverse Hilbert matrices.
@@ -9863,10 +10017,11 @@ NUMERICAL ALGORITHMS
    is the most time-consuming, but the most reliable and is therefore
    also used for rank(A).
 
-   The uniformly distributed random numbers in "rand" are obtained from
-   the machine-independent random number generator URAND described in
-   [9]. It is possible to switch to normally distributed random numbers,
-   which are obtained using a transformation also described in [9].
+   The uniformly distributed random numbers in "rand" and "randu"are
+   obtained from the machine-independent random number generator URAND
+   described in [9]. It is possible to use normally distributed random
+   numbers using "randn", which are obtained using a transformation also
+   described in [9].
 
    The computation of
 
@@ -9904,7 +10059,7 @@ FLOP AND CHOP
    statement when the statement is terminated by an extra comma. For
    example, the line
 
-         n = 20;  rand(n)*rand(n);,
+         n = 20;  randu(n)*randu(n);,
 
    ends with an extra comma. Two 20 by 20 random matrices are generated
    and multiplied together. The result is assigned to "ans", but the
@@ -10976,11 +11131,11 @@ SUMMARY    A list of basic (case-sensitive) section and topic names
    |______________._________________________________________________________|
    |RELATIONAL    | lt le eq ge gt ne                                       |
    |______________._________________________________________________________|
-   |HIGH          | abs   all   any  base chol    chop  cond   conjg  det   |
-   |              | diag  eig   eye  hess invh    imag  inv    kron   lu    |
-   |              | magic norm  ones orth pinv    poly  prod   qr     rand  |
-   |              | rank  rcond rat  real reshape rref  roots  round  schur |
-   |              | shape sum   svd  tril triu    user  zeros               |
+   |HIGH          | abs   all   any  base chol    chop  cond  conjg  det    |
+   |              | diag  eig   eye  hess invh    imag  inv   kron   lu     |
+   |              | magic norm  ones orth pinv    poly  prod  qr     randn  |
+   |              | randu rank  rcond rat  real reshape rref  roots  round  |
+   |              | schur shape sum   svd  tril triu    user  zeros         |
    |______________._________________________________________________________|
    |FLOW control  | else   end   if     for    while    exit   quit         |
    |______________._________________________________________________________|
@@ -11084,9 +11239,16 @@ NEWS
        * pack               select array elements via a mask into a vector
        * minval,maxval      extrema of real component of an array
 
-      LALA is intended to be used primarily by families of FORTRAN
-      programs that wish to add a consistent interactive "calculator"
-      mode for interactively inspecting and modifying data.
+      Enhancements
+
+       * sum   Added the option to sum along rows or columns
+
+      Differences
+
+       * added randu(), randn(), and randseed() and eliminated overloading
+         of the word "rank", which was error-prone and had improbable but
+         possibly incorrect behavior if keywords were one-to-one matches to
+         data.
 ================================================================================
 SYNTAX
 [     See "<"
@@ -11148,6 +11310,9 @@ SYNTAX
       Element-by-element multiplicative operations are obtained
       using .* , ./ , or .\ . For example, C = A ./ B is the
       matrix with elements c(i,j) = a(i,j)/b(i,j) .
+
+      C=A .^ B is an element-by-element operator equivalent
+      to pow(A,B).
 
       Kronecker tensor products and quotients are obtained with
       .*. , ./. and .\. . See "kron".
@@ -11361,7 +11526,7 @@ log   log(X) is the natural logarithm of X.
 
 pow   For a scalar exponent pow(X,exponent) raises each element of X to
       the specified power. pow(X,Y) raise each element in X by the
-      corresponding element in Y.  X and Y must have the same shape.
+      corresponding element in Y. X and Y must have the same shape.
 
           A=magic(3);
           pow(A,3)
@@ -11545,23 +11710,29 @@ eye   Identity matrix. "eye(N)" is the N by N identity matrix.
       adds 3 to each diagonal element of A.
 
 fmtc  "fmtc(A,'format')" converts given numbers to strings representing
-       a complex number using the optional specified Fortran format.
+       a complex number using the optional specified Fortran format. Note
+       the format is used repeatedly to output each string. It is not
+       used to print multiple values as once.
 
          A=10+sqrt(-1)*20
          display(fmtc(A))
 
 fmti  "fmti(A,'format')" converts given numbers to strings representing
        the nearest integer values using the optional specified Fortran
-       format.
+       format. Note the format is used repeatedly to output each string.
+       It is not used to print multiple values as once.
 
          A=magic(3)
          display(fmti(A,'i0,1x'))
          8 3 4 1 5 9 6 7 2
 
 fmtr  "fmtr(A,'format')" converts given numbers to strings representing
-       real values using the optional specified Fortran format.
+       real values using the optional specified Fortran format. Note
+       the format is used repeatedly to output each string. It is not
+       used to print multiple values as once.
 
          display(fmtr(A,'g0,1x'))
+
 
 hess  Hessenberg form. The Hessenberg form of a matrix is zero
       below the first subdiagonal. If the matrix is symmetric or
@@ -11669,7 +11840,7 @@ orth  Orthogonalization. "Q = orth(X)" is a matrix with
       space as the columns of X .
 
 pack  "pack(A,mask)" select the elements of an array whose corresponding
-      mask element is not zero into a vector.  The logical mask must be
+      mask element is not zero into a vector. The logical mask must be
       the same size as the array.
 
           a=magic(10)
@@ -11711,20 +11882,24 @@ qr    Orthogonal-triangular decomposition. "<Q,R> = qr(X)" produces an
       so that X*E = Q*R . By itself, "qr(X)" returns the output of
       "cqrdc". "triu(qr(X))" is R .
 
-rand  Random numbers and matrices. "rand(N)" is an N by N matrix
-      with random entries. "rand(M,N)" is an M by N matrix with
-      random entries. "rand(A)" is the same size as A. "rand"
-      with no arguments is a scalar whose value changes each time
-      it is referenced.
+rand  "rand" with no arguments is a scalar whose value changes each time
+      it is referenced. See "randn" and "randu" for generating random
+      matrices.
 
-      Ordinarily, random numbers are uniformly distributed in
-      the interval "(0.0,1.0). rand('normal')" switches to a
-      normal distribution with mean 0.0 and variance 1.0.
-      "rand('uniform')" switches back to the uniform distribution.
-      "rand('seed')" returns the current value of the seed for the
-      generator. "rand('seed',n)" sets the seed to n.
-      "rand('seed',0)" resets the seed to 0, its value when LALA
-      is first entered.
+randu  Uniformly distributed random numbers and matrices in the interval
+       "(0.0,1.0). "randu(N)" is an N by N matrix with random
+       entries. "randu(M,N)" is an M by N matrix with random entries.
+
+randn
+       randn(N) or randn(N,M) produces random numbers with a normal
+       distribution with mean 0.0 and variance 1.0. "randn(N)" is an N
+       by N matrix with random entries. "randn(M,N)" is an M by N matrix
+       with random entries.
+
+randseed  "randseed()" returns the current value of the seed for the
+          generator. "randseed(n)" sets the seed to n.
+          "randseed(0)" resets the seed to 0, its value when LALA is
+          first entered.
 
 rank  Rank. "K = rank(X)" is the number of singular values of X
       that are larger than "norm(shape(X),'inf')*norm(X)*eps".
@@ -11813,6 +11988,16 @@ shape  If X is an M by N matrix, then shape(X) is <M, N> .
 
 sum   "sum(X)" is the sum of all the elements of X.
       "sum(diag(X))" is the trace of X.
+
+      "sum(X,dim)" is the vector of sums of elements along the
+      specified dimension, where 1 <= dim <= 2.
+
+          matrix=[  1,   2,   3,   4
+                    10,  20,  30,  40
+                    100, 200, 300, 400  ];
+          s=sum(matrix)
+          sum_of_columns=sum(matrix,1)
+          sum_of_rows=sum(matrix,2)
 
 svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
       diagonal matrix S , of the same dimension as X and with
@@ -12097,7 +12282,7 @@ display  "display(X)" prints X in a compact format.
       Otherwise or if the base is one, + , - and blank are printed for
       positive, negative and zero elements.
 
-         display(rand(24,80)-rand(24,80))
+         display(randu(24,80)-randu(24,80))
 
       Imaginary parts are ignored.
 
@@ -12277,11 +12462,15 @@ eps   Floating point relative accuracy. A permanent variable
 
 lala  A placeholder for a new command.
 
+      LALA is intended to be used primarily by families of FORTRAN
+      programs that wish to add a consistent interactive "calculator"
+      mode for interactively inspecting and modifying data.
+
 debug  "debu(1)" turns on verbose low-level debugging for the developer,
        "debu(0)" turns it back off.
 
 ================================================================================
-$BLOCK
+$ENDBLOCK
 end subroutine mat_help_text
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
@@ -12333,7 +12522,7 @@ write(*,gen1)'G_LHS:',G_LHS,':G_RHS:',G_RHS
 write(*,gen1)'G_FIN:',G_FIN,':G_FUN:',G_FUN,':G_FMT:',G_FMT
 write(*,gen1)'G_LUN_READING_FROM:',G_LUN_READING_FROM,':G_INPUT_LUN:',G_INPUT_LUN
 write(*,gen1)'G_PTZ:',G_PTZ,':G_SYM:',G_SYM,':G_SYN:',trim(ade2str(G_SYN))
-write(*,gen1)'G_CURRENT_RANDOM_SEED:',G_CURRENT_RANDOM_SEED,':G_CURRENT_RANDOM_TYPE:',G_CURRENT_RANDOM_TYPE
+write(*,gen1)'G_CURRENT_RANDOM_SEED:',G_CURRENT_RANDOM_SEED
 write(*,gen1)'G_FLOP_COUNTER:',G_FLOP_COUNTER
 write(*,gen1)'G_DEBUG_LEVEL:',G_DEBUG_LEVEL
 write(*,gen1)'G_FILE_OPEN_ERROR:',G_FILE_OPEN_ERROR,':G_ERR:',G_ERR
@@ -12449,6 +12638,24 @@ doubleprecision             :: tr, ti
 
 end subroutine mat_watan
 !===================================================================================================================================
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
+!==================================================================================================================================!
+pure recursive function qsort(values) result(sorted)
+! concise quicksort from @arjen and @beliavsky shows recursion,
+! array sections, and vectorized comparisons.
+!
+intrinsic pack, size
+real(kind=dp), intent(in) :: values(:)
+real(kind=dp)             :: sorted(size(values))
+   if (size(values) > 1) then
+      sorted = &
+      & [qsort(pack(values(2:),values(2:)<values(1))), values(1), &
+      & qsort(pack(values(2:),values(2:)>=values(1)))]
+   else
+      sorted = values
+   endif
+end function qsort
+!===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
 end module M_matrix
@@ -12483,7 +12690,7 @@ det(A)         <--- Take the determinant of A
 exit           <--- you quit LALA
 #  total flops        34
 #  adios
-$BLOCK
+$ENDBLOCK
 $!@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 $BLOCK NULL
 !===================================================================================================================================
@@ -12562,22 +12769,4 @@ end subroutine expand_variables
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
-pure recursive function qsort(values) result(sorted)
-! concise quicksort from @arjen and @beliavsky shows recursion,
-! array sections, and vectorized comparisons.
-!
-intrinsic pack, size
-real, intent(in) :: values(:)
-real             :: sorted(size(values))
-   if (size(values) > 1) then
-      sorted = &
-      & [qsort(pack(values(2:),values(2:)<values(1))), values(1), &
-      & qsort(pack(values(2:),values(2:)>=values(1)))]
-   else
-      sorted = values
-   endif
-end function qsort
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
-!===================================================================================================================================
-$BLOCK
+$ENDBLOCK

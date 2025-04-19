@@ -72,7 +72,8 @@ logical           :: logs=.false.
       call test_prod ()    ! prod  "prod(X)" is the product of all the elements of X .
    call test_qr ()      ! qr    Orthogonal-triangular decomposition.  "<Q,R> = qr(X)" produces an
    call test_quit ()    ! quit  From the terminal, causes return to the operating system
-   call test_rand ()    ! rand  Random numbers and matrices. "rand(N)" is an N by N matrix
+   call test_randu ()   ! randu  uniform Random numbers and matrices. "randu(N)" is an N by N matrix
+   call test_randn ()   ! randn  normal distribution of Random numbers and matrices. "randn(N)" is an N by N matrix
    call test_rank ()    ! rank  Rank. "K = rank(X)" is the number of singular values of X
    call test_rat ()     ! rat   An experimental function which attempts to remove the
    call test_rcond ()   ! rcond  "rcond(X)" is an estimate for the reciprocal of the
@@ -353,23 +354,45 @@ end subroutine test_maxval
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sum()
   call lala( 'display(ones(80,1)''*61); help sum; display(ones(80,1)''*95)')
-  call lala( 'tally=[0];')
+  logs=.true.
   if(logs)call lala( 'diary(''sum.log'');')
+  logs=.false.
+  call lala( 'tally=[0];')
   call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
   call lala( 'b=sum(magic(3));')
   call lala( 'c=sum(a);')
   call lala(  &
-  & "if c = 45,display('sum SUM OF ''a'' OK'),tally=[tally,0];else,display('sum SUM OF ''a'' FAILED');shape(a),tally=[tally,1];end")
+  & "if c = 45,display('sum: SUM OF ''a'' OK'),tally=[tally,0];else,display('sum: SUM OF ''a'' FAILED');shape(a),tally=[tally,1];end")
   call lala( &
-  & 'if shape(c) = [1,1] ,display(''sum shape OK'');tally=[tally,0];else,display(''sum shape BAD'');shape(a),tally=[tally,1];')
+  & 'if shape(c) = [1,1] ,display(''sum: shape OK'');tally=[tally,0];else,display(''sum: shape BAD'');shape(a),tally=[tally,1];')
+
   call lala( &
   & 'if sum(a) + b = 90, &
-  &    display(''sum ARRAY OK''), &
+  &    display(''sum: SUM ARRAY OK''), &
   &    tally=[tally,0]; &
   & else, &
-  &    display(''sum ARRAY FAILED''); &
+  &    display(''sum: SUM ARRAY FAILED''); &
   &    tally=[tally,1]; &
   & end')
+
+  call lala( '&
+  & matrix=[  1,    2,    3,    4; &
+  &           10,   20,   30,   40; &
+  &           100,  200,  300,  400  ]; &
+  & s=sum(matrix); &
+  & sumcols=sum(matrix,1); &
+  & sumrows=sum(matrix,2); &
+  & if s = 1110, &
+  &    display(''sum: MATRIX OK''), tally=[tally,0]; &
+  & else, &
+  &    display(''sum: MATRIX FAILED''); tally=[tally,1]; &
+  & end; &
+  & if all(eq(sumcols,[111;222;333;444]))=1, &
+  & display(''sum: SUM COLS OK''),tally=[tally,0];else display(''sum: SUM COLS NOT OK''),tally=[tally,1];end;&
+  & if all(eq(sumrows,[10;100;1000]))=1, &
+  & display(''sum: SUM ROWS OK''),tally=[tally,0];else display(''sum: SUM ROWS NOT OK''),tally=[tally,1];end;&
+  & ')
+
   call lala( 'if sum(tally) = 0,display(''sum PASSED''),else,display(''sum FAILED'');tally')
 end subroutine test_sum
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -455,9 +478,9 @@ subroutine test_round ()
    'display(ones(80,1)''*61)                                                       ', &
    'help round; display(ones(80,1)''*95)                                           ', &
    'tally=[0];                                                                    ', &
-   'a=magic(10)+rand(10)*ones(10)*0.49;                                           ', &
+   'a=magic(10)+randu(10)*ones(10)*0.49;                                           ', &
    'a=magic(5);                // an array of whole numbers                       ', &
-   'b=rand(5)-ones(5)*0.49999; // array with everything 0.5 < x > -0.5            ', &
+   'b=randu(5)-ones(5)*0.49999; // array with everything 0.5 < x > -0.5            ', &
    'c=(a+b);                   // values of a randomly changed by less than +-1/2 ', &
    '                                                                              ', &
    'if c<>a , if round(c)=a, ..                                                   ', &
@@ -664,8 +687,8 @@ subroutine test_kron ()
      & '                                                                         ', &
      & 'lines(888888)                                                            ', &
      & '//  C = Kronecker product of A and B                                     ', &
-     & 'A=rand(4);                                                               ', &
-     & 'B=rand(4);                                                               ', &
+     & 'A=randu(4);                                                               ', &
+     & 'B=randu(4);                                                               ', &
      & '// ==========================================                            ', &
      & '// first, the hard way                                                   ', &
      & '[m, n] = shape(A);                                                        ', &
@@ -1219,18 +1242,31 @@ subroutine test_quit ()
    & ''])
 end subroutine test_quit
 !-----------------------------------------------------------------------------------------------------------------------------------
-subroutine test_rand ()
+subroutine test_randn ()
    call lala( 'display(ones(80,1)''*61)')
-   call lala( 'help rand')
+   call lala( 'help randn')
    call lala( 'tally=[0];')
    call lala( [ character(len=256) :: &
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
    !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
-   & 'if sum(tally)=0,display(''rand PASSED'');else,display(''rand FAILED'');tally ', &
+   & 'if sum(tally)=0,display(''randn PASSED'');else,display(''randn FAILED'');tally ', &
    & ''])
-end subroutine test_rand
+end subroutine test_randn 
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_randu ()
+   call lala( 'display(ones(80,1)''*61)')
+   call lala( 'help randu')
+   call lala( 'tally=[0];')
+   call lala( [ character(len=256) :: &
+   & '                                                                         ', &
+   & '                                                                         ', &
+   & '                                                                         ', &
+   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+   & 'if sum(tally)=0,display(''randu PASSED'');else,display(''randu FAILED'');tally ', &
+   & ''])
+end subroutine test_randu 
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_rank ()
    call lala( 'display(ones(80,1)''*61)')
