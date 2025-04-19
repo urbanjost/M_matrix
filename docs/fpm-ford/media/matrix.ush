@@ -1,0 +1,43 @@
+sz 550 550
+makeobj 1234  # URBAN ART
+   page -50 50 -50 50
+   circleprecision 60
+   linewidth 200
+   color 7
+   polyfill TRUE
+   circle 0 0 8
+   circle 0 30 8
+   circle 0 -30 8
+
+   circle -30 0 8
+   circle -30 30 8
+   circle -30 -30 8
+
+   circle 30 0 8
+   circle 30 30 8
+   circle 30 -30 8
+   polyfill FALSE
+   color 7
+   linewidth 300
+   move2 -40 40
+   draw2 -45 40
+   draw2 -45 -40
+   draw2 -40 -40
+   move2  40 40
+   draw2  45 40
+   draw2  45 -40
+   draw2  40 -40
+
+#   ===       ===
+#   |  O  O  O  |             
+#   |           |           
+#   |  O  O  O  |           
+#   |           |           
+#   |  O  O  O  |           
+#   ===       ===
+
+closeobj
+rm -f matrix.p6
+hcopy p6 -obj 1234 -f matrix.p6 -sz 550 550
+page
+callobj 1234
