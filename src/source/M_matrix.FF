@@ -3029,6 +3029,12 @@ character(len=80) :: message
       endblock fmts
 !===================================================================================================================================
    case(24) ! COMMAND::MAXVAL
+      select case(G_RHS)
+      case(1)
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
       mn = m*n
       sr = maxval(GM_REALS(location:location+mn-1))
       si = 0.0d0
@@ -3038,6 +3044,14 @@ character(len=80) :: message
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 !===================================================================================================================================
    case(25) ! COMMAND::MINVAL
+
+      select case(G_RHS)
+      case(1)
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+
       mn = m*n
       sr = minval(GM_REALS(location:location+mn-1))
       si = 0.0d0
@@ -3264,7 +3278,7 @@ integer                           :: i
 
    case('magic');           selector=601
    case('diag');            selector=602
-   case('sum');             selector=603
+    case('sum');             selector=603
    case('prod','product');  selector=604
    case('user');            selector=605
    case('eye');             selector=606
@@ -3283,8 +3297,8 @@ integer                           :: i
    case('fmtc');            selector=621
    case('fmti');            selector=622
    case('fmtr');            selector=623
-   case('maxval');          selector=624
-   case('minval');          selector=625
+    case('maxval');          selector=624
+    case('minval');          selector=625
    case('randu','rand%uniform');  selector=626
    case('randn','rand%normal');   selector=627
    case('randseed');        selector=628
@@ -4457,7 +4471,7 @@ FINISHED: block
      elseif (id.eq.cmd(k))then               ! found match to command
 
         select case(G_CHRA)                  ! check next character
-        case(comma,semi,GG_EOL)               ! next character is end of a command so good to go
+        case(comma,semi,GG_EOL)              ! next character is end of a command so good to go
            exit
 	! alphanumeric or a HELP command so good to go
         case(iachar('0'):iachar('9'),iachar('a'):iachar('z'),iachar('A'):iachar('Z'),score,percent) 
@@ -5260,30 +5274,30 @@ integer          :: nn
         endif
 
         select case(G_FIN)
-        case( 1)                                      ! COMMAND:sin
+        case( 1)                                      ! COMMAND::sin
                  tr(1) = dsin(sr)*dcosh(si)
                  ti(1) = dcos(sr)*dsinh(si)
-        case( 2)                                      ! COMMAND:cos
+        case( 2)                                      ! COMMAND::cos
                  tr(1) = dcos(sr)*dcosh(si)
                  ti(1) = (-dsin(sr))*dsinh(si)
-        case( 3)                                      ! COMMAND:atan
+        case( 3)                                      ! COMMAND::atan
                  call mat_watan(sr,si,tr(1),ti(1))
-        case( 4)                                      ! COMMAND:exp
+        case( 4)                                      ! COMMAND::exp
                  tr(1) = dexp(sr)*dcos(si)
                  ti(1) = dexp(sr)*dsin(si)
-        case( 5)                                      ! COMMAND:sqrt
+        case( 5)                                      ! COMMAND::sqrt
                  call mat_wsqrt(sr,si,tr(1),ti(1))
-        case( 6)                                      ! COMMAND:log
+        case( 6)                                      ! COMMAND::log
                  call mat_wlog(sr,si,tr(1),ti(1))
-        case( 21)
+        case( 21)                                     ! COMMAND::abs
                  tr(1) = mat_pythag(sr,si)
         case( 22)                                     ! COMMAND::ROUND
                  tr(1) = mat_round(sr)
-        case( 23)
+        case( 23)                                     ! COMMAND::REAL
                  tr(1) = sr
-        case( 24)
+        case( 24)                                     ! COMMAND::IMAG
                  tr(1) = si
-        case( 25)
+        case( 25)                                     ! COMMAND::CONJG
                  tr(1) = sr
                  ti(1) = -si
         end select
@@ -11131,9 +11145,9 @@ SUMMARY    A list of basic (case-sensitive) section and topic names
    |______________._________________________________________________________|
    |RELATIONAL    | lt le eq ge gt ne                                       |
    |______________._________________________________________________________|
-   |HIGH          | abs   all   any  base chol    chop  cond  conjg  det    |
-   |              | diag  eig   eye  hess invh    imag  inv   kron   lu     |
-   |              | magic norm  ones orth pinv    poly  prod  qr     randn  |
+   |HIGH          | abs   all   any   base chol chop    cond  conjg  det    |
+   |              | diag  eig   eye   hess invh imag    inv   kron   lu     |
+   |              | magic norm  ones  orth pinv poly    prod  qr     randn  |
    |              | randu rank  rcond rat  real reshape rref  roots  round  |
    |              | schur shape sum   svd  tril triu    user  zeros         |
    |______________._________________________________________________________|
@@ -11561,8 +11575,14 @@ eq    "eq(X,Y)" is an elemental function that sets element values to 1
       shape. The returned value has the shape of X unless X is scalar, in
       which case the returned value has the shape of Y.
 
-          // return 1 if all elements are zero, else 1
+          // return 1 if all elements are zero, else 0
           allzero=all(eq(X,0))
+
+          a=magic(4)      // make some arrays
+          b=a             // b is the same as a
+          c=b; c(4,4)=-10 // c is not the same as a
+          if all(eq(a,b))=1,display('SAME'),else display('DIFFERENT')
+          if all(eq(a,c))=1,display('SAME'),else display('DIFFERENT')
 
 lt    "lt(X,Y)" is an elemental function that sets element values to 1
       if the corresponding element in X is less than the one in Y.
