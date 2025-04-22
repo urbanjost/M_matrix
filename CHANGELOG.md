@@ -6,6 +6,12 @@ list of notable changes including records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
+**2025-04-22**  John S. Urban  <https://github.com/urbanjost>
+
+### :green_circle: ADD:
+  + maxloc,minloc  added maxloc and minloc.
+<!-- ======================================================================== -->
+---
 **2025-04-18**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: ADD:

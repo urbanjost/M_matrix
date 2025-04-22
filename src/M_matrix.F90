@@ -1485,7 +1485,9 @@ logical,intent(in),optional          :: echo
    endif
 
    PARSE_LINE : do
+      if(G_DEBUG_LEVEL.gt.0)call printit()
       call mat_parse()
+      if(G_DEBUG_LEVEL.gt.0)call printit()
       select case(G_FUN)
       case(1) ; call mat_matfn1()
       case(2) ; call mat_matfn2()
@@ -1496,6 +1498,7 @@ logical,intent(in),optional          :: echo
       case(21); call mat_matfn1()
       case(99); exit PARSE_LINE
       case default
+      if(G_DEBUG_LEVEL.gt.0)call printit()
       end select
    enddo PARSE_LINE
 
@@ -1504,8 +1507,14 @@ end subroutine LALA_cmds
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 subroutine mat_err(n)
-
 ! ident_4="@(#) M_matrix mat_err(3fp) given error number write associated error message and set G_ERR"
+integer,intent(in)   :: n
+   call mat_err_en(n)
+end subroutine mat_err
+
+subroutine mat_err_en(n)
+
+! ident_5="@(#) M_matrix mat_err(3fp) given error number write associated error message and set G_ERR"
 
 integer,intent(in)   :: n
 
@@ -1584,7 +1593,7 @@ character(len=255)   :: msg
       call journal(' '//repeat(' ',k)//'/\--ERROR:'//msg)
    endif
 
-end subroutine mat_err
+end subroutine mat_err_en
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
@@ -1644,7 +1653,7 @@ end subroutine mat_files
 !==================================================================================================================================!
 subroutine mat_getsym()
 
-! ident_5="@(#) M_matrix mat_getsym(3fp) get a symbol"
+! ident_6="@(#) M_matrix mat_getsym(3fp) get a symbol"
 
 doubleprecision :: syv
 doubleprecision :: s
@@ -1729,7 +1738,7 @@ end subroutine mat_getsym
 !==================================================================================================================================!
 subroutine mat_str2buf(string,buf,lrecl)
 
-! ident_6="@(#) M_matrix mat_str2buf(3fp) convert string to hollerith"
+! ident_7="@(#) M_matrix mat_str2buf(3fp) convert string to hollerith"
 
 ! g95 compiler does not support Hollerith, this is a KLUDGE to give time to think about it
 
@@ -1749,7 +1758,7 @@ end subroutine mat_str2buf
 !==================================================================================================================================!
 function str2ade(string) result(vec)
 
-! ident_7="@(#) M_matrix mat_str2buf(3fp) convert CHARACTER TO ADE array vector"
+! ident_8="@(#) M_matrix mat_str2buf(3fp) convert CHARACTER TO ADE array vector"
 
 character(len=*),intent(in)  :: string
 integer,allocatable          :: vec(:)
@@ -1764,7 +1773,7 @@ end function str2ade
 !==================================================================================================================================!
 function ade2str(buf) result(string)
 
-! ident_8="@(#) M_matrix mat_str2buf(3fp) convert ADE array to CHARACTER"
+! ident_9="@(#) M_matrix mat_str2buf(3fp) convert ADE array to CHARACTER"
 
 character(len=:),allocatable :: string
 integer,intent(in)           :: buf(:)
@@ -1783,7 +1792,7 @@ end function ade2str
 !==================================================================================================================================!
 subroutine mat_buf2str(string,buf,lrecl)
 
-! ident_9="@(#) M_matrix mat_buf2string(3fp) convert hollerith to string"
+! ident_10="@(#) M_matrix mat_buf2string(3fp) convert hollerith to string"
 
 integer,intent(in)     :: lrecl
 integer,intent(in)     :: buf(:)
@@ -1801,7 +1810,7 @@ end subroutine mat_buf2str
 !==================================================================================================================================!
 subroutine ints2str(ints,string,ierr)
 
-! ident_10="@(#) M_matrix ints2str(3f) convert lala integers to a character variable"
+! ident_11="@(#) M_matrix ints2str(3f) convert lala integers to a character variable"
 
 ! temporary procedure while writing ASCII-based upgrade
 
@@ -1829,7 +1838,7 @@ end subroutine ints2str
 !==================================================================================================================================!
 subroutine mat_matfn6()
 !
-! ident_11="@(#) M_matrix mat_matfn6(3f) evaluate utility functions"
+! ident_12="@(#) M_matrix mat_matfn6(3f) evaluate utility functions"
 !
 integer :: i, j, k
 integer :: ia
@@ -2590,6 +2599,45 @@ character(len=80) :: message
       G_VAR_ROWS(G_ARGUMENT_POINTER) = mn
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endblock sort_command
+!===================================================================================================================================
+   case(30) ! COMMAND::maxloc
+   maxloc_cmd: block
+      select case(G_RHS)
+      case(1)
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+
+      sr = maxloc(GM_REALS(location:location+(m*n)-1),dim=1)
+      GM_REALS(location) = sr-n*int((sr-1)/n)
+      GM_IMAGS(location) = 0.0d0
+      location=location+1
+      GM_REALS(location) = ceiling(sr/n)
+      GM_IMAGS(location) = 0.0d0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 2
+   endblock maxloc_cmd
+!===================================================================================================================================
+   case(31) ! COMMAND::minloc
+   minloc_cmd: block
+
+      select case(G_RHS)
+      case(1)
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+
+      sr = minloc(GM_REALS(location:location+(m*n)-1),dim=1)
+      GM_REALS(location) = sr-n*int((sr-1)/n)
+      GM_IMAGS(location) = 0.0d0
+      location=location+1
+      GM_REALS(location) = ceiling(sr/n)
+      GM_IMAGS(location) = 0.0d0
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 2
+   endblock minloc_cmd
 !==================================================================================================================================!
    end select FUN6
 !==================================================================================================================================!
@@ -2599,7 +2647,7 @@ end subroutine mat_matfn6
 !==================================================================================================================================!
 subroutine mat_funs(id)
 
-! ident_12="@(#) M_matrix ml_funcs(3fp) scan function list and set G_FUN and G_FIN"
+! ident_13="@(#) M_matrix ml_funcs(3fp) scan function list and set G_FUN and G_FIN"
 
 integer,intent(in)                :: id(GG_MAX_NAME_LENGTH)
 integer                           :: selector
@@ -2710,6 +2758,8 @@ integer                           :: i
    case('randn','rand%normal');   selector=627
    case('randseed');        selector=628
    case('sort');            selector=629
+    case('maxloc');          selector=630
+    case('minloc');          selector=631
 
    case default !  function name was not found
       G_FIN = 0
@@ -2730,7 +2780,7 @@ end subroutine mat_funs
 !==================================================================================================================================!
 subroutine mat_copyid(x,y)
 
-! ident_13="@(#) M_matrix mat_copyid(3fp) copy a name to allow an easy way to store a name"
+! ident_14="@(#) M_matrix mat_copyid(3fp) copy a name to allow an easy way to store a name"
 
 integer,intent(out) :: x(GG_MAX_NAME_LENGTH)
 integer,intent(in)  :: y(GG_MAX_NAME_LENGTH)
@@ -2744,7 +2794,7 @@ end subroutine mat_copyid
 !==================================================================================================================================!
 subroutine mat_getval(s)
 
-! ident_14="@(#) M_matrix mat_getval(3fp) form numerical value from string of "integer" characters"
+! ident_15="@(#) M_matrix mat_getval(3fp) form numerical value from string of "integer" characters"
 
 doubleprecision,intent(out) :: s
       s = 0.0d0
@@ -2771,7 +2821,7 @@ end subroutine mat_getval
 !==================================================================================================================================!
 subroutine mat_getch()
 
-! ident_15="@(#) M_matrix mat_getch(3f) get next character from input line into G_CHRA"
+! ident_16="@(#) M_matrix mat_getch(3f) get next character from input line into G_CHRA"
 
    G_CHRA = G_LIN(G_LINE_POINTER(4))
    if (G_CHRA .ne. GG_EOL) G_LINE_POINTER(4) = G_LINE_POINTER(4) + 1
@@ -2782,7 +2832,7 @@ end subroutine mat_getch
 !==================================================================================================================================!
 subroutine mat_base(x,base,eps,s,n)
 
-! ident_16="@(#) M_matrix mat_base(3fp) store representation of x in s(1 n) using specified base"
+! ident_17="@(#) M_matrix mat_base(3fp) store representation of x in s(1 n) using specified base"
 
 doubleprecision            :: x
 doubleprecision,intent(in) :: base
@@ -2847,7 +2897,7 @@ end subroutine mat_base
 !==================================================================================================================================!
 subroutine mat_print(ID,K)
 
-! ident_17="@(#) M_matrix mat_print(3fp) primary output routine"
+! ident_18="@(#) M_matrix mat_print(3fp) primary output routine"
 
 integer           :: id(GG_MAX_NAME_LENGTH)
 integer           :: k
@@ -3054,7 +3104,7 @@ end subroutine mat_print
 !==================================================================================================================================!
 subroutine mat_formz(x,y)
 
-! ident_18="@(#) M_matrix mat_formz system dependent routine to print with z format"
+! ident_19="@(#) M_matrix mat_formz system dependent routine to print with z format"
 
 doubleprecision,intent(in) :: x,y
 
@@ -3074,7 +3124,7 @@ end subroutine mat_formz
 !==================================================================================================================================!
 subroutine mat_prompt(pause)
 
-! ident_19="@(#) M_matrix mat_prompt(3f) issue interactive prompt with optional pause"
+! ident_20="@(#) M_matrix mat_prompt(3f) issue interactive prompt with optional pause"
 
 integer,intent(in) :: pause
 character(len=1)   :: dummy
@@ -3092,7 +3142,7 @@ end subroutine mat_prompt
 !==================================================================================================================================!
 subroutine mat_stack1(op)
 
-! ident_20="@(#) M_matrix mat_stack1(3f) Unary Operations"
+! ident_21="@(#) M_matrix mat_stack1(3f) Unary Operations"
 
 integer           :: op
 integer           :: i
@@ -3136,7 +3186,7 @@ end subroutine mat_stack1
 !==================================================================================================================================!
 subroutine mat_print_id(id,argcnt)
 
-! ident_21="@(#) M_matrix mat_print_id(3fp) print table of variable id names (up to) eight per line"
+! ident_22="@(#) M_matrix mat_print_id(3fp) print table of variable id names (up to) eight per line"
 
 !     ID     Is array of GG_MAX_NAME_LENGTH character IDs to print
 !     ARGCNT is number of IDs to print
@@ -3182,7 +3232,7 @@ end subroutine mat_print_id
 !==================================================================================================================================!
 subroutine mat_stack_put(id)
 
-! ident_22="@(#) M_matrix mat_stack_put(3fp) put variables into storage"
+! ident_23="@(#) M_matrix mat_stack_put(3fp) put variables into storage"
 
 integer  :: id(GG_MAX_NAME_LENGTH)
 integer  :: i, j, k
@@ -3899,7 +3949,7 @@ FINISHED: block
 !===================================================================================================================================
    COMAND : select case(id)
 !===================================================================================================================================
-   case('clear')
+   case('clear') ! command::clear
    ! alphameric character
       if(verify(achar(G_CHRA),big//little//digit)==0)then ! is alphanumeric so good to go by name
          call mat_getsym()
@@ -4052,7 +4102,7 @@ end subroutine mat_comand
 !==================================================================================================================================!
 subroutine sh_command()
 
-! ident_23="@(#) M_matrix sh_command(3f) start system shell interactively"
+! ident_24="@(#) M_matrix sh_command(3f) start system shell interactively"
 
 character(len=GG_LINELEN) :: line
 integer                   :: istat
@@ -4070,7 +4120,7 @@ end subroutine sh_command
 !==================================================================================================================================!
 subroutine mat_plot(lplot,x,y,n,p,k)
 
-! ident_24="@(#) M_matrix mat_plot(3fp) Plot X vs. Y on LPLOT. If K is nonzero then P(1) ... P(K) are extra parameters"
+! ident_25="@(#) M_matrix mat_plot(3fp) Plot X vs. Y on LPLOT. If K is nonzero then P(1) ... P(K) are extra parameters"
 
 integer           :: lplot
 integer           :: n
@@ -4157,7 +4207,7 @@ end subroutine mat_plot
 !==================================================================================================================================!
 subroutine mat_matfn1()
 
-! ident_25="@(#) M_matrix mat_matfn1(3fp) evaluate functions involving gaussian elimination"
+! ident_26="@(#) M_matrix mat_matfn1(3fp) evaluate functions involving gaussian elimination"
 
 doubleprecision   :: dtr(2)
 doubleprecision   :: dti(2)
@@ -4537,7 +4587,12 @@ integer          :: nn
 
       if (G_FIN .ge. 11 .and. G_FIN .le. 13) goto 10
       if (G_FIN .eq. 14 .and. (m.eq.1 .or. n.eq.1))then
-         goto 50
+         ! POLY
+         ! form polynomial with given vector as roots
+         N = MAX(M,N)
+         LD = location+N+1
+         call mat_wcopy(N,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(LD),GM_IMAGS(LD),1)
+         goto 52
       endif
       if (G_FIN .eq. 14) goto 10
       if (G_FIN .eq. 15) goto 60
@@ -4678,10 +4733,14 @@ integer          :: nn
           ti(1) = dexp(sr)*dsin(si)
         endif
 
+        if(G_RHS.ne.1)then;
+           call mat_err(39) ! Incorrect number of arguments
+           return
+        endif
         select case(G_FIN)
         case( 1)                                      ! COMMAND::sin
-                 tr(1) = dsin(sr)*dcosh(si)
-                 ti(1) = dcos(sr)*dsinh(si)
+            tr(1) = dsin(sr)*dcosh(si)
+            ti(1) = dcos(sr)*dsinh(si)
         case( 2)                                      ! COMMAND::cos
                  tr(1) = dcos(sr)*dcosh(si)
                  ti(1) = (-dsin(sr))*dsinh(si)
@@ -4728,13 +4787,6 @@ integer          :: nn
       G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
       goto 99
 !===================================================================================================================================
-!     POLY
-      ! form polynomial with given vector as roots
-   50 continue
-      N = MAX(M,N)
-      LD = location+N+1
-      call mat_wcopy(N,GM_REALS(location),GM_IMAGS(location),1,GM_REALS(LD),GM_IMAGS(LD),1)
-      goto 52
 !===================================================================================================================================
 !     FORM CHARACTERISTIC POLYNOMIAL
    52 continue
@@ -4800,7 +4852,7 @@ end subroutine mat_matfn2
 !==================================================================================================================================!
 subroutine mat_matfn3()
 
-! ident_26="@(#) M_matrix mat_matfn3(3fp) evaluate functions involving singular value decomposition"
+! ident_27="@(#) M_matrix mat_matfn3(3fp) evaluate functions involving singular value decomposition"
 
 integer         :: i
 integer         :: j
@@ -5361,7 +5413,7 @@ end subroutine mat_matfn3
 !==================================================================================================================================!
 SUBROUTINE mat_matfn4()
 
-! ident_27="@(#) M_matrix mat_matfn4(3fp) evaluate functions involving qr decomposition (least squares)"
+! ident_28="@(#) M_matrix mat_matfn4(3fp) evaluate functions involving qr decomposition (least squares)"
 
 integer           :: info
 integer           :: j
@@ -5589,7 +5641,7 @@ END SUBROUTINE mat_matfn4
 !==================================================================================================================================!
 subroutine mat_matfn5()
 
-! ident_28="@(#) M_matrix mat_matfn5(3fp) file handling and other I/O"
+! ident_29="@(#) M_matrix mat_matfn5(3fp) file handling and other I/O"
 
 character(len=GG_LINELEN) :: mline
 character(len=256)        :: errmsg
@@ -5607,7 +5659,6 @@ integer                   :: l2
 integer                   :: ll
 integer                   :: ls
 integer                   :: lun
-integer                   :: lunit
 integer                   :: lw
 integer                   :: lx
 integer                   :: ly
@@ -5702,12 +5753,17 @@ integer                   :: mn
       endblock EXEC_CMD
 !===================================================================================================================================
       case(2) ! COMMAND::SAVE
+      save_cmd: block
+      integer :: lunit
+      integer :: i, j, k, m, n
       lunit = 1
       call mat_files(lunit,G_BUF)
       k = GG_MAX_NUMBER_OF_NAMES-4
       if (k .lt. G_TOP_OF_SAVED) k = GG_MAX_NUMBER_OF_NAMES
-      if (G_RHS .eq. 2) k = top2
-      if (G_RHS .eq. 2) call mat_copyid(G_VAR_IDS(1,k),G_SYN)
+      if (G_RHS .eq. 2) then
+         k = top2
+         call mat_copyid(G_VAR_IDS(1,k),G_SYN)
+      endif
       do
          location = G_VAR_DATALOC(k)
          m = G_VAR_ROWS(k)
@@ -5722,8 +5778,9 @@ integer                   :: mn
          k = k-1
          if (k .lt. G_TOP_OF_SAVED) exit
       enddo
-      call mat_files(-lunit,G_BUF) ! close unit
+      call mat_files(-lunit,G_BUF)        ! close unit
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 0  ! do not set "ans" to filename
+      endblock save_cmd
 !===================================================================================================================================
       case(14) ! COMMAND::DELETE
          DELETE_IT: block
@@ -5746,6 +5803,8 @@ integer                   :: mn
          endblock DELETE_IT
 !===================================================================================================================================
       case(3) ! command::load
+      load_cmd : block
+      integer :: lunit
       call mat_buf2str(mline,G_BUF,GG_LINELEN)
 
       lunit = 2
@@ -5798,17 +5857,20 @@ integer                   :: mn
       call mat_files(-lunit,G_BUF) ! close unit
 
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
+      endblock load_cmd
 !===================================================================================================================================
       case(4) ! command::print
+      print_cmd:block
+      integer :: hold
       call mat_files(7,G_BUF)
 
-      location = G_LINECOUNT(2)                       ! hold
-      G_LINECOUNT(2) = 999999                         ! turn off paging of output
+      hold = G_LINECOUNT(2)                        ! hold
+      G_LINECOUNT(2) = 99999999                    ! turn off paging of output
       if (G_RHS .gt. 1) call mat_print(G_SYN,top2)
-
-      G_LINECOUNT(2) = location                       ! restore
+      G_LINECOUNT(2) = hold                        ! restore
 
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 0
+      endblock print_cmd
 !===================================================================================================================================
       case(5) ! command::diary
       call mat_files(8,G_BUF)
@@ -5976,7 +6038,7 @@ end subroutine mat_matfn5
 !==================================================================================================================================!
 subroutine mat_stack_get(id)
 
-! ident_29="@(#) M_matrix mat_stack_get(3fp) get variables from storage"
+! ident_30="@(#) M_matrix mat_stack_get(3fp) get variables from storage"
 
 integer,intent(in)  :: id(GG_MAX_NAME_LENGTH)
 integer             :: i
@@ -6113,7 +6175,7 @@ END SUBROUTINE MAT_STACK_GET
 !==================================================================================================================================!
 subroutine mat_stack2(op)
 
-! ident_30="@(#) M_matrix ml_stackp(3fp) binary and ternary operations"
+! ident_31="@(#) M_matrix ml_stackp(3fp) binary and ternary operations"
 
 integer           :: op
 doubleprecision   :: sr,si,e1,st,e2
@@ -7252,7 +7314,7 @@ end subroutine mat_term
 !==================================================================================================================================!
 subroutine mat_savlod(lun,id,m,n,img,space_left,xreal,ximag)
 
-! ident_31="@(#) M_matrix mat_savlod(3fp) read next variable from a save file or write next variable to it"
+! ident_32="@(#) M_matrix mat_savlod(3fp) read next variable from a save file or write next variable to it"
 
 integer,intent(in)                :: lun                                       ! logical unit number
 integer                           :: id(GG_MAX_NAME_LENGTH)                    ! name, format 32a1
@@ -7361,7 +7423,7 @@ end function mat_eqid
 !     unknown  F
 function ifin_lala(varname)
 
-! ident_32="@(#) M_matrix ifin_lala(3f) access LALA variable stack and see if a variable name exists"
+! ident_33="@(#) M_matrix ifin_lala(3f) access LALA variable stack and see if a variable name exists"
 
 character(len=*),intent(in) :: varname
 integer                     :: id(GG_MAX_NAME_LENGTH)
@@ -7493,7 +7555,7 @@ end function ifin_lala
 !    > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
 subroutine get_double_from_lala(varname,A,type,IERR)
 
-! ident_33="@(#) M_matrix get_double_from_lala(3f) access LALA variable stack and get a variable by name and its data from the stack"
+! ident_34="@(#) M_matrix get_double_from_lala(3f) access LALA variable stack and get a variable by name and its data from the stack"
 
 character(len=*),intent(in)              :: varname    ! the name of A.
 integer,intent(in)                       :: type       ! type =  0  get REAL A from LALA, type  = 1  get IMAGINARY A into LALA,
@@ -7614,7 +7676,7 @@ end function rowpack
 !      >This is my title
 subroutine store_double_into_lala(varname,realxx,imagxx,ierr)
 
-! ident_34="@(#) M_matrix _store_double_into_lala(3f) put a variable name and its data onto LALA stack"
+! ident_35="@(#) M_matrix _store_double_into_lala(3f) put a variable name and its data onto LALA stack"
 
 character(len=*),intent(in)          :: varname                ! the name of realxx.
 doubleprecision,intent(in)           :: realxx(:,:)            ! inputarray is an M by N matrix
@@ -8437,7 +8499,7 @@ function too_much_memory(expression)
 integer,intent(in) :: expression
 logical            :: too_much_memory
 
-! ident_35="@(#) too much memory required"
+! ident_36="@(#) too much memory required"
 
    G_ERR=expression
    if(G_ERR.gt.0)then
@@ -8453,7 +8515,7 @@ end function too_much_memory
 !===================================================================================================================================
 function system_getenv(name,default) result(value)
 
-! ident_36="@(#) M_system system_getenv(3f) call get_environment_variable as a function with a default value(3f)"
+! ident_37="@(#) M_system system_getenv(3f) call get_environment_variable as a function with a default value(3f)"
 
 character(len=*),intent(in)          :: name
 character(len=*),intent(in),optional :: default
@@ -9024,6 +9086,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      reshape(A,[m,n]) - Reshape an array                                       ',&
 '      maxval(A)        - maximum real component of array A                      ',&
 '      minval(A)        - minimum real component of array A                      ',&
+'      maxloc(A)        - location of maximum real component of array A          ',&
+'      minloc(A)        - location of minimum real component of array A          ',&
 '      user(A)          - Function defined by external program.                  ',&
 '      pack(A,mask)     - Pack selected array elements into a vector             ',&
 '                                                                                ',&
@@ -10498,16 +10562,16 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   |______________._________________________________________________________|   ',&
 '   |VARIABLES     | ans    clear who                                        |   ',&
 '   |______________._________________________________________________________|   ',&
-'   |BASIC         | atan  cos  exp  log  pow  sin  sqrt minval maxval       |   ',&
+'   |BASIC         | atan  cos  exp  log  pow  sin  sqrt                     |   ',&
 '   |______________._________________________________________________________|   ',&
 '   |RELATIONAL    | lt le eq ge gt ne                                       |   ',&
-'   |______________._________________________________________________________|   ',&
-'   |HIGH          | abs   all   any   base chol chop    cond  conjg  det    |   ',&
-'   |              | diag  eig   eye   hess invh imag    inv   kron   lu     |   ',&
-'   |              | magic norm  ones  orth pinv poly    prod  qr     randn  |   ',&
-'   |              | randu rank  rcond rat  real reshape rref  roots  round  |   ',&
-'   |              | schur shape sum   svd  tril triu    user  zeros         |   ',&
-'   |______________._________________________________________________________|   ',&
+'   |_____.__________________________________________________________________|   ',&
+'   |HIGH  | abs    all    any    base  chol chop cond    conjg det   diag   |   ',&
+'   |      | eig    eye    hess   invh  imag inv  kron    lu    magic maxloc |   ',&
+'   |      | maxval minloc minval lnorm ones orth pinv    poly  prod  qr     |   ',&
+'   |      | randn  randu  rank   rcond rat  real reshape rref  roots round  |   ',&
+'   |      | schur  shape  sum    svd   tril triu user    zeros              |   ',&
+'   |_____.__________________________________________________________________|   ',&
 '   |FLOW control  | else   end   if     for    while    exit   quit         |   ',&
 '   |______________._________________________________________________________|   ',&
 '   |FILE access   | exec   load  print  save   delete                       |   ',&
@@ -10609,6 +10673,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       * fmtc,fmti,fmtr     convert numeric values to string                    ',&
 '       * pack               select array elements via a mask into a vector      ',&
 '       * minval,maxval      extrema of real component of an array               ',&
+'       * minloc,maxloc      location of extrema of real component of            ',&
+'                            an array                                            ',&
 '                                                                                ',&
 '      Enhancements                                                              ',&
 '                                                                                ',&
@@ -10798,37 +10864,35 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      For the use of the colon in the "for" statement, See "for" .              ',&
 '                                                                                ',&
-'^     A ^ B                                                                     ',&
+'^     A ^ B  The expression A^p means A to the p-th power. It is defined        ',&
+'      if A is a square matrix and p is a scalar. If p is an                     ',&
+'      integer greater than one, the power is computed by repeated               ',&
+'      multiplication. For other values of p the calculation involves            ',&
+'      the eigenvalues and eigenvectors of A.                                    ',&
 '                                                                                ',&
-'         The expression A^p means A to the p-th power. It is defined if A       ',&
-'         is a square matrix and p is a scalar. If p is an integer greater       ',&
-'         than one, the power is computed by repeated multiplication. For        ',&
-'         other values of p the calculation involves the eigenvalues and         ',&
-'         eigenvectors of A.                                                     ',&
-'                                                                                ',&
-'         The expression A^p is evaluated by repeated multiplication if          ',&
-'         p is an integer greater than 1. Otherwise it is evaluated by           ',&
+'      The expression A^p is evaluated by repeated multiplication if             ',&
+'      p is an integer greater than 1. Otherwise it is evaluated by              ',&
 '                                                                                ',&
 '               <X,D> = eig(A);                                                  ',&
 '               for j = 1:n, D(j,j) = exp(p*log(D(j,j)))                         ',&
 '               X*D/X                                                            ',&
 '                                                                                ',&
-'         This suffers from a potential loss of accuracy if X is badly           ',&
-'         conditioned. It was partly for this reason that the case p =           ',&
-'         1 is included in the general case. Comparison of A**1 with A           ',&
-'         gives some idea of the loss of accuracy for other values of p          ',&
-'         and for the elementary functions.                                      ',&
+'      This suffers from a potential loss of accuracy if X is badly              ',&
+'      conditioned. It was partly for this reason that the case p =              ',&
+'      1 is included in the general case. Comparison of A**1 with A              ',&
+'      gives some idea of the loss of accuracy for other values of p             ',&
+'      and for the elementary functions.                                         ',&
 '                                                                                ',&
 '      A .^ B                                                                    ',&
 '                                                                                ',&
-'         If A and B are the same shape A .^ B is an element-wise                ',&
-'         operation where each element of A is raised to the power in            ',&
-'         the corresponding element of B.                                        ',&
+'      If A and B are the same shape A .^ B is an element-wise                   ',&
+'      operation where each element of A is raised to the power in               ',&
+'      the corresponding element of B.                                           ',&
 '                                                                                ',&
-'         If B is a scalar, A .^ B raises each element of A to the power         ',&
-'         of B.                                                                  ',&
+'      If B is a scalar, A .^ B raises each element of A to the power            ',&
+'      of B.                                                                     ',&
 '                                                                                ',&
-'         These elemental operations are equivalent to pow(A,B).                 ',&
+'      These elemental operations are equivalent to pow(A,B).                    ',&
 '                                                                                ',&
 'semi  "semi" toggles the action of semicolons at the end of lines.              ',&
 '      It will make semicolons cause rather than suppress printing.              ',&
@@ -10846,47 +10910,48 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'MACROS                                                                          ',&
 '                                                                                ',&
-'       The macro facility involves text and inward pointing angle               ',&
-'       brackets. If "STRING" is the source text for any LALA                    ',&
-'       expression or statement, then                                            ',&
+'    The macro facility involves text and inward pointing angle                  ',&
+'    brackets. If "STRING" is the source text for any LALA                       ',&
+'    expression or statement, then                                               ',&
 '                                                                                ',&
-'             t = ''STRING'';                                                    ',&
-'       encodes the text as a vector of integers and stores that                 ',&
-'       vector in t. "display(t)" will print the text and                        ',&
+'          t = ''STRING'';                                                       ',&
+'    encodes the text as a vector of integers and stores that                    ',&
+'    vector in t. "display(t)" will print the text and                           ',&
 '                                                                                ',&
-'             >t<                                                                ',&
-'       causes the text to be interpreted, either as a statement or              ',&
-'       as a factor in an expression. For example                                ',&
+'          >t<                                                                   ',&
+'    causes the text to be interpreted, either as a statement or                 ',&
+'    as a factor in an expression. For example                                   ',&
 '                                                                                ',&
-'             t = ''1/(i+j-1)'';                                                 ',&
-'             display(t)                                                         ',&
-'             for i = 1:n, for j = 1:n, a(i,j) = >t<;                            ',&
+'          t = ''1/(i+j-1)'';                                                    ',&
+'          display(t)                                                            ',&
+'          for i = 1:n, for j = 1:n, a(i,j) = >t<;                               ',&
 '                                                                                ',&
-'       generates the Hilbert matrix of order n.                                 ',&
-'       Another example showing indexed text,                                    ',&
+'    generates the Hilbert matrix of order n.                                    ',&
+'    Another example showing indexed text,                                       ',&
 '                                                                                ',&
-'             S = <''x = 3            ''                                         ',&
-'                  ''y = 4            ''                                         ',&
-'                  ''z = sqrt(x*x+y*y)''>                                        ',&
-'             for k = 1:3, >S(k,:)<                                              ',&
+'          S = <''x = 3            ''                                            ',&
+'               ''y = 4            ''                                            ',&
+'               ''z = sqrt(x*x+y*y)''>                                           ',&
+'          for k = 1:3, >S(k,:)<                                                 ',&
 '                                                                                ',&
-'       It is necessary that the strings making up the "rows" of                 ',&
-'       the "matrix" S have the same lengths.                                    ',&
+'    It is necessary that the strings making up the "rows" of                    ',&
+'    the "matrix" S have the same lengths.                                       ',&
 '================================================================================',&
 'BASIC FUNCTIONS                                                                 ',&
 '                                                                                ',&
-'      For matrix arguments X , the functions "sin", "cos", "atan",              ',&
-'      "sqrt", "log", "exp" and X**p are computed using eigenvalues D            ',&
-'      and eigenvectors V . If <V,D> = eig(X) then f(X) = V*f(D)/V . This        ',&
-'      method may give inaccurate results if V is badly conditioned. Some        ',&
-'      idea of the accuracy can be obtained by comparing X**1 with X .           ',&
-'      For vector arguments, the function is applied to each component.          ',&
+'   For vector arguments, the function is applied to each component.             ',&
 '                                                                                ',&
-'atan  atan(X) is the arctangent of X . See "BASIC" .                            ',&
+'   For matrix arguments X, the functions "sin", "cos", "atan", "sqrt",          ',&
+'   "log", "exp" and X**p are computed using eigenvalues D and eigenvectors      ',&
+'   V . If <V,D> = eig(X) then f(X) = V*f(D)/V . This method may give            ',&
+'   inaccurate results if V is badly conditioned. Some idea of the accuracy      ',&
+'   can be obtained by comparing X**1 with X .                                   ',&
 '                                                                                ',&
-'cos   cos(X) is the cosine of X . See "BASIC" .                                 ',&
+'atan  atan(X) is the arctangent of X. See "BASIC".                              ',&
 '                                                                                ',&
-'exp   exp(X) is the exponential of X , e to the X . See "BASIC".                ',&
+'cos   cos(X) is the cosine of X. See "BASIC".                                   ',&
+'                                                                                ',&
+'exp   exp(X) is the exponential of X, e to the X. See "BASIC".                  ',&
 '                                                                                ',&
 'log   log(X) is the natural logarithm of X.                                     ',&
 '                                                                                ',&
@@ -10894,22 +10959,6 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      nonpositive eigenvalues.                                                  ',&
 '                                                                                ',&
 '      See "BASIC".                                                              ',&
-'                                                                                ',&
-'pow   For a scalar exponent pow(X,exponent) raises each element of X to         ',&
-'      the specified power. pow(X,Y) raise each element in X by the              ',&
-'      corresponding element in Y. X and Y must have the same shape.             ',&
-'                                                                                ',&
-'          A=magic(3);                                                           ',&
-'          pow(A,3)                                                              ',&
-'                                                                                ',&
-'      Alternatively FOR loops can be used to perform most elemental operations: ',&
-'                                                                                ',&
-'          a=ones(A)      // create output array same size as input              ',&
-'          <m,n>=shape(A);for i=1:n, for j=1:m, a(i,j)=A(i,j)**3;                ',&
-'                                                                                ',&
-'      or for low whole number exponents elemental multiplication is sufficient  ',&
-'                                                                                ',&
-'          b = A .* A .* A // elemental multiplication                           ',&
 '                                                                                ',&
 'sin   sin(X) is the sine of X. See "BASIC".                                     ',&
 '                                                                                ',&
@@ -11165,8 +11214,14 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       from the integers 1 through N**2 with equal row, column and                ',&
 '       diagonal sums. N must be a positive whole number not equal to two.         ',&
 '                                                                                  ',&
+'maxloc  "maxloc(A)" returns the location of the maximum real component            ',&
+'        found in the elements of A                                                ',&
+'                                                                                  ',&
 'maxval  "maxval(A)" returns the maximum real component found in the               ',&
 '        elements of A                                                             ',&
+'                                                                                  ',&
+'minloc  "minloc(A)" returns the location of the minimum real component            ',&
+'        found in the elements of A                                                ',&
 '                                                                                  ',&
 'minval  "minval(A)" returns the minimum real component found in the               ',&
 '        elements of A                                                             ',&
@@ -11245,6 +11300,22 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                      ',&
 '      "roots(poly(1:20))" generates Wilkinson''s famous example.                      ',&
 '                                                                                      ',&
+'pow   For a scalar exponent pow(X,exponent) raises each element of X to               ',&
+'      the specified power. pow(X,Y) raise each element in X by the                    ',&
+'      corresponding element in Y. X and Y must have the same shape.                   ',&
+'                                                                                      ',&
+'          A=magic(3);                                                                 ',&
+'          pow(A,3)                                                                    ',&
+'                                                                                      ',&
+'      Alternatively FOR loops can be used to perform most elemental operations:       ',&
+'                                                                                      ',&
+'          a=ones(A)      // create output array same size as input                    ',&
+'          <m,n>=shape(A);for i=1:n, for j=1:m, a(i,j)=A(i,j)**3;                      ',&
+'                                                                                      ',&
+'      or for low whole number exponents elemental multiplication is sufficient        ',&
+'                                                                                      ',&
+'          b = A .* A .* A // elemental multiplication                                 ',&
+'                                                                                      ',&
 'prod  "prod(X)" is the product of all the elements of X.                              ',&
 '                                                                                      ',&
 '           A=prod(1:10) // the factorial of 10                                        ',&
@@ -11267,8 +11338,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       "(0.0,1.0). "randu(N)" is an N by N matrix with random                         ',&
 '       entries. "randu(M,N)" is an M by N matrix with random entries.                 ',&
 '                                                                                      ',&
-'randn                                                                                 ',&
-'       randn(N) or randn(N,M) produces random numbers with a normal                   ',&
+'randn  randn(N) or randn(N,M) produces random numbers with a normal                   ',&
 '       distribution with mean 0.0 and variance 1.0. "randn(N)" is an N                ',&
 '       by N matrix with random entries. "randn(M,N)" is an M by N matrix              ',&
 '       with random entries.                                                           ',&
@@ -11837,14 +11907,14 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      values may be assigned. "eps" is used as a default tolerance by "pinv"          ',&
 '      and "rank".                                                                     ',&
 '                                                                                      ',&
+'debug  "debug(1)" turns on verbose low-level debugging for the developer,             ',&
+'       "debug(0)" turns it back off.                                                  ',&
+'                                                                                      ',&
 'lala  A placeholder for a new command.                                                ',&
 '                                                                                      ',&
 '      LALA is intended to be used primarily by families of FORTRAN                    ',&
 '      programs that wish to add a consistent interactive "calculator"                 ',&
 '      mode for interactively inspecting and modifying data.                           ',&
-'                                                                                      ',&
-'debug  "debu(1)" turns on verbose low-level debugging for the developer,              ',&
-'       "debu(0)" turns it back off.                                                   ',&
 '                                                                                      ',&
 '================================================================================      ',&
 '']
@@ -11853,7 +11923,7 @@ end subroutine mat_help_text
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================
 function find_exec_file(filename) result(returned)
-! ident_37="@(#) M_matrix find_exec_file(3fp) look for "file" or "file.la" in currect directory and those in LALA_PATH=DIR1 DIR2 DIR3..."
+! ident_38="@(#) M_matrix find_exec_file(3fp) look for "file" or "file.la" in currect directory and those in LALA_PATH=DIR1 DIR2 DIR3..."
 character(len=*),intent(in)  :: filename
 character(len=:),allocatable :: returned
    returned=''
@@ -11937,7 +12007,7 @@ end subroutine printit
 !===================================================================================================================================
 subroutine mat_wdiv(ar,ai,br,bi,cr,ci)
 
-! ident_38="@(#) M_matrix mat_wdiv(3fp) c = a/b"
+! ident_39="@(#) M_matrix mat_wdiv(3fp) c = a/b"
 
 doubleprecision :: ar
 doubleprecision :: ai
@@ -11972,7 +12042,7 @@ end subroutine mat_wdiv
 !==================================================================================================================================!
 subroutine mat_wlog(in_real,in_imag,out_real,out_imag)
 
-! ident_39="@(#) M_matrix mat_wlog(3fp) y = log(x)"
+! ident_40="@(#) M_matrix mat_wlog(3fp) y = log(x)"
 
 doubleprecision :: in_real, in_imag
 doubleprecision :: out_real, out_imag
@@ -11995,7 +12065,7 @@ end subroutine mat_wlog
 !==================================================================================================================================!
 subroutine mat_watan(xr,xi,yr,yi)
 
-! ident_40="@(#) M_LA mat_watan(3fp) y = atan(x) = (i/2)*log((i+x)/(i-x))"
+! ident_41="@(#) M_LA mat_watan(3fp) y = atan(x) = (i/2)*log((i+x)/(i-x))"
 
 doubleprecision,intent(in)  :: xr, xi
 doubleprecision,intent(out) :: yr, yi

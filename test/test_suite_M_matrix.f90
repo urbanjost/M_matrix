@@ -6,7 +6,8 @@ integer           :: m,n, i,j, ierr
 doubleprecision   :: arr(lda,lda),x(lda,lda)
 logical           :: logs=.false.
 
-   logs=.true.
+   !!logs=.true.
+   logs=.false.
    !!call lala(20000,echo=.true.)
 
    if(logs)call lala( 'diary(''test_suite_M_matrix.log'');')
@@ -42,6 +43,8 @@ logical           :: logs=.false.
    call test_ne ()      ! ne   elementally return true(1) or false(0) for relational operator
       call test_maxval ()  ! maxval  maximum real value 
       call test_minval ()  ! minval  minimum real value
+      call test_maxloc ()  ! maxloc  location of maximum real value 
+      call test_minloc ()  ! minloc  location of minimum real value
    call test_exec ()    ! exec  "exec('file',k)" obtains subsequent LALA input from an
    call test_exit ()    ! exit  Causes termination of a "for" or "while" loop.
    call test_exp ()     ! exp   exp(X) is the exponential of X , e to the X . See HIGH.
@@ -308,6 +311,52 @@ subroutine test_ne()
   call lala( 'if sum(tally) = 0,display(''ne PASSED''),else,display(''ne FAILED'');tally')
 end subroutine test_ne
 !-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_maxloc()
+  call lala( 'display(ones(80,1)''*61); help maxloc; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''maxloc.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=-magic(11);')
+  call lala( 'c=maxloc(a);')
+  call lala(  &
+  & "if all(eq(c,[3,3]))=1, display('maxloc OF ''a'' OK'),tally=[tally,0];else,display('maxloc OF ''a'' FAILED');c,tally=[tally,1];end")
+  call lala( &
+  & 'if shape(c)=[1,2] ,display(''maxloc shape OK'');tally=[tally,0];else,display(''maxloc shape BAD'');shape(a),tally=[tally,1];')
+  call lala( &
+  &'l= maxloc(b); &
+  & if b(l(1),l(2))=maxval(b), &
+  &    display(''maxloc of ''b'' OK''), &
+  &    tally=[tally,0]; &
+  & else &
+  &    display(''maxloc of ''b'' FAILED''); &
+  &    tally=[tally,1]; &
+  & end')
+  call lala( 'if sum(tally) = 0,display(''maxloc PASSED''),else,display(''maxloc FAILED'');tally')
+end subroutine test_maxloc
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_minloc()
+  call lala( 'display(ones(80,1)''*61); help minloc; display(ones(80,1)''*95)')
+  call lala( 'tally=[0];')
+  if(logs)call lala( 'diary(''minloc.log'');')
+  call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
+  call lala( 'b=-magic(11);')
+  call lala( 'c=minloc(a);')
+  call lala(  &
+  & "if all(eq(c,[1,1]))=1, display('minloc OF ''a'' OK'),tally=[tally,0];else,display('minloc OF ''a'' FAILED');c,tally=[tally,1];end")
+  call lala( &
+  & 'if shape(c)=[1,2] ,display(''minloc shape OK'');tally=[tally,0];else,display(''minloc shape BAD'');shape(a),tally=[tally,1];')
+  call lala( &
+  & 'l=minloc(b); &
+  & if b(l(1),l(2))=minval(b), &
+  &    display(''minloc of ''b'' OK''), &
+  &    tally=[tally,0]; &
+  & else  &
+  &    display(''minloc of ''b'' FAILED''); &
+  &    tally=[tally,1]; &
+  & end')
+  call lala( 'if sum(tally) = 0,display(''minloc PASSED''),else,display(''minloc FAILED'');tally')
+end subroutine test_minloc
+!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_minval()
   call lala( 'display(ones(80,1)''*61); help minval; display(ones(80,1)''*95)')
   call lala( 'tally=[0];')
@@ -354,9 +403,7 @@ end subroutine test_maxval
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_sum()
   call lala( 'display(ones(80,1)''*61); help sum; display(ones(80,1)''*95)')
-  logs=.true.
   if(logs)call lala( 'diary(''sum.log'');')
-  logs=.false.
   call lala( 'tally=[0];')
   call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
   call lala( 'b=sum(magic(3));')
@@ -728,7 +775,6 @@ subroutine test_prod ()
 end subroutine test_prod
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_eps ()
-   !!logs=.true.
    if(logs)call lala( 'diary(''eps.log'');')
    call lala( [ character(len=256) :: &
      & ' display(ones(80,1)''*''='');help eps;display(ones(80,1)''*''_'')              ', &
@@ -1544,7 +1590,6 @@ end subroutine test_general_char
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_general_dots()
-   !!logs=.true.
    if(logs)call lala( 'diary(''test_general_dots.log'');')
    call lala( [ character(len=256) :: &
    & 'display(ones(80,1)''*61);display(''general expression dots'');               ', &
@@ -1560,7 +1605,6 @@ end subroutine test_general_dots
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_general_pascal()
-   !!logs=.true.
    if(logs)call lala( 'diary(''test_general_pascal.log'');')
    call lala( [ character(len=256) :: &
    & 'display(ones(80,1)''*61);display(''general pascal test'');                                ', &
@@ -1620,7 +1664,6 @@ end subroutine test_general_pascal
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_general_expr()
-   !!logs=.true.
    if(logs)call lala( 'diary(''test_general_expr.log'');')
    call lala( [ character(len=256) :: &
    & 'display(ones(80,1)''*61);display(''general expression tests'');              ', &
