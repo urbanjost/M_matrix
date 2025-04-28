@@ -729,3 +729,53 @@ or list it as a dependency in the fpm.toml project file ...
                    1024.          0.          0.          0.         -4.
                      >
 ```
+## Dependencies ( via [fpm-deps](https://github.com/ivan-pi/fpm-deps))
+```mermaid
+flowchart TB
+  N1[M_matrix]
+  N2[M_framework]
+  N3[M_msg]
+  N4[M_strings]
+  N5[M_history]
+  N6[M_CLI2]
+  N7[M_list]
+  N8[M_io]
+  N9[M_LA]
+  N10[M_intrinsics]
+  N11[M_time]
+  N12[M_anything]
+  N13[M_match]
+  N14[M_attr]
+  click N1 href "https://github.com/urbanjost/M_matrix.git" " matlab-like interface via procedure calls(LICENSE:PD)"
+  click N2 href "https://github.com/urbanjost/M_framework.git" "support unit testing and related logging and messaging"
+  click N3 href "https://github.com/urbanjost/M_msg.git" "converts any standard scalar type to a string and support unit testing"
+  click N4 href "https://github.com/urbanjost/M_strings.git" "string manipulation"
+  click N5 href "https://github.com/urbanjost/M_history.git" "Input History Editor"
+  click N6 href "https://github.com/urbanjost/M_CLI2.git" "Unix-style commandline parsing using a prototype command"
+  click N7 href "https://github.com/urbanjost/M_list.git" " maintain sorted lists of INTRINSIC type"
+  click N8 href "https://github.com/urbanjost/M_io.git" "I/O-related tools"
+  click N9 href "https://github.com/urbanjost/M_LA.git" " Linear Algebra and Array-oriented procedures (LICENSE:MIT)"
+  click N10 href "https://github.com/urbanjost/M_intrinsics.git" "module of text descriptions of Fortran intrinsics and features"
+  click N11 href "https://github.com/urbanjost/M_time.git" "date and time conversion, formatting and computation "
+  click N12 href "https://github.com/urbanjost/M_anything.git" "module to cast or promote intrinsic types"
+  click N13 href "https://github.com/urbanjost/M_match.git" "Basic Regular Expressions"
+  click N14 href "https://github.com/urbanjost/M_attr.git" "ANSI control escape sequences using an XML-like syntax for attributes like color on video displays and emulators"
+  N1-->N2
+  N1-->N3
+  N1-->N4
+  N1-->N5
+  N1-->N6
+  N1-->N7
+  N1-->N8
+  N1-->N9
+  N1-->N10
+  N1-->N11
+  N3-->N4
+  N3-->N12
+  N10-->N6
+  N10-->N13
+  N10-->N4
+  N10-->N14
+  N10-->N2
+  N10-->N8
+```
