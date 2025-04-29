@@ -10848,18 +10848,14 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '+     Addition. X + Y . X and Y must have the same dimensions unless            ',&
 '      either is a scalar.                                                       ',&
 '                                                                                ',&
-'      An exception is made if X or Y is scalar; in that case the scalar is      ',&
-'      expanded to an array of the size of the other argument.  That is,         ',&
-'      a scalar X is treated as ones(Y)*X and a scalar Y is treated as           ',&
-'      ones(X)*Y.                                                                ',&
+'      An exception is made if X or Y is scalar; in that case the scalar         ',&
+'      is added element-by-element to the array.                                 ',&
 '                                                                                ',&
 '-     Subtraction. X - Y . X and Y must have the same dimensions unless         ',&
 '      either is scalar.                                                         ',&
 '                                                                                ',&
-'      An exception is made if X or Y is scalar; in that case the scalar is      ',&
-'      expanded to an array of the size of the other argument.  That is,         ',&
-'      a scalar X is treated as ones(Y)*X and a scalar Y is treated as           ',&
-'      ones(X)*Y.                                                                ',&
+'      An exception is made if X or Y is scalar; in that case the scalar         ',&
+'      is subtracted element-by-element from the array.                          ',&
 '                                                                                ',&
 '*     Matrix multiplication, X*Y . Any scalar (1 by 1 matrix) may multiply      ',&
 '      anything. Otherwise, the number of columns of X must equal the            ',&
