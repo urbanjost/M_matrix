@@ -125,9 +125,9 @@ integer           :: sumtally
 !       ! call test_, () ,     Used to separate matrix subscripts and function arguments.
 !       ! call test_' () '     Transpose. X' is the complex conjugate transpose of X .
 !       ! call test_/ () /     Slash or matrix right division. B/A is roughly the same
-!       ! call test_- () -     Subtraction. X - Y . X and Y must have the same
 !       ! call test_\ () \     Backslash or matrix left division. A\B is roughly the
-!       ! call test_+ () +     Addition. X + Y . X and Y must have the same dimensions.
+      call test_addition_and_subtraction()    ! Addition. X + Y . X and Y must have the same dimensions unless scalar.
+                                              ! Subtraction. X - Y . X and Y must have the same dimensions unless scalar.
 !       ! call test_: () :     Colon. Used in subscripts, "for" iterations and possibly
 !       ! call test_. () .     Decimal point. 314/100, 3.14 and .314E1 are all the
 !       ! call test_* () *     Matrix multiplication, X*Y . Any scalar (1 by 1 matrix)
@@ -333,8 +333,8 @@ subroutine test_maxloc()
   call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
   call lala( 'b=-magic(11);')
   call lala( 'c=maxloc(a);')
-  call lala(  &
-  & "if all(eq(c,[3,3]))=1, display('maxloc OF ''a'' OK'),tally=[tally,0];else,display('maxloc OF ''a'' FAILED');c,tally=[tally,1];end")
+  call lala(  "if all(eq(c,[3,3]))=1,display('maxloc OF ''a'' OK'),tally=[tally,0];&
+  &else,display('maxloc OF ''a'' FAILED');c,tally=[tally,1];end")
   call lala( &
   & 'if shape(c)=[1,2] ,display(''maxloc shape OK'');tally=[tally,0];else,display(''maxloc shape BAD'');shape(a),tally=[tally,1];')
   call lala( &
@@ -357,8 +357,8 @@ subroutine test_minloc()
   call lala( 'a=<1 2 3; 4 5 6; 7 8 9>;')
   call lala( 'b=-magic(11);')
   call lala( 'c=minloc(a);')
-  call lala(  &
-  & "if all(eq(c,[1,1]))=1, display('minloc OF ''a'' OK'),tally=[tally,0];else,display('minloc OF ''a'' FAILED');c,tally=[tally,1];end")
+  call lala("if all(eq(c,[1,1]))=1, display('minloc OF ''a'' OK'),tally=[tally,0];&
+  &else,display('minloc OF ''a'' FAILED');c,tally=[tally,1];end")
   call lala( &
   & 'if shape(c)=[1,2] ,display(''minloc shape OK'');tally=[tally,0];else,display(''minloc shape BAD'');shape(a),tally=[tally,1];')
   call lala( &
@@ -428,7 +428,8 @@ subroutine test_sum()
   call lala( 'b=sum(magic(3));')
   call lala( 'c=sum(a);')
   call lala(  &
-  & "if c = 45,display('sum: SUM OF ''a'' OK'),tally=[tally,0];else,display('sum: SUM OF ''a'' FAILED');shape(a),tally=[tally,1];end")
+  & "if c = 45,display('sum: SUM OF ''a'' OK'),tally=[tally,0];&
+  &else,display('sum: SUM OF ''a'' FAILED');shape(a),tally=[tally,1];end")
   call lala( &
   & 'if shape(c) = [1,1] ,display(''sum: shape OK'');tally=[tally,0];else,display(''sum: shape BAD'');shape(a),tally=[tally,1];')
 
@@ -1808,6 +1809,55 @@ subroutine test_general_avg()
    & 'if sum(tally) = 0,display(''avg PASSED''),else,display(''avg FAILED'');tally'])
   call wrapup()
 end subroutine test_general_avg
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_addition_and_subtraction()
+  call lala( 'display(ones(80,1)''*61); help +; display(ones(80,1)''*95)')
+  if(logs)call lala( 'diary(''addition.log'');')
+  call lala(  [ character(len=128) :: &
+"tally=[0];                                                                      ",&
+"a=<1 2 3; 4 5 6; 7 8 9>;                                                        ",&
+"b=3;                                                                            ",&
+"d=ones(a)*b+a;D=b+a;                                                            ",&
+"e=ones(a)*b-a;E=b-a;                                                            ",&
+"f=a+ones(a)*b;F=a+b;                                                            ",&
+"g=a-ones(a)*b;G=a-b;                                                            ",&
+"if all(eq(d,D))=1,display('addition:case D:1 OK'),tally=[tally,0]; else,display('addition:case D:1 FAILED');tally=[tally,1];end",&
+"if all(eq(e,E))=1,display('addition:case E:1 OK'),tally=[tally,0]; else,display('addition:case E:1 FAILED');tally=[tally,1];end",&
+"if all(eq(f,F))=1,display('addition:case F:1 OK'),tally=[tally,0]; else,display('addition:case F:1 FAILED');tally=[tally,1];end",&
+"if all(eq(g,G))=1,display('addition:case G:1 OK'),tally=[tally,0]; else,display('addition:case G:1 FAILED');tally=[tally,1];end",&
+"b=-3;                                                                           ",&
+"d=ones(a)*b+a;D=b+a;                                                            ",&
+"e=ones(a)*b-a;E=b-a;                                                            ",&
+"f=a+ones(a)*b;F=a+b;                                                            ",&
+"g=a-ones(a)*b;G=a-b;                                                            ",&
+"if all(eq(d,D))=1,display('addition:case D:2 OK'),tally=[tally,0]; else,display('addition:case D:2 FAILED');tally=[tally,1];end",&
+"if all(eq(e,E))=1,display('addition:case E:2 OK'),tally=[tally,0]; else,display('addition:case E:2 FAILED');tally=[tally,1];end",&
+"if all(eq(f,F))=1,display('addition:case F:2 OK'),tally=[tally,0]; else,display('addition:case F:2 FAILED');tally=[tally,1];end",&
+"if all(eq(g,G))=1,display('addition:case G:2 OK'),tally=[tally,0]; else,display('addition:case G:2 FAILED');tally=[tally,1];end",&
+"// literal values ",&
+"d=ones(a)*3+a;D=3+a;                                                            ",&
+"e=ones(a)*3-a;E=3-a;                                                            ",&
+"f=a+ones(a)*3;F=a+3;                                                            ",&
+"g=a-ones(a)*3;G=a-3;                                                            ",&
+"if all(eq(d,D))=1,display('addition:case D:3 OK'),tally=[tally,0]; else,display('addition:case D:3 FAILED');tally=[tally,1];end",&
+"if all(eq(e,E))=1,display('addition:case E:3 OK'),tally=[tally,0]; else,display('addition:case E:3 FAILED');tally=[tally,1];end",&
+"if all(eq(f,F))=1,display('addition:case F:3 OK'),tally=[tally,0]; else,display('addition:case F:3 FAILED');tally=[tally,1];end",&
+"if all(eq(g,G))=1,display('addition:case G:3 OK'),tally=[tally,0]; else,display('addition:case G:3 FAILED');tally=[tally,1];end",&
+"d=ones(a)*(-3)+a;D=(-3)+a;                                                            ",&
+"e=ones(a)*(-3)-a;E=(-3)-a;                                                            ",&
+"f=a+ones(a)*(-3);F=a+(-3);                                                            ",&
+"g=a-ones(a)*(-3);G=a-(-3);                                                            ",&
+"if all(eq(d,D))=1,display('addition:case D:4 OK'),tally=[tally,0]; else,display('addition:case D:4 FAILED');tally=[tally,1];end",&
+"if all(eq(e,E))=1,display('addition:case E:4 OK'),tally=[tally,0]; else,display('addition:case E:4 FAILED');tally=[tally,1];end",&
+"if all(eq(f,F))=1,display('addition:case F:4 OK'),tally=[tally,0]; else,display('addition:case F:4 FAILED');tally=[tally,1];end",&
+"if all(eq(g,G))=1,display('addition:case G:4 OK'),tally=[tally,0]; else,display('addition:case G:4 FAILED');tally=[tally,1];end",&
+"twice=<2 4 6; 8 10 12; 14 16 18>;                                                        ",&
+"if all(eq(twice,a+a))=1,display('addition: array OK'),tally=[tally,0]; else,display('addition:array FAILED');tally=[tally,1];end",&
+"display('addition: completed');"])
+
+  call lala( 'if sum(tally) = 0,display(''addition PASSED''),else,display(''addition FAILED'');tally')
+  call wrapup()
+end subroutine test_addition_and_subtraction
 !-----------------------------------------------------------------------------------------------------------------------------------
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------

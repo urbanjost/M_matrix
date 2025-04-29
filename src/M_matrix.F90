@@ -6217,7 +6217,7 @@ logical           :: scalar
    endif
    DO_OP: select case(op_select)
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case (PLUS) ! ADDITION
+   case (PLUS) ! COMMAND::ADDITION
       if (m .lt. 0) then
          if (m2 .ne. n2) then
             call mat_err(8)
@@ -6243,17 +6243,27 @@ logical           :: scalar
          call finish()
          exit DO_OP
       endif
-      if (m .ne. m2) then
+      if (m.eq.m2 .and. n.eq.n2)then
+         ! actual addition of two matrices using linear algebra
+         call matX_waxpy(m*n,1.0d0,0.0d0,GM_REALS(l2),GM_IMAGS(l2),1,GM_REALS(location),GM_IMAGS(location),1)
+      elseif(m*n.eq.1) then
+         ! elemental addition of scalar to array
+         GM_REALS(location:location+n2*m2-1) = GM_REALS(l2:l2+n2*m2-1) + GM_REALS(location)
+         GM_IMAGS(location:location+n2*m2-1) = GM_IMAGS(l2:l2+n2*m2-1) + GM_IMAGS(location)
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = m2
+         G_VAR_COLS(G_ARGUMENT_POINTER) = n2
+      elseif(m2*n2.eq.1) then
+         ! elemental addition of scalar to array
+         GM_REALS(location:location+n*m-1) = GM_REALS(location:location+n*m-1) + GM_REALS(l2)
+         GM_IMAGS(location:location+n*m-1) = GM_IMAGS(location:location+n*m-1) + GM_IMAGS(l2)
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+         G_VAR_COLS(G_ARGUMENT_POINTER) = n
+      else
          call mat_err(8)
          exit DO_OP
       endif
-      if (n .ne. n2) then
-         call mat_err(8)
-         exit DO_OP
-      endif
-      call matX_waxpy(m*n,1.0d0,0.0d0,GM_REALS(l2),GM_IMAGS(l2),1,GM_REALS(location),GM_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case (MINUS) ! SUBTRACTION
+   case (MINUS) ! COMMAND::SUBTRACTION
       if (m .lt. 0) then
          if (m2 .ne. n2)then
             call mat_err(9)
@@ -6281,17 +6291,28 @@ logical           :: scalar
          call finish()
          exit DO_OP
       endif
-      if (m .ne. m2)then
-         call mat_err(9)
+
+      if (m.eq.m2 .and. n.eq.n2)then
+         ! actual subtraction of two matrices using linear algebra
+         call matX_waxpy(M*N,-1.0D0,0.0D0,GM_REALS(L2),GM_IMAGS(L2),1,GM_REALS(location),GM_IMAGS(location),1)
+      elseif(m*n.eq.1) then
+         ! elemental subtraction of scalar to array
+         GM_REALS(location:location+n2*m2-1) = GM_REALS(location) - GM_REALS(l2:l2+n2*m2-1)
+         GM_IMAGS(location:location+n2*m2-1) = GM_IMAGS(location) - GM_IMAGS(l2:l2+n2*m2-1)
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = m2
+         G_VAR_COLS(G_ARGUMENT_POINTER) = n2
+      elseif(m2*n2.eq.1) then
+         ! elemental subtraction of scalar to array
+         GM_REALS(location:location+n*m-1) = GM_REALS(location:location+n*m-1) - GM_REALS(l2)
+         GM_IMAGS(location:location+n*m-1) = GM_IMAGS(location:location+n*m-1) - GM_IMAGS(l2)
+         G_VAR_ROWS(G_ARGUMENT_POINTER) = m
+         G_VAR_COLS(G_ARGUMENT_POINTER) = n
+      else
+         call mat_err(8)
          exit DO_OP
       endif
-      if (n .ne. n2) then
-         call mat_err(9)
-         exit DO_OP
-      endif
-      call matX_waxpy(M*N,-1.0D0,0.0D0,GM_REALS(L2),GM_IMAGS(L2),1,GM_REALS(location),GM_IMAGS(location),1)
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case (STAR) ! MULTIPLICATION
+   case (STAR) ! COMMAND::MULTIPLICATION
       if (m2*m2*n2 .eq. 1) goto 10
       if (m*n .eq. 1) goto 11
       if (m2*n2 .eq. 1) goto 10
@@ -6371,7 +6392,7 @@ logical           :: scalar
          enddo
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case (SLASH) ! right division
+   case (SLASH) ! COMMAND::right division
       if (m2*n2 .ne. 1) then
          if (m2 .eq. n2) G_FUN = 1
          if (m2 .ne. n2) G_FUN = 4
@@ -6388,7 +6409,7 @@ logical           :: scalar
          if (G_ERR .gt. 0) exit
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case (BSLASH) ! LEFT DIVISION
+   case (BSLASH) ! COMMAND::LEFT DIVISION
       if (m*n .ne. 1) then
          if (m .eq. n) G_FUN = 1
          if (m .ne. n) G_FUN = 4
@@ -6407,7 +6428,7 @@ logical           :: scalar
          IF (G_ERR .GT. 0) exit
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
-   case (COLON) ! COLON
+   case (COLON) ! COMMAND::COLON
       E2 = GM_REALS(L2)
       ST = 1.0D0
       N = 0
@@ -10824,14 +10845,25 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      quote within the text is indicated by two quotes. See "display"           ',&
 '      and "FILE" .                                                              ',&
 '                                                                                ',&
-'+     Addition. X + Y . X and Y must have the same dimensions.                  ',&
+'+     Addition. X + Y . X and Y must have the same dimensions unless            ',&
+'      either is a scalar.                                                       ',&
 '                                                                                ',&
-'-     Subtraction. X - Y . X and Y must have the same                           ',&
-'      dimensions.                                                               ',&
+'      An exception is made if X or Y is scalar; in that case the scalar is      ',&
+'      expanded to an array of the size of the other argument.  That is,         ',&
+'      a scalar X is treated as ones(Y)*X and a scalar Y is treated as           ',&
+'      ones(X)*Y.                                                                ',&
 '                                                                                ',&
-'*     Matrix multiplication, X*Y . Any scalar (1 by 1 matrix)                   ',&
-'      may multiply anything. Otherwise, the number of columns of                ',&
-'      X must equal the number of rows of Y .                                    ',&
+'-     Subtraction. X - Y . X and Y must have the same dimensions unless         ',&
+'      either is scalar.                                                         ',&
+'                                                                                ',&
+'      An exception is made if X or Y is scalar; in that case the scalar is      ',&
+'      expanded to an array of the size of the other argument.  That is,         ',&
+'      a scalar X is treated as ones(Y)*X and a scalar Y is treated as           ',&
+'      ones(X)*Y.                                                                ',&
+'                                                                                ',&
+'*     Matrix multiplication, X*Y . Any scalar (1 by 1 matrix) may multiply      ',&
+'      anything. Otherwise, the number of columns of X must equal the            ',&
+'      number of rows of Y .                                                     ',&
 '                                                                                ',&
 '      Element-by-element multiplication is obtained with X .* Y .               ',&
 '                                                                                ',&
