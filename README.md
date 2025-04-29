@@ -4,17 +4,22 @@
 This module contains the lala(Los Alamos Linear Algebra) procedure,
 which allows for interacting with a Fortran program using Matlab or
 Octave-like commands.  It is also usable as a simple one-line language.
-It is a still being modernized, but is already useful.
+It is still being modernized, but is quite useful as-is.
 
-lala(3f) is usable as a simple embedded language. In addition it
-provides a common interface for 
+So foremost lala(3f) is usable as a simple embedded language. 
+
+It also may be used for
 
   + self-describing configuration files including expressions,
     conditional branches and loops
+
   + creating points in programs where data can be interactively inspected and 
     changed.
+
   + data files that can contain expressions
+
   + transferring data between programs 
+
   + a unit testing and macro-level timing tool.
 
 Supporting functionality includes
