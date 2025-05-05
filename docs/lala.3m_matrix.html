@@ -96,11 +96,10 @@ It provides comprehensive vector and tensor operations in a package
 which may be programmed, either through a macro language or through
 execution of script files.
 <P>
-LALA(3f) Functions supported include (but are not by any means limited
+LALA(3f) functions supported include (but are not by any means limited
 to) sin, cos, tan, arcfunctions, upper triangular, lower triangular,
 determinants, matrix multiplication, identity, Hilbert matrices,
-eigenvalues and eigenvectors, matrix roots and products, inversion
-and so on and so forth.
+eigenvalues and eigenvectors, matrix roots and products, and inversion.
 <P>
 LALA() can be used
 <BLOCKQUOTE>
@@ -167,7 +166,7 @@ reallocated by another call to lala()).
 If no parameters are supplied interactive mode is entered.
 <P>
 If a CMD is passed and no previous initialization call was made the
-scratch space will be allocated to 200000.
+scratch space will be allocated to 400000 64-bit complex values.
 </BLOCKQUOTE>
 <A name=4>
 
@@ -211,17 +210,17 @@ Example 2:
       call lala(20000)                  ! initialize silently
       call lala( &#146;a=[1 2 3 4; 5 6 7 8]&#146;)
       call lala( [character(len=80) :: &
-       & &#146;semi;lines(999999)                                    &#146;,&
-       & &#146;// create a magic square and add 100 to all the values&#146;,&
-       & &#146;A=magic(4),&lt;X,Y&gt;=shape(A)                             &#146;,&
-       & &#146;B=A+ones(X,Y)*100                                     &#146;,&
-       & &#146;// save all current values to a file                  &#146;,&
-       & "save(&#146;sample.laf&#146;)                                    ",&
-       & &#146;// clear all user values                              &#146;,&
-       & &#146;clear                                                 &#146;,&
-       & &#146;// show variable names, load values from file         &#146;,&
-       & &#146;// and show again to show the variables are restored  &#146;,&
-       & "who;load(&#146;sample.laf&#146;);who                            "])
+       & &#146;semi;lines(999999)                                     &#146;,&
+       & &#146;// create a magic square and add 100 to all the values &#146;,&
+       & &#146;A=magic(4),&lt;X,Y&gt;=shape(A)                              &#146;,&
+       & &#146;B=A+ones(X,Y)*100                                      &#146;,&
+       & &#146;// save all current values to a file                   &#146;,&
+       & "save(&#146;sample.laf&#146;)                                     ",&
+       & &#146;// clear all user values                               &#146;,&
+       & &#146;clear                                                  &#146;,&
+       & &#146;// show variable names, load values from file          &#146;,&
+       & &#146;// and show again to show the variables are restored   &#146;,&
+       & "who;load(&#146;sample.laf&#146;);who                             "])
    end program bigmat
 <P>
 </PRE>
@@ -383,7 +382,7 @@ Example inputs
      &gt; :lanczos:
 <P>
      &gt; [n,n] = shape(A);
-     &gt; q1 = rand(n,1);
+     &gt; q1 = randu(n,1);
      &gt; ort
      &gt; alpha = []; beta = [];
      &gt; q = q1/norm(q1); r = A*q(:,1);

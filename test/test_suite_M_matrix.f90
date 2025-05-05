@@ -1,9 +1,6 @@
 program testit
 use M_matrix, only : lala, get_from_lala, put_into_lala
 implicit none
-integer,parameter :: lda=10
-integer           :: m,n, i,j, ierr
-doubleprecision   :: arr(lda,lda),x(lda,lda)
 logical           :: logs=.false.
 integer           :: sumtally
 
@@ -140,6 +137,9 @@ integer           :: sumtally
 !       ! ]     See "<"
 !       ! >     See "<" . Also see MACROS.
 !       ! {     see "(".
+
+      call test_set_theory ()   ! package from M_sets
+
    write(*,*)'TOTAL FAILED:',abs(sumtally)
 contains
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ subroutine test_magic()
    call lala( 'b=sum(a);')
    call lala( &
    & 'display(ones(80,1)''*95);       &
-   & if shape(a) = [N,N],             &
+   & if all(eq(shape(a),[N,N]))=1,    &
    &    display(''magic shape OK'');  &
    &    tally=[tally,0];              &
    & else,                            &
@@ -181,7 +181,8 @@ subroutine test_ones()
    call lala(  &
    & 'if b = 1200,display(''ones SUM OK''),tally=[tally,0];else,display(''ones SUM FAILED'');shape(a),tally=[tally,1];end')
    call lala( &
-   & 'if shape(a) = [30,40] ,display(''ones shape OK'');tally=[tally,0];else,display(''ones shape BAD'');shape(a),tally=[tally,1];')
+   & 'if all(eq(shape(a),[30,40]))=1 ,display(''ones shape OK'');tally=[tally,0];&
+   & else,display(''ones shape BAD'');shape(a),tally=[tally,1];')
    call lala( &
    & 'if sum(a-ones(30,40)) = 0, &
    &    display(''ones DELTA OK''), &
@@ -203,7 +204,8 @@ subroutine test_zeros()
   call lala(  &
   & 'if b = 0,display(''zeros SUM OK''),tally=[tally,0];else,display(''zeros SUM FAILED'');shape(a),tally=[tally,1];end')
   call lala( &
-  & 'if shape(a) = [30,40],display(''zeros shape OK'');tally=[tally,0];else,display(''zeros shape BAD'');shape(a),tally=[tally,1];')
+  & 'if all(eq(shape(a),[30,40]))=1 ,display(''zeros shape OK'');tally=[tally,0];&
+  & else,display(''zeros shape BAD'');shape(a),tally=[tally,1];')
   call lala( &
   & 'if sum(a-zeros(30,40)) = 0, &
   &    display(''zeros DELTA OK''), &
@@ -225,16 +227,18 @@ subroutine test_pow()
   call lala( 'c=pow(b,3);')
   call lala('answ=[ 512 1 216 ; 27 125 343 ; 64 729 8 ]')
   call lala(  &
-  & "if round(c)=answ,display('pow OF ''a'' OK'),tally=[tally,0];else,display('pow OF ''a'' FAILED');shape(a),tally=[tally,1];end")
+  & "if all(eq(round(c),answ))=1,display('pow OF ''a'' OK'),tally=[tally,0];&
+  & else,display('pow OF ''a'' FAILED');shape(a),tally=[tally,1];end")
   call lala( &
-  & 'if shape(c) = [3,3] ,display(''pow shape OK'');tally=[tally,0];else,display(''pow shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[3,3]))=1,display(''pow shape OK'');tally=[tally,0];&
+& else,display(''pow shape BAD'');shape(c),tally=[tally,1];')
   call lala( &
-  & 'if round(pow(a,2)) = a.*a,       &
-  &    display(''pow ARRAY OK''),     &
-  &    tally=[tally,0];               &
-  & else,                             &
-  &    display(''pow ARRAY FAILED''); &
-  &    tally=[tally,1]; &
+  & 'if all(eq(round(pow(a,2)),a.*a))=1, &
+  &    display(''pow ARRAY OK''),        &
+  &    tally=[tally,0];                  &
+  & else,                                &
+  &    display(''pow ARRAY FAILED'');    &
+  &    tally=[tally,1];                  &
   & end')
   call lala( 'if sum(tally) = 0,display(''pow PASSED''),else,display(''pow FAILED'');tally')
   call wrapup()
@@ -248,7 +252,7 @@ subroutine test_lt()
   call lala( 'b=magic(3);')
   call lala( 'c=lt(a,b);')
   call lala( &
-  & 'if shape(c) = [3,3] ,display(''lt shape OK'');tally=[tally,0];else,display(''lt shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[3,3]))=1,display(''lt shape OK'');tally=[tally,0];else,display(''lt shape BAD'');shape(c),tally=[tally,1];')
   call lala( 'if sum(tally) = 0,display(''lt PASSED''),else,display(''lt FAILED'');tally')
   call wrapup()
 end subroutine test_lt
@@ -261,7 +265,7 @@ subroutine test_le()
   call lala( 'b=magic(3);')
   call lala( 'c=le(a,b);')
   call lala( &
-  & 'if shape(c) = [3,3] ,display(''le shape OK'');tally=[tally,0];else,display(''le shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[3,3]))=1,display(''le shape OK'');tally=[tally,0];else,display(''le shape BAD'');shape(c),tally=[tally,1];')
   call lala( 'if sum(tally) = 0,display(''le PASSED''),else,display(''le FAILED'');tally')
   call wrapup()
 end subroutine test_le
@@ -274,7 +278,7 @@ subroutine test_eq()
   call lala( 'b=magic(3);')
   call lala( 'c=eq(a,b);')
   call lala( &
-  & 'if shape(c) = [3,3] ,display(''eq shape OK'');tally=[tally,0];else,display(''eq shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[3,3]))=1,display(''eq shape OK'');tally=[tally,0];else,display(''eq shape BAD'');shape(c),tally=[tally,1];')
 !  call lala( &
 !  & 'if eq(a,b) + b = 90, &
 !  &    display(''eq ARRAY OK''), &
@@ -295,7 +299,7 @@ subroutine test_ge()
   call lala( 'b=magic(3);')
   call lala( 'c=ge(a,b);')
   call lala( &
-  & 'if shape(c) = [3,3] ,display(''ge shape OK'');tally=[tally,0];else,display(''ge shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[3,3]))=1,display(''ge shape OK'');tally=[tally,0];else,display(''ge shape BAD'');shape(c),tally=[tally,1];')
   call lala( 'if sum(tally) = 0,display(''ge PASSED''),else,display(''ge FAILED'');tally')
   call wrapup()
 end subroutine test_ge
@@ -308,7 +312,7 @@ subroutine test_gt()
   call lala( 'b=magic(3);')
   call lala( 'c=gt(a,b);')
   call lala( &
-  & 'if shape(c) = [3,3] ,display(''gt shape OK'');tally=[tally,0];else,display(''gt shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[3,3]))=1,display(''gt shape OK'');tally=[tally,0];else,display(''gt shape BAD'');shape(c),tally=[tally,1];')
   call lala( 'if sum(tally) = 0,display(''gt PASSED''),else,display(''gt FAILED'');tally')
   call wrapup()
 end subroutine test_gt
@@ -321,7 +325,7 @@ subroutine test_ne()
   call lala( 'b=magic(3);')
   call lala( 'c=ne(a,b);')
   call lala( &
-  & 'if shape(c) = [3,3] ,display(''ne shape OK'');tally=[tally,0];else,display(''ne shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[3,3]))=1,display(''ne shape OK'');tally=[tally,0];else,display(''ne shape BAD'');shape(c),tally=[tally,1];')
   call lala( 'if sum(tally) = 0,display(''ne PASSED''),else,display(''ne FAILED'');tally')
   call wrapup()
 end subroutine test_ne
@@ -336,14 +340,15 @@ subroutine test_maxloc()
   call lala(  "if all(eq(c,[3,3]))=1,display('maxloc OF ''a'' OK'),tally=[tally,0];&
   &else,display('maxloc OF ''a'' FAILED');c,tally=[tally,1];end")
   call lala( &
-  & 'if shape(c)=[1,2] ,display(''maxloc shape OK'');tally=[tally,0];else,display(''maxloc shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[1,2]))=1,display(''maxloc shape OK'');tally=[tally,0];&
+& else,display(''maxloc shape BAD'');shape(c),tally=[tally,1];')
   call lala( &
   &'l= maxloc(b); &
   & if b(l(1),l(2))=maxval(b), &
-  &    display(''maxloc of ''b'' OK''), &
+  &    display(''maxloc of ''''b'''' OK''), &
   &    tally=[tally,0]; &
-  & else &
-  &    display(''maxloc of ''b'' FAILED''); &
+  & else, &
+  &    display(''maxloc of ''''b'''' FAILED''); &
   &    tally=[tally,1]; &
   & end')
   call lala( 'if sum(tally) = 0,display(''maxloc PASSED''),else,display(''maxloc FAILED'');tally')
@@ -360,14 +365,15 @@ subroutine test_minloc()
   call lala("if all(eq(c,[1,1]))=1, display('minloc OF ''a'' OK'),tally=[tally,0];&
   &else,display('minloc OF ''a'' FAILED');c,tally=[tally,1];end")
   call lala( &
-  & 'if shape(c)=[1,2] ,display(''minloc shape OK'');tally=[tally,0];else,display(''minloc shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[1,2]))=1,display(''minloc shape OK'');tally=[tally,0];&
+& else,display(''minloc shape BAD'');shape(c),tally=[tally,1];')
   call lala( &
   & 'l=minloc(b); &
   & if b(l(1),l(2))=minval(b), &
-  &    display(''minloc of ''b'' OK''), &
+  &    display(''minloc of ''''b'''' OK''), &
   &    tally=[tally,0]; &
-  & else  &
-  &    display(''minloc of ''b'' FAILED''); &
+  & else,  &
+  &    display(''minloc of ''''b'''' FAILED''); &
   &    tally=[tally,1]; &
   & end')
   call lala( 'if sum(tally) = 0,display(''minloc PASSED''),else,display(''minloc FAILED'');tally')
@@ -384,7 +390,8 @@ subroutine test_minval()
   call lala(  &
   & "if c = 1,display('minval OF ''a'' OK'),tally=[tally,0];else,display('minval OF ''a'' FAILED');c,tally=[tally,1];end")
   call lala( &
-  & 'if shape(c)=[1,1] ,display(''minval shape OK'');tally=[tally,0];else,display(''minval shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[1,1]))=1,display(''minval shape OK'');tally=[tally,0];&
+& else,display(''minval shape BAD'');shape(c),tally=[tally,1];')
   call lala( &
   & 'if minval(b)  = -121, &
   &    display(''minval ARRAY OK''), &
@@ -407,7 +414,8 @@ subroutine test_maxval()
   call lala(  &
   & "if c = 9,display('maxval OF ''a'' OK'),tally=[tally,0];else,display('maxval OF ''a'' FAILED');c,tally=[tally,1];end")
   call lala( &
-  & 'if shape(c)=[1,1] ,display(''maxval shape OK'');tally=[tally,0];else,display(''maxval shape BAD'');shape(a),tally=[tally,1];')
+& 'if all(eq(shape(c),[1,1]))=1 ,display(''maxval shape OK'');tally=[tally,0];&
+& else,display(''maxval shape BAD'');shape(c),tally=[tally,1];')
   call lala( &
   & 'if maxval(b)  = 121, &
   &    display(''maxval ARRAY OK''), &
@@ -431,8 +439,8 @@ subroutine test_sum()
   & "if c = 45,display('sum: SUM OF ''a'' OK'),tally=[tally,0];&
   &else,display('sum: SUM OF ''a'' FAILED');shape(a),tally=[tally,1];end")
   call lala( &
-  & 'if shape(c) = [1,1] ,display(''sum: shape OK'');tally=[tally,0];else,display(''sum: shape BAD'');shape(a),tally=[tally,1];')
-
+& 'if all(eq(shape(c),[1,1]))=1 ,display(''sum: shape OK'');tally=[tally,0];&
+& else,display(''sum: shape BAD'');shape(c),tally=[tally,1];')
   call lala( &
   & 'if sum(a) + b = 90, &
   &    display(''sum: SUM ARRAY OK''), &
@@ -455,9 +463,9 @@ subroutine test_sum()
   &    display(''sum: MATRIX FAILED''); tally=[tally,1]; &
   & end; &
   & if all(eq(sumcols,[111;222;333;444]))=1, &
-  & display(''sum: SUM COLS OK''),tally=[tally,0];else display(''sum: SUM COLS NOT OK''),tally=[tally,1];end;&
+  & display(''sum: SUM COLS OK''),tally=[tally,0];else, display(''sum: SUM COLS NOT OK''),tally=[tally,1];end;&
   & if all(eq(sumrows,[10;100;1000]))=1, &
-  & display(''sum: SUM ROWS OK''),tally=[tally,0];else display(''sum: SUM ROWS NOT OK''),tally=[tally,1];end;&
+  & display(''sum: SUM ROWS OK''),tally=[tally,0];else, display(''sum: SUM ROWS NOT OK''),tally=[tally,1];end;&
   & ')
 
   call lala( 'if sum(tally) = 0,display(''sum PASSED''),else,display(''sum FAILED'');tally')
@@ -470,17 +478,19 @@ subroutine test_any()
   if(logs)call lala( 'diary(''any.log'');')
   call lala( [ character(len=267) :: &
 
-  'a=<0 0 0; 0 0 0; 0 0 0>;', &
-  'b=any(a);', &
-  "if b = 0,display('any(''a'') OK'),tally=[tally,0];else,display('any(''a'') FAILED');shape(a),tally=[tally,1];end", &
+'a=<0 0 0; 0 0 0; 0 0 0>;', &
+'b=any(a);', &
+"if b = 0,display('any(''a'') OK'),tally=[tally,0];else,display('any(''a'') FAILED');shape(a),tally=[tally,1];end", &
 
-  'a=<0 0 0; 0 0 0; 1 0 0>;', &
-  'b=any(a);', &
-  "if b = 1,display('any(''a'') OK'),tally=[tally,0];else,display('any(''a'') FAILED');shape(a),tally=[tally,1];end", &
+'a=<0 0 0; 0 0 0; 1 0 0>;', &
+'b=any(a);', &
+"if b = 1,display('any(''a'') OK'),tally=[tally,0];else,display('any(''a'') FAILED');shape(a),tally=[tally,1];end", &
 
-  'if shape(b)= [1,1] ,display(''any(a) shape OK'');tally=[tally,0];else,display(''any(a) shape BAD'');shape(b),tally=[tally,1];', &
-  'if any(tally) = 0,display(''any PASSED''),else,display(''any FAILED'');tally', &
-  ''])
+'if all(eq(shape(a),[3,3]))=1 ,display(''any(a) shape OK'');tally=[tally,0];', &
+'if all(eq(shape(a),[3,3]))=0 ,display(''any(a) shape BAD'');shape(a),tally=[tally,1];', &
+'if any(tally) = 0,display(''any PASSED''),else,display(''any FAILED'');tally', &
+''])
+
   call wrapup()
 end subroutine test_any
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -489,12 +499,13 @@ subroutine test_all()
   call lala( 'tally=[0];')
   if(logs)call lala( 'diary(''all.log'');')
   call lala( [ character(len=267) :: &
-  'a=<1 2 3; 4 5 6; 7 8 9>;', &
-  'b=all(a);', &
-  "if b = 1,display('all(''a'') OK'),tally=[tally,0];else,display('all(''a'') FAILED');shape(a),tally=[tally,1];end", &
-  'if shape(b)= [1,1] ,display(''all(a) shape OK'');tally=[tally,0];else,display(''all(a) shape BAD'');shape(b),tally=[tally,1];', &
-  'if all(tally) = 0,display(''all PASSED''),else,display(''all FAILED'');tally', &
-  ''])
+'a=<1 2 3; 4 5 6; 7 8 9>;', &
+'b=all(a);', &
+"if b = 1,display('all(''a'') OK'),tally=[tally,0];else,display('all(''a'') FAILED');shape(a),tally=[tally,1];end", &
+'if all(eq(all(a),[1,1]))=1 ,display(''all(a) shape OK'')          ;tally=[tally,0];', &
+'if all(eq(all(a),[1,1]))=0 ,display(''all(a) shape BAD'');shape(a),tally=[tally,1];', &
+'if all(tally) = 0,display(''all PASSED''),else,display(''all FAILED'');tally', &
+''])
   call wrapup()
 end subroutine test_all
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -502,13 +513,13 @@ subroutine test_abs ()
    call lala( 'display(ones(80,1)''*61); help abs; display(ones(80,1)''*95)')
    if(logs)call lala( 'diary(''abs.log'');')
    call lala( [ character(len=256) :: &
-     & 'tally=[0];                                                               ', &
-     & 'a=<1 2 3; 4 5 6; 7 8 9>;b=-a;                                            ', &
-     & 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
-     & 'if sum(b)=-45,tally=[tally,0];display(''expected sum is OK'');else,tally=[tally,1];display(''unexpected sum''),sum(b);', &
-     & 'if a=-b,tally=[tally,0];display(''a = -b as expected'');else,tally=[tally,1];display(''a is NOT equal to -b''); ', &
-     & 'if sum(tally)=0,display(''abs PASSED'');else,display(''abs FAILED'');tally ', &
-     & ''])
+'tally=[0];                                                               ', &
+'a=<1 2 3; 4 5 6; 7 8 9>;b=-a;                                            ', &
+'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero '');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
+'if sum(b)=-45,tally=[tally,0];display(''expected sum is OK'');else,tally=[tally,1];display(''unexpected sum''),sum(b);', &
+'if all(eq(a,-b))=1,tally=[tally,0];display(''a = -b as expected'');else,tally=[tally,1];display(''a is NOT equal to -b''); ', &
+'if sum(tally)=0,display(''abs PASSED'');else,display(''abs FAILED'');tally ', &
+''])
   call wrapup()
 end subroutine test_abs
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -516,12 +527,12 @@ subroutine test_atan ()
   call lala( 'display(ones(80,1)''*61)')
   call lala( 'tally=[0];')
   call lala( [ character(len=256) :: &
-   & 'help atan; display(ones(80,1)''*95)', &
-   & 'PI=atan(1)*4;A=cos(PI);B=sin(PI);', &
-   & 'if A-1<eps,tally=[tally,0];display(''test if near PI OK'');else,tally=[tally,1];display(''test if near PI FAILED'');', &
-   & 'if B<eps,tally=[tally,0];display(''2nd test if near PI OK'');else,tally=[tally,1];display(''2nd test if near PI FAILED'');', &
-   & 'if sum(tally)=0,display(''atan PASSED'');else,display(''atan FAILED'');tally ', &
-   & ''])
+'help atan; display(ones(80,1)''*95)', &
+'PI=atan(1)*4;A=cos(PI);B=sin(PI);', &
+'if A-1<eps,tally=[tally,0];display(''test if near PI OK'');else,tally=[tally,1];display(''test if near PI FAILED'');', &
+'if B<eps,tally=[tally,0];display(''2nd test if near PI OK'');else,tally=[tally,1];display(''2nd test if near PI FAILED'');', &
+'if sum(tally)=0,display(''atan PASSED'');else,display(''atan FAILED'');tally ', &
+''])
   call wrapup()
 end subroutine test_atan
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -529,53 +540,53 @@ subroutine test_cos ()
    call lala( 'display(ones(80,1)''*61)')
    call lala( 'tally=[0];')
    call lala( [ character(len=256) :: &
-     & 'help cos; display(ones(80,1)''*95)', &
-     & '                                                                         ', &
-     & 'PI=atan(1)*4;P=cos(PI);PP=cos(2*PI);Z=cos(0);HP=cos(PI/2);', &
-     & 'if abs(HP)<eps,tally=[tally,0];display(''HALF-PI OK'');else,tally=[tally,1];display(''HALF-PI FAILED'');', &
-     & 'if Z=1,tally=[tally,0];display(''ZERO OK'');else,tally=[tally,1];display(''ZERO FAILED'');', &
-     & 'if P=-1,tally=[tally,0];display(''PI OK'');else,tally=[tally,1];display(''PI FAILED'');', &
-     & 'if PP=1,tally=[tally,0];display(''TWO PI OK'');else,tally=[tally,1];display(''TWO PI FAILED'');', &
-     & 'if cos(-2*PI)=1,tally=[tally,0];display(''-TWO PI OK'');else,tally=[tally,1];display(''-TWO PI FAILED'');', &
-     & 'if cos(-2000*PI)=1,tally=[tally,0];display(''-2000 PI OK'');else,tally=[tally,1];display(''-2000 PI FAILED'');', &
-     & 'PI,P,PP,Z,HP                                                                         ', &
-     & 'if sum(tally)=0,display(''cos PASSED'');else,display(''cos FAILED'');tally ', &
-     & ''])
+'help cos; display(ones(80,1)''*95)', &
+'                                                                         ', &
+'PI=atan(1)*4;P=cos(PI);PP=cos(2*PI);Z=cos(0);HP=cos(PI/2);', &
+'if abs(HP)<eps,tally=[tally,0];display(''HALF-PI OK'');else,tally=[tally,1];display(''HALF-PI FAILED'');', &
+'if Z=1,tally=[tally,0];display(''ZERO OK'');else,tally=[tally,1];display(''ZERO FAILED'');', &
+'if P=-1,tally=[tally,0];display(''PI OK'');else,tally=[tally,1];display(''PI FAILED'');', &
+'if PP=1,tally=[tally,0];display(''TWO PI OK'');else,tally=[tally,1];display(''TWO PI FAILED'');', &
+'if cos(-2*PI)=1,tally=[tally,0];display(''-TWO PI OK'');else,tally=[tally,1];display(''-TWO PI FAILED'');', &
+'if cos(-2000*PI)=1,tally=[tally,0];display(''-2000 PI OK'');else,tally=[tally,1];display(''-2000 PI FAILED'');', &
+'PI,P,PP,Z,HP                                                                         ', &
+'if sum(tally)=0,display(''cos PASSED'');else,display(''cos FAILED'');tally ', &
+''])
   call wrapup()
 end subroutine test_cos
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_round ()
    call lala( [ character(len=256) :: &
-   '// test round()                                                                ', &
-   'clear                                                                          ', &
-   'display(ones(80,1)''*61)                                                       ', &
-   'help round; display(ones(80,1)''*95)                                           ', &
-   'tally=[0];                                                                     ', &
-   'a=magic(10)+randu(10)*ones(10)*0.49;                                           ', &
-   'a=magic(5);                // an array of whole numbers                        ', &
-   'b=randu(5)-ones(5)*0.49999; // array with everything 0.5 < x > -0.5            ', &
-   'c=(a+b);                   // values of a randomly changed by less than +-1/2  ', &
-   '                                                                               ', &
-   'if c<>a , if round(c)=a, ..                                                    ', &
-   '   display(''round of array plus random small fraction PASSED''), ..           ', &
-   '   tally=[tally,0], ..                                                         ', &
-   'else, ..                                                                       ', &
-   '   display(''round of array FAILED''), ..                                      ', &
-   '   tally=[tally,1], ..                                                         ', &
-   'end;                                                                           ', &
-   '                                                                               ', &
-   'if round(a-c)=0, ..                                                            ', &
-   '   display(''round delta of original and randomized PASSED''), ..              ', &
-   '   tally=[tally,0], ..                                                         ', &
-   'else, ..                                                                       ', &
-   '   display(''round delta of original and randomized FAILED''), ..              ', &
-   '   tally=[tally,1], ..                                                         ', &
-   'end;                                                                           ', &
-   '                                                                               ', &
-   'if sum(tally)=0,display(''round PASSED'');else,display(''round FAILED'')       ', &
-   '<M,N>=shape(tally)                                                             ', &
-   'display(tally(2:N),1)                                                          ', &
-   ''])
+'// test round()                                                                ', &
+'clear                                                                          ', &
+'display(ones(80,1)''*61)                                                       ', &
+'help round; display(ones(80,1)''*95)                                           ', &
+'tally=[0];                                                                     ', &
+'a=magic(10)+randu(10)*ones(10)*0.49;                                           ', &
+'a=magic(5);                // an array of whole numbers                        ', &
+'b=randu(5)-ones(5)*0.49999; // array with everything 0.5 < x > -0.5            ', &
+'c=(a+b);                   // values of a randomly changed by less than +-1/2  ', &
+'                                                                               ', &
+'if all(ne(c,a))=1 , if all(eq(round(c),a))=1, ..                               ', &
+'   display(''round of array plus random small fraction PASSED''), ..           ', &
+'   tally=[tally,0], ..                                                         ', &
+'else, ..                                                                       ', &
+'   display(''round of array FAILED''), ..                                      ', &
+'   tally=[tally,1], ..                                                         ', &
+'end;                                                                           ', &
+'                                                                               ', &
+'if all(eq(round(a-c),0))=1, ..                                                 ', &
+'   display(''round delta of original and randomized PASSED''), ..              ', &
+'   tally=[tally,0], ..                                                         ', &
+'else, ..                                                                       ', &
+'   display(''round delta of original and randomized FAILED''), ..              ', &
+'   tally=[tally,1], ..                                                         ', &
+'end;                                                                           ', &
+'                                                                               ', &
+'if sum(tally)=0,display(''round PASSED'');else,display(''round FAILED'')       ', &
+'<M,N>=shape(tally)                                                             ', &
+'display(tally(2:N),1)                                                          ', &
+''])
   call wrapup()
 end subroutine test_round
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -584,15 +595,18 @@ subroutine test_shape ()
    call lala( 'help shape')
    call lala( 'tally=[0];')
    call lala( [ character(len=256) :: &
-   & 'a=10;b=magic(4);c=ones(11,5);                                            ', &
-   & '<X,Y>=shape(c);                                                           ', &
-   & 'if X=11,display(''X is 11''),else,display(''X is NOT 11'');X                 ', &
-   & 'if Y= 5,display(''Y is  5''),else,display(''Y is NOT  5'');Y                 ', &
-   & 'if shape(a)=1,display(''shape of a OK'');tally=[tally,0];else,display(''shape of a BAD'');shape(a),tally=[tally,1];', &
-   & 'if shape(b)=[ 4, 4],display(''shape of b OK'');tally=[tally,0];else,display(''shape of b BAD'');shape(b),tally=[tally,1];', &
-   & 'if shape(c)=[11,5],display(''shape of c OK'');tally=[tally,0];else,display(''shape of c BAD'');shape(c),tally=[tally,1];', &
-   & 'if sum(tally)=0,display(''shape PASSED'');else,display(''shape FAILED'');tally ', &
-   & ''])
+'a=10;b=magic(4);c=ones(11,5);                                                                                             ', &
+'<X,Y>=shape(c);                                                                                                           ', &
+'if X=11,display(''X is 11''),else,display(''X is NOT 11'');X                                                              ', &
+'if Y= 5,display(''Y is  5''),else,display(''Y is NOT  5'');Y                                                              ', &
+'if all(eq(shape(a),1))=1,display(''shape of a OK'');tally=[tally,0];&
+& else,display(''shape of a BAD'');shape(a),tally=[tally,1];       ', &
+'if all(eq(shape(b),[ 4, 4]))=1,display(''shape of b OK'');tally=[tally,0];&
+& else,display(''shape of b BAD'');shape(b),tally=[tally,1]; ', &
+'if all(eq(shape(c),[11,5]))=1,display(''shape of c OK'');tally=[tally,0];&
+& else,display(''shape of c BAD'');shape(c),tally=[tally,1];', &
+'if sum(tally)=0,display(''shape PASSED'');else,display(''shape FAILED'');tally ', &
+''])
   call wrapup()
 end subroutine test_shape
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -601,13 +615,13 @@ subroutine test_hess ()
    call lala( 'help hess')
    call lala( 'tally=[0];')
    call lala( [ character(len=256) :: &
-     & 'A=magic(5);                                                              ', &
-     & '<P,H>=hess(A);                                                           ', &
-     & 'B=P*H*P'';                                                                ', &
-     & 'if A=B, ...                                                              ', &
-     & '   tally=[tally,0];display(''got back the original'');  ...                ', &
-     & 'else,  ...                                                               ', &
-     & '   tally=[tally,1];display(''does not match original'');                   ', &
+     & 'A=magic(5);                                                                  ', &
+     & '<P,H>=hess(A);                                                               ', &
+     & 'B=P*H*P'';                                                                   ', &
+     & 'if all(eq(A,round(B)))=1, ...                                                ', &
+     & '   tally=[tally,0];display(''got back the original'');  ...                  ', &
+     & 'else,  ...                                                                   ', &
+     & '   tally=[tally,1];display(''does not match original'');                     ', &
      & 'if sum(tally)=0,display(''hess PASSED'');else,display(''hess FAILED'');tally ', &
      & ''])
   call wrapup()
@@ -623,14 +637,14 @@ subroutine test_if ()
      & ' n=5;                                                                    ', &
      & '                                                                         ', &
      & ' for i = 1:n, for j = 1:n, ...                                           ', &
-     & '    if i = j, a(i,j) = 2; else if abs(i-j) = 1, a(i,j) = -1; ...         ', &
-     & '    else a(i,j) = 0;                                                     ', &
+     & '    if i = j, a(i,j) = 2; else, if abs(i-j) = 1, a(i,j) = -1; ...        ', &
+     & '    else, a(i,j) = 0;                                                    ', &
      & '                                                                         ', &
      & ' // An easier way to accomplish the same thing is                        ', &
      & ' b = 2*eye(n);                                                           ', &
      & ' for i = 1:n-1, b(i,i+1) = -1; b(i+1,i) = -1;                            ', &
      & '                                                                         ', &
-     & 'if a=b, tally=[tally,0];display(''matches'');else,tally=[tally,1];display(''does not match'');', &
+     & 'if all(eq(a,b))=1, tally=[tally,0];display(''matches'');else,tally=[tally,1];display(''does not match'');', &
      & 'if sum(tally)=0,display(''if PASSED'');else,display(''if FAILED'');tally ', &
      & ''])
   call wrapup()
@@ -683,27 +697,27 @@ subroutine test_save ()
    call lala( 'display(ones(80,1)''*61)')
    call lala( 'help save')
    call lala( [ character(len=256) :: &
-     & 'clear                                 // clear out user variables                                             ', &
-     & 'A=magic(4); b=ones(3,4); c=12**2;     // define some variables                                                ', &
-     & 'test_Variable=1234567890;                                                                                     ', &
-     & 'save(''__saved'');                      // save user variables to a file                                        ', &
-     & 'who; clear; who                       // list variables clear and they should be gone                         ', &
-     & 'load(''__saved'')                       // load the variables back in                                           ', &
-     & 'who                                   // should see them now                                                  ', &
-     & 'tally=[0];                            // test they are expected values and sizes                              ', &
-     & 'if A=magic(4),  tally=[tally,0];display(''save of A PASSED'');else,tally=[tally,1];display(''save of A FAILED''); ', &
-     & 'if b=ones(3,4), tally=[tally,0];display(''save of b PASSED'');else,tally=[tally,1];display(''save of b FAILED''); ', &
-     & 'if c=12**2,     tally=[tally,0];display(''save of c PASSED'');else,tally=[tally,1];display(''save of c FAILED''); ', &
-     & 'if test_Variable=1234567890, ...                                                                              ', &
-     & '   tally=[tally,0];...                                                                                        ', &
-     & '   display(''save of test_variable PASSED'');...                                                                ', &
-     & '   else,...                                                                                                   ', &
-     & '   tally=[tally,1];...                                                                                        ', &
-     & '   display(''save of test_variable FAILED'');                                                                   ', &
-     & 'end;                                                                                                          ', &
-     & 'if sum(tally)=0,display(''save PASSED'');else,display(''save FAILED'');tally                                      ', &
-     & 'delete(''__saved'')                     // delete the scratch file                                              ', &
-     & ''])
+'clear                                 // clear out user variables                                             ', &
+'A=magic(4); b=ones(3,4); c=12**2;     // define some variables                                                ', &
+'test_Variable=1234567890;                                                                                     ', &
+'save(''__saved'');                    // save user variables to a file                                        ', &
+'who; clear; who                       // list variables clear and they should be gone                         ', &
+'load(''__saved'')                     // load the variables back in                                           ', &
+'who                                   // should see them now                                                  ', &
+'tally=[0];                            // test they are expected values and sizes                              ', &
+'if all(eq(A,magic(4)))=1,  tally=[tally,0];display(''save of A PASSED'');else,tally=[tally,1];display(''save of A FAILED''); ', &
+'if all(eq(b,ones(3,4)))=1, tally=[tally,0];display(''save of b PASSED'');else,tally=[tally,1];display(''save of b FAILED''); ', &
+'if c=12**2,     tally=[tally,0];display(''save of c PASSED'');else,tally=[tally,1];display(''save of c FAILED''); ', &
+'if test_Variable=1234567890, ...                                                                              ', &
+'   tally=[tally,0];...                                                                                        ', &
+'   display(''save of test_variable PASSED'');...                                                              ', &
+'   else,...                                                                                                   ', &
+'   tally=[tally,1];...                                                                                        ', &
+'   display(''save of test_variable FAILED'');...                                                              ', &
+'end;                                                                                                          ', &
+'if sum(tally)=0,display(''save PASSED'');else,display(''save FAILED'');tally                                  ', &
+'delete(''__saved'')                     // delete the scratch file                                            ', &
+''])
   call wrapup()
 end subroutine test_save
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -711,27 +725,27 @@ subroutine test_load ()
    call lala( 'display(ones(80,1)''*61)')
    call lala( 'help load')
    call lala( [ character(len=256) :: &
-     & 'clear                                                                                                         ', &
-     & 'A=magic(4); b=ones(3,4); c=12**2;                                                                             ', &
-     & 'test_Variable=1234567890;                                                                                     ', &
-     & 'save(''__saved'');                                                                                              ', &
-     & 'who; clear; who                                                                                               ', &
-     & 'load(''__saved'')                                                                                               ', &
-     & 'who                                                                                                           ', &
-     & 'tally=[0];                                                                                                    ', &
-     & 'if A=magic(4),  tally=[tally,0];display(''load of A PASSED'');else,tally=[tally,1];display(''load of A FAILED''); ', &
-     & 'if b=ones(3,4), tally=[tally,0];display(''load of b PASSED'');else,tally=[tally,1];display(''load of b FAILED''); ', &
-     & 'if c=12**2,     tally=[tally,0];display(''load of c PASSED'');else,tally=[tally,1];display(''load of c FAILED''); ', &
-     & 'if test_Variable=1234567890, ...                                                                              ', &
-     & '   tally=[tally,0];...                                                                                        ', &
-     & '   display(''load of test_variable PASSED'');...                                                                ', &
-     & '   else,...                                                                                                   ', &
-     & '   tally=[tally,1];...                                                                                        ', &
-     & '   display(''load of test_variable FAILED'');                                                                   ', &
-     & 'end;                                                                                                          ', &
-     & 'if sum(tally)=0,display(''load PASSED'');else,display(''load FAILED'');tally                                      ', &
-     & 'delete(''__saved'')                     // delete the scratch file                                              ', &
-     & ''])
+'clear                                                                                                         ', &
+'A=magic(4); b=ones(3,4); c=12**2;                                                                             ', &
+'test_Variable=1234567890;                                                                                     ', &
+'save(''__saved'');                                                                                            ', &
+'who; clear; who                                                                                               ', &
+'load(''__saved'')                                                                                             ', &
+'who                                                                                                           ', &
+'tally=[0];                                                                                                    ', &
+'if all(eq(A,magic(4)))=1,  tally=[tally,0];display(''load of A PASSED'');else,tally=[tally,1];display(''load of A FAILED''); ', &
+'if all(eq(b,ones(3,4)))=1, tally=[tally,0];display(''load of b PASSED'');else,tally=[tally,1];display(''load of b FAILED''); ', &
+'if c=12**2,     tally=[tally,0];display(''load of c PASSED'');else,tally=[tally,1];display(''load of c FAILED''); ', &
+'if test_Variable=1234567890, ...                                                                              ', &
+'   tally=[tally,0];...                                                                                        ', &
+'   display(''load of test_variable PASSED'');...                                                              ', &
+'   else,...                                                                                                   ', &
+'   tally=[tally,1];...                                                                                        ', &
+'   display(''load of test_variable FAILED'');...                                                              ', &
+'end;                                                                                                          ', &
+'if sum(tally)=0,display(''load PASSED'');else,display(''load FAILED'');tally                                  ', &
+'delete(''__saved'')                     // delete the scratch file                                            ', &
+''])
   call wrapup()
 end subroutine test_load
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -739,6 +753,7 @@ subroutine test_invh ()
    call lala( 'display(ones(80,1)''*61)')
    call lala( 'help invh')
    call lala( 'tally=[0];')
+
    call lala( [ character(len=256) :: &
  & '                                                                         ', &
  & '// generate the Hilbert matrix of order N.                               ', &
@@ -754,7 +769,8 @@ subroutine test_invh ()
  & '  630   -12600    56700   -88200    44100;                               ', &
  & '];                                                                       ', &
  & '                                                                         ', &
- & 'if C=expected, tally=[tally,0];display(''inverse Hilbert PASSED'');else,tally=[tally,1];display(''inverse Hilbert FAILED'');', &
+ & 'if all(eq(C,expected))=1,tally=[tally,0];display(''inverse Hilbert PASSED'');&
+ & else,tally=[tally,1];display(''inverse Hilbert FAILED'');', &
  & 'if sum(tally)=0,display(''invh PASSED'');else,display(''invh FAILED'');tally ', &
  & ''])
   call wrapup()
@@ -768,11 +784,11 @@ subroutine test_kron ()
      & '                                                                         ', &
      & 'lines(888888)                                                            ', &
      & '//  C = Kronecker product of A and B                                     ', &
-     & 'A=randu(4);                                                               ', &
-     & 'B=randu(4);                                                               ', &
+     & 'A=randu(4);                                                              ', &
+     & 'B=randu(4);                                                              ', &
      & '// ==========================================                            ', &
      & '// first, the hard way                                                   ', &
-     & '[m, n] = shape(A);                                                        ', &
+     & '[m, n] = shape(A);                                                       ', &
      & 'for i = 1:m, ...                                                         ', &
      & '   ci = A(i,1)*B; ...                                                    ', &
      & '   for j = 2:n, ci = [ci A(i,j)*B]; end ...                              ', &
@@ -804,7 +820,7 @@ subroutine test_prod ()
      & 'd=prod(c)/2**9;                                                                                                   ', &
      & '                                                                                                                  ', &
      & 'if prod(a) = expected, tally=[tally,0];display(''prod(a) PASSED'');else,tally=[tally,1];display('' prod(a) FAILED''); ', &
-     & 'if expected = d, tally=[tally,0];display(''d PASSED'');else,tally=[tally,1];display(''d FAILED'');                    ', &
+     & 'if expected = d, tally=[tally,0];display(''d PASSED'');else,tally=[tally,1];display(''d FAILED''             ', &
      & 'if sum(tally)=0,display(''prod PASSED'');else,display(''prod FAILED'');tally                                          ', &
      & ''])
   call wrapup()
@@ -851,7 +867,7 @@ subroutine test_base ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''base PASSED'');else,display(''base FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -865,7 +881,7 @@ subroutine test_chol ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''chol PASSED'');else,display(''chol FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -878,7 +894,7 @@ subroutine test_chop ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''chop PASSED'');else,display(''chop FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -891,7 +907,7 @@ subroutine test_clear ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''clear PASSED'');else,display(''clear FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -905,7 +921,7 @@ subroutine test_cond ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''cond PASSED'');else,display(''cond FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -919,7 +935,7 @@ subroutine test_conjg ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''conjg PASSED'');else,display(''conjg FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -933,7 +949,7 @@ subroutine test_debug ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-  !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''debug PASSED'');else,display(''debug FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -947,7 +963,7 @@ subroutine test_det ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''det PASSED'');else,display(''det FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -961,7 +977,7 @@ subroutine test_diag ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''diag PASSED'');else,display(''diag FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -978,22 +994,23 @@ subroutine test_diary ()
 end subroutine test_diary
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_display ()
+   if(logs)call lala( 'diary(''display.log'');')
    call lala( [ character(len=256) :: &
    & 'display([27,91,''H'',27,91,''2J'']) // clear and home cursor on ANSI device  ', &
-   & 'display(ones(80,1)''*61)         // make a line                           ', &
-   & 'help display                                                             ', &
-   & 'display(ones(80,1)''*95)         // make a line                           ', &
-   & 'tally=[0];                                                               ', &
-   & '                                                                         ', &
-   & 'display(<                       // multiple lines, all the same length   ', &
-   & '''#--------------#'';                                                      ', &
-   & '''|              |'';                                                      ', &
-   & '''|    WARNING   |'';                                                      ', &
-   & '''|              |'';                                                      ', &
-   & '''#--------------#'';                                                      ', &
-   & '>);                                                                      ', &
-   & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+   & 'display(ones(80,1)''*61)         // make a line                              ', &
+   & 'help display                                                                 ', &
+   & 'display(ones(80,1)''*95)         // make a line                              ', &
+   & 'tally=[0];                                                                   ', &
+   & '                                                                             ', &
+   & 'display(<                       // multiple lines, all the same length       ', &
+   & '''#--------------#'';                                                        ', &
+   & '''|              |'';                                                        ', &
+   & '''|    WARNING   |'';                                                        ', &
+   & '''|              |'';                                                        ', &
+   & '''#--------------#'';                                                        ', &
+   & '>)                                                                           ', &
+   & '                                                                             ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''display PASSED'');else,display(''display FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1007,7 +1024,7 @@ subroutine test_delete ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''delete PASSED'');else,display(''delete FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1021,7 +1038,7 @@ subroutine test_doc ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''doc PASSED'');else,display(''doc FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1035,7 +1052,7 @@ subroutine test_eig ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''eig PASSED'');else,display(''eig FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1048,7 +1065,7 @@ subroutine test_else ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''ELSE PASSED'');else,display(''ELSE FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1062,7 +1079,7 @@ subroutine test_end ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''END PASSED'');else,display(''END FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1076,7 +1093,7 @@ subroutine test_exec ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''exec PASSED'');else,display(''exec FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1090,7 +1107,7 @@ subroutine test_exit ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''exit PASSED'');else,display(''exit FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1104,7 +1121,7 @@ subroutine test_exp ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''exp PASSED'');else,display(''exp FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1115,10 +1132,11 @@ subroutine test_eye ()
    call lala( 'help eye')
    call lala( 'tally=[0];')
    call lala( [ character(len=256) :: &
-   & '                                                                         ', &
-   & '                                                                         ', &
-   & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+   & 'a=magic(5);                                                                ', &
+   & 'b=a*eye(a);                                                                ', &
+   & 'c=a*eye*2;                                                                 ', &
+   & 'd=eye(5);                                                                  ', &
+   & 'e=eye(5,6);                                                                ', &
    & 'if sum(tally)=0,display(''eye PASSED'');else,display(''eye FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1132,7 +1150,7 @@ subroutine test_flops ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''flops PASSED'');else,display(''flops FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1146,7 +1164,7 @@ subroutine test_for ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''for PASSED'');else,display(''for FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1160,7 +1178,7 @@ subroutine test_help ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''help PASSED'');else,display(''help FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1188,7 +1206,7 @@ subroutine test_inv ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''inv PASSED'');else,display(''inv FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1202,7 +1220,7 @@ subroutine test_lala ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''lala PASSED'');else,display(''lala FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1216,7 +1234,7 @@ subroutine test_lines ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''lines PASSED'');else,display(''lines FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1230,7 +1248,7 @@ subroutine test_log ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''log PASSED'');else,display(''log FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1244,7 +1262,7 @@ subroutine test_long ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''long PASSED'');else,display(''long FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1258,7 +1276,7 @@ subroutine test_lu ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''lu PASSED'');else,display(''lu FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1272,7 +1290,7 @@ subroutine test_orth ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''orth PASSED'');else,display(''orth FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1286,7 +1304,7 @@ subroutine test_pinv ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''pinv PASSED'');else,display(''pinv FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1300,7 +1318,7 @@ subroutine test_plot ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''plot PASSED'');else,display(''plot FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1314,7 +1332,7 @@ subroutine test_poly ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''poly PASSED'');else,display(''poly FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1328,7 +1346,7 @@ subroutine test_print ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''print PASSED'');else,display(''print FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1342,7 +1360,7 @@ subroutine test_qr ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''qr PASSED'');else,display(''qr FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1356,7 +1374,7 @@ subroutine test_quit ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''quit PASSED'');else,display(''quit FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1370,7 +1388,7 @@ subroutine test_randn ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''randn PASSED'');else,display(''randn FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1384,7 +1402,7 @@ subroutine test_randu ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''randu PASSED'');else,display(''randu FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1398,7 +1416,7 @@ subroutine test_rank ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''rank PASSED'');else,display(''rank FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1412,7 +1430,7 @@ subroutine test_rat ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''rat PASSED'');else,display(''rat FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1426,7 +1444,7 @@ subroutine test_rcond ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''rcond PASSED'');else,display(''rcond FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1454,7 +1472,7 @@ subroutine test_roots ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''roots PASSED'');else,display(''roots FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1468,7 +1486,7 @@ subroutine test_rref ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''rref PASSED'');else,display(''rref FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1482,7 +1500,7 @@ subroutine test_schur ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''schur PASSED'');else,display(''schur FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1496,7 +1514,7 @@ subroutine test_semi ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''semi PASSED'');else,display(''semi FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1510,7 +1528,7 @@ subroutine test_short ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''short PASSED'');else,display(''short FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1524,7 +1542,7 @@ subroutine test_sh ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''sh PASSED'');else,display(''sh FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1538,7 +1556,7 @@ subroutine test_sin ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''sin PASSED'');else,display(''sin FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1552,7 +1570,7 @@ subroutine test_sqrt ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''sqrt PASSED'');else,display(''sqrt FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1566,7 +1584,7 @@ subroutine test_svd ()
    & '                                                                         ', &
    & '                                                                         ', &
    & '                                                                         ', &
-   !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
    & 'if sum(tally)=0,display(''svd PASSED'');else,display(''svd FAILED'');tally ', &
    & ''])
   call wrapup()
@@ -1582,15 +1600,15 @@ subroutine test_tril ()
   & '', &
   & 'answer=tril(a);', &
   & 'expected =<35 0 0 0 0 0; 3 32 0 0 0 0; 31 9 2 0 0 0; 8 28 33 17 0 0; 30 5 34 12 14 0; 4 36 29 13 18 11>;', &
-  & 'if answer=expected, tally=[tally,0], else, tally=[tally,1];', &
+  & 'if all(eq(answer,expected))=1, tally=[tally,0], else, tally=[tally,1];', &
   & '', &
   & 'answer=tril(a,2);', &
   & 'expected = <35 1 6 0 0 0; 3 32 7 21 0 0; 31 9 2 22 27 0; 8 28 33 17 10 15; 30 5 34 12 14 16; 4 36 29 13 18 11>;', &
-  & 'if answer=expected, tally=[tally,0], else, tally=[tally,2];', &
+  & 'if all(eq(answer,expected))=1, tally=[tally,0], else, tally=[tally,2];', &
   & '', &
   & 'answer=tril(a,-1);', &
   & 'expected =< 0 0 0 0 0 0; 3 0 0 0 0 0; 31 9 0 0 0 0; 8 28 33 0 0 0; 30 5 34 12 0 0; 4 36 29 13 18 0>;', &
-  & 'if answer=expected, tally=[tally,0], else, tally=[tally,3];', &
+  & 'if all(eq(answer,expected))=1, tally=[tally,0], else, tally=[tally,3];', &
   & '                                                                         ', &
   & 'if sum(tally)=0,display(''tril PASSED'');else,display(''tril FAILED'');tally ', &
   & ''])
@@ -1605,7 +1623,7 @@ subroutine test_triu ()
   & '                                                                         ', &
   & '                                                                         ', &
   & '                                                                         ', &
-  !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
   & 'if sum(tally)=0,display(''triu PASSED'');else,display(''triu FAILED'');tally ', &
   & ''])
   call wrapup()
@@ -1619,7 +1637,7 @@ subroutine test_user ()
   & '                                                                         ', &
   & '                                                                         ', &
   & '                                                                         ', &
-  !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
   & 'if sum(tally)=0,display(''user PASSED'');else,display(''user FAILED'');tally ', &
   & ''])
   call wrapup()
@@ -1633,7 +1651,7 @@ subroutine test_what ()
   & '                                                                         ', &
   & '                                                                         ', &
   & '                                                                         ', &
-  !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
   & 'if sum(tally)=0,display(''what PASSED'');else,display(''what FAILED'');tally ', &
   & ''])
   call wrapup()
@@ -1647,7 +1665,7 @@ subroutine test_while ()
   & '                                                                         ', &
   & '                                                                         ', &
   & '                                                                         ', &
-  !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
   & 'if sum(tally)=0,display(''while PASSED'');else,display(''while FAILED'');tally ', &
   & ''])
   call wrapup()
@@ -1661,7 +1679,7 @@ subroutine test_who ()
   & '                                                                         ', &
   & '                                                                         ', &
   & '                                                                         ', &
-  !& 'if a+b=zeros(a), tally=[tally,0];display(''a-b is zero       '');else,tally=[tally,1];display(''a-b is NOT zero'');      ', &
+ !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero'');', &
   & 'if sum(tally)=0,display(''who PASSED'');else,display(''who FAILED'');tally ', &
   & ''])
   call wrapup()
@@ -1670,13 +1688,14 @@ end subroutine test_who
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_general_char ()
+   if(logs)call lala( 'diary(''test_general_char.log'');')
    call lala( [ character(len=256) :: &
-'display(ones(80,1)''*''=''); // display a line of equals across display     ', &
-'tally=[0];                                                               ', &
-'display(0:126) // display printable ASCII characters                     ', &
-'// on an ANSI terminal or terminal emulator                              ', &
-'clr=''display([27,91,''''H'''',27,91,''''2J''''])'' // home cursor and clear screen', &
-'>clr                                                                     ', &
+'display(ones(80,1)''*''=''); // display a line of equals across display             ', &
+'tally=[0];                                                                          ', &
+'display(0:126) // display printable ASCII characters                                ', &
+'// on an ANSI terminal or terminal emulator                                         ', &
+'clr=''display([27,91,''''H'''',27,91,''''2J''''])'' // home cursor and clear screen ', &
+'>clr                                                                                ', &
 '//if ''ABCabc''=[65 66 67 97 98 99],tally=[tally,0];display(''ABCabc PASSED'');else,tally=[tally,1];display(''ABCabc FAILED'');', &
 'if sum(tally)=0,display(''general char PASSED'');else,display(''general char FAILED'');tally ', &
 ''])
@@ -1692,9 +1711,9 @@ subroutine test_general_dots()
    & 'tally=[0];                                                                   ', &
    & 'a=magic(3);b=ones(3)*2;                                                      ', &
    & '                                                                             ', &
-   & 'if a*2 = a.*b, tally=[tally, 0], else, tally=[tally, -1];                    ', &
+   & 'if all(eq(a*2,a.*b))=1, tally=[tally, 0], else, tally=[tally, -1];           ', &
    & '                                                                             ', &
-   & 'if sum(abs(tally)) = 0,display(''general dots PASSED''),else,display(''general dots FAILED'');tally'])
+   & 'if sum(abs(tally)) = 0,display(''general expression dots PASSED''),else,display(''general expression dots FAILED'');tally'])
    !!logs=.false.
   call wrapup()
 end subroutine test_general_dots
@@ -1744,7 +1763,7 @@ subroutine test_general_pascal()
    & 'L=[1]                                                                                     ', &
    & '     //Generate next Lower triangular Pascal matrix:                                      ', &
    & '     for I=1:4,...                                                                        ', &
-   & '        [k,k] = shape(L);...                                                               ', &
+   & '        [k,k] = shape(L);...                                                              ', &
    & '        k = k + 1;...                                                                     ', &
    & '        L(k,1:k) = [L(k-1,:) 0] + [0 L(k-1,:)];...                                        ', &
    & '        L,...                                                                             ', &
@@ -1787,7 +1806,7 @@ subroutine test_general_expr()
    & 'answers=[   a, b, c,d,  e]                                                   ', &
    & 'expected=[7d0,14,56,3,256]                                                   ', &
    & 'tally=[tally,answers-expected];                                              ', &
-   & '[rows,cols]=shape(tally);                                                     ', &
+   & '[rows,cols]=shape(tally);                                                    ', &
    & 'for i=1:cols, if abs(tally(i)) < 2*eps,tally(i)=0;else,tally(i)=1;           ', &
    & 'if sum(abs(tally)) = 0,display(''general expr  PASSED''),else,display(''general expr  FAILED'');tally', &
    & 'tally'])
@@ -1861,24 +1880,92 @@ end subroutine test_addition_and_subtraction
 !-----------------------------------------------------------------------------------------------------------------------------------
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_set_theory ()
+   if(logs)call lala( 'diary(''set_theory.log'');')
+   call lala( [ character(len=256) :: &
+'// test set_theory()                                                                     ', &
+'clear                                                                                    ', &
+'display(ones(80,1)''*61)                                                                 ', &
+'// help SET THEORY; display(ones(80,1)''*95)                                             ', &
+'tally=[0];                                                                               ', &
+'semi;                                                                                    ', &
+'//--------------------------------------------------------------------------------                        ',&
+'help set%intersect                                                                                        ',&
+'A= [ 7 1 7 7 4 ];                                                                                         ',&
+'B= [ 7 0 4 4 0 ];                                                                                         ',&
+'expected=[7 4];                                                                                           ',&
+'got=set%intersect(A,B);                                                                                   ',&
+"if all(eq(expected,got))=1,display('set%intersect OK'),tally=[tally,0];else,display('set%intersect FAILED');tally=[tally,1];end",&
+'//--------------------------------------------------------------------------------                        ',&
+'help set%ismember                                                                                         ',&
+'A= [ 5 3 4 2 ];                                                                                           ',&
+'B= [ 2 4 4 4 6 8 ];                                                                                       ',&
+'expected = [0 0 1 1];                                                                                     ',&
+'got = set%ismember(A,B);                                                                                  ',&
+"if all(eq(expected,got))=1,display('set%ismember OK'),tally=[tally,0];else,display('set%ismember FAILED');tally=[tally,1];end",&
+'//--------------------------------------------------------------------------------                        ',&
+'help set%issorted                                                                                         ',&
+'A= [ 10 -10 0 1 2 3 3 2 1 -10 ];                                                                          ',&
+'expected = 0;                                                                                             ',&
+'got = set%issorted(A);                                                                                    ',&
+"if all(eq(expected,got))=1,display('set%issorted OK'),tally=[tally,0];else,display('set%issorted FAILED');tally=[tally,1];end",&
+'A= [ -10 10 100 201 ];                                                                                    ',&
+'expected = 1;                                                                                             ',&
+'got = set%issorted(A);                                                                                    ',&
+"if all(eq(expected,got))=1,display('set%issorted OK'),tally=[tally,0];else,display('set%issorted FAILED');tally=[tally,1];end",&
+'//--------------------------------------------------------------------------------                        ',&
+'help set%setdiff                                                                                          ',&
+'A= [ 3 6 2 1 5 1 1 ];                                                                                     ',&
+'B= [ 2 4 6 ];                                                                                             ',&
+'expected = [ 3 1 5 ] ;                                                                                    ',&
+'got = set%setdiff(A,B);                                                                                   ',&
+"if all(eq(expected,got))=1,display('set%setdiff OK'),tally=[tally,0];else,display('set%setdiff FAILED');tally=[tally,1];end",&
+'//--------------------------------------------------------------------------------                        ',&
+'help set%setxor                                                                                           ',&
+'A = [5,1,3,3,3];                                                                                          ',&
+'B = [4,1,2];                                                                                              ',&
+'expected = [5 3 4 2 ];                                                                                    ',&
+'got = set%setxor(A,B);                                                                                    ',&
+"if all(eq(expected,got))=1,display('set%setxor OK'),tally=[tally,0];else,display('set%setxor FAILED');tally=[tally,1];end",&
+'//--------------------------------------------------------------------------------                        ',&
+'help set%union                                                                                            ',&
+'A= [5 7 1];                                                                                               ',&
+'B= [3 1 1];                                                                                               ',&
+'got = set%union(A,B);                                                                                     ',&
+'expected = [5 7 1 3 ];                                                                                    ',&
+"if all(eq(expected,got))=1,display('set%union OK'),tally=[tally,0];else,display('set%union FAILED');tally=[tally,1];end",&
+'A= [5 5 3];                                                                                               ',&
+'B= [1 2 5];                                                                                               ',&
+'expected = [5 3 1 2];                                                                                     ',&
+'got= set%union(A,B);                                                                                      ',&
+"if all(eq(expected,got))=1,display('set%union OK'),tally=[tally,0];else,display('set%union FAILED');tally=[tally,1];end",&
+'//--------------------------------------------------------------------------------                        ',&
+'help set%unique                                                                                           ',&
+'A = [44, 33, 33, 33, 22, 11, 33, 44, 55, 33];                                                             ',&
+'expected = [44, 33, 22, 11, 55];                                                                          ',&
+'got = set%unique(A);                                                                                      ',&
+"if all(eq(expected,got))=1,display('set%unique OK'),tally=[tally,0];else,display('set%unique FAILED');tally=[tally,1];end",&
+'//--------------------------------------------------------------------------------                        ',&
+'if sum(tally)=0,display(''set_theory PASSED'');else,display(''set_theory FAILED'')       ', &
+'<M,N>=shape(tally)                                                                       ', &
+'display(tally(2:N),1)                                                                    ', &
+''])
+  call wrapup()
+end subroutine test_set_theory
+!-----------------------------------------------------------------------------------------------------------------------------------
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
+!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine wrapup()
-integer,allocatable          :: iarr(:,:)
-character(len=:),allocatable :: t(:)
 integer                      :: inc
 integer                      :: ierr
-integer                      :: i
    call lala('sumtally=sum(tally);')
    call get_from_lala('sumtally',inc,ierr)
    sumtally=sumtally+inc
    call lala( [ character(len=256) :: &
-   & '                                                                        ', &
-   & '                                                                        ', &
-   & '                                                                        ', &
-   & '                                                                        ', &
-   & '                                                                        ', &
-   & '                                                                        ', &
-   & '                                                                        ', &
-   & 'clear                                                                   '])
+'                                                                        ', &
+'                                                                        ', &
+'diary(0)                                                                ', &
+'clear                                                                   '])
 end subroutine wrapup
 !-----------------------------------------------------------------------------------------------------------------------------------
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-

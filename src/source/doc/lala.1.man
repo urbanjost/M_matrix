@@ -2,7 +2,7 @@ NAME
    lala(1f) - interpret matrix expressions using a shell-like interface
 
 SYNOPSIS
-    lala [expression(s)] | [ --help| --version]
+    lala [expression(s)] [--storage values]| [ --help| --version]
 
 DESCRIPTION
    lala(1) is an interactive computer program that serves as a convenient
@@ -14,14 +14,16 @@ DESCRIPTION
    tools such as the singular value decomposition.
 
 OPTIONS
-    --help         display this help and exit
-    --version      output version information and exit
-    expression(s)  if expressions are supplied they are evaluated and the
-                   program terminates.
+   expression(s)     if expressions are supplied they are evaluated
+                     and the program terminates.
+   -s,--storage NNN  number of 64-bit words to use for storage. Defaults
+                     to 400000.
+   -h,--help         display this help and exit
+   -v,--version      output version information and exit
 
 AUTHOR
-    This is heavily based on a program from the Department of Computer
-    Science, University of New Mexico, by Cleve Moler.
+   This is heavily based on a program from the Department of Computer
+   Science, University of New Mexico, by Cleve Moler.
 
 EXAMPLES
   Sample commands

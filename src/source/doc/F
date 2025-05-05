@@ -3,7 +3,7 @@
 !===================================================================================================================================
 ! no simple way to return type class to a non-class variable, apparently.
 ! revisit but did not work the way I intended
-! there was a similiar one for vector and matrix
+! there was a similar one for vector and matrix
 subroutine get_scalar_class_from_lala(varname,anything,ierr)
 character(len=*),intent(in)       :: varname
 class(*),intent(out)              :: anything
@@ -71,24 +71,6 @@ if(index(line,'${') /= 0 ) )then
 endif
 
 end subroutine expand_variables
-!===================================================================================================================================
-!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
-!===================================================================================================================================
-pure recursive function qsort(values) result(sorted)
-! concise quicksort from @arjen and @beliavsky shows recursion,
-! array sections, and vectorized comparisons.
-!
-intrinsic pack, size
-real, intent(in) :: values(:)
-real             :: sorted(size(values))
-   if (size(values) > 1) then
-      sorted = &
-      & [qsort(pack(values(2:),values(2:)<values(1))), values(1), &
-      & qsort(pack(values(2:),values(2:)>=values(1)))]
-   else
-      sorted = values
-   endif
-end function qsort
 !===================================================================================================================================
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()=
 !===================================================================================================================================

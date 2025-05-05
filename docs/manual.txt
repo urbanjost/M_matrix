@@ -10,7 +10,7 @@ NAME
   lala(1f) - interpret matrix expressions using a shell-like interface
 
 SYNOPSIS
-  lala [expression(s)] | [ --help| --version]
+  lala [expression(s)] [--storage values]| [ --help| --version]
 
 DESCRIPTION
   lala(1) is an interactive computer program that serves as a convenient
@@ -22,14 +22,17 @@ DESCRIPTION
   singular value decomposition.
 
 OPTIONS
-  --help
-    display this help and exit
-
-  --version
-    output version information and exit
-
   expression(s)
     if expressions are supplied they are evaluated and the program terminates.
+
+  -s,--storage NNN
+    number of 64-bit words to use for storage. Defaults to 400000.
+
+  -h,--help
+    display this help and exit
+
+  -v,--version
+    output version information and exit
 
 AUTHOR
   This is heavily based on a program from the Department of Computer Science,
@@ -139,7 +142,7 @@ EXAMPLES
       q
       quit
 
-				April 14, 2025		 lala.1.man(1m_matrix)
+				 May 05, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 NAME
@@ -173,7 +176,7 @@ EXAMPLES
       eps  T
       unknown  F
 
-				April 14, 2025		  ifin_lala(3m_matrix)
+				 May 05, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 NAME
@@ -259,7 +262,7 @@ EXAMPLES
 
       end program demo_M_matrix
 
-				April 14, 2025		   M_matrix(3m_matrix)
+				 May 05, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 NAME
@@ -313,7 +316,7 @@ EXAMPLES
 
        > Your current variables are...
        > C  B  A  eps  flops  eye  rand
-       >using 33 out of 200000 elements
+       >using 33 out of 400000 elements
        >
        > A  =
        >     1.    2.	 3.    4.    5.    6.	 7.    8.    9.
@@ -322,7 +325,7 @@ EXAMPLES
        >    1.1000    2.2000	3.3000
        >This is my title
 
-				April 14, 2025	      put_into_lala(3m_matrix)
+				 May 05, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 NAME
@@ -344,11 +347,10 @@ DESCRIPTION
   programmed, either through a macro language or through execution of script
   files.
 
-  LALA(3f) Functions supported include (but are not by any means limited to)
+  LALA(3f) functions supported include (but are not by any means limited to)
   sin, cos, tan, arcfunctions, upper triangular, lower triangular,
   determinants, matrix multiplication, identity, Hilbert matrices, eigenvalues
-  and eigenvectors, matrix roots and products, inversion and so on and so
-  forth.
+  and eigenvectors, matrix roots and products, and inversion.
 
   LALA() can be used
 
@@ -386,7 +388,7 @@ OPTIONS
   If no parameters are supplied interactive mode is entered.
 
   If a CMD is passed and no previous initialization call was made the scratch
-  space will be allocated to 200000.
+  space will be allocated to 400000 64-bit complex values.
 
 EXAMPLES
   Example 1:
@@ -421,17 +423,17 @@ EXAMPLES
 	call lala(20000)		  ! initialize silently
 	call lala( 'a=[1 2 3 4; 5 6 7 8]')
 	call lala( [character(len=80) :: &
-	 & 'semi;lines(999999)					  ',&
-	 & '// create a magic square and add 100 to all the values',&
-	 & 'A=magic(4),<X,Y>=shape(A)				  ',&
-	 & 'B=A+ones(X,Y)*100					  ',&
-	 & '// save all current values to a file		  ',&
-	 & "save('sample.laf')					  ",&
-	 & '// clear all user values				  ',&
-	 & 'clear						  ',&
-	 & '// show variable names, load values from file	  ',&
-	 & '// and show again to show the variables are restored  ',&
-	 & "who;load('sample.laf');who				  "])
+	 & 'semi;lines(999999)					   ',&
+	 & '// create a magic square and add 100 to all the values ',&
+	 & 'A=magic(4),<X,Y>=shape(A)				   ',&
+	 & 'B=A+ones(X,Y)*100					   ',&
+	 & '// save all current values to a file		   ',&
+	 & "save('sample.laf')					   ",&
+	 & '// clear all user values				   ',&
+	 & 'clear						   ',&
+	 & '// show variable names, load values from file	   ',&
+	 & '// and show again to show the variables are restored   ',&
+	 & "who;load('sample.laf');who				   "])
      end program bigmat
 
   Example 3: Sample program with custom user function
@@ -589,7 +591,7 @@ EXAMPLES
        > :lanczos:
 
        > [n,n] = shape(A);
-       > q1 = rand(n,1);
+       > q1 = randu(n,1);
        > ort
        > alpha = []; beta = [];
        > q = q1/norm(q1); r = A*q(:,1);
@@ -951,7 +953,7 @@ EXAMPLES
        >       024.	0.	0.	0.     -4.
        >      ]
 
-				April 14, 2025		       lala(3m_matrix)
+				 May 05, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 NAME
@@ -999,7 +1001,7 @@ EXAMPLES
      character(len=*),parameter  :: gen='(*(g0,1x))'
 
 	! create an array in LALA so have something to get
-	call lala('A=rand(4,5)*10.5,long,A')
+	call lala('A=randu(4,5)*10.5,long,A')
 
 	! get the array as a REAL array
 	call get_from_lala('A',rarr,ierr)
@@ -1057,4 +1059,4 @@ EXAMPLES
      >in calling program ivec= 20
      > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
 
-				April 14, 2025	      get_from_lala(3m_matrix)
+				 May 05, 2025	      get_from_lala(3m_matrix)

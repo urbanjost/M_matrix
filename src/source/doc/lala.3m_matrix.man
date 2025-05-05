@@ -18,11 +18,10 @@ DESCRIPTION
    which may be programmed, either through a macro language or through
    execution of script files.
 
-   LALA(3f) Functions supported include (but are not by any means limited
+   LALA(3f) functions supported include (but are not by any means limited
    to) sin, cos, tan, arcfunctions, upper triangular, lower triangular,
    determinants, matrix multiplication, identity, Hilbert matrices,
-   eigenvalues and eigenvectors, matrix roots and products, inversion
-   and so on and so forth.
+   eigenvalues and eigenvectors, matrix roots and products, and inversion.
 
    LALA() can be used
       + as a stand-alone utility for working with lala() files and
@@ -54,7 +53,7 @@ OPTIONS
    If no parameters are supplied interactive mode is entered.
 
    If a CMD is passed and no previous initialization call was made the
-   scratch space will be allocated to 200000.
+   scratch space will be allocated to 400000 64-bit complex values.
 
 EXAMPLES
 
@@ -90,17 +89,17 @@ EXAMPLES
       call lala(20000)                  ! initialize silently
       call lala( 'a=[1 2 3 4; 5 6 7 8]')
       call lala( [character(len=80) :: &
-       & 'semi;lines(999999)                                    ',&
-       & '// create a magic square and add 100 to all the values',&
-       & 'A=magic(4),<X,Y>=shape(A)                             ',&
-       & 'B=A+ones(X,Y)*100                                     ',&
-       & '// save all current values to a file                  ',&
-       & "save('sample.laf')                                    ",&
-       & '// clear all user values                              ',&
-       & 'clear                                                 ',&
-       & '// show variable names, load values from file         ',&
-       & '// and show again to show the variables are restored  ',&
-       & "who;load('sample.laf');who                            "])
+       & 'semi;lines(999999)                                     ',&
+       & '// create a magic square and add 100 to all the values ',&
+       & 'A=magic(4),<X,Y>=shape(A)                              ',&
+       & 'B=A+ones(X,Y)*100                                      ',&
+       & '// save all current values to a file                   ',&
+       & "save('sample.laf')                                     ",&
+       & '// clear all user values                               ',&
+       & 'clear                                                  ',&
+       & '// show variable names, load values from file          ',&
+       & '// and show again to show the variables are restored   ',&
+       & "who;load('sample.laf');who                             "])
    end program bigmat
 
   Example 3: Sample program with custom user function
@@ -258,7 +257,7 @@ EXAMPLES
      > :lanczos:
 
      > [n,n] = shape(A);
-     > q1 = rand(n,1);
+     > q1 = randu(n,1);
      > ort
      > alpha = []; beta = [];
      > q = q1/norm(q1); r = A*q(:,1);

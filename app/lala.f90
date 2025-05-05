@@ -2,24 +2,30 @@
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
 !==================================================================================================================================!
 program bigmat
+use,intrinsic :: iso_fortran_env, only : int8, int16, int32, int64
+use,intrinsic :: iso_fortran_env, only : real32, real64
+use,intrinsic :: iso_fortran_env, only : sp=>real32, dp=>real64
 use M_matrix, only  : lala
 use M_CLI2, only : set_args, lget, sget, iget, expressions=>unnamed          ! add command-line parser module
 implicit none
 character(len=:),allocatable :: help_text(:)
 character(len=:),allocatable :: version_text(:)
 integer                      :: i
+integer                      :: storage
 logical                      :: echo
 logical                      :: markdown
    call setup()
    ! define command arguments,default values and crack command line
-   call set_args('lala --markdown F -noecho F',help_text,version_text )
+   call set_args('lala --markdown F --noecho F --storage:s 400000',help_text,version_text )
    echo=.not.lget('noecho')
+   storage=iget('storage')
    if(size(expressions).eq.0)then
-      call lala(echo=echo)                           ! CALL LALA interactively with default scratch space
+      call lala(storage)                   ! CALL LALA interactively
+      call lala()                          ! CALL LALA interactively
    else
-      call lala(200000,echo=echo)                    ! CALL LALA to initialize it and set scratch space size
+      call lala(storage,echo=echo)         ! CALL LALA to initialize it and set scratch space size
       do i=1,size(expressions)
-         call lala(expressions(i))                   ! CALL LALA
+         call lala(expressions(i))         ! CALL LALA
       enddo
    endif
    stop
@@ -30,7 +36,7 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   lala(1f) - interpret matrix expressions using a shell-like interface',&
 '                                                                       ',&
 'SYNOPSIS                                                               ',&
-'    lala [expression(s)] | [ --help| --version]                        ',&
+'    lala [expression(s)] [--storage values]| [ --help| --version]      ',&
 '                                                                       ',&
 'DESCRIPTION                                                            ',&
 '   lala(1) is an interactive computer program that serves as a convenient',&
@@ -42,14 +48,16 @@ help_text=[ CHARACTER(LEN=128) :: &
 '   tools such as the singular value decomposition.                        ',&
 '                                                                          ',&
 'OPTIONS                                                                   ',&
-'    --help         display this help and exit                             ',&
-'    --version      output version information and exit                    ',&
-'    expression(s)  if expressions are supplied they are evaluated and the ',&
-'                   program terminates.                                    ',&
+'   expression(s)     if expressions are supplied they are evaluated       ',&
+'                     and the program terminates.                          ',&
+'   -s,--storage NNN  number of 64-bit words to use for storage. Defaults  ',&
+'                     to 400000.                                           ',&
+'   -h,--help         display this help and exit                           ',&
+'   -v,--version      output version information and exit                  ',&
 '                                                                          ',&
 'AUTHOR                                                                    ',&
-'    This is heavily based on a program from the Department of Computer    ',&
-'    Science, University of New Mexico, by Cleve Moler.                    ',&
+'   This is heavily based on a program from the Department of Computer     ',&
+'   Science, University of New Mexico, by Cleve Moler.                     ',&
 '                                                                          ',&
 'EXAMPLES                                                                  ',&
 '  Sample commands                                                         ',&

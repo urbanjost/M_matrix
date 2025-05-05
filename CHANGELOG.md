@@ -1,4 +1,4 @@
-## GPF Changelog
+## M_matrix Changelog
 
 The intent of this changelog is to keep everyone in the loop about
 what's new in the M_matrix project. It is a curated, chronologically ordered
@@ -6,10 +6,20 @@ list of notable changes including records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
-**2025-04-29**  John S. Urban  <https://github.com/urbanjost>
+**2025-05-02**  John S. Urban  <https://github.com/urbanjost>
 
 ### :green_circle: ADD:
-  + define addition and subtraction of a matrix and a scalar
+  + clear command can take more than one variable name
+  + reshape(A) packs a matrix into a vector with one row
+  + added randi()
+  + added set functions from M_sets
+     - set%intersect(A,B)  find the values common to both sets A and B
+     - set%ismember(A,B)   create a mask of A marking elements also in B
+     - set%issorted(A)     report if A is sorted in ascending order or not.
+     - set%setdiff(A,B)    find the values in A that are not in B
+     - set%setxor(A,B)     find values of A and B not in both arrays
+     - set%union(A,B)      join two sets and removes duplicates of values
+     - set%unique(A,B)     return unique values in array A
 <!-- ======================================================================== -->
 ---
 **2025-04-22**  John S. Urban  <https://github.com/urbanjost>

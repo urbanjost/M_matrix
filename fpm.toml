@@ -1,6 +1,6 @@
 # TOML file for fpm as described at https://fpm.fortran-lang.org/en/spec/manifest.html
 name = "M_matrix"
-version = "0.1.0"
+version = "0.2.0"
 license = "CC0-1.0"
 author = "John S. Urban"
 maintainer = "urbanjost@comcast.net"
@@ -54,6 +54,8 @@ homepage = "https://github.com/urbanjost/M_matrix.git"
    M_LA          =  {  git  =  "https://github.com/urbanjost/M_LA.git"          }
    M_intrinsics  =  {  git  =  "https://github.com/urbanjost/M_intrinsics.git"  }
    M_time        =  {  git  =  "https://github.com/urbanjost/M_time"            }
+   M_sets        =  {  git  =  "https://github.com/urbanjost/M_sets"            }
+   M_orderpack   =  {  git  =  "https://github.com/urbanjost/M_orderpack"       }
    
    #M_framework    = { namespace = "GPF" }
    #M_msg          = { namespace = "GPF" }
@@ -65,6 +67,8 @@ homepage = "https://github.com/urbanjost/M_matrix.git"
    #M_LA           = { namespace = "GPF" }
    #M_intrinsics   = { namespace = "GPF" }
    #M_time         = { namespace = "GPF" }
+   #M_sets         = { namespace = "GPF" }
+   #M_orderpack    = { namespace = "GPF" }
 
    #M_match       =  {  path  =  "GLINKS/M_match"       }
    #M_framework   =  {  path  =  "GLINKS/M_framework"   }
@@ -77,6 +81,8 @@ homepage = "https://github.com/urbanjost/M_matrix.git"
    #M_LA          =  {  path  =  "GLINKS/M_LA"          }
    #M_intrinsics  =  {  path  =  "GLINKS/M_intrinsics"  }
    #M_time        =  {  path  =  "GLINKS/M_time"        }
+   #M_sets        =  {  path  =  "GLINKS/M_sets"        }
+   #M_orderpack   =  {  path  =  "GLINKS/M_orderpack"   }
 #
 #To specify a build script to be used, put it in the library section of your fpm.toml file, like:
 [library]

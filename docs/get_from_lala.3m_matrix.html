@@ -147,7 +147,7 @@ sample program:
    character(len=*),parameter  :: gen=&#146;(*(g0,1x))&#146;
 <P>
       ! create an array in LALA so have something to get
-      call lala(&#146;A=rand(4,5)*10.5,long,A&#146;)
+      call lala(&#146;A=randu(4,5)*10.5,long,A&#146;)
 <P>
       ! get the array as a REAL array
       call get_from_lala(&#146;A&#146;,rarr,ierr)

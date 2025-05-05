@@ -2,7 +2,7 @@ var indexSectionsWithContent =
 {
   0: "!_abcdefghijklmnopqrstuvwxyz",
   1: "m",
-  2: "gmt",
+  2: "mt",
   3: "abcdefghilmnopqrstuwxy",
   4: "!_abcdefghijklmnoprstuvwxyz",
   5: "mst"
