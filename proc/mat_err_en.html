@@ -94,7 +94,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 1.7% of total for procedures.">119 statements</a>
+                 title=" 1.7% of total for procedures.">126 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -136,8 +136,8 @@
       </a>
       <div id="vars-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../proc/mat_err_en.html#variable-i~15">i</a>
-            <a class="list-group-item" href="../proc/mat_err_en.html#variable-k~5">k</a>
+            <a class="list-group-item" href="../proc/mat_err_en.html#variable-i~3">i</a>
+            <a class="list-group-item" href="../proc/mat_err_en.html#variable-k~2">k</a>
             <a class="list-group-item" href="../proc/mat_err_en.html#variable-lb">lb</a>
             <a class="list-group-item" href="../proc/mat_err_en.html#variable-lt">lt</a>
             <a class="list-group-item" href="../proc/mat_err_en.html#variable-msg">msg</a>
@@ -195,7 +195,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-n~14"></span>
+              <span class="anchor" id="variable-n~4"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -228,7 +228,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-i~15"></span>
+              <span class="anchor" id="variable-i~3"></span>
               integer,
             </td>
               <td>public</td>
@@ -245,7 +245,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-k~5"></span>
+              <span class="anchor" id="variable-k~2"></span>
               integer,
             </td>
               <td>public</td>
@@ -342,7 +342,7 @@
 <span class="w">   </span><span class="n">G_ERR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span>
 <span class="w">   </span><span class="k">select case</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 <span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w">  </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper multiple assignment&#39;</span>
-<span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span><span class="w">  </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper factor&#39;</span>
+<span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span><span class="w">  </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Improper factor or unknown variable&#39;</span>
 <span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span><span class="w">  </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Expected right parenthesis&#39;</span>
 <span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span><span class="w">  </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Undefined variable: &#39;</span><span class="o">//</span><span class="n">ade2str</span><span class="p">(</span><span class="n">G_IDS</span><span class="p">(:,</span><span class="n">G_PT</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="c">! extract variable name into buffer</span>
 <span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span><span class="w">  </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;Column lengths do not match&#39;</span>
@@ -390,6 +390,7 @@
 <span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">43</span><span class="p">);</span><span class="w"> </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;shapes are not conformant&#39;</span>
 <span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">44</span><span class="p">);</span><span class="w"> </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;operation not defined for complex values&#39;</span>
 <span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">45</span><span class="p">);</span><span class="w"> </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;incorrect rank for argument&#39;</span>
+<span class="w">    </span><span class="k">case</span><span class="p">(</span><span class="mi">46</span><span class="p">);</span><span class="w"> </span><span class="n">msg</span><span class="o">=</span><span class="s1">&#39;only scalars may be compared. See all(), any() ...&#39;</span>
 <span class="w">    </span><span class="k">case </span><span class="n">default</span>
 <span class="w">       </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;sc&#39;</span><span class="p">,</span><span class="s1">&#39;*mat_err* internal error: unknown error code=&#39;</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
 <span class="w">       </span><span class="k">return</span>
@@ -397,15 +398,20 @@
 
 <span class="k">   if</span><span class="p">(</span><span class="n">G_system</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">4</span><span class="p">)</span><span class="k">then</span>
 <span class="k">      </span><span class="nb">system</span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
-<span class="k">      </span><span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">istat</span>
-<span class="w">      </span><span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">cmdstat</span>
-<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">mline</span>
+<span class="k">      </span><span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">cmdstat</span>
+<span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">mline</span>
 <span class="w">      </span><span class="k">call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="c">! convert ADE buffer to character</span>
-<span class="w">      </span><span class="k">call </span><span class="nb">execute_command_line</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">mline</span><span class="p">),</span><span class="n">cmdstat</span><span class="o">=</span><span class="n">istat</span><span class="p">)</span><span class="w">   </span><span class="c">! call system shell</span>
+<span class="w">      </span><span class="n">cmdstat</span><span class="o">=</span><span class="n">run</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">mline</span><span class="p">))</span><span class="w"> </span><span class="c">! call system shell</span>
+<span class="w">      </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span>
 <span class="w">      </span><span class="k">end block </span><span class="nb">system</span>
 <span class="nb">   </span><span class="k">else</span>
-<span class="k">      </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="c">! number of spaces to shift arrow by</span>
+<span class="k">      </span><span class="n">error</span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
+<span class="k">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">mline</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="c">! convert ADE buffer to character</span>
+<span class="w">      </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">G_LINE_POINTER</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="w"> </span><span class="c">! number of spaces to shift arrow by</span>
+<span class="w">      </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39;   &#39;</span><span class="o">//</span><span class="n">mline</span><span class="p">)</span>
 <span class="w">      </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">//</span><span class="nb">repeat</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="n">k</span><span class="p">)</span><span class="o">//</span><span class="s1">&#39;/\--ERROR:&#39;</span><span class="o">//</span><span class="n">msg</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endblock </span><span class="n">error</span>
 <span class="w">   </span><span class="k">endif</span>
 
 <span class="k">end subroutine </span><span class="n">mat_err_en</span>
@@ -432,7 +438,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-04-22 06:49 +0000             </p>
+ on 2025-05-05 11:56 +0000             </p>
           </div>
         </div>
         <br>
