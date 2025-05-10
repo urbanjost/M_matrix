@@ -34,7 +34,7 @@
 //solve for coefficients
    c = A$b
 //compute effective conductivity
-   c(2:2:n) = -c(2:2:n)
+   c(2:n:2) = -c(2:n:2)
    sigma = sum(c)
 //output total operation count
    ops = flop(2)

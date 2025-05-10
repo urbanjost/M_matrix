@@ -163,7 +163,7 @@ EXAMPLES
 
      >:avg:
 
-     >for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
+     >for i = 2:n:2, for j = 2:n:2, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
      >a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
 
      >:cdiv:
@@ -327,7 +327,7 @@ EXAMPLES
      > check = norm(A-A',1), if check > 0, quit
      > [X,D] = eig(A+eye);
      > D = diag(D);  D = D(n:-1:1)
-     > X = X(:,n:-1:1);
+     > X = X(:,n:1:-1);
      > [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
 
      > :pascal:
@@ -364,7 +364,7 @@ EXAMPLES
 
      > y = [ 75.995   91.972  105.711  123.203   ...
      >      131.669  150.697  179.323  203.212]'
-     > t = [ 1900:10:1970 ]'
+     > t = [ 1900:1970:10 ]'
      > t = (t - 1940*ones(t))/40;   [t y]
      > n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
      > A
@@ -437,7 +437,7 @@ EXAMPLES
      > //solve for coefficients
      >    c = A\b
      > //compute effective conductivity
-     >    c(2:2:n) = -c(2:2:n)
+     >    c(2:n:2) = -c(2:n:2)
      >    sigma = sum(c)
      > //output total operation count
      >    ops = flop(2)

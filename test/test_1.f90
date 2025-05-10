@@ -49,7 +49,7 @@ logical           :: logs=.false.
 "long e                                                                           ",&
 "beta = X\y                                                                       ",&
 "// -----------------------------------------------------------------             ",&
-"display('EXPECTED and BETA should be the same');                                 ",&
+"display('""expected"" and ""beta"" should be the same');                         ",&
 "eps                                                                              ",&
 "expected = [ ...                                                                 ",&
 "        -3.482258634594421D+03                                                   ",&

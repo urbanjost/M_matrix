@@ -7,19 +7,19 @@ new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
 **2025-05-02**  John S. Urban  <https://github.com/urbanjost>
+### :red_circle: DIFF:
+  + START:END:STEP  Changed START:STEP:END syntax to START:END:STEP as is
+                    used in Fortran.
 
 ### :green_circle: ADD:
   + clear command can take more than one variable name
   + reshape(A) packs a matrix into a vector with one row
   + added randi()
-  + added set functions from M_sets
-     - set%intersect(A,B)  find the values common to both sets A and B
-     - set%ismember(A,B)   create a mask of A marking elements also in B
-     - set%issorted(A)     report if A is sorted in ascending order or not.
-     - set%setdiff(A,B)    find the values in A that are not in B
-     - set%setxor(A,B)     find values of A and B not in both arrays
-     - set%union(A,B)      join two sets and removes duplicates of values
-     - set%unique(A,B)     return unique values in array A
+  + added set functions from M_sets as package set%. See
+    "help SET THEORY".
+  + added ordering functions from M_orderpack as package order%. See
+    "help ORDERING".
+  + added size(), int()  function
 <!-- ======================================================================== -->
 ---
 **2025-04-22**  John S. Urban  <https://github.com/urbanjost>
@@ -127,7 +127,6 @@ new features, changes, and relevant notifications.
 
   +  fixed "save" and "load" use of a filename with uppercase or underscore
 
-
 <!-- ======================================================================== -->
 ---
 **2021-05-08**  John S. Urban  <https://github.com/urbanjost>
@@ -152,7 +151,7 @@ files in future versions.
 **2021-04-24**  John S. Urban  <https://github.com/urbanjost>
 ### :green_circle: ADD:
 
-  + Variable names now have 32 significant characters instead of 4. 
+  + Variable names now have 32 significant characters instead of 4.
   + Up to 480 unique variable names are allowed instead of a limit of 48.
 
 ### :green_circle: DIFF:
@@ -201,7 +200,6 @@ pound character and a pound character beginning a line is now considered
 a second type of comment line so that a diary() file can be replayed
 with exec().
 
-
 Made case-sensitive
 
 Can now take directives from string on LAFF() routine call
@@ -215,7 +213,7 @@ compiler, anyway). Might have to change the way I make a letter
 
 changed RETURN command to QUIT
 
-help document is now built-in 
+help document is now built-in
 <!-- ======================================================================== -->
 ---
 <!--

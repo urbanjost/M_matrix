@@ -89,15 +89,15 @@ use M_list,       only : insert, locate, replace, remove
 use M_io,         only : lookfor, which
 use M_intrinsics, only : help_intrinsics
 use M_time,       only : d2u, d2j, d2m, d2b, BAStime, d2o, dow
-use M_sets,       only : intersect, ismember, issorted, setdiff, setxor, union, unique
-use M_orderpack,  only : median, medianloc, medianval, occurrences, perturb, rank,  sort, orderloc, orderval
+use M_sets,       only : intersect, ismember, issorted, isequal, setdiff, setxor, union, unique
+use M_orderpack,  only : median,medianloc,medianval,occurrences,perturb,rank,sort,orderloc,orderval,rank_unique,rank_decreasing
 
-use M_LA, only : mat_flop,   mat_inverse_hilbert,  mat_iwamax,  mat_magic,   mat_pythag,  mat_rat,    mat_round,  mat_rref
-use M_LA, only : mat_rrot,   mat_rrotg,            mat_rset,    mat_rswap,   mat_urand,   mat_wasum,  mat_wcopy
-use M_LA, only : mat_wdotci,           mat_wdotcr,  mat_wdotui,  mat_wdotur, mat_wmul,   mat_wnrm2,   mat_wpow
-use M_LA, only : mat_wpofa,  mat_wrscal,           mat_wscal,   mat_wset,    mat_wsign,   mat_wsqrt,  mat_wswap
+use M_LA, only : mat_flop, mat_inverse_hilbert, mat_iwamax, mat_magic, mat_pythag, mat_rat, mat_round, mat_rref
+use M_LA, only : mat_rrot, mat_rrotg, mat_rset, mat_rswap, mat_urand, mat_wasum, mat_wcopy
+use M_LA, only : mat_wdotci, mat_wdotcr, mat_wdotui, mat_wdotur, mat_wmul, mat_wnrm2, mat_wpow
+use M_LA, only : mat_wpofa, mat_wrscal, mat_wscal, mat_wset, mat_wsign, mat_wsqrt, mat_wswap
 
-!use M_LA, only : mat_wdiv,   mat_wlog, mat_watan
+!use M_LA, only : mat_wdiv, mat_wlog, mat_watan
 
 !matx_waxpy,ml_comqr3,ml_corth,ml_htribk,ml_htridi,ml_imtql2,ml_wgeco,ml_wgedi,ml_wgefa,ml_wgesl,ml_wqrdc,ml_wqrsl,ml_wsvdc_
 !>
@@ -898,7 +898,7 @@ end subroutine usersub_placeholder
 !!
 !!      >:avg:
 !!
-!!      >for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
+!!      >for i = 2:n:2, for j = 2:n:2, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
 !!      >a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
 !!
 !!      >:cdiv:
@@ -1062,7 +1062,7 @@ end subroutine usersub_placeholder
 !!      > check = norm(A-A',1), if check > 0, quit
 !!      > [X,D] = eig(A+eye);
 !!      > D = diag(D);  D = D(n:-1:1)
-!!      > X = X(:,n:-1:1);
+!!      > X = X(:,n:1:-1);
 !!      > [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
 !!
 !!      > :pascal:
@@ -1099,7 +1099,7 @@ end subroutine usersub_placeholder
 !!
 !!      > y = [ 75.995   91.972  105.711  123.203   ...
 !!      >      131.669  150.697  179.323  203.212]'
-!!      > t = [ 1900:10:1970 ]'
+!!      > t = [ 1900:1970:10 ]'
 !!      > t = (t - 1940*ones(t))/40;   [t y]
 !!      > n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
 !!      > A
@@ -1172,7 +1172,7 @@ end subroutine usersub_placeholder
 !!      > //solve for coefficients
 !!      >    c = A\b
 !!      > //compute effective conductivity
-!!      >    c(2:2:n) = -c(2:2:n)
+!!      >    c(2:n:2) = -c(2:n:2)
 !!      >    sigma = sum(c)
 !!      > //output total operation count
 !!      >    ops = flop(2)
@@ -1364,6 +1364,7 @@ integer,parameter           :: EPS(GG_MAX_NAME_LENGTH)=   [iachar(['e','p','s','
 integer,parameter           :: FLOPS(GG_MAX_NAME_LENGTH)= [iachar(['f','l','o','p','s']),GG_PAD(6:)]
 integer,parameter           :: EYE(GG_MAX_NAME_LENGTH)=   [iachar(['e','y','e',' ',' ']),GG_PAD(6:)]
 integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','d',' ']),GG_PAD(6:)]
+integer                     :: i
 
    if(present(echo)) G_ECHO=echo
 
@@ -1373,7 +1374,7 @@ integer,parameter           :: RAND(GG_MAX_NAME_LENGTH)=  [iachar(['r','a','n','
    if(allocated(G_PSEUDO_FILE))deallocate(G_PSEUDO_FILE)
    allocate(G_PSEUDO_FILE(0))
 
-   G_LIN=blank
+   G_LIN=blank ! should set everyone
    G_VAR_IDS=blank
 
    GM_BIGMEM=INIT
@@ -1587,11 +1588,14 @@ character(len=255)   :: msg
 
    if(G_system.and. n.eq.4)then
       system: block
-      integer                      :: cmdstat
+      logical                      :: cmdstat
       character(len=GG_LINELEN)    :: mline
       call mat_buf2str(mline,G_BUF,GG_LINELEN) ! convert ADE buffer to character
-      cmdstat=run(trim(mline)) ! call system shell
-      call journal(mline)
+      if(.not.run(trim(mline)))then ! call system shell
+         call journal(mline)
+      else
+         call journal(mline)
+      endif
       end block system
    else
       error: block
@@ -1998,7 +2002,7 @@ character(len=80) :: message
 
       sum_command : block
       real(kind=dp),allocatable :: sum_real(:), sum_imag(:)
-      integer :: dim
+      integer                   :: dim
       integer :: sz
       dim=0
       select case(G_RHS)
@@ -2297,9 +2301,6 @@ character(len=80) :: message
          call date_and_time(values=time_values)
       elseif(G_RHS .eq. 2)then ! user-supplied DAT array
          ! NOT COMPLETE
-         ! NOT COMPLETE
-         ! NOT COMPLETE
-         ! NOT COMPLETE
          M = G_VAR_ROWS(G_ARGUMENT_POINTER)
          N = G_VAR_COLS(G_ARGUMENT_POINTER)
          if(M*N.ne.8)then
@@ -2355,24 +2356,24 @@ character(len=80) :: message
 !===================================================================================================================================
    case(19) ! COMMAND::ALL
    all : block
-   integer           :: all_are_zero
+   integer           :: all_are_true
    integer           :: indx
    integer,parameter :: T=1, F=0
       if(G_RHS .NE. 1) then
          call mat_err(39) ! Incorrect number of arguments
          return
       endif
-      all_are_zero=T
+      all_are_true=T
       M = G_VAR_ROWS(G_ARGUMENT_POINTER)
       N = G_VAR_COLS(G_ARGUMENT_POINTER)
       do i = 1, m*n
          indx = location+i-1
          if ( (GM_REALS(indx).eq.F).and.(GM_IMAGS(indx).eq.F) )then
-            all_are_zero=F
+            all_are_true=F
             exit
          endif
       enddo
-      GM_REALS(location) = all_are_zero
+      GM_REALS(location) = all_are_true
       GM_IMAGS(location) = 0.0d0
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
@@ -2449,7 +2450,8 @@ character(len=80) :: message
          G_VAR_COLS(G_ARGUMENT_POINTER) = istore
       endblock fmts
 !===================================================================================================================================
-   case(24) ! COMMAND::MAXVAL
+   case(24,25) ! COMMAND::MAXVAL
+               ! COMMAND::MINVAL
       select case(G_RHS)
       case(1)
       case default
@@ -2457,25 +2459,10 @@ character(len=80) :: message
          return
       end select
       mn = m*n
-      sr = maxval(GM_REALS(location:location+mn-1))
-      si = 0.0d0
-      GM_REALS(location) = sr
-      GM_IMAGS(location) = 0.0d0
-      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
-      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
-!===================================================================================================================================
-   case(25) ! COMMAND::MINVAL
-
-      select case(G_RHS)
-      case(1)
-      case default
-         call mat_err(39) ! Incorrect number of arguments
-         return
+      select case(G_FIN)
+      case(24); sr = maxval(GM_REALS(location:location+mn-1))
+      case(25); sr = minval(GM_REALS(location:location+mn-1))
       end select
-
-      mn = m*n
-      sr = minval(GM_REALS(location:location+mn-1))
-      si = 0.0d0
       GM_REALS(location) = sr
       GM_IMAGS(location) = 0.0d0
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
@@ -2539,7 +2526,7 @@ character(len=80) :: message
               GM_REALS(ll) = mat_flop(sr*dsqrt((-(2.0d0*dlog(t)))/t))
            case( 32)
               GM_REALS(ll)=mat_flop(mat_urand(G_CURRENT_RANDOM_SEED))
-              GM_REALS(ll)= 1 + FLOOR((m*n)*GM_REALS(ll))  ! choose one from m-n+1 integers
+              GM_REALS(ll)= 1 + FLOOR((rows*cols)*GM_REALS(ll))  ! choose one from m-n+1 integers
            end select
            GM_IMAGS(ll) = 0.0d0          ! all of these functions set imaginary values to zero
          enddo
@@ -2606,7 +2593,8 @@ character(len=80) :: message
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endblock qsort_command
 !===================================================================================================================================
-   case(30) ! COMMAND::maxloc
+   case(30,31) ! COMMAND::maxloc
+               ! COMMAND::minloc
    maxloc_cmd: block
       select case(G_RHS)
       case(1)
@@ -2615,7 +2603,10 @@ character(len=80) :: message
          return
       end select
 
-      sr = maxloc(GM_REALS(location:location+(m*n)-1),dim=1)
+      select case(G_FIN)
+      case(30);sr = maxloc(GM_REALS(location:location+(m*n)-1),dim=1)
+      case(31);sr = minloc(GM_REALS(location:location+(m*n)-1),dim=1)
+      end select
       GM_REALS(location) = sr-n*int((sr-1)/n)
       GM_IMAGS(location) = 0.0d0
       location=location+1
@@ -2625,25 +2616,11 @@ character(len=80) :: message
       G_VAR_COLS(G_ARGUMENT_POINTER) = 2
    endblock maxloc_cmd
 !===================================================================================================================================
-   case(31) ! COMMAND::minloc
-   minloc_cmd: block
-
-      select case(G_RHS)
-      case(1)
-      case default
-         call mat_err(39) ! Incorrect number of arguments
-         return
-      end select
-
-      sr = minloc(GM_REALS(location:location+(m*n)-1),dim=1)
-      GM_REALS(location) = sr-n*int((sr-1)/n)
-      GM_IMAGS(location) = 0.0d0
-      location=location+1
-      GM_REALS(location) = ceiling(sr/n)
-      GM_IMAGS(location) = 0.0d0
+   case(33) ! COMMAND::SIZE
+      GM_REALS(location) = M*N
+      GM_IMAGS(location) = 0.0D0
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
-      G_VAR_COLS(G_ARGUMENT_POINTER) = 2
-   endblock minloc_cmd
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 !==================================================================================================================================!
    end select FUN6
 !==================================================================================================================================!
@@ -2666,6 +2643,7 @@ subroutine mat_matsets()
    ! set%setxor     705  ! find values of A and B not in both arrays
    ! set%union      706  ! join two sets and removes duplicates of values
    ! set%unique     707  ! return unique values in array A
+   ! set%isequal    708  ! report if A is equal to B
 !===================================================================================================================================
    FUN_SETS: select case(G_FIN)
 !===================================================================================================================================
@@ -2742,11 +2720,11 @@ subroutine mat_matsets()
 !===================================================================================================================================
    case(3) ! COMMAND::SET%issorted report if A is sorted in ascending order or not.
       SET_ISSORTED: block
-      integer                   :: rowsX, colsX, startX
+      integer :: rowsX, colsX, startX
       ! ignores imaginary component
       ! check arguments
       select case(G_RHS)
-      case(1)  ! two parameters
+      case(1)  ! one parameter
          startX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
          colsX = G_VAR_COLS(G_ARGUMENT_POINTER)
          rowsX = G_VAR_ROWS(G_ARGUMENT_POINTER)
@@ -2762,6 +2740,35 @@ subroutine mat_matsets()
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endblock SET_ISSORTED
 !===================================================================================================================================
+   case(8) ! COMMAND::SET%isequal report if A is equal to B
+      SET_ISEQUAL: block
+      integer :: rowsX, colsX, startX
+      integer :: rowsY, colsY, startY
+      ! check arguments
+      select case(G_RHS)
+      case(2)  ! two parameters
+         startY = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         colsY  = G_VAR_COLS(G_ARGUMENT_POINTER)
+         rowsY  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         startX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         colsX  = G_VAR_COLS(G_ARGUMENT_POINTER)
+         rowsX  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+      associate( A=>gm_reals( startX:startX+colsX*rowsX-1 ) , &
+                 B=>gm_reals( startY:startY+colsY*rowsY-1 ) , &
+                 C=>gm_imags( startX:startX+colsX*rowsX-1 ) , &
+                 D=>gm_imags( startY:startY+colsY*rowsY-1 ) )
+       GM_REALS(STARTX:STARTX) =min(isequal(A,B),isequal(C,D))
+       GM_IMAGS(STARTX:STARTX) =0.0d0
+      end associate
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
+      G_VAR_COLS(G_ARGUMENT_POINTER) = 1
+      endblock SET_ISEQUAL
+!===================================================================================================================================
    end select FUN_SETS
 !==================================================================================================================================!
 end subroutine mat_matsets
@@ -2771,79 +2778,363 @@ end subroutine mat_matsets
 subroutine mat_matorder()
 !
 ! ident_14="@(#) M_matrix mat_matorder(3f) sorting and ordering"
-
+integer                   :: m, n
+integer                   :: location
 integer                   :: rowsX, colsX, startX
 real(kind=dp),allocatable :: answer(:)
+real(kind=dp)             :: value
+integer                   :: ivalue
 !
-! 801 sort             - [SORT] Sorts array into ascending order (Quick-sort)
-! 802 rank             - [RANK] produces an INDEX that sorts an input array (optimized merge-sort)
-! 803 orderloc         - [FRACTILE] Return INDEX of Nth ordered value of array (Quick-Sort-like)
-! 804 orderval         - [FRACTILE] Return VALUE of Nth ordered element of array (Quick-Sort-like)
-! 805 median           - [MEDIAN] Calculates median VALUE. If number of elements is even, returns average of the two "medians".
-! 806 medianloc        - [MEDIAN] Returns median value's INDEX.
-! 807 medianval        - [MEDIAN] Returns median VALUE.
-! 808 occurrences      - [MULTIPLICITY] Give the multiplicity for each array value (number of times that it appears in the array)
-! 809 perturb          - [PERMUTATION] generate a random permutation of an array leaving elements close to initial locations
-! 810 rank_decreasing  - [RANK:UNIQUE] ranks an array in decreasing order, with duplicate entries assigned the same rank(Merge-Sort)
-! 811 rank_unique      - [RANK:UNIQUE] ranks an array, with removal of duplicate entries (Merge-Sort)
+! 801 sort(X,DIM)            - [SORT] Sorts array into ascending order
+! 802 rank(X,DIM)            - [RANK] produces an INDEX that sorts an input array
+! 808 occurrences(X,DIM)     - [MULTIPLICITY] Give the multiplicity for each array value (number of times it appears in the array)
+! 810 rank_decreasing(X,DIM) - [RANK:UNIQUE] ranks array in decreasing order, with duplicate entries assigned the same rank
+! 805 median(X,DIM)          - [MEDIAN] Calculates median VALUE. If number of elements is even, returns average of the two "medians".
+! 806 medianloc(X,DIM)       - [MEDIAN] Returns median value's INDEX.
+! 807 medianval(X,DIM)       - [MEDIAN] Returns median VALUE.
+! 811 rank_unique(X)         - [RANK:UNIQUE] ranks an array, with removal of duplicate entries
+! 803 orderloc(X)            - [FRACTILE] Return INDEX of Nth ordered value of array
+! 804 orderval(X)            - [FRACTILE] Return VALUE of Nth ordered element of array
+! 809 perturb                - [PERMUTATION] generate a random permutation of an array leaving elements close to initial locations
 
    if(G_ARGUMENT_POINTER.le.0)then
       G_RHS=0
       return
    endif
+
+   location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+   m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+   n = G_VAR_COLS(G_ARGUMENT_POINTER)
 !===================================================================================================================================
    FUN_SETS: select case(G_FIN)
 !===================================================================================================================================
-   case( 1) ! COMMAND::sort     - [SORT] Sorts array into ascending order (Quick-sort)
-      ORDER_SORT: block
-      integer                   :: rowsX, colsX, startX
-      ! ignores imaginary component
-      ! check arguments
+   case( 1) ! COMMAND::order%sort(X,DIM) - [SORT] Sorts array into ascending order
+   ORDER_SORT: block
+   integer :: i
+   integer :: dim
+   integer :: start, end
+
+      dim=0
+
       select case(G_RHS)
-      case(1)  ! one parameter
-         startX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
-         colsX  = G_VAR_COLS(G_ARGUMENT_POINTER)
-         rowsX  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case(1)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case(2)  ! if two parameters assume second one is dimension
+         dim = nint(GM_REALS(location))
+         if( dim.lt.0 .or. dim.gt.2 )then
+            call mat_err(21) ! Subscript out of range
+            return
+         endif
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
       case default
          call mat_err(39) ! Incorrect number of arguments
          return
       end select
-      associate( A=>gm_reals( startX:startX+(rowsX*colsX)-1) )
-       call sort(A)
-      end associate
-      endblock ORDER_SORT
-   case( 2) ! COMMAND::rank     - [RANK] produces an INDEX that sorts an input array (optimized merge-sort)
-      ORDER_RANK: block
-      integer                   :: rowsX, colsX, startX
-      integer,allocatable :: answer(:)
-      ! ignores imaginary component
-      ! check arguments
+
+      select case(dim)
+      case(0)
+         start=location
+         end=location+m*n-1
+         call sort(gm_reals( start:end ) )
+      case(1)
+         start=location
+         end=start+m-1
+         do i=1,n
+            call sort(gm_reals( start:end ) )
+            start=start+m
+            end=start+m-1
+         enddo
+      case(2)
+         start=location
+         end=start+(n-1)*m
+         do i=1,m
+            call sort(gm_reals( start:end:m ) )
+            start=start+1
+            end=start+(n-1)*m
+         enddo
+      end select
+
+      GM_IMAGS(location:location+m*n-1) = 0.0d0
+
+   endblock ORDER_SORT
+!===================================================================================================================================
+   case(2,8,10) ! COMMAND::order%rank(X,DIM)        - produces an INDEX rank that sorts an input array
+                ! COMMAND::order%occurrences(X,DIM) - Give the multiplicity (number of times a value  appears in the array)
+                ! COMMAND::order%rank_decreasing(X,DIM) - ranks array in decreasing order, with duplicate entries assigned the same rank
+   ORDER_RANK: block
+   integer             :: i
+   integer             :: dim
+   integer             :: start, end
+   integer,allocatable :: answer(:)
+   ! ignores imaginary component
+
+      dim=0
+
       select case(G_RHS)
-      case(1)  ! one parameter
-         startX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
-         colsX  = G_VAR_COLS(G_ARGUMENT_POINTER)
-         rowsX  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case(1)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+      case(2)  ! if two parameters assume second one is dimension
+         dim = nint(GM_REALS(location))
+         if( dim.lt.0 .or. dim.gt.2 )then
+            call mat_err(21) ! Subscript out of range
+            return
+         endif
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
       case default
          call mat_err(39) ! Incorrect number of arguments
          return
       end select
-      associate( A=>gm_reals( startX:startX+(rowsX*colsX)-1) )
-       if(allocated(answer)) deallocate(answer)
-       allocate(answer(colsX*rowsX))
-       call rank(A, answer)
-      end associate
-      GM_REALS(STARTX:STARTX+size(answer)-1) =answer
-      GM_IMAGS(STARTX:STARTX+size(answer)-1) = 0.0d0
-      endblock ORDER_RANK
-   case( 3) ! COMMAND::orderloc - [FRACTILE] Return INDEX of Nth ordered value of array (Quick-Sort-like)
-   case( 4) ! COMMAND::orderval - [FRACTILE] Return VALUE of Nth ordered element of array (Quick-Sort-like)
-   case( 5) ! COMMAND::median   - Calculates median VALUE. If number of elements is even, returns average of the two "medians".
-   case( 6) ! COMMAND::medianloc - Returns median value's INDEX.
-   case( 7) ! COMMAND::medianval - Returns median VALUE.
-   case( 8) ! COMMAND::occurrences -  Give the multiplicity for each array value (number of times that it appears in the array)
-   case( 9) ! COMMAND::perturb -  generate a random permutation of an array leaving elements close to initial locations
-   case(10) ! COMMAND::rank_decreasing - ranks array in decreasing order, with duplicate entries assigned the same rank(Merge-Sort)
-   case(11) ! COMMAND::rank_unique - ranks an array, with removal of duplicate entries (Merge-Sort)
+
+      select case(dim)
+      case(0)
+         start=location
+         end=location+m*n-1
+         if(allocated(answer)) deallocate(answer)
+         allocate(answer(m*n))
+         select case(G_FIN)
+         case(2); call rank(GM_REALS(start:end), answer)
+         case(8); call occurrences(GM_REALS(start:end), answer)
+         case(10);call rank_decreasing(GM_REALS(start:end), answer)
+         case default
+           call journal('*order* internal error ',G_FIN)
+         end select
+         GM_REALS(start:end) =answer
+         deallocate(answer)
+      case(1)
+         start=location
+         end=start+m-1
+         if(allocated(answer)) deallocate(answer)
+         allocate(answer(m))
+         do i=1,n
+            select case(G_FIN)
+            case(2);  call rank(gm_reals(start:end),answer)
+            case(8);  call occurrences(gm_reals(start:end),answer)
+            case(10); call rank_decreasing(gm_reals(start:end),answer)
+            case default
+            write(*,*)'INTERNAL ERROR 802 B'
+            end select
+            GM_REALS(start:end) =answer
+            start=start+m
+            end=start+m-1
+         enddo
+         deallocate(answer)
+      case(2)
+         start=location
+         end=start+(n-1)*m
+         if(allocated(answer)) deallocate(answer)
+         allocate(answer(n))
+         do i=1,m
+            select case(G_FIN)
+            case(2) ; call rank(gm_reals(start:end:m),answer)
+            case(8) ; call occurrences(gm_reals(start:end:m),answer)
+            case(10); call rank_decreasing(gm_reals(start:end:m),answer)
+            case default
+            write(*,*)'INTERNAL ERROR 802 C'
+            end select
+            GM_REALS(start:end:m) =answer
+            start=start+1
+            end=start+(n-1)*m
+         enddo
+         deallocate(answer)
+      end select
+
+      GM_IMAGS(start:end) = 0.0d0
+
+   endblock ORDER_RANK
+!==================================================================================================================================!
+   case(3,4) ! COMMAND::order%orderloc(X,NTH) - [FRACTILE] Return INDEX of Nth ordered value of array (Quick-Sort-like)
+             ! COMMAND::order%orderval(X,NTH) - [FRACTILE] Return VALUE of Nth ordered element of array
+   ORDER_ORDERLOC: block
+   integer :: i
+   integer :: nth
+   integer :: start, end
+
+      nth=0
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+
+      select case(G_RHS)
+      case(2)  ! if two parameters
+         nth = nint(GM_REALS(location))
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         if( nth.lt.1 .or. nth.gt.m*n )then
+            call mat_err(21) ! Subscript out of range
+            return
+         endif
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+
+      start=location
+      end=location+m*n-1
+      select case(G_FIN)
+      case(3);GM_REALS(location:location) = orderloc(gm_reals( start:end ),nth )
+      case(4);GM_REALS(location:location) = orderval(gm_reals( start:end ),nth )
+      case default
+      call journal('*order* internal error ',G_FIN)
+      end select
+      GM_IMAGS(location:location) = 0.0d0
+      G_VAR_ROWS(G_ARGUMENT_POINTER)=1
+      G_VAR_COLS(G_ARGUMENT_POINTER)=1
+
+   endblock ORDER_ORDERLOC
+!==================================================================================================================================!
+   case( 5,6,7) ! COMMAND::order%median(X,DIM)    - Calculate median VALUE. If element number is even return average of two "medians"
+                ! COMMAND::order%medianloc(X,DIM) - Returns median value's INDEX.
+                ! COMMAND::order%medianval(X,DIM) - Returns median VALUE.
+   ORDER_MEDIANVAL: block
+   integer             :: i
+   integer             :: dim
+   integer             :: start, end
+   integer,allocatable :: answer(:)
+   ! ignores imaginary component
+
+      dim=0
+
+      select case(G_RHS)
+      case(1)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+      case(2)  ! if two parameters assume second one is dimension
+         dim = nint(GM_REALS(location))
+         if( dim.lt.0 .or. dim.gt.2 )then
+            call mat_err(21) ! Subscript out of range
+            return
+         endif
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+
+      select case(dim)
+      case(0)
+         start=location
+         end=location+m*n-1
+         select case(G_FIN)
+         case(5); GM_REALS(location:location) = median(GM_REALS(start:end))
+         case(6); call medianloc(GM_REALS(start:end),ivalue)
+                  GM_REALS(location:location) = ivalue
+         case(7); GM_REALS(location:location) = medianval(GM_REALS(start:end))
+         end select
+         GM_IMAGS(location:location) = 0.0d0
+         G_VAR_COLS(G_ARGUMENT_POINTER)=1
+      case(1)
+         start=location
+         end=start+m-1
+         allocate(answer(m))
+         do i=1,n
+            select case(G_FIN)
+            case(5); GM_REALS(location+i-1:location+i-1) = median(GM_REALS(start:end))
+            case(6); call medianloc(GM_REALS(start:end),ivalue)
+                     GM_REALS(location+i-1:location+i-1) = ivalue
+            case(7); GM_REALS(location+i-1:location+i-1) = medianval(GM_REALS(start:end))
+            end select
+            start=start+m
+            end=start+m-1
+         enddo
+         GM_IMAGS(location:location+n-1) = 0.0d0
+         G_VAR_COLS(G_ARGUMENT_POINTER)=n
+      case(2)
+         start=location
+         end=start+(n-1)*m
+         do i=1,m
+            select case(G_FIN)
+            case(5); GM_REALS(location+i-1:location+i-1) = median(GM_REALS(start:end:m))
+            case(6); call medianloc(GM_REALS(start:end:m),ivalue)
+                     GM_REALS(location+i-1:location+i-1) = ivalue
+            case(7); GM_REALS(location+i-1:location+i-1) = medianval(GM_REALS(start:end:m))
+            end select
+            start=start+1
+            end=start+(n-1)*m
+         enddo
+         GM_IMAGS(location:location+m-1) = 0.0d0
+         G_VAR_COLS(G_ARGUMENT_POINTER)=m
+      end select
+      G_VAR_ROWS(G_ARGUMENT_POINTER)=1
+
+   endblock ORDER_MEDIANVAL
+!==================================================================================================================================!
+   case(11) ! COMMAND::order%rank_unique - ranks an array, with removal of duplicate entries
+   ORDER_RANK_UNIQUE: block
+   integer             :: start, end
+   integer             :: number_returned
+   integer,allocatable :: answer(:)
+   ! ignores imaginary component
+
+      select case(G_RHS)
+      case(1)
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+
+      start=location
+      end=location+m*n-1
+      if(allocated(answer)) deallocate(answer)
+      allocate(answer(m*n))
+      call rank_unique(GM_REALS(start:end), answer,number_returned)
+      end=location+number_returned
+      G_VAR_ROWS(G_ARGUMENT_POINTER)=end-start+1
+      G_VAR_COLS(G_ARGUMENT_POINTER)=1
+      GM_REALS(start:end) =answer(start:end)
+      deallocate(answer)
+      GM_IMAGS(start:end) = 0.0d0
+
+   endblock ORDER_RANK_UNIQUE
+!==================================================================================================================================!
+   case( 9) ! COMMAND::perturb(X,PERCENT) -  generate a random permutation of an array leaving elements close to initial locations
+   ORDER_PERTURB: block
+   integer :: i
+   real    :: percent
+   integer :: start, end
+
+      percent=0
+      location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+
+      select case(G_RHS)
+      case(2)  ! if two parameters
+         percent = GM_REALS(location)
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         n = G_VAR_COLS(G_ARGUMENT_POINTER)
+         m = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         if( percent.lt.0 .or. percent.gt.1 )then
+            call mat_err(21) ! Subscript out of range
+            return
+         endif
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+
+      start=location
+      end=location+m*n-1
+      call perturb(GM_REALS( start:end ),percent )
+      GM_IMAGS(start:end) = 0.0d0
+
+   endblock ORDER_PERTURB
+!==================================================================================================================================!
    end select FUN_SETS
 !==================================================================================================================================!
 end subroutine mat_matorder
@@ -2898,17 +3189,18 @@ integer                           :: i
    case('poly');            selector=214
    case('roots');           selector=215
    case('abs');             selector=221  !  calling  codes  corresponding  to  the  function  names
-   case('round','nint');    selector=222
+   case('round','anint','nint');    selector=222
    case('real');            selector=223
    case('imag','aimag');    selector=224
    case('conjg');           selector=225
    case('cmplx');           selector=226
+   case('aint','int');      selector=227
 
    case('svd');             selector=301
    case('pinv');            selector=302
    case('cond');            selector=303
    case('norm');            selector=304
-   case('rank');            selector=305
+   case('la%rank','rank');  selector=305
    case('pow','power');     selector=306
    case('reshape');         selector=307
    case('lt');              selector=308
@@ -2922,7 +3214,7 @@ integer                           :: i
    case('qr');              selector=401
    case('orth');            selector=402
 
-   case('exec','include','source','script');  selector=501
+   case('exec','source','script');  selector=501
    case('save');            selector=502
    case('load');            selector=503
    case('print');           selector=504
@@ -2967,24 +3259,26 @@ integer                           :: i
    case('maxloc');         selector=630
    case('minloc');         selector=631
    case('randi','rand%integer');  selector=632
-   case('set%intersect');  selector=701 ! find the value common to both sets A and B
-   case('set%ismember');   selector=702 ! create a mask of A marking elements also in B
-   case('set%issorted');   selector=703 ! report if A is sorted in ascending order or not.
-   case('set%setdiff');    selector=704 ! find the values in A that are not in B
-   case('set%setxor');     selector=705 ! find values of A and B not in both arrays
-   case('set%union');      selector=706 ! join two sets and removes duplicates of values
-   case('set%unique');     selector=707 ! return unique values in array A
-   case('order%sort');     selector=801 ! Sorts array into ascending order (Quick-sort)
+   case('fortran%size','size');        selector=633
+   case('set%intersect','intersect');  selector=701 ! find the value common to both sets A and B
+   case('set%ismember','ismember');   selector=702 ! create a mask of A marking elements also in B
+   case('set%issorted','issorted');   selector=703 ! report if A is sorted in ascending order or not.
+   case('set%setdiff','setdiff');    selector=704 ! find the values in A that are not in B
+   case('set%setxor','setxor');     selector=705 ! find values of A and B not in both arrays
+   case('set%union','union');      selector=706 ! join two sets and removes duplicates of values
+   case('set%unique','unique');     selector=707 ! return unique values in array A
+   case('set%isequal','isequal');     selector=708 ! report if A equals B
+   case('order%sort','sort');     selector=801 ! Sorts array into ascending order (Quick-sort)
    case('order%rank');     selector=802 ! produces an INDEX that sorts an input array (optimized merge-sort)
-   case('order%orderloc'); selector=803 ! [FRACTILE] Return INDEX of Nth ordered value of array (Quick-Sort-like)
-   case('order%orderval'); selector=804 ! [FRACTILE] Return VALUE of Nth ordered element of array (Quick-Sort-like)
-   case('order%median');   selector=805 ! Returns median VALUE. If number of elements is even, returns average of the two "medians".
-   case('order%medianloc'); selector=806 ! Returns median value's INDEX.
-   case('order%medianval'); selector=807 ! Returns median VALUE.
-   case('order%occurrences'); selector=808 ! Give the multiplicity for each array value (number of times it appears in the array)
-   case('order%perturb');  selector=809 ! generate a random permutation of an array leaving elements close to initial locations
-   case('order%rank_decreasing'); selector=810 ! ranks an array in decreasing order, with duplicate entries assigned the same rank
-   case('order%rank_unique'); selector=811 ! ranks an array, with removal of duplicate entries (Merge-Sort)
+   case('order%orderloc','orderloc'); selector=803 ! [FRACTILE] Return INDEX of Nth ordered value of array (Quick-Sort-like)
+   case('order%orderval','orderval'); selector=804 ! [FRACTILE] Return VALUE of Nth ordered element of array (Quick-Sort-like)
+   case('order%median','median');   selector=805 ! median VALUE. If even number of elements, returns average of the two "medians".
+   case('order%medianloc','medianloc'); selector=806 ! Returns median value's INDEX.
+   case('order%medianval','medianval'); selector=807 ! Returns median VALUE.
+   case('order%occurrences','occurrences'); selector=808 ! Give multiplicity for each array value (number of times appearing )
+   case('order%perturb','perturb');  selector=809 ! generate random permutation of array leaving elements close to initial locations
+   case('order%rank_decreasing','rank_decreasing'); selector=810 ! ranks in decreasing order, duplicate entries assigned same rank
+   case('order%rank_unique','rank_unique'); selector=811 ! ranks an array, with removal of duplicate entries (Merge-Sort)
 
    case default !  function name was not found
       G_FIN = 0
@@ -4138,10 +4432,11 @@ character(len=:),allocatable :: filename
 
 ! a list of names this procedure matches to use for some preliminary tests
 character(len=10),parameter :: cmd(*)=[ character(len=10) :: &
- & 'clear', 'else',  'end',      'exit',   'for',  &
- & 'help',  'if',    'long',     'quit',   'semi', &
- & 'short', 'what',  'while',    'who',    'sh',   &
- & 'lala',  'shell', 'continue', 'return', 'fhelp' &
+&  'clear',    'else',   'end',       'exit',    'for',   &
+&  'help',     'if',     'long',      'quit',    'semi',  &
+&  'short',    'what',   'while',     'who',     'sh',    &
+&  'lala',     'shell',  'continue',  'return',  'fhelp', &
+&  'include'                                              &
  & ]
 
 FINISHED: block
@@ -4154,14 +4449,15 @@ FINISHED: block
      elseif (k.eq.0)then                        ! see if exec file matches
         filename=find_la_file(id)
         if(filename.ne.'')then
+           call mat_getsym()
            select case(G_CHRA)                  ! check next character
            case(comma,semi,GG_EOL)              ! next character is end of a command so good to go
-           ! alphanumeric or a HELP command so good to go
+              ! alphanumeric or a HELP command so good to go
            case(iachar('0'):iachar('9'),iachar('a'):iachar('z'),iachar('A'):iachar('Z'),score,percent)
            case default
               cycle
            end select
-           call source_file(-1,3,filename)       ! if file can be opened
+           call source_file(-1,0,filename)       ! if file can be opened
            if(G_ERR.ne.0)cycle
            G_PTZ=0
            call mat_getsym()
@@ -4218,6 +4514,31 @@ FINISHED: block
          G_TOP_OF_SAVED = GG_MAX_NUMBER_OF_NAMES-3
       endif
    endblock CLEAR_CMD
+!===================================================================================================================================
+   case('include') ! command::include
+   INCLUDE_CMD: block
+   character(len=GG_MAX_NAME_LENGTH) :: name
+      ! alphameric character
+      if(verify(achar(G_CHRA),big//little//digit)==0)then ! is alphanumeric so good to go by name
+         do
+            G_SYN=blank
+            call mat_getsym()
+            call mat_buf2str(name,G_SYN,len(name))             ! convert ADE array to string
+            write(*,*)'GOT HERE A:INCLUDE:NAME:',name
+            if(name.eq.'')exit
+            G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
+            G_VAR_ROWS(G_ARGUMENT_POINTER) = 0   ! if m*n=0 flags to delete instead of replace or create variable
+            G_VAR_COLS(G_ARGUMENT_POINTER) = 0
+            G_RHS = 0
+            call source_file(-1,0,name)       ! if file can be opened
+            if (G_ERR .gt. 0) return
+            if(G_CHRA.eq.GG_EOL)exit
+         enddo
+         G_FIN = 1
+      else
+         write(*,*)'non-symbol include file name'
+      endif
+   endblock INCLUDE_CMD
 !===================================================================================================================================
    case('for')
       G_FIN = -11
@@ -4294,7 +4615,7 @@ FINISHED: block
       if (G_CHRA.eq.e_low .or. G_CHRA.eq.d_low .or. G_CHRA.eq.e_up .or. chr.eq.d_up ) G_FMT = G_FMT+2
       if (G_CHRA .eq. z_low) G_FMT = 5
       if (G_CHRA.eq.e_low .or. G_CHRA.eq.d_low .or. G_CHRA.eq.z_low) call mat_getsym()
-      if (G_CHRA.eq.e_UP .or. G_CHRA.eq.d_up .or. G_CHRA.eq.z_up ) call mat_getsym()
+      if (G_CHRA.eq.e_UP .or. G_CHRA.eq.d_up .or. G_CHRA.eq.z_up )   call mat_getsym()
 !===================================================================================================================================
    case('semi')
       G_LINECOUNT(3) = 1 - G_LINECOUNT(3)  ! toggle "semi" mode
@@ -4361,7 +4682,7 @@ subroutine sh_command()
 ! ident_26="@(#) M_matrix sh_command(3f) start system shell interactively"
 
 character(len=GG_LINELEN) :: line
-integer                   :: istat
+logical                   :: istat
 
    call get_environment_variable('SHELL',line)   ! get command to execute
    IF (G_CHRA .eq. GG_EOL )then                  ! if next character on stack is end-of-line call interactive shell
@@ -4397,7 +4718,7 @@ integer           :: i
 integer           :: j
 integer           :: jmax
 integer           :: l
-integer           :: istat
+logical           :: istat
 
 !!      if (k .gt. 0) write(lplot,01) (p(i), i=1,k)
 !!   01 FORMAT('Extra parameters',*(f5.1,/))
@@ -4994,35 +5315,25 @@ integer          :: nn
            return
         endif
         select case(G_FIN)
-        case( 1)                                      ! COMMAND::sin
+        case( 1)                                        ! COMMAND::sin
             tr(1) = dsin(sr)*dcosh(si)
             ti(1) = dcos(sr)*dsinh(si)
-        case( 2)                                      ! COMMAND::cos
+        case( 2)                                        ! COMMAND::cos
                  tr(1) = dcos(sr)*dcosh(si)
                  ti(1) = (-dsin(sr))*dsinh(si)
-        case( 3)                                      ! COMMAND::atan
-                 call mat_watan(sr,si,tr(1),ti(1))
-        case( 4)                                      ! COMMAND::exp
+        case( 3); call mat_watan(sr,si,tr(1),ti(1))     ! COMMAND::atan
+        case( 4)                                        ! COMMAND::exp
                  tr(1) = dexp(sr)*dcos(si)
                  ti(1) = dexp(sr)*dsin(si)
-        case( 5)                                      ! COMMAND::sqrt
-                 call mat_wsqrt(sr,si,tr(1),ti(1))
-        case( 6)                                      ! COMMAND::log
-                 call mat_wlog(sr,si,tr(1),ti(1))
-        case( 21)                                     ! COMMAND::abs
-                 tr(1) = mat_pythag(sr,si)
-        case( 22)                                     ! COMMAND::ROUND
-                 tr(1) = mat_round(sr)
-        case( 23)                                     ! COMMAND::REAL
-                 tr(1) = sr
-        case( 24)                                     ! COMMAND::IMAG
-                 tr(1) = si
-        case( 25)                                     ! COMMAND::CONJG
-                 tr(1) = sr
-                 ti(1) = -si
-        case( 26)                                     ! COMMAND::CMPLX
-                 tr(1) = sr
-                 ti(1) = si
+        case( 5);  call mat_wsqrt(sr,si,tr(1),ti(1))    ! COMMAND::sqrt
+        case( 6);  call mat_wlog(sr,si,tr(1),ti(1))     ! COMMAND::log
+        case( 21); tr(1) = mat_pythag(sr,si)            ! COMMAND::abs
+        case( 22); tr(1) = mat_round(sr)                ! COMMAND::ROUND
+        case( 23); tr(1) = sr                           ! COMMAND::REAL
+        case( 24); tr(1) = si                           ! COMMAND::IMAG
+        case( 25); tr(1) = sr; ti(1) = -si              ! COMMAND::CONJG
+        case( 26); tr(1) = sr; ti(1) = si               ! COMMAND::CMPLX
+        case( 27); tr(1) = aint(sr)                     ! COMMAND::AINT
 
         end select
 
@@ -5180,8 +5491,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
       inf = .false.
 
       if (G_RHS .eq. 2)then
-         fro = int(GM_REALS(location)).eq.iachar('f') .and. mn.gt.1
-         inf = int(GM_REALS(location)).eq.iachar('i') .and. mn.gt.1
+         fro = nint(GM_REALS(location)).eq.iachar('f') .and. mn.gt.1
+         inf = nint(GM_REALS(location)).eq.iachar('i') .and. mn.gt.1
          if (.not. fro) then
             p = GM_REALS(location)
          endif
@@ -5348,7 +5659,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
          G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endif
 !===================================================================================================================================
-    case(2,5) ! COMMAND::PINV AND RANK
+    case(2,5) ! COMMAND::PINV
+              ! COMMAND::RANK
       TOL = -1.0D0
       IF (G_RHS .EQ. 2) then
          TOL = GM_REALS(location)
@@ -5959,7 +6271,7 @@ integer                   :: mn
             lun = -1
             do j = 1, GG_LINELEN
                ls = location+j-1
-               if (j .le. mn) ch = int(GM_REALS(ls))
+               if (j .le. mn) ch = nint(GM_REALS(ls))
                if (j .gt. mn) ch = blank
                if (ch.lt.0 .or. ch.ge.g_charset_size) then
                   call mat_err(38)
@@ -6466,7 +6778,7 @@ subroutine mat_stack2(op)
 ! ident_33="@(#) M_matrix ml_stackp(3fp) binary and ternary operations"
 
 integer           :: op
-doubleprecision   :: sr,si,e1,st,e2
+doubleprecision   :: sr,si,e1,STEP,e2
 
 integer           ::  i
 integer           ::  j
@@ -6721,36 +7033,39 @@ logical           :: scalar
       enddo
 !-----------------------------------------------------------------------------------------------------------------------------------
    case (COLON) ! COMMAND::COLON
-      E2 = GM_REALS(L2)
-      ST = 1.0D0
       N = 0
-      IF (G_RHS .GE. 3) then
-         ST = GM_REALS(location)
+      if(G_RHS.GE.3)then
+         STEP = GM_REALS(L2)
+         E2 = GM_REALS(location)
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
          location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
-         IF (ST .EQ. 0.0D0) goto 63
+         IF (STEP .EQ. 0.0D0) goto 63
+      else
+         E2 = GM_REALS(L2)
+         STEP = 1.0D0
       endif
 
       E1 = GM_REALS(location)
+
       ! CHECK FOR CLAUSE
       IF (G_RSTK(G_PT) .EQ. 3) then
    !     FOR CLAUSE
          GM_REALS(location) = E1
-         GM_REALS(location+1) = ST
          GM_REALS(location+2) = E2
+         GM_REALS(location+1) = STEP
          G_VAR_ROWS(G_ARGUMENT_POINTER) = -3
          G_VAR_COLS(G_ARGUMENT_POINTER) = -1
          exit DO_OP
       endif
 
-      if(too_much_memory( location + MAX(3,int((E2-E1)/ST)) - G_VAR_DATALOC(G_TOP_OF_SAVED) ) ) exit do_op
+      if(too_much_memory( location + MAX(3,int((E2-E1)/STEP)) - G_VAR_DATALOC(G_TOP_OF_SAVED) ) ) exit do_op
 
       do
-         IF (ST .GT. 0.0D0 .AND. GM_REALS(location) .GT. E2) exit
-         IF (ST .LT. 0.0D0 .AND. GM_REALS(location) .LT. E2) exit
+         IF (STEP .GT. 0.0D0 .AND. GM_REALS(location) .GT. E2) exit
+         IF (STEP .LT. 0.0D0 .AND. GM_REALS(location) .LT. E2) exit
          N = N+1
          location = location+1
-         GM_REALS(location) = E1 + dble(N)*ST
+         GM_REALS(location) = E1 + dble(N)*STEP
          GM_IMAGS(location) = 0.0D0
       enddo
 
@@ -6826,7 +7141,7 @@ subroutine mat_getlin() ! get a new input line
 character(len=GG_LINELEN) :: mline
 character(len=GG_LINELEN) :: shift_mline
 
-integer                   :: istat
+logical                   :: istat
 integer,parameter         :: retu(GG_MAX_NAME_LENGTH) =  [iachar(['q','u','i','t',' ',' ',' ']),GG_PAD(8:)]
 integer                   :: i, j, k
 integer                   :: l
@@ -7163,7 +7478,6 @@ integer            :: n
    if (G_RSTK(G_PT) .eq. 13) G_PT = G_PT-2
    goto 80
 !.......................................................................
-!
 99 continue
    call mat_err(22)    ! recursion difficulties
 end subroutine mat_clause
@@ -9408,6 +9722,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      plot(X,Y)        - Plot Y as a function of X .                            ',&
 '      rat(A)           - Find "simple" rational approximation to A.             ',&
 '      reshape(A,[m,n]) - Reshape an array                                       ',&
+'      size(A)          - size of an array                                       ',&
 '      maxval(A)        - maximum real component of array A                      ',&
 '      minval(A)        - minimum real component of array A                      ',&
 '      maxloc(A)        - location of maximum real component of array A          ',&
@@ -9465,8 +9780,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      j:k    is the same as  <j, j+1, ..., k>                                   ',&
 '      j:k    is empty if  j > k .                                               ',&
-'      j:i:k  is the same as  <j, j+i, j+2i, ..., k>                             ',&
-'      j:i:k  is empty if  i > 0 and j > k or if i < 0 and j < k .               ',&
+'      j:k:i  is the same as  <j, j+i, j+2i, ..., k>                             ',&
+'      j:k:i  is empty if  i > 0 and j > k or if i < 0 and j < k .               ',&
 '                                                                                ',&
 '   The colon is usually used with integers, but it is possible to               ',&
 '   use arbitrary real scalars as well. Thus                                     ',&
@@ -11022,7 +11337,22 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         data.                                                                  ',&
 '                                                                                ',&
 '      May, 2025.                                                                ',&
-'       * randi   Added randi() and set functions.                               ',&
+'       * randi   Added randi()                                                  ',&
+'                                                                                ',&
+'       * allow a name on a line by itself to be equivalent to                   ',&
+'         "load(''name.la'')                                                     ',&
+'                                                                                ',&
+'       * Added set theory functions as per "help SET THEORY"                    ',&
+'                                                                                ',&
+'       * Added ordering functions as per "help ORDERING"                        ',&
+'                                                                                ',&
+'       * myfile  is equivalent to "exec(''myfile.la'')".                        ',&
+'                                                                                ',&
+'       * enforcing "if expression op expression," to scalar expressions, as     ',&
+'         the original behavior of only comparing the real component of the      ',&
+'         first element of a matrix was not intuitive and error-prone.           ',&
+'                                                                                ',&
+'       * Added set%isequal(A,B), size(A)                                        ',&
 '================================================================================',&
 'SYNTAX                                                                          ',&
 '[     See "<"                                                                   ',&
@@ -11193,11 +11523,11 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '        j:k   is the same as  <j, j+1, ..., k>                                  ',&
 '              is empty if  j > k .                                              ',&
-'        j:i:k is the same as [j, j+i,j+2*i, ..., k]                             ',&
+'        j:k:i is the same as [j, j+i,j+2*i, ..., k]                             ',&
 '              (Fortran DO loop users beware of the unusual order!)              ',&
 '                                                                                ',&
-'         j:i:k  is the same as  <j, j+i, j+2i, ..., k>                          ',&
-'         j:i:k  is empty if  i > 0 and j > k or if i < 0 and j < k .            ',&
+'         j:k:i  is the same as  <j, j+i, j+2i, ..., k>                          ',&
+'         j:k:i  is empty if  i > 0 and j > k or if i < 0 and j < k .            ',&
 '                                                                                ',&
 '      The colon notation can be used to pick out selected rows,                 ',&
 '      columns and elements of vectors and matrices.                             ',&
@@ -11790,6 +12120,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       See "poly".                                                                    ',&
 '                                                                                      ',&
 'round  "round(X)" rounds the elements of X to the nearest integers.                   ',&
+'       "anint(X)" is a synonym for "round(X)".                                        ',&
 '                                                                                      ',&
 'schur  Schur decomposition. "<U,T> = schur(X)" produces an upper                      ',&
 '       triangular matrix T , with the eigenvalues of X on the                         ',&
@@ -11799,6 +12130,12 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'shape  If X is an M by N matrix, then shape(X) is <M, N> .                            ',&
 '       Can also be used with a multiple assignment,                                   ',&
 '            <M, N> = shape(X) .                                                       ',&
+'                                                                                      ',&
+'size   "size(X)" returns the number of elements in X.                                 ',&
+'                                                                                      ',&
+'           [[1,2,3],magic(4),random(3,8)]                                             ',&
+'            ans                                                                       ',&
+'             3 16 24                                                                  ',&
 '                                                                                      ',&
 'sum   "sum(X)" is the sum of all the elements of X.                                   ',&
 '      "sum(diag(X))" is the trace of X.                                               ',&
@@ -11860,48 +12197,162 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         zeros(X)    returns a matrix of zeroes of the same order as X.               ',&
 '================================================================================      ',&
 'ORDERING                                                                              ',&
-'  + order%sort             Sorts array into ascending order                           ',&
-'  + order%rank             produces an array rank (an INDEX to sort an array)         ',&
-'  + order%orderloc         Return LOCATION of Nth ordered value of array              ',&
-'  + order%orderval         Return VALUE of Nth ordered element of array               ',&
-'  + order%median           Calculates median VALUE                                    ',&
-'  + order%medianloc        Returns median value''s INDEX.                             ',&
-'  + order%medianval        Returns median VALUE.                                      ',&
-'  + order%occurrences      Assign each value a count of the values'' occurrence       ',&
-'  + order%perturb          a permutation controlling how far elements are moved       ',&
-'  + order%rank_decreasing  ranks an array in decreasing order,                        ',&
-'                           with duplicate entries assigned the same rank              ',&
-'  + order%rank_unique      ranks an array, with removal of duplicate entries          ',&
+'  + order%median(X)           Calculates median VALUE                                 ',&
+'  + order%medianloc(X)        Returns median value''s INDEX.                          ',&
+'  + order%medianval(X)        Returns median VALUE.                                   ',&
+'  + order%occurrences(X)      Assign each value a count of the values'' occurrence    ',&
+'  + order%orderloc(X)         Return LOCATION of Nth ordered value of array           ',&
+'  + order%orderval(X)         Return VALUE of Nth ordered element of array            ',&
+'  + order%perturb(X)          a permutation controlling how far elements are moved    ',&
+'  + order%rank(X,DIM)         produces an array rank (an INDEX to sort an array)      ',&
+'  + order%rank_decreasing(X)  ranks an array in decreasing order,                     ',&
+'                              with duplicate entries assigned the same rank           ',&
+'  + order%rank_unique(X)      ranks an array, with removal of duplicate entries       ',&
+'  + order%sort(X,DIM)         Sorts array into ascending order                        ',&
 '                                                                                      ',&
-'order%sort             Sorts array into ascending order                               ',&
+'order%median       Calculates median VALUE. If number of elements                     ',&
+'                   is even, returns average of the two "medians".                     ',&
 '                                                                                      ',&
-'order%rank             produces an INDEX that sorts an input array in ascending order ',&
+'                   "order%median(X,dim)" returns medians along the                    ',&
+'                   specified dimension, where 1 <= dim <= 2.                          ',&
 '                                                                                      ',&
-'order%orderloc         Return fractile location (INDEX of Nth ordered value of array) ',&
+'                   "median(X)" or "median(X,0)" calculates the median                 ',&
+'                   value of the array X().  It is different from                      ',&
+'                   "medianval(X)" in that the average of the two                      ',&
+'                   middle values is returned when the size of X                       ',&
+'                   is even.                                                           ',&
+'                     [                                                                ',&
+'                      median( [80.0,70.0,20.0,10.0,1000.0] )                          ',&
+'                      median( [11, 22, 33, 44, 55, 66, 77, 88] )                      ',&
+'                      median( [11,22,33,66,77,88])                                    ',&
+'                     ]                                                                ',&
+'                     ans                                                              ',&
+'                      70, 49, 49.5                                                    ',&
 '                                                                                      ',&
-'order%orderval         Return fractile (VALUE of Nth ordered element of array)        ',&
+'order%medianloc    "order%medianloc(X)" returns the median value''s                   ',&
+'                   index, where the median is defined as the value                    ',&
+'                   at the index (((size(X)+1))/2^th of the sorted                     ',&
+'                   ascending values of X.                                             ',&
 '                                                                                      ',&
-'order%median           Calculates median VALUE. If number of elements                 ',&
-'                       is even, returns average of the two "medians".                 ',&
+'                   "order%medianloc(X,dim)" returns median locations                  ',&
+'                   along the specified dimension, where 1 <= dim <= 2.                ',&
 '                                                                                      ',&
-'order%medianloc        Returns median value''s INDEX.                                 ',&
+'                   The locations are scalar values indicating                         ',&
+'                   the index into the vector "X(:)". These may                        ',&
+'                   be converted to <row,column> values using                          ',&
+'                   "location(X,N)".                                                   ',&
 '                                                                                      ',&
-'order%medianval        Returns median VALUE.                                          ',&
+'                    [ order%medianloc( [80,70,20,10,1000] ) ...                       ',&
+'                      order%medianloc( [11,22,33,44,55,66,77,88] ) ...                ',&
+'                      order%medianloc( [11, 22, 33, 66, 77, 88] )                     ',&
+'                    ]                                                                 ',&
+'                     magic(5)*10                                                      ',&
+'                     order%medianloc(magic(5)*10,1)                                   ',&
+'                     order%medianloc(magic(5)*10,2)                                   ',&
 '                                                                                      ',&
-'order%occurrences      Give the multiplicity for each array value                     ',&
-'                       (number of times that it appears in the array)                 ',&
+'order%medianval    "order%medianval(X)" returns the median value,                     ',&
+'                   where the median is defined as the value at                        ',&
+'                   the index (((size(X)+1))/2^th of the sorted                        ',&
+'                   ascending values of X.                                             ',&
 '                                                                                      ',&
-'order%perturb          generate a random permutation of an array leaving              ',&
-'                       elements close to initial locations                            ',&
+'                   "order%medianval(X,dim)" returns medians along                     ',&
+'                   the specified dimension, where 1 <= dim <= 2.                      ',&
+'                                                                                      ',&
+'                    [ order%medianval( [80,70,20,10,1000] ) ...                       ',&
+'                      order%medianval( [11,22,33,44,55,66,77,88] ) ...                ',&
+'                      order%medianval( [11, 22, 33, 66, 77, 88] )                     ',&
+'                    ]                                                                 ',&
+'                     ans  =                                                           ',&
+'                        70.   44.   33.                                               ',&
+'                     order%median(magic(5),1)                                         ',&
+'                     order%median(magic(5),2)                                         ',&
+'                                                                                      ',&
+'order%orderloc     Return fractile location (INDEX of Nth ordered                     ',&
+'                   value of array)                                                    ',&
+'                                                                                      ',&
+'                   The locations are scalar values indicating                         ',&
+'                   the index into the vector "X(:)".                                  ',&
+'                                                                                      ',&
+'order%orderval     Return fractile (VALUE of Nth ordered element                      ',&
+'                   of array)                                                          ',&
+'                                                                                      ',&
+'                       X=reshape([1:100:1],[10,10])                                   ',&
+'                       order%minval(X)                                                ',&
+'                       order%maxval(X)                                                ',&
+'                       order%medianval(X)                                             ',&
+'                       order%orderval(X,1)                                            ',&
+'                       order%orderval(X,size(X))                                      ',&
+'                       order%orderval(X,size(X)/2)                                    ',&
+'                                                                                      ',&
+'order%occurrences  Give the multiplicity for each array value                         ',&
+'                                                                                      ',&
+'                   "occurrences(X)" gives, for each array element,                    ',&
+'                   its multiplicity (number of times that it appears                  ',&
+'                   in the array).                                                     ',&
+'                                                                                      ',&
+'order%perturb      "order%perturb(X,CLOSENESS)" generates a random                    ',&
+'                   permutation of an array leaving elements close to                  ',&
+'                   initial locations.                                                 ',&
+'                                                                                      ',&
+'                   Nearbyness is controlled by CLOSENESS. The relative                ',&
+'                   proportion of initial order and random order is defined            ',&
+'                   as 1-CLOSENESS / CLOSENESS, thus when CLOSENESS =                  ',&
+'                   0, there is no change in the order whereas the new                 ',&
+'                   order is fully random when CLOSENESS = 1.                          ',&
+'                                                                                      ',&
+'                   Note this differs from adding random noise to the                  ',&
+'                   values. The original values remain unchanged but are               ',&
+'                   shuffled, their order is just perturbed                            ',&
+'                                                                                      ',&
+'order%rank         produces an INDEX that sorts an input array in                     ',&
+'                   ascending order.                                                   ',&
+'                                                                                      ',&
+'                   The locations are scalar values indicating                         ',&
+'                   the index into the vector "X(:)". These may                        ',&
+'                   be converted to <row,column> values using                          ',&
+'                   "location(X,N)", but may also be used as-is                        ',&
+'                   to index into a two-dimensional matrix.                            ',&
 '                                                                                      ',&
 'order%rank_decreasing  ranks an array in decreasing order, with duplicate             ',&
 '                       entries assigned the same rank                                 ',&
 '                                                                                      ',&
-'order%rank_unique      ranks an array, with removal of duplicate entries              ',&
+'                       "order%rank_decreasing(X) " generates an inverse               ',&
+'                       ranking of an array, but with duplicate entries                ',&
+'                       assigned the same rank.                                        ',&
+'                                                                                      ',&
+'                        X=[11, 11, 22, 11, 33, 33, 22, 33, 33]                        ',&
+'                        Y=order%rank_decreasing(X)                                    ',&
+'                        X(Y)                                                          ',&
+'                                                                                      ',&
+'order%rank_unique  ranks an array, with removal of duplicate entries.                 ',&
+'                   Returns a vector of the locations of the unique                    ',&
+'                   values in the array with the values pointed to                     ',&
+'                   sorted in ascending order.                                         ',&
+'                                                                                      ',&
+'                     X=randi(10,10); // generate some numbers                         ',&
+'                     U=order%rank_unique(X);                                          ',&
+'                     size(U) // how many unique values                                ',&
+'                     Y=X(U) // the unique values in ascending order                   ',&
+'                                                                                      ',&
+'order%sort  Sorts array into ascending order.                                         ',&
+'                                                                                      ',&
+'            "order%sort(X)" returns all elements sorted in row-column order.          ',&
+'            The shape of the output is the same as the input.                         ',&
+'                                                                                      ',&
+'            "order%sort(X,dim)" returns X with sorts of elements along                ',&
+'            the specified dimension, where 1 <= dim <= 2.                             ',&
+'                                                                                      ',&
+'                matrix=[  1,   2,   3,   4                                            ',&
+'                          10,  20,  30,  40                                           ',&
+'                          100, 200, 300, 400  ];                                      ',&
+'                s=order%sort(matrix)                                                  ',&
+'                sort_of_columns=order%sort(matrix,1)                                  ',&
+'                sort_of_rows=order%sort(matrix,2)                                     ',&
 '                                                                                      ',&
 '================================================================================      ',&
 'SET THEORY                                                                            ',&
 '   + set%intersect(A,B)  find the values common to both sets A and B                  ',&
+'   + set%isequal(A)      report if A is equal to B                                    ',&
 '   + set%ismember(A,B)   create a mask of A marking elements also in B                ',&
 '   + set%issorted(A)     report if A is sorted in ascending order or not.             ',&
 '   + set%setdiff(A,B)    find the values in A that are not in B                       ',&
@@ -11917,6 +12368,22 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                   set%intersect(A,B) // Find values common to both A and B.          ',&
 '                   ans =                                                              ',&
 '                      7 4                                                             ',&
+'                                                                                      ',&
+'set%isequal   "set%isequal(A)," reports if A is equal to B.                           ',&
+'                                                                                      ',&
+'              Equality is defined as having the same size with the same               ',&
+'              element values in the same order. If equal the result is                ',&
+'              zero (0) else if not equal the result is one (1).                       ',&
+'                                                                                      ',&
+'                 A= [ 10 -10 0 1 2 3 3 2 1 -10 ];                                     ',&
+'                 B= [ 10 -10 0 1 2 3 3 2 1  10 ];                                     ',&
+'                 D= [ ...                                                             ',&
+'                 set%isequal(A,B), ...     // not the same                            ',&
+'                 set%isequal(A,A), ...     // the same                                ',&
+'                 set%isequal(A,A(1:9)) ... // different size                          ',&
+'                 ]                                                                    ',&
+'                  D  =                                                                ',&
+'                      0.    1.    0.                                                  ',&
 '                                                                                      ',&
 'set%ismember   "set%ismember(A,B)" creates a mask of A marking elements               ',&
 '               also in B.                                                             ',&
@@ -11936,7 +12403,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '               order or not.                                                          ',&
 '                                                                                      ',&
 '               A 1 (true) is returned when the elements of A are listed               ',&
-'               in ascending order and 0 (false) otherwise.                            ',&
+'               in ascending (row-column) order and 0 (false) otherwise.               ',&
 '                                                                                      ',&
 '                 // ISSORTED Find the sorted elements of vector A.                    ',&
 '                 A= [ 10 -10 0 1 2 3 3 2 1 -10 ];                                     ',&
@@ -11945,6 +12412,14 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                    0                                                                 ',&
 '                 A= [ -10 10 100 201 ];                                               ',&
 '                 set%issorted(A)                                                      ',&
+'                 ans =                                                                ',&
+'                    1                                                                 ',&
+'                                                                                      ',&
+'                 A=magic(12) // for even magic squares from magic()                   ',&
+'                 set%issorted(A)                                                      ',&
+'                 ans =                                                                ',&
+'                    0                                                                 ',&
+'                 set%issorted(A([A]))                                                 ',&
 '                 ans =                                                                ',&
 '                    1                                                                 ',&
 '                                                                                      ',&
@@ -12156,6 +12631,13 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      for multiple opens of a file.                                                   ',&
 '                                                                                      ',&
 '      "exec"s may also be driven by "for" and "while" loops.                          ',&
+'                                                                                      ',&
+'      For convenience, a file with a simple alphanumeric name ending                  ',&
+'      in ".la" may be read by entering the leaf name sans the suffix                  ',&
+'      on a line by itself. That is, "exec(''myfile.la'')" may be entered              ',&
+'      as                                                                              ',&
+'                                                                                      ',&
+'         myfile                                                                       ',&
 '                                                                                      ',&
 'include  "include" is an alias for "exec".                                            ',&
 '                                                                                      ',&

@@ -1,4 +1,4 @@
-date=date_and_time(1:14);
+today=date_and_time(1:14);
 f2='i2.2';
-date=[fmti(date(1)),'-',fmti(date(2),f2),'-',fmti(date(3),f2),'T',fmti(date(5),f2),':',fmti(date(6),f2),':',fmti(date(7),f2)];
-display(date)
+today=[fmti(today(1)),'-',fmti(today(2),f2),'-',fmti(today(3),f2),'T',fmti(today(5),f2),':',fmti(today(6),f2),':',fmti(today(7),f2)];
+display(today);

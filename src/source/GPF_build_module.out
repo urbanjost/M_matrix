@@ -30,11 +30,11 @@
 ++ basename lala.1.man .1m_matrix.man
 + SHORTNAME=lala.1.man
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1 SHORTNAME lala.1.man
-+ tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 + txt2man -s 1m_matrix -t lala.1.man lala.1.man
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 + env AUX_FILENAME=lala.1.man man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 91b0c2aa-e61f-4fa4-8b20-164023dad985
+man2html ff103913-e8e7-4321-b89d-c451923bc3cc
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
@@ -47,8 +47,8 @@ man2html 91b0c2aa-e61f-4fa4-8b20-164023dad985
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
 ++ ls '*.3.man' get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
-++ sort
 ++ uniq
+++ sort
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for get_from_lala.3m_matrix.man'
 >>>> processing manpage and HTML for get_from_lala.3m_matrix.man
@@ -57,11 +57,11 @@ man2html 91b0c2aa-e61f-4fa4-8b20-164023dad985
 ++ basename get_from_lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=get_from_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix SHORTNAME get_from_lala
-+ txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
++ txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
 + env AUX_FILENAME=get_from_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html fe49007a-b8e0-4d90-a950-9993bbd66001
+man2html 9ff41a6d-a7c1-4bff-adb7-dacc2de06777
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
@@ -75,10 +75,10 @@ man2html fe49007a-b8e0-4d90-a950-9993bbd66001
 + SHORTNAME=ifin_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix SHORTNAME ifin_lala
 + txt2man -s 3m_matrix -t ifin_lala ifin_lala.3m_matrix.man
-+ env AUX_FILENAME=ifin_lala man2html
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
++ env AUX_FILENAME=ifin_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html f0ae062a-e127-40b5-937c-ce6cd55c0415
+man2html 3bc3a794-0682-4891-bc62-d099340f67d9
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
@@ -92,10 +92,10 @@ man2html f0ae062a-e127-40b5-937c-ce6cd55c0415
 + SHORTNAME=lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix SHORTNAME lala
 + txt2man -s 3m_matrix -t lala lala.3m_matrix.man
-+ env AUX_FILENAME=lala man2html
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
++ env AUX_FILENAME=lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 416a87a4-c060-4d5e-bc39-ea8391116a62
+man2html 7bffc9e7-1837-4d6b-8bf0-13a684604e82
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
@@ -112,7 +112,7 @@ man2html 416a87a4-c060-4d5e-bc39-ea8391116a62
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
 + env AUX_FILENAME=M_matrix man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 0674a83a-e134-4d15-b08b-f71742aa1da9
+man2html daf9668f-734a-4e4f-a084-60af8c065324
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
@@ -129,15 +129,15 @@ man2html 0674a83a-e134-4d15-b08b-f71742aa1da9
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 + env AUX_FILENAME=put_into_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 77bf4c49-bd85-4a8d-8657-761f59a9935d
+man2html c232e104-cd17-4a87-befd-c3a74428d699
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
 + gzip -f /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
-++ sort
 ++ ls '*.4.man' '*.4m_matrix.man'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
@@ -156,8 +156,8 @@ man2html 77bf4c49-bd85-4a8d-8657-761f59a9935d
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man8
-++ sort
 ++ ls '*.8.man' '*.8m_matrix.man'
+++ sort
 ++ uniq
 + cat
 >>>> .txt files to MAN DIRECTORY
@@ -166,13 +166,13 @@ man2html 77bf4c49-bd85-4a8d-8657-761f59a9935d
 + cd doc
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man1
-++ ls '*.1.txt' '*.1m_matrix.txt'
 ++ sort
+++ ls '*.1.txt' '*.1m_matrix.txt'
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
-++ sort
 ++ ls '*.2.txt' '*.2m_matrix.txt'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
@@ -181,9 +181,9 @@ man2html 77bf4c49-bd85-4a8d-8657-761f59a9935d
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
-++ ls '*.4.txt' '*.4m_matrix.txt'
 ++ sort
 ++ uniq
+++ ls '*.4.txt' '*.4m_matrix.txt'
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
 ++ ls '*.5.txt' '*.5m_matrix.txt'
@@ -191,9 +191,9 @@ man2html 77bf4c49-bd85-4a8d-8657-761f59a9935d
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
+++ sort
 ++ ls '*.6.txt' '*.6m_matrix.txt'
 ++ uniq
-++ sort
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
 ++ ls '*.7.txt' '*.7m_matrix.txt'
@@ -305,8 +305,8 @@ Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat
 6 manual pages were added.
 0 stray cats were added.
 + cat -s
-+ col -b
 ++ pwd
++ col -b
 + env MANWIDTH=256 MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -k .
 + col -b
 ++ pwd
@@ -315,20 +315,20 @@ Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat
 + export DIR=/home/urbanjs/venus/V600/github/github_scripts/bash
 + DIR=/home/urbanjs/venus/V600/github/github_scripts/bash
 ++ uuidgen
-+ export TMPFILE=/tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md
-+ TMPFILE=/tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md
-+ trap 'rm -f /tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md' EXIT
++ export TMPFILE=/tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
++ TMPFILE=/tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
++ trap 'rm -f /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md' EXIT
 + echo '>>>> Build standalone slidy HTML document from man-pages'
 >>>> Build standalone slidy HTML document from man-pages
 + cd ../..
-+ pandoc --metadata title=M_matrix --from=man --to=gfm man/man3/get_from_lala.3m_matrix.gz man/man3/ifin_lala.3m_matrix.gz man/man3/lala.3m_matrix.gz man/man3/M_matrix.3m_matrix.gz man/man3/put_into_lala.3m_matrix.gz --standalone -o /tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md --lua-filter /home/urbanjs/venus/V600/github/github_scripts/bash/deEmph.lua
++ pandoc --metadata title=M_matrix --from=man --to=gfm man/man3/get_from_lala.3m_matrix.gz man/man3/ifin_lala.3m_matrix.gz man/man3/lala.3m_matrix.gz man/man3/M_matrix.3m_matrix.gz man/man3/put_into_lala.3m_matrix.gz --standalone -o /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md --lua-filter /home/urbanjs/venus/V600/github/github_scripts/bash/deEmph.lua
 pandoc: Cannot decode byte '\x8b': Data.Text.Internal.Encoding.decodeUtf8: Invalid UTF-8 stream
-+ sed -i -e 's/^#/##/' -e 's/^## NAME/# NAME/' /tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md
-sed: can't read /tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md: No such file or directory
-+ pandoc -t slidy --metadata title=M_matrix --from=gfm /tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md --standalone --slide-level=1 -o docs/M_matrix_slidy.html
-pandoc: /tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md: openBinaryFile: does not exist (No such file or directory)
-rm -f /tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md
-++ rm -f /tmp/dcafa68e-9acd-4d0f-9b7a-d38093a8f340_664127.md
++ sed -i -e 's/^#/##/' -e 's/^## NAME/# NAME/' /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
+sed: can't read /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md: No such file or directory
++ pandoc -t slidy --metadata title=M_matrix --from=gfm /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md --standalone --slide-level=1 -o docs/M_matrix_slidy.html
+pandoc: /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md: openBinaryFile: does not exist (No such file or directory)
+rm -f /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
+++ rm -f /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
 + echo '>>>> make easily distributed archive files of manpages'
 >>>> make easily distributed archive files of manpages
 + mkdir -p ../../docs
@@ -386,9 +386,9 @@ man3/put_into_lala.3m_matrix.gz
 + expand
 >>>> Extract ifin_lala.3m_matrix
 + man -Tutf8 -s 3m_matrix ifin_lala.3m_matrix
-+ dos2unix -f -7
 + col -b -p
 + expand
++ dos2unix -f -7
 + sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 >>>> Extract lala.3m_matrix
 + man -Tutf8 -s 3m_matrix lala.3m_matrix
@@ -404,10 +404,10 @@ man3/put_into_lala.3m_matrix.gz
 + sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 >>>> Extract put_into_lala.3m_matrix
 + man -Tutf8 -s 3m_matrix put_into_lala.3m_matrix
-+ col -b -p
-+ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 + dos2unix -f -7
++ col -b -p
 + expand
++ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 lala.1.man(1m_matrix)					 lala.1.man(1m_matrix)
 
 
@@ -552,7 +552,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025		 lala.1.man(1m_matrix)
+				 May 10, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 
@@ -591,7 +591,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025		  ifin_lala(3m_matrix)
+				 May 10, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 
@@ -682,7 +682,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025		   M_matrix(3m_matrix)
+				 May 10, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 
@@ -751,7 +751,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025	      put_into_lala(3m_matrix)
+				 May 10, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -926,7 +926,7 @@ EXAMPLES
 
        >:avg:
 
-       >for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
+       >for i = 2:n:2, for j = 2:n:2, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
        >a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
 
        >:cdiv:
@@ -1090,7 +1090,7 @@ EXAMPLES
        > check = norm(A-A',1), if check > 0, quit
        > [X,D] = eig(A+eye);
        > D = diag(D);  D = D(n:-1:1)
-       > X = X(:,n:-1:1);
+       > X = X(:,n:1:-1);
        > [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
 
        > :pascal:
@@ -1127,7 +1127,7 @@ EXAMPLES
 
        > y = [ 75.995	91.972	105.711  123.203   ...
        >      131.669  150.697	179.323  203.212]'
-       > t = [ 1900:10:1970 ]'
+       > t = [ 1900:1970:10 ]'
        > t = (t - 1940*ones(t))/40;   [t y]
        > n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
        > A
@@ -1200,7 +1200,7 @@ EXAMPLES
        > //solve for coefficients
        >    c = A\b
        > //compute effective conductivity
-       >    c(2:2:n) = -c(2:2:n)
+       >    c(2:n:2) = -c(2:n:2)
        >    sigma = sum(c)
        > //output total operation count
        >    ops = flop(2)
@@ -1384,7 +1384,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025		       lala(3m_matrix)
+				 May 10, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -1496,7 +1496,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025	      get_from_lala(3m_matrix)
+				 May 10, 2025	      get_from_lala(3m_matrix)
 + echo '>>>> run make'
 >>>> run make
 + cd ..
@@ -2078,7 +2078,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025		 lala.1.man(1m_matrix)
+				 May 10, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 
@@ -2117,7 +2117,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025		  ifin_lala(3m_matrix)
+				 May 10, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 
@@ -2208,7 +2208,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025		   M_matrix(3m_matrix)
+				 May 10, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 
@@ -2277,7 +2277,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025	      put_into_lala(3m_matrix)
+				 May 10, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -2452,7 +2452,7 @@ EXAMPLES
 
        >:avg:
 
-       >for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
+       >for i = 2:n:2, for j = 2:n:2, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ...
        >a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
 
        >:cdiv:
@@ -2616,7 +2616,7 @@ EXAMPLES
        > check = norm(A-A',1), if check > 0, quit
        > [X,D] = eig(A+eye);
        > D = diag(D);  D = D(n:-1:1)
-       > X = X(:,n:-1:1);
+       > X = X(:,n:1:-1);
        > [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
 
        > :pascal:
@@ -2653,7 +2653,7 @@ EXAMPLES
 
        > y = [ 75.995	91.972	105.711  123.203   ...
        >      131.669  150.697	179.323  203.212]'
-       > t = [ 1900:10:1970 ]'
+       > t = [ 1900:1970:10 ]'
        > t = (t - 1940*ones(t))/40;   [t y]
        > n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
        > A
@@ -2726,7 +2726,7 @@ EXAMPLES
        > //solve for coefficients
        >    c = A\b
        > //compute effective conductivity
-       >    c(2:2:n) = -c(2:2:n)
+       >    c(2:n:2) = -c(2:n:2)
        >    sigma = sum(c)
        > //output total operation count
        >    ops = flop(2)
@@ -2910,7 +2910,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025		       lala(3m_matrix)
+				 May 10, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -3022,7 +3022,7 @@ EXAMPLES
 
 
 
-				 May 05, 2025	      get_from_lala(3m_matrix)
+				 May 10, 2025	      get_from_lala(3m_matrix)
 + make help
 : make    '-- build M_strings M_strings_oop module'
 : run     '-- run manpage demo programs and test program'
@@ -3037,7 +3037,83 @@ rm -f ../example/demo_adjustc ../example/demo_base ../example/demo_change ../exa
 >>>> fpm test
 + cd ../..
 + fpm test
-Project is up to date
+[  0%]                   M_matrix.F90
+[  2%]                   M_matrix.F90  done.
+[  2%]                  libM_matrix.a
+[  5%]                  libM_matrix.a  done.
+[  5%]                       lala.f90
+[  7%]                       lala.f90  done.
+[  7%]                     config.f90
+[ 10%]                     config.f90  done.
+[ 10%]         demo_get_from_lala.f90
+[ 13%]         demo_get_from_lala.f90  done.
+[ 13%]             demo_ifin_lala.f90
+[ 15%]             demo_ifin_lala.f90  done.
+[ 15%]                  demo_lala.f90
+[ 18%]                  demo_lala.f90  done.
+[ 18%]              demo_M_matrix.f90
+[ 21%]              demo_M_matrix.f90  done.
+[ 21%]         demo_put_into_lala.f90
+[ 23%]         demo_put_into_lala.f90  done.
+[ 23%]        minimal_interactive.f90
+[ 26%]        minimal_interactive.f90  done.
+[ 26%]                       pass.f90
+[ 28%]                       pass.f90  done.
+[ 28%] self_contained_config_file_exa
+[ 31%] self_contained_config_file_exa  done.
+[ 31%]                simple_exec.f90
+[ 34%]                simple_exec.f90  done.
+[ 34%]               single_lines.f90
+[ 36%]               single_lines.f90  done.
+[ 36%]                   try_exec.f90
+[ 39%]                   try_exec.f90  done.
+[ 39%]                         tv.f90
+[ 42%]                         tv.f90  done.
+[ 42%]               user_routine.f90
+[ 44%]               user_routine.f90  done.
+[ 44%]                        vec.f90
+[ 47%]                        vec.f90  done.
+[ 47%]                     test_1.f90
+[ 50%]                     test_1.f90  done.
+[ 50%]        test_suite_M_matrix.f90
+[ 52%]        test_suite_M_matrix.f90  done.
+[ 52%]                           lala
+[ 55%]                           lala  done.
+[ 55%]                         config
+[ 57%]                         config  done.
+[ 57%]             demo_get_from_lala
+[ 60%]             demo_get_from_lala  done.
+[ 60%]                 demo_ifin_lala
+[ 63%]                 demo_ifin_lala  done.
+[ 63%]                      demo_lala
+[ 65%]                      demo_lala  done.
+[ 65%]                  demo_M_matrix
+[ 68%]                  demo_M_matrix  done.
+[ 68%]             demo_put_into_lala
+[ 71%]             demo_put_into_lala  done.
+[ 71%]            minimal_interactive
+[ 73%]            minimal_interactive  done.
+[ 73%]                           pass
+[ 76%]                           pass  done.
+[ 76%] self_contained_config_file_exa
+[ 78%] self_contained_config_file_exa  done.
+[ 78%]                    simple_exec
+[ 81%]                    simple_exec  done.
+[ 81%]                   single_lines
+[ 84%]                   single_lines  done.
+[ 84%]                       try_exec
+[ 86%]                       try_exec  done.
+[ 86%]                             tv
+[ 89%]                             tv  done.
+[ 89%]                   user_routine
+[ 92%]                   user_routine  done.
+[ 92%]                            vec
+[ 94%]                            vec  done.
+[ 94%]                         test_1
+[ 97%]                         test_1  done.
+[ 97%]            test_suite_M_matrix
+[100%]            test_suite_M_matrix  done.
+[100%] Project compiled successfully.
 ................................................................................
 test_1
 
@@ -3086,7 +3162,7 @@ test_1
    -1.033226867173703D-02
    -5.110410565317738D-02
     1.829151464612817D+00
-EXPECTED and BETA should be the same
+"expected" and "beta" should be the same
 
  eps  =
     2.220446049250313D-16
@@ -3500,6 +3576,13 @@ exec  "exec('file',k)" obtains subsequent LALA input from an
 
       "exec"s may also be driven by "for" and "while" loops.
 
+      For convenience, a file with a simple alphanumeric name ending
+      in ".la" may be read by entering the leaf name sans the suffix
+      on a line by itself. That is, "exec('myfile.la')" may be entered
+      as
+
+         myfile
+
 exec PASSED
 ================================================================================
 exit  Causes termination of a "for" or "while" loop.
@@ -4004,6 +4087,7 @@ roots  Find polynomial roots. "roots(C)" computes the roots of the
 roots PASSED
 ================================================================================
 round  "round(X)" rounds the elements of X to the nearest integers.
+       "anint(X)" is a synonym for "round(X)".
 
 ________________________________________________________________________________
 round of array plus random small fraction PASSED
@@ -4136,6 +4220,14 @@ sum: MATRIX OK
 sum: SUM COLS OK
 sum: SUM ROWS OK
 sum PASSED
+================================================================================
+size   "size(X)" returns the number of elements in X.
+
+           [[1,2,3],magic(4),random(3,8)]
+            ans
+             3 16 24
+
+size of X OK
 ================================================================================
 svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
       diagonal matrix S , of the same dimension as X and with
@@ -4411,22 +4503,7 @@ set%intersect  "set%intersect(A,B)" finds the values that occur in both
                    ans =
                       7 4
 
-
- A  =
-     7.    1.    7.    7.    4.
-
- B  =
-     7.    0.    4.    4.    0.
-
- expected  =
-     7.    4.
-
- got  =
-     7.    4.
 set%intersect OK
-
- tally  =
-     0.    0.
 set%ismember   "set%ismember(A,B)" creates a mask of A marking elements
                also in B.
 
@@ -4441,27 +4518,12 @@ set%ismember   "set%ismember(A,B)" creates a mask of A marking elements
                    ans =
                       0 0 1 1
 
-
- A  =
-     5.    3.    4.    2.
-
- B  =
-     2.    4.    4.    4.    6.    8.
-
- expected  =
-     0.    0.    1.    1.
-
- got  =
-     0.    0.    1.    1.
 set%ismember OK
-
- tally  =
-     0.    0.    0.
 set%issorted   "set%issorted(A)," reports if A is sorted in ascending
                order or not.
 
                A 1 (true) is returned when the elements of A are listed
-               in ascending order and 0 (false) otherwise.
+               in ascending (row-column) order and 0 (false) otherwise.
 
                  // ISSORTED Find the sorted elements of vector A.
                  A= [ 10 -10 0 1 2 3 3 2 1 -10 ];
@@ -4473,32 +4535,16 @@ set%issorted   "set%issorted(A)," reports if A is sorted in ascending
                  ans =
                     1
 
+                 A=magic(12) // for even magic squares from magic()
+                 set%issorted(A)
+                 ans =
+                    0
+                 set%issorted(A([A]))
+                 ans =
+                    1
 
- A  =
-    10.  -10.    0.    1.    2.    3.    3.    2.    1.  -10.
-
- expected  =
-     0.
-
- got  =
-     0.
 set%issorted OK
-
- tally  =
-     0.    0.    0.    0.
-
- A  =
-   -10.   10.  100.  201.
-
- expected  =
-     1.
-
- got  =
-     1.
 set%issorted OK
-
- tally  =
-     0.    0.    0.    0.    0.
 set%setdiff    "set%setdiff(A,B)" finds the values in A that are not in B
 
                  // Find the values in A that are not in B.
@@ -4508,22 +4554,7 @@ set%setdiff    "set%setdiff(A,B)" finds the values in A that are not in B
                  ans =
                     3 1 5
 
-
- A  =
-     3.    6.    2.    1.    5.    1.    1.
-
- B  =
-     2.    4.    6.
-
- expected  =
-     3.    1.    5.
-
- got  =
-     3.    1.    5.
 set%setdiff OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.
 set%setxor  "set%setxor(A,B)" finds values of A and B not in both arrays.
 
             "setxfor(A,B)" returns the exclusive OR of two arrays. That
@@ -4540,22 +4571,7 @@ set%setxor  "set%setxor(A,B)" finds values of A and B not in both arrays.
                ans =
                   5 3 4 2
 
-
- A  =
-     5.    1.    3.    3.    3.
-
- B  =
-     4.    1.    2.
-
- expected  =
-     5.    3.    4.    2.
-
- got  =
-     5.    3.    4.    2.
 set%setxor OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.
 set%union   "set%union(A,B)" joins two sets and removes duplicates
             of values.
 
@@ -4574,38 +4590,8 @@ set%union   "set%union(A,B)" joins two sets and removes duplicates
               ans=
                  5 3 1 2
 
-
- A  =
-     5.    7.    1.
-
- B  =
-     3.    1.    1.
-
- got  =
-     5.    7.    1.    3.
-
- expected  =
-     5.    7.    1.    3.
 set%union OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.
-
- A  =
-     5.    5.    3.
-
- B  =
-     1.    2.    5.
-
- expected  =
-     5.    3.    1.    2.
-
- got  =
-     5.    3.    1.    2.
 set%union OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.    0.
 set%unique  "set%unique(A,B)" returns unique values in array A in
             stable order. That is, it removes duplicates from an
             array.
@@ -4615,22 +4601,211 @@ set%unique  "set%unique(A,B)" returns unique values in array A in
                  ans =
               44, 33, 22, 11, 55
 
+set%unique OK
+set%isequal   "set%isequal(A)," reports if A is equal to B.
 
- A  =
-    44.   33.   33.   33.   22.   11.   33.   44.   55.   33.
+              Equality is defined as having the same size with the same
+              element values in the same order. If equal the result is
+              zero (0) else if not equal the result is one (1).
 
- expected  =
-    44.   33.   22.   11.   55.
+                 A= [ 10 -10 0 1 2 3 3 2 1 -10 ];
+                 B= [ 10 -10 0 1 2 3 3 2 1  10 ];
+                 D= [ ...
+                 set%isequal(A,B), ...     // not the same
+                 set%isequal(A,A), ...     // the same
+                 set%isequal(A,A(1:9)) ... // different size
+                 ]
+                  D  =
+                      0.    1.    0.
+
 
  got  =
-    44.   33.   22.   11.   55.
-set%unique OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    1.    0.
+set%isequal OK
 set_theory PASSED
+
+ N  =
+    11.
+
+ M  =
+     1.
 +
- TOTAL FAILED:           0
+================================================================================
+order%sort  Sorts array into ascending order.
+
+            "order%sort(X)" returns all elements sorted in row-column order.
+            The shape of the output is the same as the input.
+
+            "order%sort(X,dim)" returns X with sorts of elements along
+            the specified dimension, where 1 <= dim <= 2.
+
+                matrix=[  1,   2,   3,   4
+                          10,  20,  30,  40
+                          100, 200, 300, 400  ];
+                s=order%sort(matrix)
+                sort_of_columns=order%sort(matrix,1)
+                sort_of_rows=order%sort(matrix,2)
+
+order%sort OK
+================================================================================
+order%rank         produces an INDEX that sorts an input array in
+                   ascending order.
+
+                   The locations are scalar values indicating
+                   the index into the vector "X(:)". These may
+                   be converted to <row,column> values using
+                   "location(X,N)", but may also be used as-is
+                   to index into a two-dimensional matrix.
+
+order%sort OK
+================================================================================
+order%orderloc     Return fractile location (INDEX of Nth ordered
+                   value of array)
+
+                   The locations are scalar values indicating
+                   the index into the vector "X(:)".
+
+
+ expected  =
+    31.    2.   17.   24.  681.
+
+ got  =
+    71.  937.  681.
+order%orderloc FAILED
+================================================================================
+order%orderval     Return fractile (VALUE of Nth ordered element
+                   of array)
+
+                       X=reshape([1:100:1],[10,10])
+                       order%minval(X)
+                       order%maxval(X)
+                       order%medianval(X)
+                       order%orderval(X,1)
+                       order%orderval(X,size(X))
+                       order%orderval(X,size(X)/2)
+
+order%orderval OK
+================================================================================
+order%median       Calculates median VALUE. If number of elements
+                   is even, returns average of the two "medians".
+
+                   "order%median(X,dim)" returns medians along the
+                   specified dimension, where 1 <= dim <= 2.
+
+                   "median(X)" or "median(X,0)" calculates the median
+                   value of the array X().  It is different from
+                   "medianval(X)" in that the average of the two
+                   middle values is returned when the size of X
+                   is even.
+                     [
+                      median( [80.0,70.0,20.0,10.0,1000.0] )
+                      median( [11, 22, 33, 44, 55, 66, 77, 88] )
+                      median( [11,22,33,66,77,88])
+                     ]
+                     ans
+                      70, 49, 49.5
+
+order%median OK
+================================================================================
+order%medianloc    "order%medianloc(X)" returns the median value's
+                   index, where the median is defined as the value
+                   at the index (((size(X)+1))/2^th of the sorted
+                   ascending values of X.
+
+                   "order%medianloc(X,dim)" returns median locations
+                   along the specified dimension, where 1 <= dim <= 2.
+
+                   The locations are scalar values indicating
+                   the index into the vector "X(:)". These may
+                   be converted to <row,column> values using
+                   "location(X,N)".
+
+                    [ order%medianloc( [80,70,20,10,1000] ) ...
+                      order%medianloc( [11,22,33,44,55,66,77,88] ) ...
+                      order%medianloc( [11, 22, 33, 66, 77, 88] )
+                    ]
+                     magic(5)*10
+                     order%medianloc(magic(5)*10,1)
+                     order%medianloc(magic(5)*10,2)
+
+order%medianloc OK
+================================================================================
+order%medianval    "order%medianval(X)" returns the median value,
+                   where the median is defined as the value at
+                   the index (((size(X)+1))/2^th of the sorted
+                   ascending values of X.
+
+                   "order%medianval(X,dim)" returns medians along
+                   the specified dimension, where 1 <= dim <= 2.
+
+                    [ order%medianval( [80,70,20,10,1000] ) ...
+                      order%medianval( [11,22,33,44,55,66,77,88] ) ...
+                      order%medianval( [11, 22, 33, 66, 77, 88] )
+                    ]
+                     ans  =
+                        70.   44.   33.
+                     order%median(magic(5),1)
+                     order%median(magic(5),2)
+
+order%medianval OK
+================================================================================
+order%occurrences  Give the multiplicity for each array value
+
+                   "occurrences(X)" gives, for each array element,
+                   its multiplicity (number of times that it appears
+                   in the array).
+
+order%occurrences OK
+================================================================================
+order%perturb      "order%perturb(X,CLOSENESS)" generates a random
+                   permutation of an array leaving elements close to
+                   initial locations.
+
+                   Nearbyness is controlled by CLOSENESS. The relative
+                   proportion of initial order and random order is defined
+                   as 1-CLOSENESS / CLOSENESS, thus when CLOSENESS =
+                   0, there is no change in the order whereas the new
+                   order is fully random when CLOSENESS = 1.
+
+                   Note this differs from adding random noise to the
+                   values. The original values remain unchanged but are
+                   shuffled, their order is just perturbed
+
+order%perturb OK
+================================================================================
+order%rank_decreasing  ranks an array in decreasing order, with duplicate
+                       entries assigned the same rank
+
+                       "order%rank_decreasing(X) " generates an inverse
+                       ranking of an array, but with duplicate entries
+                       assigned the same rank.
+
+                        X=[11, 11, 22, 11, 33, 33, 22, 33, 33]
+                        Y=order%rank_decreasing(X)
+                        X(Y)
+
+order%rank_decreasing(A) OK
+
+ got  =
+     3.
+order%rank_decreasing(B) OK
+================================================================================
+order%rank_unique  ranks an array, with removal of duplicate entries.
+                   Returns a vector of the locations of the unique
+                   values in the array with the values pointed to
+                   sorted in ascending order.
+
+                     X=randi(10,10); // generate some numbers
+                     U=order%rank_unique(X);
+                     size(U) // how many unique values
+                     Y=X(U) // the unique values in ascending order
+
+order%rank_unique OK
+================================================================================
+order FAILED
++
+ TOTAL TESTS:         251
+ TOTAL FAILED:           1
 + echo '>>>> make BOOK html document'
 >>>> make BOOK html document
 + env MANPATH=../../man mandb -c
@@ -4691,13 +4866,13 @@ ________________________________________________________________________________
 + '[' M_matrix = INDEX ']'
 + uniq
 + read NAME
-+ echo M_matrix.3m_matrix.html
 + tr -d '()'
++ echo M_matrix.3m_matrix.html
++ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
++ uniq
++ grep -i '(3M_matrix)'
 + awk '{printf "%s.%s.html\n",$1,$2}'
 + man -k '\[M_matrix\>'
-+ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
-+ grep -i '(3M_matrix)'
-+ uniq
 + man --section 3m_matrix -k .
 + grep -i '(3M_matrix)'
 + man -k '\[M_matrix\>'
@@ -4757,50 +4932,50 @@ sed: can't read ../../docs/*.[37]fortran.html: No such file or directory
 + echo '>>>> spell check'
 >>>> spell check
 + spell ../../README.md
-+ column -t
 + xargs -n 8
-Alamos      CHANGELOG    EXPE      Forsythe  Fortran   IARR         INI      JSON
-LALA        Moler        NAMELIST  Neumann   TOML      YAML         ai       ais
-alfa        allocatable  anorm     ar        ars       atan         attr     boug
-br          brs          cd        cdiv      ci        cnt          config   cr
-cvec        deflator     dev       diag      disp      doxygen      eig      el
-embeddable  emm          ferr      fhelp     fortran   fpm          fv       gif
-github      hierarchial  html      https     iarr      ierr         ifin     imag
-inv         io           ip        jacobi    jacstep   journaling   keepB    kron
-lala        lanczos      lang      lanstep   len       littlearray  longley  md
-mgs         mycommands   mytitle   ncen      ort       pbar         pdq      pdqstep
-qrstep      rosser       rqi       serr      similiar  sl           sm       smm
-sn          sqrt         subexec   th        toml      tryall       tty      txt
-urbanjost   userguide    wv        xin
++ column -t
+Alamos      CHANGELOG    EXPE      Forsythe  Fortran  IARR         INI      JSON
+LALA        Moler        NAMELIST  Neumann   TOML     YAML         ai       ais
+alfa        allocatable  anorm     ar        ars      atan         attr     boug
+br          brs          cd        cdiv      ci       cnt          config   cr
+cvec        deflator     dev       diag      disp     doxygen      eig      el
+embeddable  emm          ferr      fhelp     fortran  fpm          fv       gif
+github      hierarchial  html      https     iarr     ierr         ifin     imag
+inv         io           ip        jacobi    jacstep  journaling   keepB    kron
+lala        lanczos      lang      lanstep   len      littlearray  longley  md
+mgs         mycommands   mytitle   ncen      ort      pbar         pdq      pdqstep
+qrstep      rosser       rqi       serr      sl       sm           smm      sn
+sqrt        subexec      th        toml      tryall   tty          txt      urbanjost
+userguide   wv           xin
 + echo '>>>> update GPF project and documents'
 >>>> update GPF project and documents
 + unset GITHUB
 + make.one libGPF
-666206 (process ID) old priority 0, new priority 19
+1310438 (process ID) old priority 0, new priority 19
 W-A-R-N-I-N-G: no ccheck.c file (required for configured versions)
 + echo '>>>> run test'
 >>>> run test
 + cd ../../test
 + ccall test_suite_M_matrix.f90
-*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_666636
-+ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_666636
-+ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_666636
+*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_1310925
++ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_1310925
++ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_1310925
 + CCALL_DELETE_DIR=TRUE
-+ FULLNAME=/dev/shm/CCALL_Linux_gfortran_666636/test_suite_M_matrix.666636.f90
++ FULLNAME=/dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
 + SPLIT
-+ tr @ '\012'
 + sed -e 's/ -/@ -/g'
-+ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_666636/test_suite_M_matrix.666636.f90
++ tr @ '\012'
++ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
 + echo NAME test_suite_M_matrix.f90
 NAME test_suite_M_matrix.f90
 + echo /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
 /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-+ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_666636/test_suite_M_matrix.666636.f90
-+ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_666636/test_suite_M_matrix.666636.f90
++ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
++ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
 + grep
- -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_666636/test_suite_M_matrix.666636.f90
+ -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
 + grep
- -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_666636/test_suite_M_matrix.666636.f90
+ -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
 + set
  -x
 + set
@@ -4811,7 +4986,7 @@ NAME test_suite_M_matrix.f90
  -frecord-marker=4
  -I.
  -DTESTPRG
- -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_666636/test_suite_M_matrix.666636.f90
+ -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
  -o /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
  -Wall
  -Wextra
@@ -4844,12 +5019,12 @@ NAME test_suite_M_matrix.f90
  -Bdynamic
  -L/usr/lib/x86_64-linux-gnu
  -lX11
-+ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_666636/test_suite_M_matrix.666636.f90
-a - /dev/shm/CCALL_Linux_gfortran_666636/test_suite_M_matrix.666636.f90
++ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
+a - /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
 + set +x
 /home/urbanjs/venus/V600/LIBRARY/CYGWIN/scripts_regression/goodbad: test_suite_M_matrix.1 0 test_suite_M_matrix start --section 1
 /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_666636
+*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_1310925
 + test_suite_M_matrix
  Your current variables are...
  sumtally  eps  flops  eye  rand
@@ -5242,6 +5417,13 @@ exec  "exec('file',k)" obtains subsequent LALA input from an
 
       "exec"s may also be driven by "for" and "while" loops.
 
+      For convenience, a file with a simple alphanumeric name ending
+      in ".la" may be read by entering the leaf name sans the suffix
+      on a line by itself. That is, "exec('myfile.la')" may be entered
+      as
+
+         myfile
+
 exec PASSED
 ================================================================================
 exit  Causes termination of a "for" or "while" loop.
@@ -5746,6 +5928,7 @@ roots  Find polynomial roots. "roots(C)" computes the roots of the
 roots PASSED
 ================================================================================
 round  "round(X)" rounds the elements of X to the nearest integers.
+       "anint(X)" is a synonym for "round(X)".
 
 ________________________________________________________________________________
 round of array plus random small fraction PASSED
@@ -5878,6 +6061,14 @@ sum: MATRIX OK
 sum: SUM COLS OK
 sum: SUM ROWS OK
 sum PASSED
+================================================================================
+size   "size(X)" returns the number of elements in X.
+
+           [[1,2,3],magic(4),random(3,8)]
+            ans
+             3 16 24
+
+size of X OK
 ================================================================================
 svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
       diagonal matrix S , of the same dimension as X and with
@@ -6153,22 +6344,7 @@ set%intersect  "set%intersect(A,B)" finds the values that occur in both
                    ans =
                       7 4
 
-
- A  =
-     7.    1.    7.    7.    4.
-
- B  =
-     7.    0.    4.    4.    0.
-
- expected  =
-     7.    4.
-
- got  =
-     7.    4.
 set%intersect OK
-
- tally  =
-     0.    0.
 set%ismember   "set%ismember(A,B)" creates a mask of A marking elements
                also in B.
 
@@ -6183,27 +6359,12 @@ set%ismember   "set%ismember(A,B)" creates a mask of A marking elements
                    ans =
                       0 0 1 1
 
-
- A  =
-     5.    3.    4.    2.
-
- B  =
-     2.    4.    4.    4.    6.    8.
-
- expected  =
-     0.    0.    1.    1.
-
- got  =
-     0.    0.    1.    1.
 set%ismember OK
-
- tally  =
-     0.    0.    0.
 set%issorted   "set%issorted(A)," reports if A is sorted in ascending
                order or not.
 
                A 1 (true) is returned when the elements of A are listed
-               in ascending order and 0 (false) otherwise.
+               in ascending (row-column) order and 0 (false) otherwise.
 
                  // ISSORTED Find the sorted elements of vector A.
                  A= [ 10 -10 0 1 2 3 3 2 1 -10 ];
@@ -6215,32 +6376,16 @@ set%issorted   "set%issorted(A)," reports if A is sorted in ascending
                  ans =
                     1
 
+                 A=magic(12) // for even magic squares from magic()
+                 set%issorted(A)
+                 ans =
+                    0
+                 set%issorted(A([A]))
+                 ans =
+                    1
 
- A  =
-    10.  -10.    0.    1.    2.    3.    3.    2.    1.  -10.
-
- expected  =
-     0.
-
- got  =
-     0.
 set%issorted OK
-
- tally  =
-     0.    0.    0.    0.
-
- A  =
-   -10.   10.  100.  201.
-
- expected  =
-     1.
-
- got  =
-     1.
 set%issorted OK
-
- tally  =
-     0.    0.    0.    0.    0.
 set%setdiff    "set%setdiff(A,B)" finds the values in A that are not in B
 
                  // Find the values in A that are not in B.
@@ -6250,22 +6395,7 @@ set%setdiff    "set%setdiff(A,B)" finds the values in A that are not in B
                  ans =
                     3 1 5
 
-
- A  =
-     3.    6.    2.    1.    5.    1.    1.
-
- B  =
-     2.    4.    6.
-
- expected  =
-     3.    1.    5.
-
- got  =
-     3.    1.    5.
 set%setdiff OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.
 set%setxor  "set%setxor(A,B)" finds values of A and B not in both arrays.
 
             "setxfor(A,B)" returns the exclusive OR of two arrays. That
@@ -6282,22 +6412,7 @@ set%setxor  "set%setxor(A,B)" finds values of A and B not in both arrays.
                ans =
                   5 3 4 2
 
-
- A  =
-     5.    1.    3.    3.    3.
-
- B  =
-     4.    1.    2.
-
- expected  =
-     5.    3.    4.    2.
-
- got  =
-     5.    3.    4.    2.
 set%setxor OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.
 set%union   "set%union(A,B)" joins two sets and removes duplicates
             of values.
 
@@ -6316,38 +6431,8 @@ set%union   "set%union(A,B)" joins two sets and removes duplicates
               ans=
                  5 3 1 2
 
-
- A  =
-     5.    7.    1.
-
- B  =
-     3.    1.    1.
-
- got  =
-     5.    7.    1.    3.
-
- expected  =
-     5.    7.    1.    3.
 set%union OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.
-
- A  =
-     5.    5.    3.
-
- B  =
-     1.    2.    5.
-
- expected  =
-     5.    3.    1.    2.
-
- got  =
-     5.    3.    1.    2.
 set%union OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.    0.
 set%unique  "set%unique(A,B)" returns unique values in array A in
             stable order. That is, it removes duplicates from an
             array.
@@ -6357,22 +6442,211 @@ set%unique  "set%unique(A,B)" returns unique values in array A in
                  ans =
               44, 33, 22, 11, 55
 
+set%unique OK
+set%isequal   "set%isequal(A)," reports if A is equal to B.
 
- A  =
-    44.   33.   33.   33.   22.   11.   33.   44.   55.   33.
+              Equality is defined as having the same size with the same
+              element values in the same order. If equal the result is
+              zero (0) else if not equal the result is one (1).
 
- expected  =
-    44.   33.   22.   11.   55.
+                 A= [ 10 -10 0 1 2 3 3 2 1 -10 ];
+                 B= [ 10 -10 0 1 2 3 3 2 1  10 ];
+                 D= [ ...
+                 set%isequal(A,B), ...     // not the same
+                 set%isequal(A,A), ...     // the same
+                 set%isequal(A,A(1:9)) ... // different size
+                 ]
+                  D  =
+                      0.    1.    0.
+
 
  got  =
-    44.   33.   22.   11.   55.
-set%unique OK
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    1.    0.
+set%isequal OK
 set_theory PASSED
+
+ N  =
+    11.
+
+ M  =
+     1.
 +
- TOTAL FAILED:           0
+================================================================================
+order%sort  Sorts array into ascending order.
+
+            "order%sort(X)" returns all elements sorted in row-column order.
+            The shape of the output is the same as the input.
+
+            "order%sort(X,dim)" returns X with sorts of elements along
+            the specified dimension, where 1 <= dim <= 2.
+
+                matrix=[  1,   2,   3,   4
+                          10,  20,  30,  40
+                          100, 200, 300, 400  ];
+                s=order%sort(matrix)
+                sort_of_columns=order%sort(matrix,1)
+                sort_of_rows=order%sort(matrix,2)
+
+order%sort OK
+================================================================================
+order%rank         produces an INDEX that sorts an input array in
+                   ascending order.
+
+                   The locations are scalar values indicating
+                   the index into the vector "X(:)". These may
+                   be converted to <row,column> values using
+                   "location(X,N)", but may also be used as-is
+                   to index into a two-dimensional matrix.
+
+order%sort OK
+================================================================================
+order%orderloc     Return fractile location (INDEX of Nth ordered
+                   value of array)
+
+                   The locations are scalar values indicating
+                   the index into the vector "X(:)".
+
+
+ expected  =
+    31.    2.   17.   24.  681.
+
+ got  =
+    71.  937.  681.
+order%orderloc FAILED
+================================================================================
+order%orderval     Return fractile (VALUE of Nth ordered element
+                   of array)
+
+                       X=reshape([1:100:1],[10,10])
+                       order%minval(X)
+                       order%maxval(X)
+                       order%medianval(X)
+                       order%orderval(X,1)
+                       order%orderval(X,size(X))
+                       order%orderval(X,size(X)/2)
+
+order%orderval OK
+================================================================================
+order%median       Calculates median VALUE. If number of elements
+                   is even, returns average of the two "medians".
+
+                   "order%median(X,dim)" returns medians along the
+                   specified dimension, where 1 <= dim <= 2.
+
+                   "median(X)" or "median(X,0)" calculates the median
+                   value of the array X().  It is different from
+                   "medianval(X)" in that the average of the two
+                   middle values is returned when the size of X
+                   is even.
+                     [
+                      median( [80.0,70.0,20.0,10.0,1000.0] )
+                      median( [11, 22, 33, 44, 55, 66, 77, 88] )
+                      median( [11,22,33,66,77,88])
+                     ]
+                     ans
+                      70, 49, 49.5
+
+order%median OK
+================================================================================
+order%medianloc    "order%medianloc(X)" returns the median value's
+                   index, where the median is defined as the value
+                   at the index (((size(X)+1))/2^th of the sorted
+                   ascending values of X.
+
+                   "order%medianloc(X,dim)" returns median locations
+                   along the specified dimension, where 1 <= dim <= 2.
+
+                   The locations are scalar values indicating
+                   the index into the vector "X(:)". These may
+                   be converted to <row,column> values using
+                   "location(X,N)".
+
+                    [ order%medianloc( [80,70,20,10,1000] ) ...
+                      order%medianloc( [11,22,33,44,55,66,77,88] ) ...
+                      order%medianloc( [11, 22, 33, 66, 77, 88] )
+                    ]
+                     magic(5)*10
+                     order%medianloc(magic(5)*10,1)
+                     order%medianloc(magic(5)*10,2)
+
+order%medianloc OK
+================================================================================
+order%medianval    "order%medianval(X)" returns the median value,
+                   where the median is defined as the value at
+                   the index (((size(X)+1))/2^th of the sorted
+                   ascending values of X.
+
+                   "order%medianval(X,dim)" returns medians along
+                   the specified dimension, where 1 <= dim <= 2.
+
+                    [ order%medianval( [80,70,20,10,1000] ) ...
+                      order%medianval( [11,22,33,44,55,66,77,88] ) ...
+                      order%medianval( [11, 22, 33, 66, 77, 88] )
+                    ]
+                     ans  =
+                        70.   44.   33.
+                     order%median(magic(5),1)
+                     order%median(magic(5),2)
+
+order%medianval OK
+================================================================================
+order%occurrences  Give the multiplicity for each array value
+
+                   "occurrences(X)" gives, for each array element,
+                   its multiplicity (number of times that it appears
+                   in the array).
+
+order%occurrences OK
+================================================================================
+order%perturb      "order%perturb(X,CLOSENESS)" generates a random
+                   permutation of an array leaving elements close to
+                   initial locations.
+
+                   Nearbyness is controlled by CLOSENESS. The relative
+                   proportion of initial order and random order is defined
+                   as 1-CLOSENESS / CLOSENESS, thus when CLOSENESS =
+                   0, there is no change in the order whereas the new
+                   order is fully random when CLOSENESS = 1.
+
+                   Note this differs from adding random noise to the
+                   values. The original values remain unchanged but are
+                   shuffled, their order is just perturbed
+
+order%perturb OK
+================================================================================
+order%rank_decreasing  ranks an array in decreasing order, with duplicate
+                       entries assigned the same rank
+
+                       "order%rank_decreasing(X) " generates an inverse
+                       ranking of an array, but with duplicate entries
+                       assigned the same rank.
+
+                        X=[11, 11, 22, 11, 33, 33, 22, 33, 33]
+                        Y=order%rank_decreasing(X)
+                        X(Y)
+
+order%rank_decreasing(A) OK
+
+ got  =
+     3.
+order%rank_decreasing(B) OK
+================================================================================
+order%rank_unique  ranks an array, with removal of duplicate entries.
+                   Returns a vector of the locations of the unique
+                   values in the array with the values pointed to
+                   sorted in ascending order.
+
+                     X=randi(10,10); // generate some numbers
+                     U=order%rank_unique(X);
+                     size(U) // how many unique values
+                     Y=X(U) // the unique values in ascending order
+
+order%rank_unique OK
+================================================================================
+order FAILED
++
+ TOTAL TESTS:         251
+ TOTAL FAILED:           1
 + echo '>>>> GPF_fman'
 >>>> GPF_fman
 + '[' -d doc/ ']'
@@ -6405,10 +6679,10 @@ set_theory PASSED
 ++ TOCHARACTER
 ++ :
 ++ cat -s get_from_lala.3m_matrix.man
-++ sed -e 's/'\''/'\'''\''/g'
 ++ sed -e 's/^/'\''/'
-++ cat
 ++ sed -e 's/$/'\'', \&/'
+++ sed -e 's/'\''/'\'''\''/g'
+++ cat
 + read NAME
 + SHORTNAME=ifin_lala
 + COUNT=2
@@ -6416,10 +6690,10 @@ set_theory PASSED
 ++ TOCHARACTER
 ++ :
 ++ cat -s ifin_lala.3m_matrix.man
+++ sed -e 's/^/'\''/'
+++ sed -e 's/$/'\'', \&/'
 ++ sed -e 's/'\''/'\'''\''/g'
 ++ cat
-++ sed -e 's/$/'\'', \&/'
-++ sed -e 's/^/'\''/'
 + read NAME
 + SHORTNAME=lala
 + COUNT=3
@@ -6438,10 +6712,10 @@ set_theory PASSED
 ++ TOCHARACTER
 ++ :
 ++ cat -s M_matrix.3m_matrix.man
-++ sed -e 's/'\''/'\'''\''/g'
-++ cat
 ++ sed -e 's/^/'\''/'
+++ sed -e 's/'\''/'\'''\''/g'
 ++ sed -e 's/$/'\'', \&/'
+++ cat
 + read NAME
 + SHORTNAME=put_into_lala
 + COUNT=5
@@ -6449,16 +6723,16 @@ set_theory PASSED
 ++ TOCHARACTER
 ++ :
 ++ cat -s put_into_lala.3m_matrix.man
-++ sed -e 's/'\''/'\'''\''/g'
 ++ cat
 ++ sed -e 's/$/'\'', \&/'
 ++ sed -e 's/^/'\''/'
+++ sed -e 's/'\''/'\'''\''/g'
 + read NAME
 + END_MODULE
 + cat
 + cat
 + ls -ld /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
--rw-rw-r-- 1 urbanjs urbanjs 45879 May  5 00:24 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
+-rw-rw-r-- 1 urbanjs urbanjs 45879 May 10 13:04 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
 + cat
 + '[' -d /home/urbanjs/venus/V600/LIBRARY/libGPF/download/doc ']'
 + cp doc/get_from_lala.3m_matrix.man doc/ifin_lala.3m_matrix.man doc/lala.1.man doc/lala.3m_matrix.man doc/M_matrix.3m_matrix.man doc/put_into_lala.3m_matrix.man /home/urbanjs/venus/V600/LIBRARY/libGPF/download/doc/
@@ -6473,9 +6747,9 @@ error [../../docs/manpages.zip]:  start of central directory not found;
   (please check that you have transferred or created the zipfile in the
   appropriate BINARY mode and that you have compiled UnZip properly)
 + tar tvfz ../../docs/manpages.tgz
--rw-rw-r-- urbanjs/urbanjs 1761 2025-05-05 00:24 man1/lala.1.gz
--rwxrwxrwx urbanjs/urbanjs 1717 2025-05-05 00:24 man3/get_from_lala.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs  555 2025-05-05 00:24 man3/ifin_lala.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs 7116 2025-05-05 00:24 man3/lala.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs 1480 2025-05-05 00:24 man3/M_matrix.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs  960 2025-05-05 00:24 man3/put_into_lala.3m_matrix.gz
+-rw-rw-r-- urbanjs/urbanjs 1762 2025-05-10 13:03 man1/lala.1.gz
+-rwxrwxrwx urbanjs/urbanjs 1717 2025-05-10 13:03 man3/get_from_lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs  556 2025-05-10 13:03 man3/ifin_lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs 7121 2025-05-10 13:03 man3/lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs 1479 2025-05-10 13:03 man3/M_matrix.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs  960 2025-05-10 13:03 man3/put_into_lala.3m_matrix.gz

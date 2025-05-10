@@ -2,7 +2,8 @@ program testit
 use M_matrix, only : lala, get_from_lala, put_into_lala
 implicit none
 logical           :: logs=.false.
-integer           :: sumtally
+integer           :: sumtally=0
+integer           :: tests=0
 
    !!logs=.true.
    logs=.false.
@@ -94,6 +95,7 @@ integer           :: sumtally
       call test_shape ()    ! shape  If X is an M by N matrix, then shape(X) is <M, N> .
    call test_sqrt ()    ! sqrt  sqrt(X) is the square root of X. See HIGH. Complex
       call test_sum ()     ! sum   "sum(X)" is the sum of all the elements of X.
+      call test_size () ! size  "size(X)" returns the number of elements in X
    call test_svd ()     ! svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
    call test_tril ()    ! tril  Lower triangle. "tril(X)" is the lower triangular part of X.
    call test_triu ()    ! triu  Upper triangle. "triu(X)" is the upper triangular part of X.
@@ -138,8 +140,10 @@ integer           :: sumtally
 !       ! >     See "<" . Also see MACROS.
 !       ! {     see "(".
 
-      call test_set_theory ()   ! package from M_sets
+      call test_set_theory()   ! package from M_sets
+      call test_order()        ! package from M_order
 
+   write(*,*)'TOTAL TESTS:',abs(tests)
    write(*,*)'TOTAL FAILED:',abs(sumtally)
 contains
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -595,7 +599,7 @@ subroutine test_shape ()
    call lala( 'help shape')
    call lala( 'tally=[0];')
    call lala( [ character(len=256) :: &
-'a=10;b=magic(4);c=ones(11,5);                                                                                             ', &
+'a=10;b=magic(4);c=ones(11,5);                                                                                    ', &
 '<X,Y>=shape(c);                                                                                                           ', &
 'if X=11,display(''X is 11''),else,display(''X is NOT 11'');X                                                              ', &
 'if Y= 5,display(''Y is  5''),else,display(''Y is NOT  5'');Y                                                              ', &
@@ -609,6 +613,19 @@ subroutine test_shape ()
 ''])
   call wrapup()
 end subroutine test_shape
+!-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_size()
+   call lala( [ character(len=256) :: &
+'display(ones(80,1)''*61)                                                                                                      ',&
+'help size;                                                                                                                    ',&
+'tally=[0];                                                                                                                    ',&
+'a=10;b=magic(4);c=ones(11,5);                                                                                                 ',&
+'got=[size([1,2,3]),size(magic(4)),size(random(3,8))];                                                                         ',&
+'expected=[3 16 24];                                                                                                           ',&
+'if isequal(got,expected)=1,display(''size of X OK'');tally=[tally,0];else,display(''size of X BAD'');size(a),tally=[tally,1]; ',&
+''])
+  call wrapup()
+end subroutine test_size
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_hess ()
    call lala( 'display(ones(80,1)''*61)')
@@ -1823,7 +1840,7 @@ subroutine test_general_avg()
    call lala( [ character(len=256) :: &
    & 'tally=[0];                                                              ', &
    & 'a=magic(8); n=3;                                                        ', &
-   & 'for i = 2:2:n, for j=2:2:n,t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ', &
+   & 'for i = 2:n:2, for j=2:n:2,t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ', &
    & 'if t = 32.5, tally=[tally, 0], else, tally=[tally, -1];                 ', &
    & 'if sum(tally) = 0,display(''avg PASSED''),else,display(''avg FAILED'');tally'])
   call wrapup()
@@ -1880,31 +1897,157 @@ end subroutine test_addition_and_subtraction
 !-----------------------------------------------------------------------------------------------------------------------------------
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
 !-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_order ()
+   if(logs)call lala( 'diary(''order.log'');')
+   call lala( [ character(len=256) :: &
+'// test order% package                                                                                               ',&
+'clear;                                                                                                               ',&
+'// help SET THEORY; display(ones(80,1)''*95)                                                                         ',&
+'tally=[0];                                                                                                           ',&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61);                                                                                            ',&
+'help order%sort;           // Sorts array into ascending order (Quick-sort)                                          ',&
+'clear expected got;                                                                                                  ',&
+"name='order%sort';                                                                                                   ",&
+'A= [ 7 1 7 7 4 0 -10 ];                                                                                              ',&
+'expected=[-10 0 1 4 7 7 7 ];                                                                                         ',&
+'got=order%sort(A);                                                                                                   ',&
+"if all(eq(expected,got))=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%rank;           // produces an INDEX that sorts an input array (optimized merge-sort)                     ',&
+'clear expected got;                                                                                                  ',&
+"name='order%sort';                                                                                                   ",&
+"answer=1;                                                                                                            ",&
+"//  Generate 100 matrices of random size from 1 to 10 by 1 to 10 with random values and generate rank.               ",&
+"//  Then use rank to sort the random matrix and check if the result is a sorted array and report if otherwise.       ",&
+"for I=1:100, ...                                                                                                     ",&
+"   M=round(rand*10)+1; ...                     // select random number of rows                                       ",&
+"   N=round(rand*10)+1; ...                     // select random number of columns                                    ",&
+"   a=randi(M,N); ...                           // create an array of random numbers                                  ",&
+"   got=set%issorted(a([order%rank(a)])); ...                                                                         ",&
+"   if got<>1; ...                                                                                                    ",&
+"      answer= 0; ...                                                                                                 ",&
+"      display('order%rank failed on '); ...                                                                          ",&
+"      a; ...                                                                                                         ",&
+"   end; ...                                                                                                          ",&
+"end;                                                                                                                 ",&
+"if answer=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end;                ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%orderloc;       // [FRACTILE] Return INDEX of Nth ordered value of array (Quick-Sort-like)                ',&
+'clear expected got;                                                                                                  ',&
+"name='order%orderloc';                                                                                               ",&
+'A=random(30,40);                                                                                                     ',&
+'expected=[minloc(A),maxloc(A),order%medianloc(A)]                                                                    ',&
+'got=[order%orderloc(A,1),order%orderloc(A,size(A)),order%orderloc(A,int((size(A)+1)/2))]                             ',&
+"if isequal(expected,got)=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%orderval;       // [FRACTILE] Return VALUE of Nth ordered element of array (Quick-Sort-like)              ',&
+'clear expected got;                                                                                                  ',&
+"name='order%orderval';                                                                                               ",&
+'A=random(30,40);                                                                                                     ',&
+'expected=[minval(A),maxval(A),order%medianval(A)];                                                                   ',&
+'got=[order%orderval(A,1),order%orderval(A,size(A)),order%orderval(A,int((size(A)+1)/2))];                            ',&
+"if isequal(expected,got)=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%median;         // median VALUE. If even number of elements, returns average of the two "medians".        ',&
+'clear expected got;                                                                                                  ',&
+"name='order%median';                                                                                                 ",&
+'expected=1;got=1;                                                                                                    ',&
+"if all(eq(expected,got))=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%medianloc;      // Returns INDEX of median value.                                                         ',&
+'clear expected got;                                                                                                  ',&
+"name='order%medianloc';                                                                                              ",&
+'A=random(30,40);                                                                                                     ',&
+'expected=order%orderloc(A,int((size(A)+1)/2));                                                                       ',&
+'got=order%medianloc(A);                                                                                              ',&
+"if isequal(expected,got)=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%medianval;      // Returns median VALUE.                                                                  ',&
+'clear expected got;                                                                                                  ',&
+"name='order%medianval' ;                                                                                             ",&
+'A=random(30,40);                                                                                                     ',&
+'expected=order%orderval(A,int((size(A)+1)/2));                                                                       ',&
+'got=order%medianval(A);                                                                                              ',&
+"if all(eq(expected,got))=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%occurrences;    // Give multiplicity for each array value (number of times appearing )                    ',&
+'clear expected got;                                                                                                  ',&
+"name='order%occurrences';                                                                                            ",&
+'expected=1;got=1;                                                                                                    ',&
+"if all(eq(expected,got))=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%perturb;        // generate random permutation of array leaving elements close to initial locations       ',&
+'clear expected got;                                                                                                  ',&
+"name='order%perturb';                                                                                                ",&
+'A=1;                                                                                                                 ',&
+'expected=1;got=1;                                                                                                    ',&
+"if isequal(expected,got)=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%rank_decreasing;// ranks an array in decreasing order, with duplicate entries assigned the same rank      ',&
+'clear expected got;                                                                                                  ',&
+'                                                                                                                     ',&
+"name='order%rank_decreasing(A)';                                                                                     ",&
+'X=[11, 11, 22, 11, 33, 33, 22, 33, 33];                                                                              ',&
+'got=order%rank_decreasing(X);                                                                                        ',&
+'expected=[ 1 1 2 1 3 3 2 3 3];                                                                                       ',&
+"if isequal(expected,got)=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'                                                                                                                     ',&
+"name='order%rank_decreasing(B)';                                                                                     ",&
+'got=maxval(got) // number_of_unique_values=maxval(got);                                                              ',&
+'expected=3;                                                                                                          ',&
+"if isequal(expected,got)=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'help order%rank_unique;    // ranks an array, with removal of duplicate entries (Merge-Sort)                         ',&
+'clear expected got;                                                                                                  ',&
+"name='order%rank_unique';                                                                                            ",&
+'expected=1;got=1;                                                                                                    ',&
+"if all(eq(expected,got))=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
+'//--------------------------------------------------------------------------------                                   ',&
+'display(ones(80,1)''*61)                                                                                             ',&
+'if sum(tally)=0,display(''order PASSED'');else,display(''order FAILED'');                                            ',&
+'<M,N>=shape(tally);                                                                                                  ',&
+'display(tally(2:N),1);                                                                                               ',&
+''])
+  call wrapup()
+end subroutine test_order
+!-----------------------------------------------------------------------------------------------------------------------------------
+!()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()-
+!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_set_theory ()
    if(logs)call lala( 'diary(''set_theory.log'');')
    call lala( [ character(len=256) :: &
-'// test set_theory()                                                                     ', &
-'clear                                                                                    ', &
-'display(ones(80,1)''*61)                                                                 ', &
-'// help SET THEORY; display(ones(80,1)''*95)                                             ', &
-'tally=[0];                                                                               ', &
-'semi;                                                                                    ', &
+'// test set_theory()                                                                                      ',&
+'clear;                                                                                                    ',&
+'display(ones(80,1)''*61);                                                                                 ',&
+'// help SET THEORY; display(ones(80,1)''*95);                                                             ',&
+'tally=[0];                                                                                                ',&
 '//--------------------------------------------------------------------------------                        ',&
-'help set%intersect                                                                                        ',&
+'help set%intersect;                                                                                       ',&
 'A= [ 7 1 7 7 4 ];                                                                                         ',&
 'B= [ 7 0 4 4 0 ];                                                                                         ',&
 'expected=[7 4];                                                                                           ',&
 'got=set%intersect(A,B);                                                                                   ',&
 "if all(eq(expected,got))=1,display('set%intersect OK'),tally=[tally,0];else,display('set%intersect FAILED');tally=[tally,1];end",&
 '//--------------------------------------------------------------------------------                        ',&
-'help set%ismember                                                                                         ',&
+'help set%ismember;                                                                                        ',&
 'A= [ 5 3 4 2 ];                                                                                           ',&
 'B= [ 2 4 4 4 6 8 ];                                                                                       ',&
 'expected = [0 0 1 1];                                                                                     ',&
 'got = set%ismember(A,B);                                                                                  ',&
 "if all(eq(expected,got))=1,display('set%ismember OK'),tally=[tally,0];else,display('set%ismember FAILED');tally=[tally,1];end",&
 '//--------------------------------------------------------------------------------                        ',&
-'help set%issorted                                                                                         ',&
+'help set%issorted;                                                                                        ',&
 'A= [ 10 -10 0 1 2 3 3 2 1 -10 ];                                                                          ',&
 'expected = 0;                                                                                             ',&
 'got = set%issorted(A);                                                                                    ',&
@@ -1914,21 +2057,21 @@ subroutine test_set_theory ()
 'got = set%issorted(A);                                                                                    ',&
 "if all(eq(expected,got))=1,display('set%issorted OK'),tally=[tally,0];else,display('set%issorted FAILED');tally=[tally,1];end",&
 '//--------------------------------------------------------------------------------                        ',&
-'help set%setdiff                                                                                          ',&
+'help set%setdiff;                                                                                         ',&
 'A= [ 3 6 2 1 5 1 1 ];                                                                                     ',&
 'B= [ 2 4 6 ];                                                                                             ',&
 'expected = [ 3 1 5 ] ;                                                                                    ',&
 'got = set%setdiff(A,B);                                                                                   ',&
 "if all(eq(expected,got))=1,display('set%setdiff OK'),tally=[tally,0];else,display('set%setdiff FAILED');tally=[tally,1];end",&
 '//--------------------------------------------------------------------------------                        ',&
-'help set%setxor                                                                                           ',&
+'help set%setxor;                                                                                          ',&
 'A = [5,1,3,3,3];                                                                                          ',&
 'B = [4,1,2];                                                                                              ',&
 'expected = [5 3 4 2 ];                                                                                    ',&
 'got = set%setxor(A,B);                                                                                    ',&
 "if all(eq(expected,got))=1,display('set%setxor OK'),tally=[tally,0];else,display('set%setxor FAILED');tally=[tally,1];end",&
 '//--------------------------------------------------------------------------------                        ',&
-'help set%union                                                                                            ',&
+'help set%union;                                                                                           ',&
 'A= [5 7 1];                                                                                               ',&
 'B= [3 1 1];                                                                                               ',&
 'got = set%union(A,B);                                                                                     ',&
@@ -1940,15 +2083,27 @@ subroutine test_set_theory ()
 'got= set%union(A,B);                                                                                      ',&
 "if all(eq(expected,got))=1,display('set%union OK'),tally=[tally,0];else,display('set%union FAILED');tally=[tally,1];end",&
 '//--------------------------------------------------------------------------------                        ',&
-'help set%unique                                                                                           ',&
+'help set%unique;                                                                                          ',&
 'A = [44, 33, 33, 33, 22, 11, 33, 44, 55, 33];                                                             ',&
+'B = [44, 33, 33, 33, 22, 11, 33, 44, 55, 33];                                                             ',&
 'expected = [44, 33, 22, 11, 55];                                                                          ',&
 'got = set%unique(A);                                                                                      ',&
 "if all(eq(expected,got))=1,display('set%unique OK'),tally=[tally,0];else,display('set%unique FAILED');tally=[tally,1];end",&
 '//--------------------------------------------------------------------------------                        ',&
-'if sum(tally)=0,display(''set_theory PASSED'');else,display(''set_theory FAILED'')       ', &
-'<M,N>=shape(tally)                                                                       ', &
-'display(tally(2:N),1)                                                                    ', &
+'help set%isequal;                                                                                         ',&
+'A= [ 10 -10 0 1 2 3 3 2 1 -10 ];                                                                          ',&
+'B= [ 10 -10 0 1 2 3 3 2 1  10 ];                                                                          ',&
+'got= [ ...                                                                                                ',&
+' set%isequal(A,B), ... // not the same                                                                    ',&
+' set%isequal(A,A), ... // the same                                                                        ',&
+' set%isequal(A,A(1:9)) ... // different size                                                              ',&
+']                                                                                                         ',&
+'expected = [0 1 0];                                                                                       ',&
+"if all(eq(expected,got))=1,display('set%isequal OK'),tally=[tally,0];else,display('set%isequal FAILED');tally=[tally,1];end",&
+'//--------------------------------------------------------------------------------                        ',&
+'if sum(tally)=0,display(''set_theory PASSED'');else,display(''set_theory FAILED'')                        ',&
+'<M,N>=shape(tally)                                                                                        ',&
+'display(tally(2:N),1)                                                                                     ',&
 ''])
   call wrapup()
 end subroutine test_set_theory
@@ -1958,9 +2113,11 @@ end subroutine test_set_theory
 subroutine wrapup()
 integer                      :: inc
 integer                      :: ierr
-   call lala('sumtally=sum(tally);')
+   call lala('sumtally=sum(tally);<M,N>=shape(tally);tests=M*N;')
    call get_from_lala('sumtally',inc,ierr)
    sumtally=sumtally+inc
+   call get_from_lala('tests',inc,ierr)
+   tests=tests+inc
    call lala( [ character(len=256) :: &
 '                                                                        ', &
 '                                                                        ', &

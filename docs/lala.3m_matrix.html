@@ -288,7 +288,7 @@ Example inputs
 <PRE>
      &gt;:avg:
 <P>
-     &gt;for i = 2:2:n, for j = 2:2:n, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; &#46;&#46;&#46;
+     &gt;for i = 2:n:2, for j = 2:n:2, t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; &#46;&#46;&#46;
      &gt;a(i-1,j-1) = t; a(i,j-1) = t; a(i-1,j) = t; a(i,j) = t;
 <P>
      &gt;:cdiv:
@@ -452,7 +452,7 @@ Example inputs
      &gt; check = norm(A-A&#146;,1), if check &gt; 0, quit
      &gt; [X,D] = eig(A+eye);
      &gt; D = diag(D);  D = D(n:-1:1)
-     &gt; X = X(:,n:-1:1);
+     &gt; X = X(:,n:1:-1);
      &gt; [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
 <P>
      &gt; :pascal:
@@ -489,7 +489,7 @@ Example inputs
 <P>
      &gt; y = [ 75.995   91.972  105.711  123.203   &#46;&#46;&#46;
      &gt;      131.669  150.697  179.323  203.212]&#146;
-     &gt; t = [ 1900:10:1970 ]&#146;
+     &gt; t = [ 1900:1970:10 ]&#146;
      &gt; t = (t - 1940*ones(t))/40;   [t y]
      &gt; n = 8;  A(:,1) = ones(t);  for j = 2:n, A(:,j) = t .* A(:,j-1);
      &gt; A
@@ -562,7 +562,7 @@ Example inputs
      &gt; //solve for coefficients
      &gt;    c = A\b
      &gt; //compute effective conductivity
-     &gt;    c(2:2:n) = -c(2:2:n)
+     &gt;    c(2:n:2) = -c(2:n:2)
      &gt;    sigma = sum(c)
      &gt; //output total operation count
      &gt;    ops = flop(2)

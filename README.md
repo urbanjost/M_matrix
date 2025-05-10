@@ -63,7 +63,7 @@ compound types
  -->
 ## Simple Configuration File Example
 
-Given a simple configuration file similiar to a NAMELIST, YAML, JSON,
+Given a simple configuration file similar to a NAMELIST, YAML, JSON,
 INI, CUE, XML or TOML file ...
 ```text
 // a simple string

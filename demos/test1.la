@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------------------------------------------------------------
 // start a new log file
-sh rm -fv log.txt
+// sh rm -fv log.txt
 diary('log.txt')
 // ---------------------------------------------------------------------------------------------------------------------------------
 titles=<'GNP deflator'
@@ -46,4 +46,11 @@ expected = < ...
    -5.110410565317738D-02
     1.829151464612817D+00
 >
-disp('EXPE and BETA should be the same')
+disp('"expected" and "beta" should be the same')
+expected-beta
+isequal(expected,beta)
+// is the difference with the expected values less than
+// 2*eps? Then consider the values equal.
+answer=all(lt(abs(expected-beta),2*eps))
+if answer = 1, display('PASSED')
+if answer <> 1, display('FAILED')
