@@ -1939,8 +1939,8 @@ subroutine test_order ()
 'clear expected got;                                                                                                  ',&
 "name='order%orderloc';                                                                                               ",&
 'A=random(30,40);                                                                                                     ',&
-'expected=[minloc(A),maxloc(A),order%medianloc(A)]                                                                    ',&
-'got=[order%orderloc(A,1),order%orderloc(A,size(A)),order%orderloc(A,int((size(A)+1)/2))]                             ',&
+'expected=[minloc(A(:)),maxloc(A(:)),order%medianloc(A)]                                                                    ',&
+'got=[1,order%orderloc(A,1),1,order%orderloc(A,size(A)),order%orderloc(A,int((size(A)+1)/2))]                             ',&
 "if isequal(expected,got)=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
 '//--------------------------------------------------------------------------------                                   ',&
 'display(ones(80,1)''*61)                                                                                             ',&
