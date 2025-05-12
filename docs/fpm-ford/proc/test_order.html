@@ -1,0 +1,341 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="embeddable command-line matrix utility">
+    <meta name="author" content="John S. Urban" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_order &ndash; M_matrix</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">M_matrix </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_order
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">5 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/test_suite_M_matrix.f90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_suite_m_matrix.f90.html'>test_suite_M_matrix.f90</a></li>
+                <li class="breadcrumb-item"><a href='../program/testit.html'>testit</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_order</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_order.html#src">test_order</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2> subroutine test_order()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">test_order</span><span class="w"> </span><span class="p">()</span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span><span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="w"> </span><span class="s1">&#39;diary(&#39;&#39;order.log&#39;&#39;);&#39;</span><span class="p">)</span>
+<span class="w">   </span><span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s1">&#39;// test order% package                                                                                               &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear;                                                                                                               &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;// help SET THEORY; display(ones(80,1)&#39;&#39;*95)                                                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;tally=[0];                                                                                                           &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61);                                                                                            &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%sort;           // Sorts array into ascending order (Quick-sort)                                          &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%sort&#39;;                                                                                                   &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;A= [ 7 1 7 7 4 0 -10 ];                                                                                              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=[-10 0 1 4 7 7 7 ];                                                                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;got=order%sort(A);                                                                                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if all(eq(expected,got))=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%rank;           // produces an INDEX that sorts an input array (optimized merge-sort)                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%sort&#39;;                                                                                                   &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;answer=1;                                                                                                            &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;//  Generate 100 matrices of random size from 1 to 10 by 1 to 10 with random values and generate rank.               &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;//  Then use rank to sort the random matrix and check if the result is a sorted array and report if otherwise.       &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;for I=1:100, ...                                                                                                     &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;   M=round(rand*10)+1; ...                     // select random number of rows                                       &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;   N=round(rand*10)+1; ...                     // select random number of columns                                    &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;   a=randi(M,N); ...                           // create an array of random numbers                                  &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;   got=set%issorted(a([order%rank(a)])); ...                                                                         &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;   if got&lt;&gt;1; ...                                                                                                    &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;      answer= 0; ...                                                                                                 &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;      display(&#39;order%rank failed on &#39;); ...                                                                          &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;      a; ...                                                                                                         &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;   end; ...                                                                                                          &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;end;                                                                                                                 &quot;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if answer=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end;                &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%orderloc;       // [FRACTILE] Return INDEX of Nth ordered value of array (Quick-Sort-like)                &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%orderloc&#39;;                                                                                               &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;A=random(30,40);                                                                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=[minloc(A(:)),maxloc(A(:)),order%medianloc(A(:))]                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;got=[1,order%orderloc(A,1),1,order%orderloc(A,size(A)),order%orderloc(A,int((size(A)+1)/2))]                             &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if isequal(expected,got)=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%orderval;       // [FRACTILE] Return VALUE of Nth ordered element of array (Quick-Sort-like)              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%orderval&#39;;                                                                                               &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;A=random(30,40);                                                                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=[minval(A),maxval(A),order%medianval(A)];                                                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;got=[order%orderval(A,1),order%orderval(A,size(A)),order%orderval(A,int((size(A)+1)/2))];                            &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if isequal(expected,got)=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%median;         // median VALUE. If even number of elements, returns average of the two &quot;medians&quot;.        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%median&#39;;                                                                                                 &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=1;got=1;                                                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if all(eq(expected,got))=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%medianloc;      // Returns INDEX of median value.                                                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%medianloc&#39;;                                                                                              &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;A=random(30,40);                                                                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=order%orderloc(A,int((size(A)+1)/2));                                                                       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;got=order%medianloc(A);                                                                                              &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if isequal(expected,got)=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%medianval;      // Returns median VALUE.                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%medianval&#39; ;                                                                                             &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;A=random(30,40);                                                                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=order%orderval(A,int((size(A)+1)/2));                                                                       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;got=order%medianval(A);                                                                                              &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if all(eq(expected,got))=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%occurrences;    // Give multiplicity for each array value (number of times appearing )                    &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%occurrences&#39;;                                                                                            &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=1;got=1;                                                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if all(eq(expected,got))=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%perturb;        // generate random permutation of array leaving elements close to initial locations       &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%perturb&#39;;                                                                                                &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;A=1;                                                                                                                 &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=1;got=1;                                                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if isequal(expected,got)=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%rank_decreasing;// ranks an array in decreasing order, with duplicate entries assigned the same rank      &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%rank_decreasing(A)&#39;;                                                                                     &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;X=[11, 11, 22, 11, 33, 33, 22, 33, 33];                                                                              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;got=order%rank_decreasing(X);                                                                                        &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=[ 1 1 2 1 3 3 2 3 3];                                                                                       &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if isequal(expected,got)=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;                                                                                                                     &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%rank_decreasing(B)&#39;;                                                                                     &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;got=maxval(got) // number_of_unique_values=maxval(got);                                                              &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=3;                                                                                                          &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if isequal(expected,got)=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;help order%rank_unique;    // ranks an array, with removal of duplicate entries (Merge-Sort)                         &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;clear expected got;                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;name=&#39;order%rank_unique&#39;;                                                                                            &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;expected=1;got=1;                                                                                                    &#39;</span><span class="p">,&amp;</span>
+<span class="s2">&quot;if all(eq(expected,got))=1,display([name,&#39; OK&#39;]),tally=[tally,0];else,display([name,&#39; FAILED&#39;]);tally=[tally,1];end; &quot;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;//--------------------------------------------------------------------------------                                   &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(ones(80,1)&#39;&#39;*61)                                                                                             &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;if sum(tally)=0,display(&#39;&#39;order PASSED&#39;&#39;);else,display(&#39;&#39;order FAILED&#39;&#39;);                                            &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;&lt;M,N&gt;=shape(tally);                                                                                                  &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;display(tally(2:N),1);                                                                                               &#39;</span><span class="p">,&amp;</span>
+<span class="s1">&#39;&#39;</span><span class="p">])</span>
+<span class="w">  </span><span class="k">call </span><span class="n">wrapup</span><span class="p">()</span>
+<span class="k">end subroutine </span><span class="n">test_order</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              M_matrix
+ was developed by John S. Urban<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-12 01:42 +0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
