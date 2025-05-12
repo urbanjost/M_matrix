@@ -94,7 +94,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 1.7% of total for procedures.">126 statements</a>
+                 title=" 1.7% of total for procedures.">129 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -136,8 +136,8 @@
       </a>
       <div id="vars-0" class="collapse">
         <div class="list-group list-group-flush">
-            <a class="list-group-item" href="../proc/mat_err_en.html#variable-i~3">i</a>
-            <a class="list-group-item" href="../proc/mat_err_en.html#variable-k~3">k</a>
+            <a class="list-group-item" href="../proc/mat_err_en.html#variable-i~9">i</a>
+            <a class="list-group-item" href="../proc/mat_err_en.html#variable-k~4">k</a>
             <a class="list-group-item" href="../proc/mat_err_en.html#variable-lb">lb</a>
             <a class="list-group-item" href="../proc/mat_err_en.html#variable-lt">lt</a>
             <a class="list-group-item" href="../proc/mat_err_en.html#variable-msg">msg</a>
@@ -195,7 +195,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-n~5"></span>
+              <span class="anchor" id="variable-n~11"></span>
               integer,
             </td>
 <td>intent(in)</td>
@@ -228,7 +228,7 @@
     <tbody>
         <tr>
             <td>
-              <span class="anchor" id="variable-i~3"></span>
+              <span class="anchor" id="variable-i~9"></span>
               integer,
             </td>
               <td>public</td>
@@ -245,7 +245,7 @@
         </tr>
         <tr>
             <td>
-              <span class="anchor" id="variable-k~3"></span>
+              <span class="anchor" id="variable-k~4"></span>
               integer,
             </td>
               <td>public</td>
@@ -398,12 +398,15 @@
 
 <span class="k">   if</span><span class="p">(</span><span class="n">G_system</span><span class="p">.</span><span class="nb">and</span><span class="p">.</span><span class="w"> </span><span class="n">n</span><span class="p">.</span><span class="n">eq</span><span class="p">.</span><span class="mi">4</span><span class="p">)</span><span class="k">then</span>
 <span class="k">      </span><span class="nb">system</span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
-<span class="k">      </span><span class="kt">integer</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">cmdstat</span>
+<span class="k">      </span><span class="kt">logical</span><span class="w">                      </span><span class="kd">::</span><span class="w"> </span><span class="n">cmdstat</span>
 <span class="w">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">mline</span>
 <span class="w">      </span><span class="k">call </span><span class="n">mat_buf2str</span><span class="p">(</span><span class="n">mline</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">,</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w"> </span><span class="c">! convert ADE buffer to character</span>
-<span class="w">      </span><span class="n">cmdstat</span><span class="o">=</span><span class="n">run</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">mline</span><span class="p">))</span><span class="w"> </span><span class="c">! call system shell</span>
-<span class="w">      </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span>
-<span class="w">      </span><span class="k">end block </span><span class="nb">system</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="n">run</span><span class="p">(</span><span class="nb">trim</span><span class="p">(</span><span class="n">mline</span><span class="p">)))</span><span class="k">then</span><span class="w"> </span><span class="c">! call system shell</span>
+<span class="w">         </span><span class="k">call </span><span class="n">journal</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="k">         call </span><span class="n">journal</span><span class="p">(</span><span class="n">mline</span><span class="p">)</span>
+<span class="w">      </span><span class="k">endif</span>
+<span class="k">      end block </span><span class="nb">system</span>
 <span class="nb">   </span><span class="k">else</span>
 <span class="k">      </span><span class="n">error</span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
 <span class="k">      </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="n">GG_LINELEN</span><span class="p">)</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="n">mline</span>
@@ -438,7 +441,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-05-05 11:56 +0000             </p>
+ on 2025-05-12 01:42 +0000             </p>
           </div>
         </div>
         <br>

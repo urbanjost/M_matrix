@@ -94,7 +94,7 @@
 
             <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
               <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
-                 title=" 1.2% of total for procedures.">90 statements</a>
+                 title=" 1.7% of total for procedures.">129 statements</a>
             </li>
 
             <li class="list-inline-item" id="source-file">
@@ -199,6 +199,7 @@
 <span class="w">   </span><span class="c">! set%setxor     705  ! find values of A and B not in both arrays</span>
 <span class="w">   </span><span class="c">! set%union      706  ! join two sets and removes duplicates of values</span>
 <span class="w">   </span><span class="c">! set%unique     707  ! return unique values in array A</span>
+<span class="w">   </span><span class="c">! set%isequal    708  ! report if A is equal to B within a tolerance</span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">   </span><span class="n">FUN_SETS</span><span class="p">:</span><span class="w"> </span><span class="k">select case</span><span class="p">(</span><span class="n">G_FIN</span><span class="p">)</span>
 <span class="c">!===================================================================================================================================</span>
@@ -275,11 +276,11 @@
 <span class="c">!===================================================================================================================================</span>
 <span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="c">! COMMAND::SET%issorted report if A is sorted in ascending order or not.</span>
 <span class="w">      </span><span class="n">SET_ISSORTED</span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
-<span class="k">      </span><span class="kt">integer</span><span class="w">                   </span><span class="kd">::</span><span class="w"> </span><span class="n">rowsX</span><span class="p">,</span><span class="w"> </span><span class="n">colsX</span><span class="p">,</span><span class="w"> </span><span class="n">startX</span>
+<span class="k">      </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">rowsX</span><span class="p">,</span><span class="w"> </span><span class="n">colsX</span><span class="p">,</span><span class="w"> </span><span class="n">startX</span>
 <span class="w">      </span><span class="c">! ignores imaginary component</span>
 <span class="w">      </span><span class="c">! check arguments</span>
 <span class="w">      </span><span class="k">select case</span><span class="p">(</span><span class="n">G_RHS</span><span class="p">)</span>
-<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="c">! two parameters</span>
+<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w">  </span><span class="c">! one parameter</span>
 <span class="w">         </span><span class="n">startX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
 <span class="w">         </span><span class="n">colsX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
 <span class="w">         </span><span class="n">rowsX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
@@ -294,6 +295,51 @@
 <span class="k">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
 <span class="w">      </span><span class="k">endblock </span><span class="n">SET_ISSORTED</span>
+<span class="c">!===================================================================================================================================</span>
+<span class="w">   </span><span class="k">case</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="w"> </span><span class="c">! COMMAND::SET%isequal report if A is equal to B within a tolerance</span>
+<span class="w">      </span><span class="n">SET_ISEQUAL</span><span class="p">:</span><span class="w"> </span><span class="k">block</span>
+<span class="k">      </span><span class="kt">integer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">rowsD</span><span class="p">,</span><span class="w"> </span><span class="n">colsD</span><span class="p">,</span><span class="w"> </span><span class="n">startD</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">rowsX</span><span class="p">,</span><span class="w"> </span><span class="n">colsX</span><span class="p">,</span><span class="w"> </span><span class="n">startX</span>
+<span class="w">      </span><span class="kt">integer</span><span class="w">       </span><span class="kd">::</span><span class="w"> </span><span class="n">rowsY</span><span class="p">,</span><span class="w"> </span><span class="n">colsY</span><span class="p">,</span><span class="w"> </span><span class="n">startY</span>
+<span class="w">      </span><span class="kt">real</span><span class="p">(</span><span class="nb">kind</span><span class="o">=</span><span class="n">dp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">delta</span>
+<span class="w">      </span><span class="n">delta</span><span class="o">=</span><span class="mf">0.0d0</span>
+<span class="w">      </span><span class="c">! check arguments</span>
+<span class="w">      </span><span class="k">select case</span><span class="p">(</span><span class="n">G_RHS</span><span class="p">)</span>
+<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w">  </span><span class="c">! three parameters</span>
+<span class="w">         </span><span class="n">startD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">         </span><span class="n">delta</span><span class="o">=</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">startD</span><span class="p">)</span>
+<span class="w">         </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="o">*</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">).</span><span class="n">ne</span><span class="p">.</span><span class="mi">1</span><span class="p">)</span><span class="k">then</span>
+<span class="w">            </span><span class="c">! the third argument is supposed to be a scalar</span>
+<span class="w">            </span><span class="k">call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">39</span><span class="p">)</span><span class="w"> </span><span class="c">! Incorrect number of arguments</span>
+<span class="w">            </span><span class="k">return</span>
+<span class="k">         endif</span>
+<span class="k">         </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">      </span><span class="k">case</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w">  </span><span class="c">! two parameters</span>
+<span class="w">      </span><span class="k">case </span><span class="n">default</span>
+<span class="w">         </span><span class="k">call </span><span class="n">mat_err</span><span class="p">(</span><span class="mi">39</span><span class="p">)</span><span class="w"> </span><span class="c">! Incorrect number of arguments</span>
+<span class="w">         </span><span class="k">return</span>
+<span class="k">      end select</span>
+<span class="k">      </span><span class="n">startY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">      </span><span class="n">colsY</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">      </span><span class="n">rowsY</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">      </span><span class="n">G_ARGUMENT_POINTER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_ARGUMENT_POINTER</span><span class="o">-</span><span class="mi">1</span>
+<span class="w">      </span><span class="n">startX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">      </span><span class="n">colsX</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">      </span><span class="n">rowsX</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span>
+<span class="w">      </span><span class="k">associate</span><span class="p">(</span><span class="w"> </span><span class="n">A</span><span class="o">=&gt;</span><span class="n">gm_reals</span><span class="p">(</span><span class="w"> </span><span class="n">startX</span><span class="p">:</span><span class="n">startX</span><span class="o">+</span><span class="n">colsX</span><span class="o">*</span><span class="n">rowsX</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">B</span><span class="o">=&gt;</span><span class="n">gm_reals</span><span class="p">(</span><span class="w"> </span><span class="n">startY</span><span class="p">:</span><span class="n">startY</span><span class="o">+</span><span class="n">colsY</span><span class="o">*</span><span class="n">rowsY</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">C</span><span class="o">=&gt;</span><span class="n">gm_imags</span><span class="p">(</span><span class="w"> </span><span class="n">startX</span><span class="p">:</span><span class="n">startX</span><span class="o">+</span><span class="n">colsX</span><span class="o">*</span><span class="n">rowsX</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="w">                 </span><span class="n">D</span><span class="o">=&gt;</span><span class="n">gm_imags</span><span class="p">(</span><span class="w"> </span><span class="n">startY</span><span class="p">:</span><span class="n">startY</span><span class="o">+</span><span class="n">colsY</span><span class="o">*</span><span class="n">rowsY</span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">       </span><span class="k">if</span><span class="p">(</span><span class="n">delta</span><span class="p">.</span><span class="n">ne</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="k">then</span>
+<span class="k">          </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">STARTX</span><span class="p">:</span><span class="n">STARTX</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">isequal</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">delta</span><span class="p">),</span><span class="n">isequal</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">delta</span><span class="p">))</span>
+<span class="w">       </span><span class="k">else</span>
+<span class="k">          </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">STARTX</span><span class="p">:</span><span class="n">STARTX</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">isequal</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">),</span><span class="n">isequal</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="n">D</span><span class="p">))</span>
+<span class="w">       </span><span class="k">endif</span>
+<span class="k">       </span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">STARTX</span><span class="p">:</span><span class="n">STARTX</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="mf">0.0d0</span>
+<span class="w">      </span><span class="k">end associate</span>
+<span class="k">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">G_ARGUMENT_POINTER</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">      </span><span class="k">endblock </span><span class="n">SET_ISEQUAL</span>
 <span class="c">!===================================================================================================================================</span>
 <span class="w">   </span><span class="k">end select </span><span class="n">FUN_SETS</span>
 <span class="c">!==================================================================================================================================!</span>
@@ -321,7 +367,7 @@
             <p class="text-end">
               Documentation generated by
               <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
- on 2025-05-05 11:56 +0000             </p>
+ on 2025-05-12 01:42 +0000             </p>
           </div>
         </div>
         <br>
