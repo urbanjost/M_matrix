@@ -13,7 +13,7 @@ integer           :: tests=0
    logs=.false.
 
    call lala( [ character(len=256) :: &
-     & 'sumtally=0;', &
+     & 'sumtally=0;lines(9999999);', &
      & 'who'])
       call test_abs ()     ! abs   abs(X) is the absolute value, or complex modulus, of the
       call test_all ()     ! all   all(X) returns 1 if all elmements are non-zero.
@@ -799,7 +799,6 @@ subroutine test_kron ()
    call lala( 'tally=[0];')
    call lala( [ character(len=256) :: &
      & '                                                                         ', &
-     & 'lines(888888)                                                            ', &
      & '//  C = Kronecker product of A and B                                     ', &
      & 'A=randu(4);                                                              ', &
      & 'B=randu(4);                                                              ', &
@@ -1216,15 +1215,22 @@ subroutine test_imag ()
 end subroutine test_imag
 !-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_inv ()
-   call lala( 'display(ones(80,1)''*61)')
-   call lala( 'help inv')
-   call lala( 'tally=[0];')
    call lala( [ character(len=256) :: &
-   & '                                                                         ', &
-   & '                                                                         ', &
-   & '                                                                         ', &
- !& 'if all(eq(a+b,zeros(a)))=1, tally=[tally,0];display(''a-b is zero'');else,tally=[tally,1];display(''a-b is NOT zero''); ', &
-   & 'if sum(tally)=0,display(''inv PASSED'');else,display(''inv FAILED'');tally ', &
+   & "display(ones(80,1)'*61);                                                       ", &
+   & "help inv;                                                                      ", &
+   & "tally=[0];                                                                     ", &
+   & "name='inv';                                                                    ", &
+   & "n=4; // generates the Hilbert matrix of order n                                ", &
+   & "// assume n has already been assigned a value)                                 ", &
+   & "for i = 1:n, for j = 1:n, expected(i,j) = 1.0/(i+j-1);                         ", &
+   & "got=inv(invh(4));                                                              ", &
+   & "expected;got;long;expected;got;                                                ", &
+   & "got-expected;                                                                  ", &
+   & "diff=maxval(abs(got-expected));                                                ", &
+   & "epss=diff/eps;                                                                 ", &
+   & "tol=5*pow(10,-14);                                                             ", &
+   & "if isequal(expected,got,tol)=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ", &
+   & "if sum(tally)=0,display([name, ' PASSED']);else,display([name, ' FAILED']);tally ", &
    & ''])
   call wrapup()
 end subroutine test_inv
@@ -1939,7 +1945,7 @@ subroutine test_order ()
 'clear expected got;                                                                                                  ',&
 "name='order%orderloc';                                                                                               ",&
 'A=random(30,40);                                                                                                     ',&
-'expected=[minloc(A(:)),maxloc(A(:)),order%medianloc(A)]                                                                    ',&
+'expected=[minloc(A(:)),maxloc(A(:)),order%medianloc(A(:))]                                                                    ',&
 'got=[1,order%orderloc(A,1),1,order%orderloc(A,size(A)),order%orderloc(A,int((size(A)+1)/2))]                             ',&
 "if isequal(expected,got)=1,display([name,' OK']),tally=[tally,0];else,display([name,' FAILED']);tally=[tally,1];end; ",&
 '//--------------------------------------------------------------------------------                                   ',&
@@ -2049,11 +2055,15 @@ subroutine test_set_theory ()
 '//--------------------------------------------------------------------------------                        ',&
 'help set%issorted;                                                                                        ',&
 'A= [ 10 -10 0 1 2 3 3 2 1 -10 ];                                                                          ',&
-'expected = 0;                                                                                             ',&
 'got = set%issorted(A);                                                                                    ',&
+'expected = 0;                                                                                             ',&
 "if all(eq(expected,got))=1,display('set%issorted OK'),tally=[tally,0];else,display('set%issorted FAILED');tally=[tally,1];end",&
 'A= [ -10 10 100 201 ];                                                                                    ',&
 'expected = 1;                                                                                             ',&
+'got = set%issorted(A);                                                                                    ',&
+"if all(eq(expected,got))=1,display('set%issorted OK'),tally=[tally,0];else,display('set%issorted FAILED');tally=[tally,1];end",&
+A=magic(8);
+A=A([A]);
 'got = set%issorted(A);                                                                                    ',&
 "if all(eq(expected,got))=1,display('set%issorted OK'),tally=[tally,0];else,display('set%issorted FAILED');tally=[tally,1];end",&
 '//--------------------------------------------------------------------------------                        ',&

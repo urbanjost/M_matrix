@@ -1,7 +1,7 @@
 diary('log.txt')
 a=magic(8)
 n=3
-exec('avg')
+exec('avg_adjacent')
 b=random(8,8)
 
 names=< 

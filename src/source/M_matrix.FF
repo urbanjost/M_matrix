@@ -1979,7 +1979,7 @@ integer                     :: i
    G_LUN_READING_FROM = G_INPUT_LUN                                       ! current file to read commands from
    call mat_files(STDOUT,G_BUF)
 
-   call mat_help_text()                                                   ! initialize help text
+   if(.not.allocated(G_HELP_TEXT)) call mat_help_text()                   ! initialize help text
    G_CURRENT_RANDOM_SEED = 0                                              ! random number seed
    G_LINECOUNT(2) = 23                                                    ! initial line limit for paging output
 
@@ -3234,7 +3234,7 @@ $@(#) M_matrix::mat_matsets(3f): evaluate set theory functions
    ! set%setxor     705  ! find values of A and B not in both arrays
    ! set%union      706  ! join two sets and removes duplicates of values
    ! set%unique     707  ! return unique values in array A
-   ! set%isequal    708  ! report if A is equal to B
+   ! set%isequal    708  ! report if A is equal to B within a tolerance
 !===================================================================================================================================
    FUN_SETS: select case(G_FIN)
 !===================================================================================================================================
@@ -3331,29 +3331,45 @@ $@(#) M_matrix::mat_matsets(3f): evaluate set theory functions
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endblock SET_ISSORTED
 !===================================================================================================================================
-   case(8) ! COMMAND::SET%isequal report if A is equal to B
+   case(8) ! COMMAND::SET%isequal report if A is equal to B within a tolerance
       SET_ISEQUAL: block
-      integer :: rowsX, colsX, startX
-      integer :: rowsY, colsY, startY
+      integer       :: rowsD, colsD, startD 
+      integer       :: rowsX, colsX, startX 
+      integer       :: rowsY, colsY, startY 
+      real(kind=dp) :: delta 
+      delta=0.0d0
       ! check arguments
       select case(G_RHS)
-      case(2)  ! two parameters
-         startY = G_VAR_DATALOC(G_ARGUMENT_POINTER)
-         colsY  = G_VAR_COLS(G_ARGUMENT_POINTER)
-         rowsY  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case(3)  ! three parameters
+         startD = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         delta=GM_REALS(startD)
+         if (G_VAR_COLS(G_ARGUMENT_POINTER)* G_VAR_ROWS(G_ARGUMENT_POINTER).ne.1)then
+            ! the third argument is supposed to be a scalar
+            call mat_err(39) ! Incorrect number of arguments
+            return
+         endif
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-         startX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
-         colsX  = G_VAR_COLS(G_ARGUMENT_POINTER)
-         rowsX  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case(2)  ! two parameters
       case default
          call mat_err(39) ! Incorrect number of arguments
          return
       end select
+      startY = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      colsY  = G_VAR_COLS(G_ARGUMENT_POINTER)
+      rowsY  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+      startX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      colsX  = G_VAR_COLS(G_ARGUMENT_POINTER)
+      rowsX  = G_VAR_ROWS(G_ARGUMENT_POINTER)
       associate( A=>gm_reals( startX:startX+colsX*rowsX-1 ) , &
                  B=>gm_reals( startY:startY+colsY*rowsY-1 ) , &
                  C=>gm_imags( startX:startX+colsX*rowsX-1 ) , &
                  D=>gm_imags( startY:startY+colsY*rowsY-1 ) )
-       GM_REALS(STARTX:STARTX) =min(isequal(A,B),isequal(C,D))
+       if(delta.ne.0)then
+          GM_REALS(STARTX:STARTX) =min(isequal(A,B,delta),isequal(C,D,delta))
+       else
+          GM_REALS(STARTX:STARTX) =min(isequal(A,B),isequal(C,D))
+       endif
        GM_IMAGS(STARTX:STARTX) =0.0d0
       end associate
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
@@ -5227,7 +5243,8 @@ FINISHED: block
    case('sh')
       call sh_command()
 !===================================================================================================================================
-   case('help','fhelp')
+   case('help','fhelp') ! command::help
+                        ! command::fhelp
       HELP_ : block
       character(len=GG_LINELEN) :: topic_name
       integer                   :: position(2)
@@ -11920,8 +11937,20 @@ help  topic|SECTION_NAME
          help manual // show all the help text
          help help   // obviously prints this message.
          help search factor // show all lines containing "factor".
+         help SUMMARY // shows a short crib sheet of basic features
 
-      Alternatively, To place all the documentation in a file, use
+      Placing help text in a file is most simply done using the command
+      line:
+             
+            lala -topic manual # display user manual to stdout
+
+      or as a command on the command line:
+
+            lala 'help manual'
+            lala 'help search inverse'
+
+      Alternatively in interactive mode use the help "w" function. 
+      For example, to place all the documentation in a file, use
       "help manual" and enter "w help.txt" at the "help:" prompt.
 NEWS
       May, 1981.
@@ -11965,6 +11994,9 @@ NEWS
        * sum   Added the option to sum along rows or columns
 
       Differences
+
+       * the original tertiary operator start:step:end was changed to be
+         start:end:step.
 
        * added randu(), randn(), and randseed() and eliminated overloading
          of the word "rank", which was error-prone and had improbable but
@@ -12130,7 +12162,7 @@ SYNTAX
       either is a scalar.
 
       An exception is made if X or Y is scalar; in that case the scalar is
-      expanded to an array of the size of the other argument.  That is,
+      expanded to an array of the size of the other argument. That is,
       a scalar X is treated as ones(Y)*X and a scalar Y is treated as
       ones(X)*Y.
 
@@ -12138,7 +12170,7 @@ SYNTAX
       either is scalar.
 
       An exception is made if X or Y is scalar; in that case the scalar is
-      expanded to an array of the size of the other argument.  That is,
+      expanded to an array of the size of the other argument. That is,
       a scalar X is treated as ones(Y)*X and a scalar Y is treated as
       ones(X)*Y.
 
@@ -12284,78 +12316,96 @@ sqrt  sqrt(X) is the square root of X. See "BASIC". Complex
 ================================================================================
 RELATIONAL
 
-   An alternative to using the relational operators in flow control commands like
-   "for" are the relational functions. In general zero is regarded as false, and
-   any other value is considered true. Note that only the REAL component of values
-   is compared except for the "eq" and "ne" operators, which consider the entire
-   value.
+   An alternative to using the scalar relational operators
+   ("<=,<,=,<>,>,>=") in flow control commands like "for" are the
+   elemental relational functions "le(X,Y)", "lt(X,Y)","eq(X,Y)",
+   "ne(X,Y)", "gt(X,Y)", "ge(X,Y)" combined with "all(X)", "all(Y)",
+   and "isequal(X,Y,TOLERANCE)". These all return boolean values.
 
-eq    "eq(X,Y)" is an elemental function that sets element values to 1
-      if the elements are equal, and to 0 if they are not.
+   At least one of X or Y may be scalar. Otherwise X and Y must have the
+   same number of elements but need not be the same shape. The returned
+   value has the shape of X unless X is scalar, in which case the returned
+   value has the shape of Y. If X or Y is scalar it is treated as if the
+   same size as the other argument but will all of its elements set to the
+   scalar value.
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+   The return values are zeros (regarded as false), and ones (non-zero
+   values are to be considered true).
+
+   Note that only the REAL component of values is compared except for the
+   "eq","ne" and "isequal" operators, which consider the entire value
+   including imaginary components.
+
+   The "all(X)" and "any(X)" functions may then used to reduce the vectors
+   returned by the relational functions to a scalar value suitable for
+   use in "for" and "which".
+
+   The "isequal(X,Y)" function is equivalent to "all(eq(X,Y))" except
+   it also checks if the sizes of X and Y are conformant and reports
+   false (0) if not, and allows for a tolerance in determining if values
+   are equal.
+
+eq    "eq(X,Y)" sets output elements to 1 if X(i)=Y(i), 0 if not
+
+      "eq(X,Y)" is an elemental function that sets element values in the
+      answer to 1 if the corresponding element in X is equal to the
+      corresponding one in Y. Otherwise, the element is set to 0.
 
           // return 1 if all elements are zero, else 0
           allzero=all(eq(X,0))
 
-          a=magic(4)      // make some arrays
-          b=a             // b is the same as a
-          c=b; c(4,4)=-10 // c is not the same as a
-          if all(eq(a,b))=1,display('SAME'),else display('DIFFERENT')
-          if all(eq(a,c))=1,display('SAME'),else display('DIFFERENT')
+          T=1;F=0;         // mneumonics for TRUE and FALSE
+          a=magic(4);      // make some arrays
+          b=a;             // b is the same as a
+          c=b; c(4,4)=-10; // c is not the same as a
+          if all(eq(a,b))<>F,display('SAME'),else display('DIFFERENT')
+          if all(eq(a,c))<>F,display('SAME'),else display('DIFFERENT')
 
-lt    "lt(X,Y)" is an elemental function that sets element values to 1
+          T=1;F=0;
+          T=1;F=0;
+
+      For further details see "help RELATIONAL".
+
+lt    "lt(X,Y)" sets output elements to 1 if X(i) < Y(i); else to 0.
+
+      "lt(X,Y)" is an elemental function that sets element values to 1
       if the corresponding element in X is less than the one in Y.
-      Otherwise, the element is set to 0. Only the REAL component of the
-      numbers is tested.
-
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      Otherwise, the element is set to 0.
 
           count_of_true_results=sum(lt(X,Y))
 
-le    "le(X,Y)" is an elemental function that sets element values to 1
+      For further details see "help RELATIONAL".
+
+le    If X(i) <= Y(i) output elements are 1; else 0.
+
+      "le(X,Y)" is an elemental function that sets element values to 1
       if the corresponding element in X is less than or equal to the one
-      in Y; if X is greater than Y the element of the answer is 0. Only
-      the REAL component of the numbers is tested.
+      in Y; otherwise the corresponding element in the answer is set to 0.
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      For further details see "help RELATIONAL".
 
-ge    "ge(X,Y)" is an elemental function that sets element values to 1
+ge    If X(i) >= Y(i) output elements are 1; else 0.
+
+      "ge(X,Y)" is an elemental function that sets element values to 1
       if the corresponding element in X is greater than or equal to the
-      one in Y; if X is less than Y the element of the answer is 0. Only
-      the REAL component of the numbers is tested.
+      one in Y; if X is less than Y the element of the answer is 0.
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      For further details see "help RELATIONAL".
 
-gt    "gt(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is greater than to the one in Y;
-      if X is less than or equal to Y the returned element in the answer
-      is 0. Only the REAL component of the numbers is tested.
+gt    If X(i) > Y(i) output elements are 1; else 0.
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      "gt(X,Y)" is an elemental function that sets element values in the
+      answer to 1 if the corresponding element in X is greater than the
+      corresponding element in Y; or to zero (0) otherwise.
 
-ne    "ne(X,Y)" is an elemental function that sets element values to 1
-      if the elements are not equal, and to 0 if they are not equal.
+      For further details see "help RELATIONAL".
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+ne    If X(i) <> Y(i) output elements are 1; else 0.
 
-================================================================================
-HIGH LEVEL FUNCTIONS
+      "ne(X,Y)" is an elemental function that sets element values to
+      1 if the elements are not equal, and to 0 if they are not equal.
 
-abs   abs(X) is the absolute value, or complex modulus,
-      of the elements of X .
+      For further details see "help RELATIONAL".
 
 all   all(X) returns FALSE(ie. 0) if any element value is FALSE(0).
       Otherwise, it returns TRUE(ie. 1).
@@ -12375,8 +12425,20 @@ any   any(X) returns TRUE(ie. 1) if any element value is TRUE(non-zero).
           all(T,F,F,F,F]) // produces 1 (which is a TRUE value)
           all(F,F,F,F,F]) // produces 0 (which is a FALSE value)
 
-base  base(X,B) is a vector containing the base B representation
-      of X. This is often used in conjunction with "display".
+isequal  "isequal(X,Y)" returns 0 (ie. "false") if X(i) <> Y(i) 
+
+         "isequal(X,Y)" returns a scalar 0 (ie. "false") if X and Y
+         are not the same size. If they are the same size it returns
+         1(ie. "true") if all elements of X have the same value as the
+         corresponding element in "Y".
+================================================================================
+HIGH LEVEL FUNCTIONS
+
+abs   abs(X) is the absolute value, or complex modulus,
+      of the elements of X .
+
+base  base(X,B) is a vector containing the base B representation of X.
+      This is often used in conjunction with "display".
       "display(X,B)" is the same as "display(base(X,B))". For example,
       "display(4*atan(1),16)" prints the hexadecimal representation of pi.
 
@@ -12852,7 +12914,7 @@ order%median       Calculates median VALUE. If number of elements
                    specified dimension, where 1 <= dim <= 2.
 
                    "median(X)" or "median(X,0)" calculates the median
-                   value of the array X().  It is different from
+                   value of the array X(). It is different from
                    "medianval(X)" in that the average of the two
                    middle values is returned when the size of X
                    is even.

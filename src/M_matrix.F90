@@ -1388,7 +1388,7 @@ integer                     :: i
    G_LUN_READING_FROM = G_INPUT_LUN                                       ! current file to read commands from
    call mat_files(STDOUT,G_BUF)
 
-   call mat_help_text()                                                   ! initialize help text
+   if(.not.allocated(G_HELP_TEXT)) call mat_help_text()                   ! initialize help text
    G_CURRENT_RANDOM_SEED = 0                                              ! random number seed
    G_LINECOUNT(2) = 23                                                    ! initial line limit for paging output
 
@@ -2643,7 +2643,7 @@ subroutine mat_matsets()
    ! set%setxor     705  ! find values of A and B not in both arrays
    ! set%union      706  ! join two sets and removes duplicates of values
    ! set%unique     707  ! return unique values in array A
-   ! set%isequal    708  ! report if A is equal to B
+   ! set%isequal    708  ! report if A is equal to B within a tolerance
 !===================================================================================================================================
    FUN_SETS: select case(G_FIN)
 !===================================================================================================================================
@@ -2740,29 +2740,45 @@ subroutine mat_matsets()
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
       endblock SET_ISSORTED
 !===================================================================================================================================
-   case(8) ! COMMAND::SET%isequal report if A is equal to B
+   case(8) ! COMMAND::SET%isequal report if A is equal to B within a tolerance
       SET_ISEQUAL: block
-      integer :: rowsX, colsX, startX
-      integer :: rowsY, colsY, startY
+      integer       :: rowsD, colsD, startD
+      integer       :: rowsX, colsX, startX
+      integer       :: rowsY, colsY, startY
+      real(kind=dp) :: delta
+      delta=0.0d0
       ! check arguments
       select case(G_RHS)
-      case(2)  ! two parameters
-         startY = G_VAR_DATALOC(G_ARGUMENT_POINTER)
-         colsY  = G_VAR_COLS(G_ARGUMENT_POINTER)
-         rowsY  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case(3)  ! three parameters
+         startD = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         delta=GM_REALS(startD)
+         if (G_VAR_COLS(G_ARGUMENT_POINTER)* G_VAR_ROWS(G_ARGUMENT_POINTER).ne.1)then
+            ! the third argument is supposed to be a scalar
+            call mat_err(39) ! Incorrect number of arguments
+            return
+         endif
          G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
-         startX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
-         colsX  = G_VAR_COLS(G_ARGUMENT_POINTER)
-         rowsX  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      case(2)  ! two parameters
       case default
          call mat_err(39) ! Incorrect number of arguments
          return
       end select
+      startY = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      colsY  = G_VAR_COLS(G_ARGUMENT_POINTER)
+      rowsY  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+      G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+      startX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+      colsX  = G_VAR_COLS(G_ARGUMENT_POINTER)
+      rowsX  = G_VAR_ROWS(G_ARGUMENT_POINTER)
       associate( A=>gm_reals( startX:startX+colsX*rowsX-1 ) , &
                  B=>gm_reals( startY:startY+colsY*rowsY-1 ) , &
                  C=>gm_imags( startX:startX+colsX*rowsX-1 ) , &
                  D=>gm_imags( startY:startY+colsY*rowsY-1 ) )
-       GM_REALS(STARTX:STARTX) =min(isequal(A,B),isequal(C,D))
+       if(delta.ne.0)then
+          GM_REALS(STARTX:STARTX) =min(isequal(A,B,delta),isequal(C,D,delta))
+       else
+          GM_REALS(STARTX:STARTX) =min(isequal(A,B),isequal(C,D))
+       endif
        GM_IMAGS(STARTX:STARTX) =0.0d0
       end associate
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
@@ -4634,7 +4650,8 @@ FINISHED: block
    case('sh')
       call sh_command()
 !===================================================================================================================================
-   case('help','fhelp')
+   case('help','fhelp') ! command::help
+                        ! command::fhelp
       HELP_ : block
       character(len=GG_LINELEN) :: topic_name
       integer                   :: position(2)
@@ -11285,8 +11302,20 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         help manual // show all the help text                                  ',&
 '         help help   // obviously prints this message.                          ',&
 '         help search factor // show all lines containing "factor".              ',&
+'         help SUMMARY // shows a short crib sheet of basic features             ',&
 '                                                                                ',&
-'      Alternatively, To place all the documentation in a file, use              ',&
+'      Placing help text in a file is most simply done using the command         ',&
+'      line:                                                                     ',&
+'                                                                                ',&
+'            lala -topic manual # display user manual to stdout                  ',&
+'                                                                                ',&
+'      or as a command on the command line:                                      ',&
+'                                                                                ',&
+'            lala ''help manual''                                                ',&
+'            lala ''help search inverse''                                        ',&
+'                                                                                ',&
+'      Alternatively in interactive mode use the help "w" function.              ',&
+'      For example, to place all the documentation in a file, use                ',&
 '      "help manual" and enter "w help.txt" at the "help:" prompt.               ',&
 'NEWS                                                                            ',&
 '      May, 1981.                                                                ',&
@@ -11330,6 +11359,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       * sum   Added the option to sum along rows or columns                    ',&
 '                                                                                ',&
 '      Differences                                                               ',&
+'                                                                                ',&
+'       * the original tertiary operator start:step:end was changed to be        ',&
+'         start:end:step.                                                        ',&
 '                                                                                ',&
 '       * added randu(), randn(), and randseed() and eliminated overloading      ',&
 '         of the word "rank", which was error-prone and had improbable but       ',&
@@ -11495,7 +11527,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      either is a scalar.                                                       ',&
 '                                                                                ',&
 '      An exception is made if X or Y is scalar; in that case the scalar is      ',&
-'      expanded to an array of the size of the other argument.  That is,         ',&
+'      expanded to an array of the size of the other argument. That is,          ',&
 '      a scalar X is treated as ones(Y)*X and a scalar Y is treated as           ',&
 '      ones(X)*Y.                                                                ',&
 '                                                                                ',&
@@ -11503,7 +11535,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      either is scalar.                                                         ',&
 '                                                                                ',&
 '      An exception is made if X or Y is scalar; in that case the scalar is      ',&
-'      expanded to an array of the size of the other argument.  That is,         ',&
+'      expanded to an array of the size of the other argument. That is,          ',&
 '      a scalar X is treated as ones(Y)*X and a scalar Y is treated as           ',&
 '      ones(X)*Y.                                                                ',&
 '                                                                                ',&
@@ -11649,281 +11681,311 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '================================================================================',&
 'RELATIONAL                                                                      ',&
 '                                                                                ',&
-'   An alternative to using the relational operators in flow control commands like',&
-'   "for" are the relational functions. In general zero is regarded as false, and ',&
-'   any other value is considered true. Note that only the REAL component of values',&
-'   is compared except for the "eq" and "ne" operators, which consider the entire  ',&
-'   value.                                                                         ',&
-'                                                                                  ',&
-'eq    "eq(X,Y)" is an elemental function that sets element values to 1            ',&
-'      if the elements are equal, and to 0 if they are not.                        ',&
-'                                                                                  ',&
-'      X and Y must have the same number of elements but need not be the same      ',&
-'      shape. The returned value has the shape of X unless X is scalar, in         ',&
-'      which case the returned value has the shape of Y.                           ',&
-'                                                                                  ',&
-'          // return 1 if all elements are zero, else 0                            ',&
-'          allzero=all(eq(X,0))                                                    ',&
-'                                                                                  ',&
-'          a=magic(4)      // make some arrays                                     ',&
-'          b=a             // b is the same as a                                   ',&
-'          c=b; c(4,4)=-10 // c is not the same as a                               ',&
-'          if all(eq(a,b))=1,display(''SAME''),else display(''DIFFERENT'')         ',&
-'          if all(eq(a,c))=1,display(''SAME''),else display(''DIFFERENT'')         ',&
-'                                                                                  ',&
-'lt    "lt(X,Y)" is an elemental function that sets element values to 1            ',&
-'      if the corresponding element in X is less than the one in Y.                ',&
-'      Otherwise, the element is set to 0. Only the REAL component of the          ',&
-'      numbers is tested.                                                          ',&
-'                                                                                  ',&
-'      X and Y must have the same number of elements but need not be the same      ',&
-'      shape. The returned value has the shape of X unless X is scalar, in         ',&
-'      which case the returned value has the shape of Y.                           ',&
-'                                                                                  ',&
-'          count_of_true_results=sum(lt(X,Y))                                      ',&
-'                                                                                  ',&
-'le    "le(X,Y)" is an elemental function that sets element values to 1            ',&
-'      if the corresponding element in X is less than or equal to the one          ',&
-'      in Y; if X is greater than Y the element of the answer is 0. Only           ',&
-'      the REAL component of the numbers is tested.                                ',&
-'                                                                                  ',&
-'      X and Y must have the same number of elements but need not be the same      ',&
-'      shape. The returned value has the shape of X unless X is scalar, in         ',&
-'      which case the returned value has the shape of Y.                           ',&
-'                                                                                  ',&
-'ge    "ge(X,Y)" is an elemental function that sets element values to 1            ',&
-'      if the corresponding element in X is greater than or equal to the           ',&
-'      one in Y; if X is less than Y the element of the answer is 0. Only          ',&
-'      the REAL component of the numbers is tested.                                ',&
-'                                                                                  ',&
-'      X and Y must have the same number of elements but need not be the same      ',&
-'      shape. The returned value has the shape of X unless X is scalar, in         ',&
-'      which case the returned value has the shape of Y.                           ',&
-'                                                                                  ',&
-'gt    "gt(X,Y)" is an elemental function that sets element values to 1            ',&
-'      if the corresponding element in X is greater than to the one in Y;          ',&
-'      if X is less than or equal to Y the returned element in the answer          ',&
-'      is 0. Only the REAL component of the numbers is tested.                     ',&
-'                                                                                  ',&
-'      X and Y must have the same number of elements but need not be the same      ',&
-'      shape. The returned value has the shape of X unless X is scalar, in         ',&
-'      which case the returned value has the shape of Y.                           ',&
-'                                                                                  ',&
-'ne    "ne(X,Y)" is an elemental function that sets element values to 1            ',&
-'      if the elements are not equal, and to 0 if they are not equal.              ',&
-'                                                                                  ',&
-'      X and Y must have the same number of elements but need not be the same      ',&
-'      shape. The returned value has the shape of X unless X is scalar, in         ',&
-'      which case the returned value has the shape of Y.                           ',&
-'                                                                                  ',&
-'================================================================================  ',&
-'HIGH LEVEL FUNCTIONS                                                              ',&
-'                                                                                  ',&
-'abs   abs(X) is the absolute value, or complex modulus,                           ',&
-'      of the elements of X .                                                      ',&
-'                                                                                  ',&
-'all   all(X) returns FALSE(ie. 0) if any element value is FALSE(0).               ',&
-'      Otherwise, it returns TRUE(ie. 1).                                          ',&
-'                                                                                  ',&
-'      0 is regarded as false and "not 0" signifies true in general in             ',&
-'      lala(1). so if F=0 and T=1                                                  ',&
-'                                                                                  ',&
-'          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)                   ',&
-'          all(T,F,T,F,T]) // produces 0 (which is a FALSE value)                  ',&
-'                                                                                  ',&
-'any   any(X) returns TRUE(ie. 1) if any element value is TRUE(non-zero).          ',&
-'                                                                                  ',&
-'      0 is regarded as false and "not 0" signifies true in general in             ',&
-'      lala(1).                                                                    ',&
-'                                                                                  ',&
-'          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)                   ',&
-'          all(T,F,F,F,F]) // produces 1 (which is a TRUE value)                   ',&
-'          all(F,F,F,F,F]) // produces 0 (which is a FALSE value)                  ',&
-'                                                                                  ',&
-'base  base(X,B) is a vector containing the base B representation                  ',&
-'      of X. This is often used in conjunction with "display".                     ',&
-'      "display(X,B)" is the same as "display(base(X,B))". For example,            ',&
-'      "display(4*atan(1),16)" prints the hexadecimal representation of pi.        ',&
-'                                                                                  ',&
-'chol  Cholesky factorization. "chol(X)" uses only the diagonal                    ',&
-'      and upper triangle of X. The lower triangular is assumed to be              ',&
-'      the (complex conjugate) transpose of the upper. If X is positive            ',&
-'      definite, then "R = chol(X)" produces an upper triangular R so              ',&
-'      that R''*R = X . If X is not positive definite, an error message            ',&
-'      is printed.                                                                 ',&
-'                                                                                  ',&
-'chop  Truncate arithmetic. "chop(P)" causes P places to be chopped                ',&
-'      off after each arithmetic operation in subsequent computations. This        ',&
-'      means P hexadecimal digits on some computers and P octal digits             ',&
-'      on others. "chop(0)" restores full precision.                               ',&
-'                                                                                  ',&
-'cond  Condition number in 2-norm. "cond(X)" is the ratio of the                   ',&
-'      largest singular value of X to the smallest.                                ',&
-'                                                                                  ',&
-'conjg  "conjg(X)" is the complex conjugate of X .                                 ',&
-'                                                                                  ',&
-'date_and_time  date_and_time(IDS)" where an array of IDs indicate                 ',&
-'               which values to return:                                            ',&
-'                                                                                  ',&
-'               Id                                                                 ',&
-'                1. The year, including the century.                               ',&
-'                2. The month of the year                                          ',&
-'                3. The day of the month                                           ',&
-'                4. Difference in minutes between the reported and UTC time.       ',&
-'                5. The hour of the day, in the range 0 to 23.                     ',&
-'                6. The minutes of the hour, in the range 0 to 59                  ',&
-'                7. The seconds of the minute, in the range 0 to 60                ',&
-'                8. The milliseconds of the second, in the range 0 to 999.         ',&
-'                9. Unix epoch time                                                ',&
-'               10. Julian time                                                    ',&
-'               11. Modified Julian time                                           ',&
-'               12. Basename and Seconds (BAS) time                                ',&
-'               13. Ordinal day of the year                                        ',&
-'               14. Day of week                                                    ',&
-'                                                                                  ',&
-'               dat=date_and_time(1:8)                                             ',&
-'               YEAR=1;MONTH=2;DAY=3;                                              ',&
-'               display(date_and_time(YEAR,MONTH,DAY))                             ',&
-'                                                                                  ',&
-'det   "det(X)" is the determinant of the square matrix X .                        ',&
-'                                                                                  ',&
-'diag  If V is a row or column vector with N components,                           ',&
-'      "diag(V,K)" is a square matrix of order "N+abs(K)" with the                 ',&
-'      elements of V on the K-th diagonal. K = 0 is the main diagonal,             ',&
-'      K > 0 is above the main diagonal and K < 0 is below the main                ',&
-'      diagonal. "diag(V)" simply puts V on the main diagonal. eg.                 ',&
-'                                                                                  ',&
-'         diag(-M:M) + diag(ones(2*M,1),1) + diag(ones(2*M,1),-1)                  ',&
-'                                                                                  ',&
-'      produces a tridiagonal matrix of order 2*M+1 .                              ',&
-'                                                                                  ',&
-'      If X is a matrix, "diag(X,K)" is a column vector formed from the            ',&
-'      elements of the K-th diagonal of X. "diag(X)" is the main diagonal          ',&
-'      of X. "diag(diag(X))" is a diagonal matrix .                                ',&
-'                                                                                  ',&
-'eig   Eigenvalues and eigenvectors.                                               ',&
-'      "eig(X)" is a vector containing the eigenvalues of a square                 ',&
-'      matrix X.                                                                   ',&
-'      "<V,D> = eig(X)" produces a diagonal matrix D of                            ',&
-'      eigenvalues and a full matrix V whose columns are the                       ',&
-'      corresponding eigenvectors so that X*V = V*D .                              ',&
-'                                                                                  ',&
-'eye   Identity matrix. "eye(N)" is the N by N identity matrix.                    ',&
-'      "eye(M,N)" is an M by N matrix with 1''s on the diagonal and                ',&
-'      zeros elsewhere. "eye(A)" is the same size as A. "eye"                      ',&
-'      with no arguments is an identity matrix of whatever order                   ',&
-'      is appropriate in the context. For example "A + 3*eye"                      ',&
-'      adds 3 to each diagonal element of A.                                       ',&
-'                                                                                  ',&
-'fmtc  "fmtc(A,''format'')" converts given numbers to strings representing         ',&
-'       a complex number using the optional specified Fortran format. Note         ',&
-'       the format is used repeatedly to output each string. It is not             ',&
-'       used to print multiple values as once.                                     ',&
-'                                                                                  ',&
-'         A=10+sqrt(-1)*20                                                         ',&
-'         display(fmtc(A))                                                         ',&
-'                                                                                  ',&
-'fmti  "fmti(A,''format'')" converts given numbers to strings representing         ',&
-'       the nearest integer values using the optional specified Fortran            ',&
-'       format. Note the format is used repeatedly to output each string.          ',&
-'       It is not used to print multiple values as once.                           ',&
-'                                                                                  ',&
-'         A=magic(3)                                                               ',&
-'         display(fmti(A,''i0,1x''))                                               ',&
-'         8 3 4 1 5 9 6 7 2                                                        ',&
-'                                                                                  ',&
-'fmtr  "fmtr(A,''format'')" converts given numbers to strings representing         ',&
-'       real values using the optional specified Fortran format. Note              ',&
-'       the format is used repeatedly to output each string. It is not             ',&
-'       used to print multiple values as once.                                     ',&
-'                                                                                  ',&
-'         display(fmtr(A,''g0,1x''))                                               ',&
-'                                                                                  ',&
-'hess  Hessenberg form. The Hessenberg form of a matrix is zero                    ',&
-'      below the first subdiagonal. If the matrix is symmetric or                  ',&
-'      Hermitian, the form is tridiagonal. <P,H> = "hess(A)" produces a            ',&
-'      unitary matrix P and a Hessenberg matrix H so that A = P*H*P''. By          ',&
-'      itself, "hess(A)" returns H.                                                ',&
-'                                                                                  ',&
-'invh  Inverse Hilbert matrix. "invh(N)" is the inverse of a N_by_N                ',&
-'      Hilbert matrix (which is a famous example of a badly conditioned            ',&
-'      matrix). The result is exact for N less than about 15, depending            ',&
-'      upon the computer.                                                          ',&
-'                                                                                  ',&
-'         for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);                            ',&
-'                                                                                  ',&
-'      generates the NxN Hilbert matrix.                                           ',&
-'                                                                                  ',&
-'      "invh" has an alias of "inverse_hilbert" and "invhilb".                     ',&
-'                                                                                  ',&
-'aimag  see "imag"                                                                 ',&
-'imag  "imag(X)" is the imaginary part of X .                                      ',&
-'                                                                                  ',&
-'inv   "inv(X)" is the inverse of the square matrix X . A warning                  ',&
-'      message is printed if X is badly scaled or nearly                           ',&
-'      singular.                                                                   ',&
-'                                                                                  ',&
-'kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It                  ',&
-'      is also denoted by X .*. Y . The result is a large matrix                   ',&
-'      formed by taking all possible products between the elements                 ',&
-'      of X and those of Y . For example, if X is 2 by 3, then                     ',&
-'      X .*. Y is                                                                  ',&
-'                                                                                  ',&
-'            < x(1,1)*Y  x(1,2)*Y  x(1,3)*Y                                        ',&
-'              x(2,1)*Y  x(2,2)*Y  x(2,3)*Y >                                      ',&
-'                                                                                  ',&
-'      The five-point discrete Laplacian for an n-by-n grid can be                 ',&
-'      generated by                                                                ',&
-'                                                                                  ',&
-'            T = diag(ones(n-1,1),1);  T = T + T'';  I = eye(T);                   ',&
-'            A = T.*.I + I.*.T - 4*eye;                                            ',&
-'                                                                                  ',&
-'      Just in case they might be useful, LALA includes                            ',&
-'      constructions called Kronecker tensor quotients, denoted by                 ',&
-'      X ./. Y and X .\. Y . They are obtained by replacing the                    ',&
-'      element-wise multiplications in X .*. Y with divisions.                     ',&
-'                                                                                  ',&
-'lu    Factors from Gaussian elimination. <L,U> = LU(X) stores a                   ',&
-'      upper triangular matrix in U and a ''psychologically lower                  ',&
-'      triangular matrix'', i.e. a product of lower triangular and                 ',&
-'      permutation matrices, in L , so that X = L*U . By itself,                   ',&
-'      "lu(X)" returns the output from CGEFA .                                     ',&
-'                                                                                  ',&
-'magic  Magic square. "magic(N)" is an N by N matrix constructed                   ',&
-'       from the integers 1 through N**2 with equal row, column and                ',&
-'       diagonal sums. N must be a positive whole number not equal to two.         ',&
-'                                                                                  ',&
-'maxloc  "maxloc(A)" returns the location of the maximum real component            ',&
-'        found in the elements of A                                                ',&
-'                                                                                  ',&
-'maxval  "maxval(A)" returns the maximum real component found in the               ',&
-'        elements of A                                                             ',&
-'                                                                                  ',&
-'minloc  "minloc(A)" returns the location of the minimum real component            ',&
-'        found in the elements of A                                                ',&
-'                                                                                  ',&
-'minval  "minval(A)" returns the minimum real component found in the               ',&
-'        elements of A                                                             ',&
-'                                                                                  ',&
-'norm  computes the norm or P-norm of X                                            ',&
-'                                                                                  ',&
-'      norm(X,P) computes the P-norm of X. P=2 is the default, which defines       ',&
-'      the standard norm.                                                          ',&
-'                                                                                  ',&
-'      For matrices..                                                              ',&
-'          norm(X,1)      is the 1-norm of X; ie. the largest column sum           ',&
-'                         of X.                                                    ',&
-'                                                                                  ',&
-'          norm(X,2)      the largest singular value of X.                         ',&
-'          or norm(X)                                                              ',&
-'                                                                                  ',&
-'          norm(X,''inf'')  is the infinity norm of X; ie. the largest row         ',&
-'                         sum of X.                                                ',&
-'                                                                                  ',&
-'          norm(X,''fro'')  is the F-norm, i.e. "sqrt(sum(diag(X''*X)))" .         ',&
-'                                                                                  ',&
-'      For vectors..                                                               ',&
-'          norm(V,P)      the same as sum(V(I)**P)**(1/P) .                        ',&
+'   An alternative to using the scalar relational operators                      ',&
+'   ("<=,<,=,<>,>,>=") in flow control commands like "for" are the               ',&
+'   elemental relational functions "le(X,Y)", "lt(X,Y)","eq(X,Y)",               ',&
+'   "ne(X,Y)", "gt(X,Y)", "ge(X,Y)" combined with "all(X)", "all(Y)",            ',&
+'   and "isequal(X,Y,TOLERANCE)". These all return boolean values.               ',&
+'                                                                                ',&
+'   At least one of X or Y may be scalar. Otherwise X and Y must have the        ',&
+'   same number of elements but need not be the same shape. The returned         ',&
+'   value has the shape of X unless X is scalar, in which case the returned      ',&
+'   value has the shape of Y. If X or Y is scalar it is treated as if the        ',&
+'   same size as the other argument but will all of its elements set to the      ',&
+'   scalar value.                                                                ',&
+'                                                                                ',&
+'   The return values are zeros (regarded as false), and ones (non-zero          ',&
+'   values are to be considered true).                                           ',&
+'                                                                                ',&
+'   Note that only the REAL component of values is compared except for the       ',&
+'   "eq","ne" and "isequal" operators, which consider the entire value           ',&
+'   including imaginary components.                                              ',&
+'                                                                                ',&
+'   The "all(X)" and "any(X)" functions may then used to reduce the vectors      ',&
+'   returned by the relational functions to a scalar value suitable for          ',&
+'   use in "for" and "which".                                                    ',&
+'                                                                                ',&
+'   The "isequal(X,Y)" function is equivalent to "all(eq(X,Y))" except           ',&
+'   it also checks if the sizes of X and Y are conformant and reports            ',&
+'   false (0) if not, and allows for a tolerance in determining if values        ',&
+'   are equal.                                                                   ',&
+'                                                                                ',&
+'eq    "eq(X,Y)" sets output elements to 1 if X(i)=Y(i), 0 if not                ',&
+'                                                                                ',&
+'      "eq(X,Y)" is an elemental function that sets element values in the        ',&
+'      answer to 1 if the corresponding element in X is equal to the             ',&
+'      corresponding one in Y. Otherwise, the element is set to 0.               ',&
+'                                                                                ',&
+'          // return 1 if all elements are zero, else 0                          ',&
+'          allzero=all(eq(X,0))                                                  ',&
+'                                                                                ',&
+'          T=1;F=0;         // mneumonics for TRUE and FALSE                     ',&
+'          a=magic(4);      // make some arrays                                  ',&
+'          b=a;             // b is the same as a                                ',&
+'          c=b; c(4,4)=-10; // c is not the same as a                            ',&
+'          if all(eq(a,b))<>F,display(''SAME''),else display(''DIFFERENT'')      ',&
+'          if all(eq(a,c))<>F,display(''SAME''),else display(''DIFFERENT'')      ',&
+'                                                                                ',&
+'          T=1;F=0;                                                              ',&
+'          T=1;F=0;                                                              ',&
+'                                                                                ',&
+'      For further details see "help RELATIONAL".                                ',&
+'                                                                                ',&
+'lt    "lt(X,Y)" sets output elements to 1 if X(i) < Y(i); else to 0.            ',&
+'                                                                                ',&
+'      "lt(X,Y)" is an elemental function that sets element values to 1          ',&
+'      if the corresponding element in X is less than the one in Y.              ',&
+'      Otherwise, the element is set to 0.                                       ',&
+'                                                                                ',&
+'          count_of_true_results=sum(lt(X,Y))                                    ',&
+'                                                                                ',&
+'      For further details see "help RELATIONAL".                                ',&
+'                                                                                ',&
+'le    If X(i) <= Y(i) output elements are 1; else 0.                            ',&
+'                                                                                ',&
+'      "le(X,Y)" is an elemental function that sets element values to 1          ',&
+'      if the corresponding element in X is less than or equal to the one        ',&
+'      in Y; otherwise the corresponding element in the answer is set to 0.      ',&
+'                                                                                ',&
+'      For further details see "help RELATIONAL".                                ',&
+'                                                                                ',&
+'ge    If X(i) >= Y(i) output elements are 1; else 0.                            ',&
+'                                                                                ',&
+'      "ge(X,Y)" is an elemental function that sets element values to 1          ',&
+'      if the corresponding element in X is greater than or equal to the         ',&
+'      one in Y; if X is less than Y the element of the answer is 0.             ',&
+'                                                                                ',&
+'      For further details see "help RELATIONAL".                                ',&
+'                                                                                ',&
+'gt    If X(i) > Y(i) output elements are 1; else 0.                             ',&
+'                                                                                ',&
+'      "gt(X,Y)" is an elemental function that sets element values in the        ',&
+'      answer to 1 if the corresponding element in X is greater than the         ',&
+'      corresponding element in Y; or to zero (0) otherwise.                     ',&
+'                                                                                ',&
+'      For further details see "help RELATIONAL".                                ',&
+'                                                                                ',&
+'ne    If X(i) <> Y(i) output elements are 1; else 0.                            ',&
+'                                                                                ',&
+'      "ne(X,Y)" is an elemental function that sets element values to            ',&
+'      1 if the elements are not equal, and to 0 if they are not equal.          ',&
+'                                                                                ',&
+'      For further details see "help RELATIONAL".                                ',&
+'                                                                                ',&
+'all   all(X) returns FALSE(ie. 0) if any element value is FALSE(0).             ',&
+'      Otherwise, it returns TRUE(ie. 1).                                        ',&
+'                                                                                ',&
+'      0 is regarded as false and "not 0" signifies true in general in           ',&
+'      lala(1). so if F=0 and T=1                                                ',&
+'                                                                                ',&
+'          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)                 ',&
+'          all(T,F,T,F,T]) // produces 0 (which is a FALSE value)                ',&
+'                                                                                ',&
+'any   any(X) returns TRUE(ie. 1) if any element value is TRUE(non-zero).        ',&
+'                                                                                ',&
+'      0 is regarded as false and "not 0" signifies true in general in           ',&
+'      lala(1).                                                                  ',&
+'                                                                                ',&
+'          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)                 ',&
+'          all(T,F,F,F,F]) // produces 1 (which is a TRUE value)                 ',&
+'          all(F,F,F,F,F]) // produces 0 (which is a FALSE value)                ',&
+'                                                                                ',&
+'isequal  "isequal(X,Y)" returns 0 (ie. "false") if X(i) <> Y(i)                 ',&
+'                                                                                ',&
+'         "isequal(X,Y)" returns a scalar 0 (ie. "false") if X and Y             ',&
+'         are not the same size. If they are the same size it returns            ',&
+'         1(ie. "true") if all elements of X have the same value as the          ',&
+'         corresponding element in "Y".                                          ',&
+'================================================================================',&
+'HIGH LEVEL FUNCTIONS                                                            ',&
+'                                                                                ',&
+'abs   abs(X) is the absolute value, or complex modulus,                         ',&
+'      of the elements of X .                                                    ',&
+'                                                                                ',&
+'base  base(X,B) is a vector containing the base B representation of X.          ',&
+'      This is often used in conjunction with "display".                         ',&
+'      "display(X,B)" is the same as "display(base(X,B))". For example,          ',&
+'      "display(4*atan(1),16)" prints the hexadecimal representation of pi.      ',&
+'                                                                                ',&
+'chol  Cholesky factorization. "chol(X)" uses only the diagonal                  ',&
+'      and upper triangle of X. The lower triangular is assumed to be            ',&
+'      the (complex conjugate) transpose of the upper. If X is positive          ',&
+'      definite, then "R = chol(X)" produces an upper triangular R so            ',&
+'      that R''*R = X . If X is not positive definite, an error message          ',&
+'      is printed.                                                               ',&
+'                                                                                ',&
+'chop  Truncate arithmetic. "chop(P)" causes P places to be chopped              ',&
+'      off after each arithmetic operation in subsequent computations. This      ',&
+'      means P hexadecimal digits on some computers and P octal digits           ',&
+'      on others. "chop(0)" restores full precision.                             ',&
+'                                                                                ',&
+'cond  Condition number in 2-norm. "cond(X)" is the ratio of the                 ',&
+'      largest singular value of X to the smallest.                              ',&
+'                                                                                ',&
+'conjg  "conjg(X)" is the complex conjugate of X .                               ',&
+'                                                                                ',&
+'date_and_time  date_and_time(IDS)" where an array of IDs indicate               ',&
+'               which values to return:                                          ',&
+'                                                                                ',&
+'               Id                                                               ',&
+'                1. The year, including the century.                             ',&
+'                2. The month of the year                                        ',&
+'                3. The day of the month                                         ',&
+'                4. Difference in minutes between the reported and UTC time.     ',&
+'                5. The hour of the day, in the range 0 to 23.                   ',&
+'                6. The minutes of the hour, in the range 0 to 59                ',&
+'                7. The seconds of the minute, in the range 0 to 60              ',&
+'                8. The milliseconds of the second, in the range 0 to 999.       ',&
+'                9. Unix epoch time                                              ',&
+'               10. Julian time                                                  ',&
+'               11. Modified Julian time                                         ',&
+'               12. Basename and Seconds (BAS) time                              ',&
+'               13. Ordinal day of the year                                      ',&
+'               14. Day of week                                                  ',&
+'                                                                                ',&
+'               dat=date_and_time(1:8)                                           ',&
+'               YEAR=1;MONTH=2;DAY=3;                                            ',&
+'               display(date_and_time(YEAR,MONTH,DAY))                           ',&
+'                                                                                ',&
+'det   "det(X)" is the determinant of the square matrix X .                      ',&
+'                                                                                ',&
+'diag  If V is a row or column vector with N components,                         ',&
+'      "diag(V,K)" is a square matrix of order "N+abs(K)" with the               ',&
+'      elements of V on the K-th diagonal. K = 0 is the main diagonal,           ',&
+'      K > 0 is above the main diagonal and K < 0 is below the main              ',&
+'      diagonal. "diag(V)" simply puts V on the main diagonal. eg.               ',&
+'                                                                                ',&
+'         diag(-M:M) + diag(ones(2*M,1),1) + diag(ones(2*M,1),-1)                ',&
+'                                                                                ',&
+'      produces a tridiagonal matrix of order 2*M+1 .                            ',&
+'                                                                                ',&
+'      If X is a matrix, "diag(X,K)" is a column vector formed from the          ',&
+'      elements of the K-th diagonal of X. "diag(X)" is the main diagonal        ',&
+'      of X. "diag(diag(X))" is a diagonal matrix .                              ',&
+'                                                                                ',&
+'eig   Eigenvalues and eigenvectors.                                             ',&
+'      "eig(X)" is a vector containing the eigenvalues of a square               ',&
+'      matrix X.                                                                 ',&
+'      "<V,D> = eig(X)" produces a diagonal matrix D of                          ',&
+'      eigenvalues and a full matrix V whose columns are the                     ',&
+'      corresponding eigenvectors so that X*V = V*D .                            ',&
+'                                                                                ',&
+'eye   Identity matrix. "eye(N)" is the N by N identity matrix.                  ',&
+'      "eye(M,N)" is an M by N matrix with 1''s on the diagonal and              ',&
+'      zeros elsewhere. "eye(A)" is the same size as A. "eye"                    ',&
+'      with no arguments is an identity matrix of whatever order                 ',&
+'      is appropriate in the context. For example "A + 3*eye"                    ',&
+'      adds 3 to each diagonal element of A.                                     ',&
+'                                                                                ',&
+'fmtc  "fmtc(A,''format'')" converts given numbers to strings representing       ',&
+'       a complex number using the optional specified Fortran format. Note       ',&
+'       the format is used repeatedly to output each string. It is not           ',&
+'       used to print multiple values as once.                                   ',&
+'                                                                                ',&
+'         A=10+sqrt(-1)*20                                                       ',&
+'         display(fmtc(A))                                                       ',&
+'                                                                                ',&
+'fmti  "fmti(A,''format'')" converts given numbers to strings representing       ',&
+'       the nearest integer values using the optional specified Fortran          ',&
+'       format. Note the format is used repeatedly to output each string.        ',&
+'       It is not used to print multiple values as once.                         ',&
+'                                                                                ',&
+'         A=magic(3)                                                             ',&
+'         display(fmti(A,''i0,1x''))                                             ',&
+'         8 3 4 1 5 9 6 7 2                                                      ',&
+'                                                                                ',&
+'fmtr  "fmtr(A,''format'')" converts given numbers to strings representing       ',&
+'       real values using the optional specified Fortran format. Note            ',&
+'       the format is used repeatedly to output each string. It is not           ',&
+'       used to print multiple values as once.                                   ',&
+'                                                                                ',&
+'         display(fmtr(A,''g0,1x''))                                             ',&
+'                                                                                ',&
+'hess  Hessenberg form. The Hessenberg form of a matrix is zero                  ',&
+'      below the first subdiagonal. If the matrix is symmetric or                ',&
+'      Hermitian, the form is tridiagonal. <P,H> = "hess(A)" produces a          ',&
+'      unitary matrix P and a Hessenberg matrix H so that A = P*H*P''. By        ',&
+'      itself, "hess(A)" returns H.                                              ',&
+'                                                                                ',&
+'invh  Inverse Hilbert matrix. "invh(N)" is the inverse of a N_by_N              ',&
+'      Hilbert matrix (which is a famous example of a badly conditioned          ',&
+'      matrix). The result is exact for N less than about 15, depending          ',&
+'      upon the computer.                                                        ',&
+'                                                                                ',&
+'         for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);                          ',&
+'                                                                                ',&
+'      generates the NxN Hilbert matrix.                                         ',&
+'                                                                                ',&
+'      "invh" has an alias of "inverse_hilbert" and "invhilb".                   ',&
+'                                                                                ',&
+'aimag  see "imag"                                                               ',&
+'imag  "imag(X)" is the imaginary part of X .                                    ',&
+'                                                                                ',&
+'inv   "inv(X)" is the inverse of the square matrix X . A warning                ',&
+'      message is printed if X is badly scaled or nearly                         ',&
+'      singular.                                                                 ',&
+'                                                                                ',&
+'kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It                ',&
+'      is also denoted by X .*. Y . The result is a large matrix                 ',&
+'      formed by taking all possible products between the elements               ',&
+'      of X and those of Y . For example, if X is 2 by 3, then                   ',&
+'      X .*. Y is                                                                ',&
+'                                                                                ',&
+'            < x(1,1)*Y  x(1,2)*Y  x(1,3)*Y                                      ',&
+'              x(2,1)*Y  x(2,2)*Y  x(2,3)*Y >                                    ',&
+'                                                                                ',&
+'      The five-point discrete Laplacian for an n-by-n grid can be               ',&
+'      generated by                                                              ',&
+'                                                                                ',&
+'            T = diag(ones(n-1,1),1);  T = T + T'';  I = eye(T);                 ',&
+'            A = T.*.I + I.*.T - 4*eye;                                          ',&
+'                                                                                ',&
+'      Just in case they might be useful, LALA includes                          ',&
+'      constructions called Kronecker tensor quotients, denoted by               ',&
+'      X ./. Y and X .\. Y . They are obtained by replacing the                  ',&
+'      element-wise multiplications in X .*. Y with divisions.                   ',&
+'                                                                                ',&
+'lu    Factors from Gaussian elimination. <L,U> = LU(X) stores a                 ',&
+'      upper triangular matrix in U and a ''psychologically lower                ',&
+'      triangular matrix'', i.e. a product of lower triangular and               ',&
+'      permutation matrices, in L , so that X = L*U . By itself,                 ',&
+'      "lu(X)" returns the output from CGEFA .                                   ',&
+'                                                                                ',&
+'magic  Magic square. "magic(N)" is an N by N matrix constructed                 ',&
+'       from the integers 1 through N**2 with equal row, column and              ',&
+'       diagonal sums. N must be a positive whole number not equal to two.       ',&
+'                                                                                ',&
+'maxloc  "maxloc(A)" returns the location of the maximum real component          ',&
+'        found in the elements of A                                              ',&
+'                                                                                ',&
+'maxval  "maxval(A)" returns the maximum real component found in the             ',&
+'        elements of A                                                           ',&
+'                                                                                ',&
+'minloc  "minloc(A)" returns the location of the minimum real component          ',&
+'        found in the elements of A                                              ',&
+'                                                                                ',&
+'minval  "minval(A)" returns the minimum real component found in the             ',&
+'        elements of A                                                           ',&
+'                                                                                ',&
+'norm  computes the norm or P-norm of X                                          ',&
+'                                                                                ',&
+'      norm(X,P) computes the P-norm of X. P=2 is the default, which defines     ',&
+'      the standard norm.                                                        ',&
+'                                                                                ',&
+'      For matrices..                                                            ',&
+'          norm(X,1)      is the 1-norm of X; ie. the largest column sum         ',&
+'                         of X.                                                  ',&
+'                                                                                ',&
+'          norm(X,2)      the largest singular value of X.                       ',&
+'          or norm(X)                                                            ',&
+'                                                                                ',&
+'          norm(X,''inf'')  is the infinity norm of X; ie. the largest row       ',&
+'                         sum of X.                                              ',&
+'                                                                                ',&
+'          norm(X,''fro'')  is the F-norm, i.e. "sqrt(sum(diag(X''*X)))" .       ',&
+'                                                                                ',&
+'      For vectors..                                                             ',&
+'          norm(V,P)      the same as sum(V(I)**P)**(1/P) .                      ',&
 '                         ??? what about negative values of (I) and odd P? abs() or not',&
 '                                                                                      ',&
 '          norm(V,2)      the square root of the sum of the squares of                 ',&
@@ -12217,7 +12279,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                   specified dimension, where 1 <= dim <= 2.                          ',&
 '                                                                                      ',&
 '                   "median(X)" or "median(X,0)" calculates the median                 ',&
-'                   value of the array X().  It is different from                      ',&
+'                   value of the array X(). It is different from                       ',&
 '                   "medianval(X)" in that the average of the two                      ',&
 '                   middle values is returned when the size of X                       ',&
 '                   is even.                                                           ',&

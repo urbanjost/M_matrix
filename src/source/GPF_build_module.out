@@ -34,7 +34,7 @@
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man1/lala.1
 + env AUX_FILENAME=lala.1.man man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html ff103913-e8e7-4321-b89d-c451923bc3cc
+man2html 1c0812dd-694e-4aa3-b3fb-39e894570e50
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/lala.1.man.1m_matrix.html
@@ -47,8 +47,8 @@ man2html ff103913-e8e7-4321-b89d-c451923bc3cc
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man3
 ++ ls '*.3.man' get_from_lala.3m_matrix.man ifin_lala.3m_matrix.man lala.3m_matrix.man M_matrix.3m_matrix.man put_into_lala.3m_matrix.man
-++ uniq
 ++ sort
+++ uniq
 + for NAME in $(ls *.$NUM.man *.${NUM}${MAN_EXTENSION}.man 2>/dev/null|sort|uniq)
 + echo '>>>> processing manpage and HTML for get_from_lala.3m_matrix.man'
 >>>> processing manpage and HTML for get_from_lala.3m_matrix.man
@@ -57,11 +57,11 @@ man2html ff103913-e8e7-4321-b89d-c451923bc3cc
 ++ basename get_from_lala.3m_matrix.man .3m_matrix.man
 + SHORTNAME=get_from_lala
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix SHORTNAME get_from_lala
-+ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
 + txt2man -s 3m_matrix -t get_from_lala get_from_lala.3m_matrix.man
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/get_from_lala.3m_matrix
 + env AUX_FILENAME=get_from_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 9ff41a6d-a7c1-4bff-adb7-dacc2de06777
+man2html 11699211-e1b7-46fb-8c71-106b91e8d7ee
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/get_from_lala.3m_matrix.html
@@ -78,7 +78,7 @@ man2html 9ff41a6d-a7c1-4bff-adb7-dacc2de06777
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/ifin_lala.3m_matrix
 + env AUX_FILENAME=ifin_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 3bc3a794-0682-4891-bc62-d099340f67d9
+man2html ea5221ba-af14-45f2-89a2-897228414c7d
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/ifin_lala.3m_matrix.html
@@ -95,7 +95,7 @@ man2html 3bc3a794-0682-4891-bc62-d099340f67d9
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/lala.3m_matrix
 + env AUX_FILENAME=lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html 7bffc9e7-1837-4d6b-8bf0-13a684604e82
+man2html f9486a9c-a99c-4f99-9d62-6849e3479038
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/lala.3m_matrix.html
@@ -109,10 +109,10 @@ man2html 7bffc9e7-1837-4d6b-8bf0-13a684604e82
 + SHORTNAME=M_matrix
 + : SHORTNAME_MAN /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix SHORTNAME M_matrix
 + txt2man -s 3m_matrix -t M_matrix M_matrix.3m_matrix.man
-+ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
 + env AUX_FILENAME=M_matrix man2html
++ tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/M_matrix.3m_matrix
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html daf9668f-734a-4e4f-a084-60af8c065324
+man2html a869a415-cdcf-4b2b-966e-556cc224cfde
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/M_matrix.3m_matrix.html
@@ -129,7 +129,7 @@ man2html daf9668f-734a-4e4f-a084-60af8c065324
 + tee /home/urbanjs/venus/V600/github/M_matrix/man/man3/put_into_lala.3m_matrix
 + env AUX_FILENAME=put_into_lala man2html
 /home/urbanjs/venus/V600/github/index/github_scripts/bash/txt2man
-man2html c232e104-cd17-4a87-befd-c3a74428d699
+man2html c82b21e8-9279-4cf2-a3ed-09ae35e0d31a
 + replace index.html https://github.com/urbanjost/M_matrix -- /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
 /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html converted
 + sed -i -e '{/Nemo Release/d}' /home/urbanjs/venus/V600/github/M_matrix/docs/put_into_lala.3m_matrix.html
@@ -166,8 +166,8 @@ man2html c232e104-cd17-4a87-befd-c3a74428d699
 + cd doc
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man1
-++ sort
 ++ ls '*.1.txt' '*.1m_matrix.txt'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man2
@@ -181,9 +181,9 @@ man2html c232e104-cd17-4a87-befd-c3a74428d699
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man4
+++ ls '*.4.txt' '*.4m_matrix.txt'
 ++ sort
 ++ uniq
-++ ls '*.4.txt' '*.4m_matrix.txt'
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man5
 ++ ls '*.5.txt' '*.5m_matrix.txt'
@@ -191,8 +191,8 @@ man2html c232e104-cd17-4a87-befd-c3a74428d699
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man6
-++ sort
 ++ ls '*.6.txt' '*.6m_matrix.txt'
+++ sort
 ++ uniq
 + for NUM in 1 2 3 4 5 6 7 8
 + mkdir -p /home/urbanjs/venus/V600/github/M_matrix/man/man7
@@ -305,8 +305,8 @@ Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat
 6 manual pages were added.
 0 stray cats were added.
 + cat -s
-++ pwd
 + col -b
+++ pwd
 + env MANWIDTH=256 MANPATH=/home/urbanjs/venus/V600/github/M_matrix/man man -k .
 + col -b
 ++ pwd
@@ -315,20 +315,20 @@ Processing manual pages under /home/urbanjs/venus/V600/github/M_matrix/man/./cat
 + export DIR=/home/urbanjs/venus/V600/github/github_scripts/bash
 + DIR=/home/urbanjs/venus/V600/github/github_scripts/bash
 ++ uuidgen
-+ export TMPFILE=/tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
-+ TMPFILE=/tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
-+ trap 'rm -f /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md' EXIT
++ export TMPFILE=/tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md
++ TMPFILE=/tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md
++ trap 'rm -f /tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md' EXIT
 + echo '>>>> Build standalone slidy HTML document from man-pages'
 >>>> Build standalone slidy HTML document from man-pages
 + cd ../..
-+ pandoc --metadata title=M_matrix --from=man --to=gfm man/man3/get_from_lala.3m_matrix.gz man/man3/ifin_lala.3m_matrix.gz man/man3/lala.3m_matrix.gz man/man3/M_matrix.3m_matrix.gz man/man3/put_into_lala.3m_matrix.gz --standalone -o /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md --lua-filter /home/urbanjs/venus/V600/github/github_scripts/bash/deEmph.lua
++ pandoc --metadata title=M_matrix --from=man --to=gfm man/man3/get_from_lala.3m_matrix.gz man/man3/ifin_lala.3m_matrix.gz man/man3/lala.3m_matrix.gz man/man3/M_matrix.3m_matrix.gz man/man3/put_into_lala.3m_matrix.gz --standalone -o /tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md --lua-filter /home/urbanjs/venus/V600/github/github_scripts/bash/deEmph.lua
 pandoc: Cannot decode byte '\x8b': Data.Text.Internal.Encoding.decodeUtf8: Invalid UTF-8 stream
-+ sed -i -e 's/^#/##/' -e 's/^## NAME/# NAME/' /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
-sed: can't read /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md: No such file or directory
-+ pandoc -t slidy --metadata title=M_matrix --from=gfm /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md --standalone --slide-level=1 -o docs/M_matrix_slidy.html
-pandoc: /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md: openBinaryFile: does not exist (No such file or directory)
-rm -f /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
-++ rm -f /tmp/1627505b-ecd1-4ffb-b1f8-4f8143de563f_1308193.md
++ sed -i -e 's/^#/##/' -e 's/^## NAME/# NAME/' /tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md
+sed: can't read /tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md: No such file or directory
++ pandoc -t slidy --metadata title=M_matrix --from=gfm /tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md --standalone --slide-level=1 -o docs/M_matrix_slidy.html
+pandoc: /tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md: openBinaryFile: does not exist (No such file or directory)
+rm -f /tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md
+++ rm -f /tmp/8106e940-c44a-44ca-82c7-4c5cbbbb5eaf_1600277.md
 + echo '>>>> make easily distributed archive files of manpages'
 >>>> make easily distributed archive files of manpages
 + mkdir -p ../../docs
@@ -381,14 +381,14 @@ man3/put_into_lala.3m_matrix.gz
 >>>> Extract get_from_lala.3m_matrix
 + man -Tutf8 -s 3m_matrix get_from_lala.3m_matrix
 + dos2unix -f -7
-+ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 + col -b -p
 + expand
++ sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 >>>> Extract ifin_lala.3m_matrix
 + man -Tutf8 -s 3m_matrix ifin_lala.3m_matrix
++ dos2unix -f -7
 + col -b -p
 + expand
-+ dos2unix -f -7
 + sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
 >>>> Extract lala.3m_matrix
 + man -Tutf8 -s 3m_matrix lala.3m_matrix
@@ -406,8 +406,8 @@ man3/put_into_lala.3m_matrix.gz
 + man -Tutf8 -s 3m_matrix put_into_lala.3m_matrix
 + dos2unix -f -7
 + col -b -p
-+ expand
 + sed -n -e '\%^[ !]*program  *demo_%,\%^[ !]*end  *program  *demo_%{p}'
++ expand
 lala.1.man(1m_matrix)					 lala.1.man(1m_matrix)
 
 
@@ -417,7 +417,7 @@ NAME
 
 
 SYNOPSIS
-  lala [expression(s)] [--storage values]| [ --help| --version]
+  lala [expression(s)] [--storage values]|--topic TOPIC|[--help|--version]
 
 DESCRIPTION
   lala(1) is an interactive computer program that serves as a convenient
@@ -435,6 +435,9 @@ OPTIONS
   -s,--storage NNN
     number of 64-bit words to use for storage. Defaults to 400000.
 
+  -t,--topic TOPIC
+    display help for specified topic and exit
+
   -h,--help
     display this help and exit
 
@@ -447,6 +450,8 @@ AUTHOR
 
 EXAMPLES
   Sample commands
+
+      lala --topic manual # display manual and exit
 
       # Example 1: introductory usage:
       lala
@@ -552,7 +557,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025		 lala.1.man(1m_matrix)
+				 May 11, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 
@@ -591,7 +596,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025		  ifin_lala(3m_matrix)
+				 May 11, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 
@@ -682,7 +687,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025		   M_matrix(3m_matrix)
+				 May 11, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 
@@ -751,7 +756,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025	      put_into_lala(3m_matrix)
+				 May 11, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -1384,7 +1389,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025		       lala(3m_matrix)
+				 May 11, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -1496,7 +1501,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025	      get_from_lala(3m_matrix)
+				 May 11, 2025	      get_from_lala(3m_matrix)
 + echo '>>>> run make'
 >>>> run make
 + cd ..
@@ -1900,6 +1905,17 @@ finalizing index lists...
 writing tag file...
 Running plantuml with JAVA...
 Running dot...
+Generating dot graphs using 5 parallel threads...
+Running dot for graph 1/8
+Running dot for graph 2/8
+Running dot for graph 3/8
+Running dot for graph 4/8
+Running dot for graph 5/8
+Running dot for graph 6/8
+Running dot for graph 7/8
+Running dot for graph 8/8
+Patching output file 1/2
+Patching output file 2/2
 lookup cache used 718/65536 hits=253630 misses=764
 finished...
 + make man
@@ -1943,7 +1959,7 @@ NAME
 
 
 SYNOPSIS
-  lala [expression(s)] [--storage values]| [ --help| --version]
+  lala [expression(s)] [--storage values]|--topic TOPIC|[--help|--version]
 
 DESCRIPTION
   lala(1) is an interactive computer program that serves as a convenient
@@ -1961,6 +1977,9 @@ OPTIONS
   -s,--storage NNN
     number of 64-bit words to use for storage. Defaults to 400000.
 
+  -t,--topic TOPIC
+    display help for specified topic and exit
+
   -h,--help
     display this help and exit
 
@@ -1973,6 +1992,8 @@ AUTHOR
 
 EXAMPLES
   Sample commands
+
+      lala --topic manual # display manual and exit
 
       # Example 1: introductory usage:
       lala
@@ -2078,7 +2099,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025		 lala.1.man(1m_matrix)
+				 May 11, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 
@@ -2117,7 +2138,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025		  ifin_lala(3m_matrix)
+				 May 11, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 
@@ -2208,7 +2229,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025		   M_matrix(3m_matrix)
+				 May 11, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 
@@ -2277,7 +2298,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025	      put_into_lala(3m_matrix)
+				 May 11, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 
@@ -2910,7 +2931,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025		       lala(3m_matrix)
+				 May 11, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 
@@ -3022,7 +3043,7 @@ EXAMPLES
 
 
 
-				 May 10, 2025	      get_from_lala(3m_matrix)
+				 May 11, 2025	      get_from_lala(3m_matrix)
 + make help
 : make    '-- build M_strings M_strings_oop module'
 : run     '-- run manpage demo programs and test program'
@@ -3037,1775 +3058,18 @@ rm -f ../example/demo_adjustc ../example/demo_base ../example/demo_change ../exa
 >>>> fpm test
 + cd ../..
 + fpm test
-[  0%]                   M_matrix.F90
-[  2%]                   M_matrix.F90  done.
-[  2%]                  libM_matrix.a
-[  5%]                  libM_matrix.a  done.
-[  5%]                       lala.f90
-[  7%]                       lala.f90  done.
-[  7%]                     config.f90
-[ 10%]                     config.f90  done.
-[ 10%]         demo_get_from_lala.f90
-[ 13%]         demo_get_from_lala.f90  done.
-[ 13%]             demo_ifin_lala.f90
-[ 15%]             demo_ifin_lala.f90  done.
-[ 15%]                  demo_lala.f90
-[ 18%]                  demo_lala.f90  done.
-[ 18%]              demo_M_matrix.f90
-[ 21%]              demo_M_matrix.f90  done.
-[ 21%]         demo_put_into_lala.f90
-[ 23%]         demo_put_into_lala.f90  done.
-[ 23%]        minimal_interactive.f90
-[ 26%]        minimal_interactive.f90  done.
-[ 26%]                       pass.f90
-[ 28%]                       pass.f90  done.
-[ 28%] self_contained_config_file_exa
-[ 31%] self_contained_config_file_exa  done.
-[ 31%]                simple_exec.f90
-[ 34%]                simple_exec.f90  done.
-[ 34%]               single_lines.f90
-[ 36%]               single_lines.f90  done.
-[ 36%]                   try_exec.f90
-[ 39%]                   try_exec.f90  done.
-[ 39%]                         tv.f90
-[ 42%]                         tv.f90  done.
-[ 42%]               user_routine.f90
-[ 44%]               user_routine.f90  done.
-[ 44%]                        vec.f90
-[ 47%]                        vec.f90  done.
-[ 47%]                     test_1.f90
-[ 50%]                     test_1.f90  done.
-[ 50%]        test_suite_M_matrix.f90
-[ 52%]        test_suite_M_matrix.f90  done.
-[ 52%]                           lala
-[ 55%]                           lala  done.
-[ 55%]                         config
-[ 57%]                         config  done.
-[ 57%]             demo_get_from_lala
-[ 60%]             demo_get_from_lala  done.
-[ 60%]                 demo_ifin_lala
-[ 63%]                 demo_ifin_lala  done.
-[ 63%]                      demo_lala
-[ 65%]                      demo_lala  done.
-[ 65%]                  demo_M_matrix
-[ 68%]                  demo_M_matrix  done.
-[ 68%]             demo_put_into_lala
-[ 71%]             demo_put_into_lala  done.
-[ 71%]            minimal_interactive
-[ 73%]            minimal_interactive  done.
-[ 73%]                           pass
-[ 76%]                           pass  done.
-[ 76%] self_contained_config_file_exa
-[ 78%] self_contained_config_file_exa  done.
-[ 78%]                    simple_exec
-[ 81%]                    simple_exec  done.
-[ 81%]                   single_lines
-[ 84%]                   single_lines  done.
-[ 84%]                       try_exec
-[ 86%]                       try_exec  done.
-[ 86%]                             tv
-[ 89%]                             tv  done.
-[ 89%]                   user_routine
-[ 92%]                   user_routine  done.
-[ 92%]                            vec
-[ 94%]                            vec  done.
-[ 94%]                         test_1
-[ 97%]                         test_1  done.
-[ 97%]            test_suite_M_matrix
-[100%]            test_suite_M_matrix  done.
-[100%] Project compiled successfully.
-................................................................................
-test_1
-
- p  =
-     7.
-
- n  =
-    16.
-
- mu  =
-    1.0D+03 *
-    0.1017    0.3877    0.3193    0.2607    0.1174    1.9545    0.0653
-
- X  =
-   -0.4470   -0.3985   -0.2314   -0.3772   -0.3644   -0.4067   -0.3672
-   -0.3154   -0.3332   -0.2399   -0.4269   -0.3263   -0.3525   -0.3084
-   -0.3226   -0.3368    0.1350   -0.3676   -0.2840   -0.2983   -0.3783
-   -0.2914   -0.2678    0.0436   -0.3549   -0.2411   -0.2440   -0.3036
-   -0.1311   -0.1525   -0.3024    0.1827   -0.1985   -0.1898   -0.1541
-   -0.0857   -0.1057   -0.3485    0.3663   -0.1542   -0.1356   -0.1234
-   -0.0642   -0.0580   -0.3656    0.3489   -0.0865   -0.0813   -0.0241
-   -0.0402   -0.0639    0.1063    0.2758   -0.0447   -0.0271   -0.1144
-   -0.0115    0.0254   -0.0799    0.1637   -0.0013    0.0271    0.0516
-    0.0698    0.0818   -0.1026    0.0929    0.0486    0.0813    0.1867
-    0.1608    0.1431   -0.0711    0.0710    0.1121    0.1356    0.2097
-    0.2182    0.1477    0.4111    0.0112    0.1680    0.1898    0.0879
-    0.2612    0.2468    0.1712   -0.0203    0.2206    0.2440    0.2454
-    0.2995    0.2985    0.2038   -0.0344    0.2949    0.2983    0.3122
-    0.3354    0.3389    0.4456   -0.0129    0.3871    0.3525    0.2951
-    0.3641    0.4343    0.2248    0.0817    0.4698    0.4067    0.3848
-
- corr  =
-    1.0000    0.9916    0.6206    0.4647    0.9792    0.9911    0.9709
-    0.9916    1.0000    0.6043    0.4464    0.9911    0.9953    0.9836
-    0.6206    0.6043    1.0000   -0.1774    0.6866    0.6683    0.5025
-    0.4647    0.4464   -0.1774    1.0000    0.3644    0.4172    0.4573
-    0.9792    0.9911    0.6866    0.3644    1.0000    0.9940    0.9604
-    0.9911    0.9953    0.6683    0.4172    0.9940    1.0000    0.9713
-    0.9709    0.9836    0.5025    0.4573    0.9604    0.9713    1.0000
-
- beta  =
-   -3.482258634594421D+03
-    1.506187227124484D-02
-   -3.581917929257409D-02
-   -2.020229803816908D-02
-   -1.033226867173703D-02
-   -5.110410565317738D-02
-    1.829151464612817D+00
-"expected" and "beta" should be the same
-
- eps  =
-    2.220446049250313D-16
-
- delta  =
-    0.000000000000000D+00
-    5.204170427930421D-18
-    0.000000000000000D+00
-    0.000000000000000D+00
-   -1.734723475976807D-18
-   -6.938893903907228D-18
-    2.220446049250313D-16
-
- delta  =
-     0.
-     0.
-     0.
-     0.
-     0.
-     0.
-     0.
-PASSED
- Your current variables are...
- sumtally  eps  flops  eye  rand
-using 6 out of 400000 elements
-================================================================================
-abs   abs(X) is the absolute value, or complex modulus,
-      of the elements of X .
-
-________________________________________________________________________________
-a-b is zero
-expected sum is OK
-a = -b as expected
-abs PASSED
-================================================================================
-all   all(X) returns FALSE(ie. 0) if any element value is FALSE(0).
-      Otherwise, it returns TRUE(ie. 1).
-
-      0 is regarded as false and "not 0" signifies true in general in
-      lala(1). so if F=0 and T=1
-
-          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)
-          all(T,F,T,F,T]) // produces 0 (which is a FALSE value)
-
-________________________________________________________________________________
-all('a') OK
-all(a) shape OK
-all PASSED
-================================================================================
-ans   Variable created automatically when expressions are not
-      assigned to anything else.
-
-ans PASSED
-================================================================================
-any   any(X) returns TRUE(ie. 1) if any element value is TRUE(non-zero).
-
-      0 is regarded as false and "not 0" signifies true in general in
-      lala(1).
-
-          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)
-          all(T,F,F,F,F]) // produces 1 (which is a TRUE value)
-          all(F,F,F,F,F]) // produces 0 (which is a FALSE value)
-
-________________________________________________________________________________
-any('a') OK
-any('a') OK
-any(a) shape OK
-any PASSED
-================================================================================
-atan  atan(X) is the arctangent of X. See "BASIC".
-
-________________________________________________________________________________
-test if near PI OK
-2nd test if near PI OK
-atan PASSED
-================================================================================
-base  base(X,B) is a vector containing the base B representation
-      of X. This is often used in conjunction with "display".
-      "display(X,B)" is the same as "display(base(X,B))". For example,
-      "display(4*atan(1),16)" prints the hexadecimal representation of pi.
-
-base PASSED
-================================================================================
-chol  Cholesky factorization. "chol(X)" uses only the diagonal
-      and upper triangle of X. The lower triangular is assumed to be
-      the (complex conjugate) transpose of the upper. If X is positive
-      definite, then "R = chol(X)" produces an upper triangular R so
-      that R'*R = X . If X is not positive definite, an error message
-      is printed.
-
-chol PASSED
-================================================================================
-chop  Truncate arithmetic. "chop(P)" causes P places to be chopped
-      off after each arithmetic operation in subsequent computations. This
-      means P hexadecimal digits on some computers and P octal digits
-      on others. "chop(0)" restores full precision.
-
-chop PASSED
-================================================================================
-clear  With no symbol names erases all variables, except "eps", "flop",
-       "eye" and "rand". Otherwise "clear name1 name2 ..." erases the
-       list of (non-permanent) variable names specified.
-
-       Note "X = <>" erases variable X as well.
-
-clear PASSED
-================================================================================
-cond  Condition number in 2-norm. "cond(X)" is the ratio of the
-      largest singular value of X to the smallest.
-
-cond PASSED
-================================================================================
-conjg  "conjg(X)" is the complex conjugate of X .
-
-conjg PASSED
-================================================================================
-cos   cos(X) is the cosine of X. See "BASIC".
-
-________________________________________________________________________________
-HALF-PI OK
-ZERO OK
-PI OK
-TWO PI OK
--TWO PI OK
--2000 PI OK
-
- PI  =
-    3.1416
-
- P  =
-    -1.
-
- PP  =
-     1.
-
- Z  =
-     1.
-
- HP  =
-    6.1232D-17
-cos PASSED
-================================================================================
-debug  "debug(1)" turns on verbose low-level debugging for the developer,
-       "debug(0)" turns it back off.
-
-debug PASSED
-================================================================================
-det   "det(X)" is the determinant of the square matrix X .
-
-det PASSED
-================================================================================
-diag  If V is a row or column vector with N components,
-      "diag(V,K)" is a square matrix of order "N+abs(K)" with the
-      elements of V on the K-th diagonal. K = 0 is the main diagonal,
-      K > 0 is above the main diagonal and K < 0 is below the main
-      diagonal. "diag(V)" simply puts V on the main diagonal. eg.
-
-         diag(-M:M) + diag(ones(2*M,1),1) + diag(ones(2*M,1),-1)
-
-      produces a tridiagonal matrix of order 2*M+1 .
-
-      If X is a matrix, "diag(X,K)" is a column vector formed from the
-      elements of the K-th diagonal of X. "diag(X)" is the main diagonal
-      of X. "diag(diag(X))" is a diagonal matrix .
-
-diag PASSED
-================================================================================
-diary  "diary('file')" causes a copy of all subsequent terminal input and
-       most of the resulting output to be written on the file. "diary(0)"
-       turns it off. See "FILE".
-
-diary PASSED
-[H[2J
-================================================================================
-display  "display(X)" prints X in a compact format.
-
-      If base >= 2 is specified the values are printed as numeric
-      values in the specified base.
-
-           display(0:10,10 ) // display values in base 10
-           display(0:10,16 ) // display values as hexadecimal values
-           display(0:10,2 )  // display values as binary numbers
-
-      If no base is specified and all the elements of X are integers
-      between 0 and 255, then X is interpreted as LALA text and printed
-      accordingly.
-
-         <>display('the analysis is complete')
-           the analysis is complete
-         display(32:126) // print the printable default LALA characters
-
-      Otherwise or if the base is one, + , - and blank are printed for
-      positive, negative and zero elements.
-
-         display(randu(24,80)-randu(24,80))
-
-      Imaginary parts are ignored.
-
-      Note that "display(X,B)" is the same as "display(base(X,B))" except
-      for base 1 except it forces "display" to display numeric values.
-
-      "display" has an alias of "disp".
-
-________________________________________________________________________________
-#--------------#
-|              |
-|    WARNING   |
-|              |
-#--------------#
-display PASSED
-================================================================================
-delete  "delete('filename')" deletes the given file.
-
-delete PASSED
-================================================================================
-eig   Eigenvalues and eigenvectors.
-      "eig(X)" is a vector containing the eigenvalues of a square
-      matrix X.
-      "<V,D> = eig(X)" produces a diagonal matrix D of
-      eigenvalues and a full matrix V whose columns are the
-      corresponding eigenvectors so that X*V = V*D .
-
-eig PASSED
-================================================================================
-else  Used with "if".
-
-ELSE PASSED
-================================================================================
-end   Terminates the scope of "for", "while" and "if" statements.
-      Without "end"s, "for" and "while" repeat all statements up to
-      the end of the line. Each "end" is paired with the closest
-      previous unpaired "for" or "while" and serves to terminate its
-      scope. The line
-
-         for I=1:N, for J=1:N, A(I,J)=1/(I+J-1); A
-
-      would cause A to be printed N**2 times, once for each new
-      element. On the other hand, the line
-
-         for I=1:N, for J=1:N, A(I,J)=1/(I+J-1); end, end, A
-
-      will lead to only the final printing of A.
-      Similar considerations apply to "while".
-
-      See "exit" (terminates execution of loops or of LALA itself).
-
-END PASSED
-================================================================================
-eps   Floating point relative accuracy. A permanent variable
-      whose value is initially the distance from 1.0 to the next largest
-      floating point number. The value is changed by "chop", and other
-      values may be assigned. "eps" is used as a default tolerance by "pinv"
-      and "rank".
-
-________________________________________________________________________________
-
- myeps  =
-    2.2204D-16
-eps matches expected value
-eps PASSED
-================================================================================
-lt    "lt(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is less than the one in Y.
-      Otherwise, the element is set to 0. Only the REAL component of the
-      numbers is tested.
-
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
-
-          count_of_true_results=sum(lt(X,Y))
-
-________________________________________________________________________________
-lt shape OK
-lt PASSED
-================================================================================
-le    "le(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is less than or equal to the one
-      in Y; if X is greater than Y the element of the answer is 0. Only
-      the REAL component of the numbers is tested.
-
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
-
-________________________________________________________________________________
-le shape OK
-le PASSED
-================================================================================
-eq    "eq(X,Y)" is an elemental function that sets element values to 1
-      if the elements are equal, and to 0 if they are not.
-
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
-
-          // return 1 if all elements are zero, else 0
-          allzero=all(eq(X,0))
-
-          a=magic(4)      // make some arrays
-          b=a             // b is the same as a
-          c=b; c(4,4)=-10 // c is not the same as a
-          if all(eq(a,b))=1,display('SAME'),else display('DIFFERENT')
-          if all(eq(a,c))=1,display('SAME'),else display('DIFFERENT')
-
-________________________________________________________________________________
-eq shape OK
-eq PASSED
-================================================================================
-ge    "ge(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is greater than or equal to the
-      one in Y; if X is less than Y the element of the answer is 0. Only
-      the REAL component of the numbers is tested.
-
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
-
-________________________________________________________________________________
-ge shape OK
-ge PASSED
-================================================================================
-gt    "gt(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is greater than to the one in Y;
-      if X is less than or equal to Y the returned element in the answer
-      is 0. Only the REAL component of the numbers is tested.
-
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
-
-________________________________________________________________________________
-gt shape OK
-gt PASSED
-================================================================================
-ne    "ne(X,Y)" is an elemental function that sets element values to 1
-      if the elements are not equal, and to 0 if they are not equal.
-
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
-
-________________________________________________________________________________
-ne shape OK
-ne PASSED
-================================================================================
-maxval  "maxval(A)" returns the maximum real component found in the
-        elements of A
-
-________________________________________________________________________________
-maxval OF 'a' OK
-maxval shape OK
-maxval ARRAY OK
-maxval PASSED
-================================================================================
-minval  "minval(A)" returns the minimum real component found in the
-        elements of A
-
-________________________________________________________________________________
-minval OF 'a' OK
-minval shape OK
-minval ARRAY OK
-minval PASSED
-================================================================================
-maxloc  "maxloc(A)" returns the location of the maximum real component
-        found in the elements of A
-
-________________________________________________________________________________
-maxloc OF 'a' OK
-maxloc shape OK
-maxloc of 'b' OK
-maxloc PASSED
-================================================================================
-minloc  "minloc(A)" returns the location of the minimum real component
-        found in the elements of A
-
-________________________________________________________________________________
-minloc OF 'a' OK
-minloc shape OK
-minloc of 'b' OK
-minloc PASSED
-================================================================================
-exec  "exec('file',k)" obtains subsequent LALA input from an
-      external file. The printing of input is controlled by the
-      optional parameter k .
-
-      Files are searched for by the given name. If not found, it is searched
-      for in the colon-separated directory names in the environment variable
-      LALA_PATH. It is looked for first literally by the given name, and then
-      by the name suffixed with ".la".
-
-      "include" is an alias for "exec".
-
-         If k = 0 , there is no echo, prompt or pause. This is the
-                    default if the exec command is followed by a semicolon.
-         If k = 1 , the input is echoed.
-         If k = 2 , the LALA prompt <> is printed.
-         If k = 3 , there will be echos and prompts, but no pauses.
-                    This is the the default if the exec command is not
-                    followed by a semicolon.
-         If k = 4 , LALA pauses before each prompt and waits for a
-                    null line to continue.
-         If k = 7 , there will be echos, prompts and pauses. This is
-                    useful for demonstrations on video terminals.
-
-      "exec"'s may be nested, i.e. the text in the file may contain
-      "exec" of another file.
-
-      "exec" may not be recursive, as Fortran (currently) does not allow
-      for multiple opens of a file.
-
-      "exec"s may also be driven by "for" and "while" loops.
-
-      For convenience, a file with a simple alphanumeric name ending
-      in ".la" may be read by entering the leaf name sans the suffix
-      on a line by itself. That is, "exec('myfile.la')" may be entered
-      as
-
-         myfile
-
-exec PASSED
-================================================================================
-exit  Causes termination of a "for" or "while" loop.
-      If not in a loop, terminates execution of LALA.
-      Also see "quit".
-
-exit PASSED
-================================================================================
-exp   exp(X) is the exponential of X, e to the X. See "BASIC".
-
-exp PASSED
-================================================================================
-eye   Identity matrix. "eye(N)" is the N by N identity matrix.
-      "eye(M,N)" is an M by N matrix with 1's on the diagonal and
-      zeros elsewhere. "eye(A)" is the same size as A. "eye"
-      with no arguments is an identity matrix of whatever order
-      is appropriate in the context. For example "A + 3*eye"
-      adds 3 to each diagonal element of A.
-
-eye PASSED
-================================================================================
-flops  Count of floating point operations.
-
-       "flops" is a permanently defined row vector with two elements.
-       "flops(1)" is the cpu time consumed by the the previous
-       statement. "flops(2)" is a cumulative total. "flops" can be used
-       in the same way as any other vector. "flops(2) = 0" resets the
-       cumulative total. In addition, "flops(1)" will be printed whenever
-       a statement is terminated by an extra comma. For example,
-
-         X = inv(A);,
-
-       or
-
-         cond(A), (as the last statement on the line).
-flops PASSED
-================================================================================
-for   Repeat statements a specific number of times.
-
-         for variable = expr, statement, ..., statement, end
-
-      The "end" at the end of a line may be omitted. The comma before the
-      "end" may also be omitted. The columns of the expression are stored
-      one at a time in the variable and then the following statements,
-      up to the "end", are executed. The expression is often of the form
-      X:Y, in which case its columns are simply scalars. Some examples
-      (assume N has already been assigned a value).
-
-       for I = 1:N, for J = 1:N, A(I,J) = 1/(I+J-1);
-       for J = 2:N-1, A(J,J) = J; end; A
-       for S = 1.0: -0.1: 0.0, ... steps S with increments of -0.1 .
-       for E = eye(N), ... sets E to the unit N-vectors.
-       for V = A, ... has the same effect as
-       for J = 1:N, V = A(:,J); ... except J is also set here.
-
-for PASSED
-================================================================================
-help  topic|SECTION_NAME
-
-      "help" gives assistance. It is equivalent to "help SUMMARY"
-      by default.
-
-      o  "help" with no options lists common topic and section names.
-      o  The special topic "topics" shows all topic lines.
-      o  The special topic "manual" displays all the help text.
-      o  The special topic "search" shows lines from the manual
-         containing the subsequent string
-
-         Enter "h" at the "help:" prompt for additional options.
-
-      For example:
-
-         help        // a list of common topics and section names
-         help topics // a list of topics including the first line of
-                     // the topic.
-         help abs    // are_any_trueuces help on the function "abs".
-         help FLOW   // the entire section on flow control is displayed.
-         help manual // show all the help text
-         help help   // obviously prints this message.
-         help search factor // show all lines containing "factor".
-
-      Alternatively, To place all the documentation in a file, use
-      "help manual" and enter "w help.txt" at the "help:" prompt.
-help PASSED
-================================================================================
-hess  Hessenberg form. The Hessenberg form of a matrix is zero
-      below the first subdiagonal. If the matrix is symmetric or
-      Hermitian, the form is tridiagonal. <P,H> = "hess(A)" produces a
-      unitary matrix P and a Hessenberg matrix H so that A = P*H*P'. By
-      itself, "hess(A)" returns H.
-
-got back the original
-hess PASSED
-================================================================================
-if    Conditionally execute statements
-
-      SIMPLE FORM
-       Enter
-
-         if expression rop expression, statements
-
-      where rop is =, <, >, <=, >=, or <> (not equal).
-
-      The expressions must result in a scalar value. See "for", all(),
-      any(), and the relational operators (eq(), ne(), gt(), lt(), ge(),
-      le()) for comparing arrays element-by-element.
-
-      Only the real part of the expressions is compared accept for
-      = and <>.
-
-      The statements are executed once if the indicated comparison between
-      the two expressions is true, otherwise the statements are skipped.
-
-      EXAMPLE
-        Enter
-
-         if abs(i-j) = 1, a(i,j) = -1;
-
-      More complicated forms use "end" in the same way it is used with
-      "for" and "while" and use "else" as an abbreviation for "end",
-
-         if expression not rop expression
-
-      EXAMPLE
-        Enter
-
-         for i = 1:n, for j = 1:n, ...
-            if i = j, a(i,j) = 2; else if abs(i-j) = 1, a(i,j) = -1; ...
-            else a(i,j) = 0;
-
-      An easier way to accomplish the same thing is
-
-         a = 2*eye(n);
-         for i = 1:n-1, a(i,i+1) = -1; a(i+1,i) = -1;
-
-________________________________________________________________________________
-matches
-if PASSED
-================================================================================
-imag  "imag(X)" is the imaginary part of X .
-
-imag OK
-imag PASSED
-================================================================================
-invh  Inverse Hilbert matrix. "invh(N)" is the inverse of a N_by_N
-      Hilbert matrix (which is a famous example of a badly conditioned
-      matrix). The result is exact for N less than about 15, depending
-      upon the computer.
-
-         for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);
-
-      generates the NxN Hilbert matrix.
-
-      "invh" has an alias of "inverse_hilbert" and "invhilb".
-
-
- N  =
-     5.
-inverse Hilbert PASSED
-invh PASSED
-================================================================================
-inv   "inv(X)" is the inverse of the square matrix X . A warning
-      message is printed if X is badly scaled or nearly
-      singular.
-
-inv PASSED
-================================================================================
-kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It
-      is also denoted by X .*. Y . The result is a large matrix
-      formed by taking all possible products between the elements
-      of X and those of Y . For example, if X is 2 by 3, then
-      X .*. Y is
-
-            < x(1,1)*Y  x(1,2)*Y  x(1,3)*Y
-              x(2,1)*Y  x(2,2)*Y  x(2,3)*Y >
-
-      The five-point discrete Laplacian for an n-by-n grid can be
-      generated by
-
-            T = diag(ones(n-1,1),1);  T = T + T';  I = eye(T);
-            A = T.*.I + I.*.T - 4*eye;
-
-      Just in case they might be useful, LALA includes
-      constructions called Kronecker tensor quotients, denoted by
-      X ./. Y and X .\. Y . They are obtained by replacing the
-      element-wise multiplications in X .*. Y with divisions.
-
-
- S1  =
-     0.
-
- S2  =
-     0.
-kron(A,B) check PASSED
-A .*. B check PASSED
-kron PASSED
-================================================================================
-lines  An internal count is kept of the number of lines of output
-       since the last input. Whenever this count approaches a
-       limit, the user is asked whether or not to suppress
-       printing until the next input. Initially the limit is 21.
-       "lines(N)" resets the limit to N .
-
-lines PASSED
-================================================================================
-load  "load('file')" retrieves all the variables from the file .
-      See FILE and "save" for more details. To prepare your own
-      file for "load"ing, change the "read" to "write" in the code
-      given under "save".
-
- Your current variables are...
- test_Variable  c  b  A  eps  flops  eye  rand
-using 35 out of 400000 elements
- Your current variables are...
- eps  flops  eye  rand
-using 5 out of 400000 elements
-End of file
- Your current variables are...
- test_Variable  c  b  A  eps  flops  eye  rand
-using 35 out of 400000 elements
-load of A PASSED
-load of b PASSED
-load of c PASSED
-load of test_variable PASSED
-load PASSED
-================================================================================
-log   log(X) is the natural logarithm of X.
-
-      Complex results are produced if X is not positive, or has
-      nonpositive eigenvalues.
-
-      See "BASIC".
-
-log PASSED
-================================================================================
-long   See "short" also.
-
-       Determine output format. All computations are done in
-       complex arithmetic and double precision if it is available.
-       "short" and "long" merely switch between different output
-       formats.
-
-        long     // Scaled fixed point format with about 15 digits.
-        long e   // Floating point format with about 15 digits.
-        long z   // System dependent format, often hexadecimal.
-
-long PASSED
-================================================================================
-lu    Factors from Gaussian elimination. <L,U> = LU(X) stores a
-      upper triangular matrix in U and a 'psychologically lower
-      triangular matrix', i.e. a product of lower triangular and
-      permutation matrices, in L , so that X = L*U . By itself,
-      "lu(X)" returns the output from CGEFA .
-
-lu PASSED
-================================================================================
-magic  Magic square. "magic(N)" is an N by N matrix constructed
-       from the integers 1 through N**2 with equal row, column and
-       diagonal sums. N must be a positive whole number not equal to two.
-
-
- N  =
-    10.
-________________________________________________________________________________
-magic shape OK
-magic SUM OK
-magic PASSED
-================================================================================
-norm  computes the norm or P-norm of X
-
-      norm(X,P) computes the P-norm of X. P=2 is the default, which defines
-      the standard norm.
-
-      For matrices..
-          norm(X,1)      is the 1-norm of X; ie. the largest column sum
-                         of X.
-
-          norm(X,2)      the largest singular value of X.
-          or norm(X)
-
-          norm(X,'inf')  is the infinity norm of X; ie. the largest row
-                         sum of X.
-
-          norm(X,'fro')  is the F-norm, i.e. "sqrt(sum(diag(X'*X)))" .
-
-      For vectors..
-          norm(V,P)      the same as sum(V(I)**P)**(1/P) .
-                         ??? what about negative values of (I) and odd P? abs() or not
-
-          norm(V,2)      the square root of the sum of the squares of
-          or norm(V)     the entries of V.
-
-          norm(V,'inf')  the value is max(abs(V)) .
-________________________________________________________________________________
-norm PASSED
-+
-================================================================================
-ones  All ones. "ones(N)" is an N by N matrix of ones. "ones(M,N)"
-      is an M by N matrix of ones . "ones(A)" is the same size as A and
-      all ones .
-
-         a=magic(4)
-         a=a+ones(a)*3 // Add 3 to each element of "a"
-
-________________________________________________________________________________
-ones SUM OK
-ones shape OK
-ones DELTA OK
-ones PASSED
-================================================================================
-orth  Orthogonalization. "Q = orth(X)" is a matrix with
-      orthonormal columns, i.e. Q'*Q = eye, which span the same
-      space as the columns of X .
-
-orth PASSED
-================================================================================
-pinv  Pseudoinverse.
-
-      "X = pinv(A)" produces a matrix X of the same dimensions as A'
-      so that A*X*A = A , X*A*X = X and AX and XA are Hermitian . The
-      computation is based on "svd(A)" and any singular values less
-      than a tolerance are treated as zero. The default tolerance is
-      "norm(shape(A),'inf')*norM(A)*eps". This tolerance may be overridden
-      with "X = pinv(A,tol)". See "rank".
-
-pinv PASSED
-================================================================================
-plot  "plot(X,Y)" produces a plot of the elements of Y against
-      those of X. plot(Y) is the same as plot(1:n,Y) where n is the number
-      of elements in Y. plot(X,Y,P) or "plot(X,Y,p1,...,pk)" passes the
-      optional parameter vector P or scalars p1 through pk to the plot
-      routine. The default plot routine is a crude printer-plot. This
-      version writes the data as a simple X Y table into a scratch file
-      called "scratch.dat" and then calls the command
-
-        xy scratch.dat [options]
-
-      Hopefully, you have the command xy(1) in your search path.
-      If not, you can make one by creating a script that calls
-      a plotting utility.
-
-         t = 0:50;
-         plot( t.*cos(t), t.*sin(t) )
-         opts=' -m -1 -title test plot -d pdf'
-         plot( t.*cos(t), t.*sin(t),opts)
-plot PASSED
-================================================================================
-poly  Characteristic polynomial.
-
-      If A is an N by N matrix, "poly(A)" is a column vector with
-      N+1 elements which are the coefficients of the characteristic
-      polynomial, "det(lambda*eye - A)" .
-
-      If V is a vector, "poly(V)" is a vector whose elements are the
-      coefficients of the polynomial whose roots are the elements of V.
-      For vectors, "roots" and "poly" are inverse functions of each other,
-      up to ordering, scaling, and roundoff error.
-
-      "roots(poly(1:20))" generates Wilkinson's famous example.
-
-poly PASSED
-================================================================================
-pow   For a scalar exponent pow(X,exponent) raises each element of X to
-      the specified power. pow(X,Y) raise each element in X by the
-      corresponding element in Y. X and Y must have the same shape.
-
-          A=magic(3);
-          pow(A,3)
-
-      Alternatively FOR loops can be used to perform most elemental
-      operations:
-
-          a=ones(A)      // create output array same size as input
-          <m,n>=shape(A);for i=1:n, for j=1:m, a(i,j)=A(i,j)**3;
-
-      or for low whole number exponents elemental multiplication is
-      sufficient
-
-          b = A .* A .* A // elemental multiplication
-
-________________________________________________________________________________
-
- answ  =
-   512.    1.  216.
-    27.  125.  343.
-    64.  729.    8.
-pow OF 'a' OK
-pow shape OK
-pow ARRAY OK
-pow PASSED
-================================================================================
-print  "print('file',X)" prints X on the file using the current
-       format determined by "short", "long z", etc. See FILE.
-
-print PASSED
-================================================================================
-prod  "prod(X)" is the product of all the elements of X.
-
-           A=prod(1:10) // the factorial of 10
-           B=2*3*4*5*6*7*8*9*10
-
-prod(a) PASSED
-d PASSED
-prod PASSED
-================================================================================
-qr    Orthogonal-triangular decomposition. "<Q,R> = qr(X)" produces an
-      upper triangular matrix R of the same
-      dimension as X and a unitary matrix Q so that X = Q*R .
-
-      "<Q,R,E> = qr(X)" produces a permutation matrix E, an upper
-      triangular R with decreasing diagonal elements and a unitary Q
-      so that X*E = Q*R . By itself, "qr(X)" returns the output of
-      "cqrdc". "triu(qr(X))" is R .
-
-qr PASSED
-================================================================================
-quit  From the terminal, causes return to the operating system
-      or other program which invoked LALA. From inside an
-      "exec", causes return to the invoking "exec", or to the
-      terminal.
-quit PASSED
-================================================================================
-randu  Uniformly distributed random numbers and matrices in the interval
-       "(0.0,1.0). "randu(N)" is an N by N matrix with random
-       entries. "randu(M,N)" is an M by N matrix with random entries.
-
-randu PASSED
-================================================================================
-randn  randn(N) or randn(N,M) produces random numbers with a normal
-       distribution with mean 0.0 and variance 1.0. "randn(N)" is an N
-       by N matrix with random entries. "randn(M,N)" is an M by N matrix
-       with random entries.
-
-randn PASSED
-================================================================================
-rank  Rank. "K = rank(X)" is the number of singular values of X that
-      are larger than "norm(shape(X),'inf')*norm(X)*eps".
-      "K = rank(X,tol)" is the number of singular values of X that
-      are larger than tol.
-
-rank PASSED
-================================================================================
-rat   An experimental function which attempts to remove the
-      roundoff error from results that should be "simple"
-      rational numbers.
-      "rat(X)" approximates each element of X by a continued
-      fraction of the form
-
-                a/b = d1 + 1/(d2 + 1/(d3 + ... + 1/dk))
-
-      with k <= len, integer di and abs(di) <= max . The default
-      values of the parameters are len = 5 and max = 100.
-      "rat(len,max)" changes the default values. Increasing either
-      len or max increases the number of possible fractions.
-      "<A,B> = rat(X)" produces integer matrices A and B so that
-
-                A ./ B  =  rat(X)
-
-      Some examples:
-
-            long
-            T = invh(6), X = inv(T)
-            <A,B> = rat(X)
-            H = A ./ B, S = inv(H)
-
-            short e
-            d = 1:8,  e = ones(d),  A = abs(d'*e - e'*d)
-            X = inv(A)
-            rat(X)
-            display(ans)
-
-rat PASSED
-================================================================================
-rcond  "rcond(X)" is an estimate for the reciprocal of the
-       condition of X in the 1-norm obtained by the LINPACK
-       condition estimator. If X is well conditioned, rcond(X)
-       is near 1.0. If X is badly conditioned, rcond(X) is
-       near 0.0.
-       <R, Z> = rcond(A) sets R to rcond(A) and also produces a
-       vector Z so that
-
-                 norm(A*Z,1) = R*norm(A,1)*norm(Z,1)
-
-       So, if rcond(A) is small, then Z is an approximate null
-       vector.
-
-rcond PASSED
-================================================================================
-real  "real(X)" is the real part of X.
-
-real OK
-real PASSED
-================================================================================
-roots  Find polynomial roots. "roots(C)" computes the roots of the
-       polynomial whose coefficients are the elements of the vector C.
-       If C has N+1 components, the polynomial is
-
-          C(1)*X**N + ... + C(N)*X + C(N+1)
-
-       See "poly".
-
-roots PASSED
-================================================================================
-round  "round(X)" rounds the elements of X to the nearest integers.
-       "anint(X)" is a synonym for "round(X)".
-
-________________________________________________________________________________
-round of array plus random small fraction PASSED
-
- tally  =
-     0.    0.
-round delta of original and randomized PASSED
-
- tally  =
-     0.    0.    0.
-round PASSED
-
- N  =
-     3.
-
- M  =
-     1.
-+
-================================================================================
-rref  "rref(A)" is the reduced row echelon form of the rectangular
-      matrix. rref(A,B) is the same as rref(<A,B>) .
-
-rref PASSED
-================================================================================
-save  "save('file')" stores all the current variables in a file.
-      "save('file',X)" saves only X . See FILE .
-
-      The variables may be retrieved later by "load('file')" or by your
-      own program using the following code for each matrix. The lines
-      involving "ximag" may be eliminated if everything is known to
-      be real.
-
-        > ! attach LUN to 'file', then ...
-        > doubleprecision :: xreal(mmax,nmax)
-        > doubleprecision :: ximag(mmax,nmax)
-        > character(len=32) :: id
-        > read(LUN,'(a32,3i9)') id,m,n,img
-        > do j = 1, n
-        >    read(LUN,'(4z18)') (xreal(i,j), i=1,m)
-        >    if (img .ne. 0) read(LUN,102) (ximag(i,j),i=1,m)
-        > enddo
-        > ! The formats used are system dependent. These are typical.
-        > ! See SUBROUTINE mat_savlod(3f) in your local implementation
-        > ! of LALA.
-
- Your current variables are...
- test_Variable  c  b  A  eps  flops  eye  rand
-using 35 out of 400000 elements
- Your current variables are...
- eps  flops  eye  rand
-using 5 out of 400000 elements
-End of file
- Your current variables are...
- test_Variable  c  b  A  eps  flops  eye  rand
-using 35 out of 400000 elements
-save of A PASSED
-save of b PASSED
-save of c PASSED
-save of test_variable PASSED
-save PASSED
-================================================================================
-schur  Schur decomposition. "<U,T> = schur(X)" produces an upper
-       triangular matrix T , with the eigenvalues of X on the
-       diagonal, and a unitary matrix U so that X = U*T*U' and
-       U'*U = eye . By itself, "schur(X)" returns T .
-
-schur PASSED
-================================================================================
-semi  "semi" toggles the action of semicolons at the end of lines.
-      It will make semicolons cause rather than suppress printing.
-      A second "semi" restores the initial interpretation.
-semi PASSED
-================================================================================
-short  See "long" also.
-       Determine output format. All computations are done in
-       complex arithmetic and double precision if it is available.
-       "short" and "long" merely switch between different output
-       formats.
-
-        short    // Scaled fixed point format with about 5 digits.
-        short e  // Floating point format with about 5 digits.
-
-short PASSED
-================================================================================
-sh    Starts the command shell interactively, using the command defined by
-      the environment variable SHELL. Note that in addition any line
-      starting with an exclamation (!) is passed to the system for
-      execution.
-
-sh PASSED
-================================================================================
-sin   sin(X) is the sine of X. See "BASIC".
-
-sin PASSED
-================================================================================
-shape  If X is an M by N matrix, then shape(X) is <M, N> .
-       Can also be used with a multiple assignment,
-            <M, N> = shape(X) .
-
-X is 11
-Y is  5
-shape of a OK
-shape of b OK
-shape of c OK
-shape PASSED
-================================================================================
-sqrt  sqrt(X) is the square root of X. See "BASIC". Complex
-      results are produced if X is not positive, or has
-      nonpositive eigenvalues.
-sqrt PASSED
-================================================================================
-sum   "sum(X)" is the sum of all the elements of X.
-      "sum(diag(X))" is the trace of X.
-
-      "sum(X,dim)" is the vector of sums of elements along the
-      specified dimension, where 1 <= dim <= 2.
-
-          matrix=[  1,   2,   3,   4
-                    10,  20,  30,  40
-                    100, 200, 300, 400  ];
-          s=sum(matrix)
-          sum_of_columns=sum(matrix,1)
-          sum_of_rows=sum(matrix,2)
-
-________________________________________________________________________________
-sum: SUM OF 'a' OK
-sum: shape OK
-sum: SUM ARRAY OK
-sum: MATRIX OK
-sum: SUM COLS OK
-sum: SUM ROWS OK
-sum PASSED
-================================================================================
-size   "size(X)" returns the number of elements in X.
-
-           [[1,2,3],magic(4),random(3,8)]
-            ans
-             3 16 24
-
-size of X OK
-================================================================================
-svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
-      diagonal matrix S , of the same dimension as X and with
-      nonnegative diagonal elements in decreasing order, and
-      unitary matrices U and V so that X = U*S*V' .
-
-      By itself, "svd(X)" returns a vector containing the singular
-      values.
-
-      "<U,S,V> = svd(X,0)" produces the "economy size"
-      decomposition. If X is m by n with m > n, then only the
-      first n columns of U are computed and S is n by n .
-
-svd PASSED
-================================================================================
-tril  Lower triangle. "tril(X)" is the lower triangular part of X.
-      "tril(X,K)" is the elements on and below the K-th diagonal of
-      X. K = 0 is the main diagonal, K > 0 is above the main
-      diagonal and K < 0 is below the main diagonal.
-
-
- tally  =
-     0.    0.
-
- tally  =
-     0.    0.    0.
-
- tally  =
-     0.    0.    0.    0.
-tril PASSED
-================================================================================
-triu  Upper triangle. "triu(X)" is the upper triangular part of X.
-      "triu(X,K)" is the elements on and above the K-th diagonal of X. K
-      = 0 is the main diagonal, K > 0 is above the main diagonal and K <
-      0 is below the main diagonal.
-
-triu PASSED
-================================================================================
-user  Allows personal Fortran subroutines to be linked into
-      LALA. The subroutine should have the heading
-
-         SUBROUTINE USER(A,M,N,S,T)
-         REAL or DOUBLEPRECISION A(M,N),S,T
-
-      The LALA statement "Y = user(X,s,t)" results in a call to the
-      subroutine with a copy of the matrix X stored in the argument A,
-      its column and row dimensions in M and N, and the scalar parameters
-      s and t stored in S and T. If s and t are omitted, they are set
-      to 0.0. After the return, A is stored in Y. The dimensions M and
-      N may be reset within the subroutine. The statement Y = "user(K)"
-      results in a call with M = 1, N = 1 and A(1,1) = "float(K)". After
-      the subroutine has been written, it must be compiled and linked
-      to the LALA object code within the local operating system.
-
-user PASSED
-================================================================================
-while  Repeat statements an indefinite number of times.
-
-          while expr rop expr, statement, ..., statement, end
-
-       where rop is =, <, >, <=, >=, or <> (not equal). The "end"
-       at the end of a line may be omitted. The comma before the
-       "end" may also be omitted. The commas may be replaced by
-       semicolons to avoid printing. The statements are
-       repeatedly executed as long as the indicated comparison
-       between the real parts of the first components of the two
-       expressions is true.
-
-       EXAMPLE
-       (assume a matrix A is already defined).
-
-        E = 0*A; F = E + eye; N = 1;
-        while norm(E+F-E,1) > 0, E = E + F; F = A*F/N; N = N + 1;
-        E
-
-while PASSED
-================================================================================
-who   Lists current variables.
-who PASSED
-================================================================================
-doc   does nothing at the moment
-
-doc PASSED
-================================================================================
-what  does nothing for now
-
-what PASSED
-================================================================================
-lala  A placeholder for a new command.
-
-      LALA is intended to be used primarily by families of FORTRAN
-      programs that wish to add a consistent interactive "calculator"
-      mode for interactively inspecting and modifying data.
-
-lala PASSED
-================================================================================
-zeros  Returns a matrix of all zeros.
-
-         zeros(N)    returns an N by N matrix of zeroes.
-         zeros(M,N)  returns an M by N matrix of zeroes.
-         zeros(X)    returns a matrix of zeroes of the same order as X.
-________________________________________________________________________________
-zeros SUM OK
-zeros shape OK
-zeros DELTA OK
-zeros PASSED
-================================================================================
-general tests: avg
-
- tally  =
-     0.    0.
-avg PASSED
-================================================================================
-general expression tests
-
- tally  =
-     0.    0.
-
- tally  =
-     0.    0.    0.    0.    0.
-
- tally  =
-     0.    0.    0.    0.    0.    0.
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.    0.
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
-
- tally  =
-     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
-
- tally  =
-     COLUMNS     1 THRU    12
-     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
-     COLUMNS    13 THRU    13
-     0.
-
- answers  =
-     7.   14.   56.    3.  256.
-
- expected  =
-     7.   14.   56.    3.  256.
-general expr  PASSED
-
- tally  =
-     COLUMNS     1 THRU    12
-     0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
-     COLUMNS    13 THRU    18
-     0.    0.    0.    0.    0.    0.
-================================================================================
-general expression dots
-
- tally  =
-     0.    0.
-general expression dots PASSED
-================================================================================
-general pascal test
-
- L5  =
-     1.    0.    0.    0.    0.
-     1.    1.    0.    0.    0.
-     1.    2.    1.    0.    0.
-     1.    3.    3.    1.    0.
-     1.    4.    6.    4.    1.
-
- S5  =
-     1.    1.    1.    1.    1.
-     1.    2.    3.    4.    5.
-     1.    3.    6.   10.   15.
-     1.    4.   10.   20.   35.
-     1.    5.   15.   35.   70.
-
- U5  =
-     1.    1.    1.    1.    1.
-     0.    1.    2.    3.    4.
-     0.    0.    1.    3.    6.
-     0.    0.    0.    1.    4.
-     0.    0.    0.    0.    1.
-
- L  =
-     1.
-
- L  =
-     1.    0.
-     1.    1.
-
- L  =
-     1.    0.    0.
-     1.    1.    0.
-     1.    2.    1.
-
- L  =
-     1.    0.    0.    0.
-     1.    1.    0.    0.
-     1.    2.    1.    0.
-     1.    3.    3.    1.
-
- L  =
-     1.    0.    0.    0.    0.
-     1.    1.    0.    0.    0.
-     1.    2.    1.    0.    0.
-     1.    3.    3.    1.    0.
-     1.    4.    6.    4.    1.
-
- ans  =
-     0.    0.    0.    0.    0.
-     0.    0.    0.    0.    0.
-     0.    0.    0.    0.    0.
-     0.    0.    0.    0.    0.
-     0.    0.    0.    0.    0.
-
- tally  =
-     0.    0.
-pascal L5 passed
-general pascal PASSED
-================================================================================
- 	
- !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
-
- clr  =
-     COLUMNS     1 THRU    12
-   100.  105.  115.  112.  108.   97.  121.   40.   91.   50.   55.   44.
-     COLUMNS    13 THRU    24
-    57.   49.   44.   39.   72.   39.   44.   50.   55.   44.   57.   49.
-     COLUMNS    25 THRU    31
-    44.   39.   50.   74.   39.   93.   41.
-[H[2J
-general char PASSED
-================================================================================
-+     Addition. X + Y . X and Y must have the same dimensions unless
-      either is a scalar.
-
-      An exception is made if X or Y is scalar; in that case the scalar is
-      expanded to an array of the size of the other argument.  That is,
-      a scalar X is treated as ones(Y)*X and a scalar Y is treated as
-      ones(X)*Y.
-
-________________________________________________________________________________
-addition:case D:1 OK
-addition:case E:1 OK
-addition:case F:1 OK
-addition:case G:1 OK
-addition:case D:2 OK
-addition:case E:2 OK
-addition:case F:2 OK
-addition:case G:2 OK
-addition:case D:3 OK
-addition:case E:3 OK
-addition:case F:3 OK
-addition:case G:3 OK
-addition:case D:4 OK
-addition:case E:4 OK
-addition:case F:4 OK
-addition:case G:4 OK
-addition: array OK
-addition: completed
-addition PASSED
-================================================================================
-set%intersect  "set%intersect(A,B)" finds the values that occur in both
-               sets A and B with no repetitions in stable order.
-
-                   A= [ 7 1 7 7 4 ];
-                   B= [ 7 0 4 4 0 ];
-                   set%intersect(A,B) // Find values common to both A and B.
-                   ans =
-                      7 4
-
-set%intersect OK
-set%ismember   "set%ismember(A,B)" creates a mask of A marking elements
-               also in B.
-
-               The returned array is a mask of the first array containing
-               a 1 (aka. "true") where the data in A is found in
-               B. Elsewhere, the array contains 0 (aka. "false").
-
-                   // ISMEMBER Determine which elements of A are also in B.
-                   A= [ 5 3 4 2 ];
-                   B= [ 2 4 4 4 6 8 ];
-                   set%ismember(A,B)
-                   ans =
-                      0 0 1 1
-
-set%ismember OK
-set%issorted   "set%issorted(A)," reports if A is sorted in ascending
-               order or not.
-
-               A 1 (true) is returned when the elements of A are listed
-               in ascending (row-column) order and 0 (false) otherwise.
-
-                 // ISSORTED Find the sorted elements of vector A.
-                 A= [ 10 -10 0 1 2 3 3 2 1 -10 ];
-                 set%issorted(A)
-                 ans =
-                    0
-                 A= [ -10 10 100 201 ];
-                 set%issorted(A)
-                 ans =
-                    1
-
-                 A=magic(12) // for even magic squares from magic()
-                 set%issorted(A)
-                 ans =
-                    0
-                 set%issorted(A([A]))
-                 ans =
-                    1
-
-set%issorted OK
-set%issorted OK
-set%setdiff    "set%setdiff(A,B)" finds the values in A that are not in B
-
-                 // Find the values in A that are not in B.
-                 A= [ 3 6 2 1 5 1 1 ];
-                 B= [ 2 4 6 ];
-                 set%setdiff(A,B)
-                 ans =
-                    3 1 5
-
-set%setdiff OK
-set%setxor  "set%setxor(A,B)" finds values of A and B not in both arrays.
-
-            "setxfor(A,B)" returns the exclusive OR of two arrays. That
-            is, it returns the data of A and B that are not in their
-            intersection (the symmetric difference), with no repetitions.
-
-            Another way of defining the result is that setxor(3f)
-            returns the data that occurs in A or B, but not both.
-
-               // Find values of A and B not in their intersection.
-               A = [5,1,3,3,3];
-               B = [4,1,2];
-               set%setxor(A,B)
-               ans =
-                  5 3 4 2
-
-set%setxor OK
-set%union   "set%union(A,B)" joins two sets and removes duplicates
-            of values.
-
-            The two sets are combined and repetitions are removed and the
-            answer is returned in stable order (ie. the order discovered).
-
-              // Find the union of vectors A and B.
-              A= [5 7 1];
-              B= [3 1 1];
-              set%union(A,B)
-              ans=
-                 5 7 1 3
-              A= [5 5 3];
-              B= [1 2 5];
-              set%union(A,B)
-              ans=
-                 5 3 1 2
-
-set%union OK
-set%union OK
-set%unique  "set%unique(A,B)" returns unique values in array A in
-            stable order. That is, it removes duplicates from an
-            array.
-
-              A = [44, 33, 33, 33, 22, 11, 33, 44, 55, 33];
-              set%unique(A)
-                 ans =
-              44, 33, 22, 11, 55
-
-set%unique OK
-set%isequal   "set%isequal(A)," reports if A is equal to B.
-
-              Equality is defined as having the same size with the same
-              element values in the same order. If equal the result is
-              zero (0) else if not equal the result is one (1).
-
-                 A= [ 10 -10 0 1 2 3 3 2 1 -10 ];
-                 B= [ 10 -10 0 1 2 3 3 2 1  10 ];
-                 D= [ ...
-                 set%isequal(A,B), ...     // not the same
-                 set%isequal(A,A), ...     // the same
-                 set%isequal(A,A(1:9)) ... // different size
-                 ]
-                  D  =
-                      0.    1.    0.
-
-
- got  =
-     0.    1.    0.
-set%isequal OK
-set_theory PASSED
-
- N  =
-    11.
-
- M  =
-     1.
-+
-================================================================================
-order%sort  Sorts array into ascending order.
-
-            "order%sort(X)" returns all elements sorted in row-column order.
-            The shape of the output is the same as the input.
-
-            "order%sort(X,dim)" returns X with sorts of elements along
-            the specified dimension, where 1 <= dim <= 2.
-
-                matrix=[  1,   2,   3,   4
-                          10,  20,  30,  40
-                          100, 200, 300, 400  ];
-                s=order%sort(matrix)
-                sort_of_columns=order%sort(matrix,1)
-                sort_of_rows=order%sort(matrix,2)
-
-order%sort OK
-================================================================================
-order%rank         produces an INDEX that sorts an input array in
-                   ascending order.
-
-                   The locations are scalar values indicating
-                   the index into the vector "X(:)". These may
-                   be converted to <row,column> values using
-                   "location(X,N)", but may also be used as-is
-                   to index into a two-dimensional matrix.
-
-order%sort OK
-================================================================================
-order%orderloc     Return fractile location (INDEX of Nth ordered
-                   value of array)
-
-                   The locations are scalar values indicating
-                   the index into the vector "X(:)".
-
-
- expected  =
-    31.    2.   17.   24.  681.
-
- got  =
-    71.  937.  681.
-order%orderloc FAILED
-================================================================================
-order%orderval     Return fractile (VALUE of Nth ordered element
-                   of array)
-
-                       X=reshape([1:100:1],[10,10])
-                       order%minval(X)
-                       order%maxval(X)
-                       order%medianval(X)
-                       order%orderval(X,1)
-                       order%orderval(X,size(X))
-                       order%orderval(X,size(X)/2)
-
-order%orderval OK
-================================================================================
-order%median       Calculates median VALUE. If number of elements
-                   is even, returns average of the two "medians".
-
-                   "order%median(X,dim)" returns medians along the
-                   specified dimension, where 1 <= dim <= 2.
-
-                   "median(X)" or "median(X,0)" calculates the median
-                   value of the array X().  It is different from
-                   "medianval(X)" in that the average of the two
-                   middle values is returned when the size of X
-                   is even.
-                     [
-                      median( [80.0,70.0,20.0,10.0,1000.0] )
-                      median( [11, 22, 33, 44, 55, 66, 77, 88] )
-                      median( [11,22,33,66,77,88])
-                     ]
-                     ans
-                      70, 49, 49.5
-
-order%median OK
-================================================================================
-order%medianloc    "order%medianloc(X)" returns the median value's
-                   index, where the median is defined as the value
-                   at the index (((size(X)+1))/2^th of the sorted
-                   ascending values of X.
-
-                   "order%medianloc(X,dim)" returns median locations
-                   along the specified dimension, where 1 <= dim <= 2.
-
-                   The locations are scalar values indicating
-                   the index into the vector "X(:)". These may
-                   be converted to <row,column> values using
-                   "location(X,N)".
-
-                    [ order%medianloc( [80,70,20,10,1000] ) ...
-                      order%medianloc( [11,22,33,44,55,66,77,88] ) ...
-                      order%medianloc( [11, 22, 33, 66, 77, 88] )
-                    ]
-                     magic(5)*10
-                     order%medianloc(magic(5)*10,1)
-                     order%medianloc(magic(5)*10,2)
-
-order%medianloc OK
-================================================================================
-order%medianval    "order%medianval(X)" returns the median value,
-                   where the median is defined as the value at
-                   the index (((size(X)+1))/2^th of the sorted
-                   ascending values of X.
-
-                   "order%medianval(X,dim)" returns medians along
-                   the specified dimension, where 1 <= dim <= 2.
-
-                    [ order%medianval( [80,70,20,10,1000] ) ...
-                      order%medianval( [11,22,33,44,55,66,77,88] ) ...
-                      order%medianval( [11, 22, 33, 66, 77, 88] )
-                    ]
-                     ans  =
-                        70.   44.   33.
-                     order%median(magic(5),1)
-                     order%median(magic(5),2)
-
-order%medianval OK
-================================================================================
-order%occurrences  Give the multiplicity for each array value
-
-                   "occurrences(X)" gives, for each array element,
-                   its multiplicity (number of times that it appears
-                   in the array).
-
-order%occurrences OK
-================================================================================
-order%perturb      "order%perturb(X,CLOSENESS)" generates a random
-                   permutation of an array leaving elements close to
-                   initial locations.
-
-                   Nearbyness is controlled by CLOSENESS. The relative
-                   proportion of initial order and random order is defined
-                   as 1-CLOSENESS / CLOSENESS, thus when CLOSENESS =
-                   0, there is no change in the order whereas the new
-                   order is fully random when CLOSENESS = 1.
-
-                   Note this differs from adding random noise to the
-                   values. The original values remain unchanged but are
-                   shuffled, their order is just perturbed
-
-order%perturb OK
-================================================================================
-order%rank_decreasing  ranks an array in decreasing order, with duplicate
-                       entries assigned the same rank
-
-                       "order%rank_decreasing(X) " generates an inverse
-                       ranking of an array, but with duplicate entries
-                       assigned the same rank.
-
-                        X=[11, 11, 22, 11, 33, 33, 22, 33, 33]
-                        Y=order%rank_decreasing(X)
-                        X(Y)
-
-order%rank_decreasing(A) OK
-
- got  =
-     3.
-order%rank_decreasing(B) OK
-================================================================================
-order%rank_unique  ranks an array, with removal of duplicate entries.
-                   Returns a vector of the locations of the unique
-                   values in the array with the values pointed to
-                   sorted in ascending order.
-
-                     X=randi(10,10); // generate some numbers
-                     U=order%rank_unique(X);
-                     size(U) // how many unique values
-                     Y=X(U) // the unique values in ascending order
-
-order%rank_unique OK
-================================================================================
-order FAILED
-+
- TOTAL TESTS:         251
- TOTAL FAILED:           1
+[  0%]        test_suite_M_matrix.f90
+[ 50%]        test_suite_M_matrix.f90  done.
+
+test/test_suite_M_matrix.f90:2065:2:
+
+ 2065 | A=magic(8);
+      |  1
+Error: Syntax error in array constructor at (1)
+compilation terminated due to -fmax-errors=1.
+<ERROR> Compilation failed for object " test_test_suite_M_matrix.f90.o "
+<ERROR> stopping due to failed compilation
+STOP 1
 + echo '>>>> make BOOK html document'
 >>>> make BOOK html document
 + env MANPATH=../../man mandb -c
@@ -4864,17 +3128,17 @@ ________________________________________________________________________________
 + cat
 + echo 'function loadthem(){'
 + '[' M_matrix = INDEX ']'
++ echo M_matrix.3m_matrix.html
 + uniq
 + read NAME
-+ tr -d '()'
-+ echo M_matrix.3m_matrix.html
-+ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
-+ uniq
-+ grep -i '(3M_matrix)'
 + awk '{printf "%s.%s.html\n",$1,$2}'
++ env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
 + man -k '\[M_matrix\>'
-+ man --section 3m_matrix -k .
 + grep -i '(3M_matrix)'
++ uniq
++ tr -d '()'
++ grep -i '(3M_matrix)'
++ man --section 3m_matrix -k .
 + man -k '\[M_matrix\>'
 + env LC_ALL=C /usr/bin/sort -k 2r,2r -k 1,1
 + grep -vi '(3M_matrix)'
@@ -4934,48 +3198,48 @@ sed: can't read ../../docs/*.[37]fortran.html: No such file or directory
 + spell ../../README.md
 + xargs -n 8
 + column -t
-Alamos      CHANGELOG    EXPE      Forsythe  Fortran  IARR         INI      JSON
-LALA        Moler        NAMELIST  Neumann   TOML     YAML         ai       ais
-alfa        allocatable  anorm     ar        ars      atan         attr     boug
-br          brs          cd        cdiv      ci       cnt          config   cr
-cvec        deflator     dev       diag      disp     doxygen      eig      el
-embeddable  emm          ferr      fhelp     fortran  fpm          fv       gif
-github      hierarchial  html      https     iarr     ierr         ifin     imag
-inv         io           ip        jacobi    jacstep  journaling   keepB    kron
-lala        lanczos      lang      lanstep   len      littlearray  longley  md
-mgs         mycommands   mytitle   ncen      ort      pbar         pdq      pdqstep
-qrstep      rosser       rqi       serr      sl       sm           smm      sn
-sqrt        subexec      th        toml      tryall   tty          txt      urbanjost
-userguide   wv           xin
+Alamos      CHANGELOG    EXPE      Forsythe  Fortran      IARR     INI        JSON
+LALA        Moler        NAMELIST  Neumann   TOML         YAML     ai         ais
+alfa        allocatable  anorm     ar        ars          atan     attr       boug
+br          brs          cd        cdiv      ci           cnt      config     cr
+cvec        deflator     dev       diag      disp         doxygen  eig        el
+embeddable  emm          ferr      fhelp     fortran      fpm      fv         gif
+github      html         https     iarr      ierr         ifin     imag       inv
+io          ip           jacobi    jacstep   journaling   keepB    kron       lala
+lanczos     lang         lanstep   len       littlearray  longley  md         mgs
+mycommands  mytitle      ncen      ort       pbar         pdq      pdqstep    qrstep
+rosser      rqi          serr      sl        sm           smm      sn         sqrt
+subexec     th           toml      tryall    tty          txt      urbanjost  userguide
+wv          xin
 + echo '>>>> update GPF project and documents'
 >>>> update GPF project and documents
 + unset GITHUB
 + make.one libGPF
-1310438 (process ID) old priority 0, new priority 19
+1602382 (process ID) old priority 0, new priority 19
 W-A-R-N-I-N-G: no ccheck.c file (required for configured versions)
 + echo '>>>> run test'
 >>>> run test
 + cd ../../test
 + ccall test_suite_M_matrix.f90
-*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_1310925
-+ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_1310925
-+ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_1310925
+*ccall*: MAKING TEMPORARY DIRECTORY /dev/shm/CCALL_Linux_gfortran_1602812
++ mkdir -m 755 -p /dev/shm/CCALL_Linux_gfortran_1602812
++ chmod u=xrw,g-xrw,o-xrw /dev/shm/CCALL_Linux_gfortran_1602812
 + CCALL_DELETE_DIR=TRUE
-+ FULLNAME=/dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
++ FULLNAME=/dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90
 + SPLIT
 + sed -e 's/ -/@ -/g'
 + tr @ '\012'
-+ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
++ cp test_suite_M_matrix.f90 /dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90
 + echo NAME test_suite_M_matrix.f90
 NAME test_suite_M_matrix.f90
 + echo /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
 /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-+ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
-+ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
++ ADDOPTIONS /dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90
++ INPUTFILENAME=/dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90
 + grep
- -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
+ -qi '\<use\>  *\<M_readline\>' /dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90
 + grep
- -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
+ -qi '\<use\>  *\<M_curl\>' /dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90
 + set
  -x
 + set
@@ -4986,7 +3250,7 @@ NAME test_suite_M_matrix.f90
  -frecord-marker=4
  -I.
  -DTESTPRG
- -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
+ -DTESTPRG90 /dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90
  -o /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
  -Wall
  -Wextra
@@ -5019,12 +3283,22 @@ NAME test_suite_M_matrix.f90
  -Bdynamic
  -L/usr/lib/x86_64-linux-gnu
  -lX11
-+ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
-a - /dev/shm/CCALL_Linux_gfortran_1310925/test_suite_M_matrix.1310925.f90
+/dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90:2065:2:
+
+ 2065 | A=magic(8);
+      |  1
+Error: Syntax error in array constructor at (1)
+/dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90:2067:2:
+
+ 2067 | 'got = set%issorted(A);                                                                                    ',&
+      |  1
+Error: Invalid character in name at (1)
++ ar rv /home/urbanjs/venus/V600/lib/Linux_gfortran/PROGRAM.a /dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90
+a - /dev/shm/CCALL_Linux_gfortran_1602812/test_suite_M_matrix.1602812.f90
 + set +x
 /home/urbanjs/venus/V600/LIBRARY/CYGWIN/scripts_regression/goodbad: test_suite_M_matrix.1 0 test_suite_M_matrix start --section 1
 /home/urbanjs/venus/V600/bin/Linux_gfortran/test_suite_M_matrix
-*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_1310925
+*ccall*: REMOVING /dev/shm/CCALL_Linux_gfortran_1602812
 + test_suite_M_matrix
  Your current variables are...
  sumtally  eps  flops  eye  rand
@@ -5080,8 +3354,8 @@ test if near PI OK
 2nd test if near PI OK
 atan PASSED
 ================================================================================
-base  base(X,B) is a vector containing the base B representation
-      of X. This is often used in conjunction with "display".
+base  base(X,B) is a vector containing the base B representation of X.
+      This is often used in conjunction with "display".
       "display(X,B)" is the same as "display(base(X,B))". For example,
       "display(4*atan(1),16)" prints the hexadecimal representation of pi.
 
@@ -5265,86 +3539,87 @@ ________________________________________________________________________________
 eps matches expected value
 eps PASSED
 ================================================================================
-lt    "lt(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is less than the one in Y.
-      Otherwise, the element is set to 0. Only the REAL component of the
-      numbers is tested.
+lt    "lt(X,Y)" sets output elements to 1 if X(i) < Y(i); else to 0.
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      "lt(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is less than the one in Y.
+      Otherwise, the element is set to 0.
 
           count_of_true_results=sum(lt(X,Y))
+
+      For further details see "help RELATIONAL".
 
 ________________________________________________________________________________
 lt shape OK
 lt PASSED
 ================================================================================
-le    "le(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is less than or equal to the one
-      in Y; if X is greater than Y the element of the answer is 0. Only
-      the REAL component of the numbers is tested.
+le    If X(i) <= Y(i) output elements are 1; else 0.
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      "le(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is less than or equal to the one
+      in Y; otherwise the corresponding element in the answer is set to 0.
+
+      For further details see "help RELATIONAL".
 
 ________________________________________________________________________________
 le shape OK
 le PASSED
 ================================================================================
-eq    "eq(X,Y)" is an elemental function that sets element values to 1
-      if the elements are equal, and to 0 if they are not.
+eq    "eq(X,Y)" sets output elements to 1 if X(i)=Y(i), 0 if not
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      "eq(X,Y)" is an elemental function that sets element values in the
+      answer to 1 if the corresponding element in X is equal to the
+      corresponding one in Y. Otherwise, the element is set to 0.
 
           // return 1 if all elements are zero, else 0
           allzero=all(eq(X,0))
 
-          a=magic(4)      // make some arrays
-          b=a             // b is the same as a
-          c=b; c(4,4)=-10 // c is not the same as a
-          if all(eq(a,b))=1,display('SAME'),else display('DIFFERENT')
-          if all(eq(a,c))=1,display('SAME'),else display('DIFFERENT')
+          T=1;F=0;         // mneumonics for TRUE and FALSE
+          a=magic(4);      // make some arrays
+          b=a;             // b is the same as a
+          c=b; c(4,4)=-10; // c is not the same as a
+          if all(eq(a,b))<>F,display('SAME'),else display('DIFFERENT')
+          if all(eq(a,c))<>F,display('SAME'),else display('DIFFERENT')
+
+          T=1;F=0;
+          T=1;F=0;
+
+      For further details see "help RELATIONAL".
 
 ________________________________________________________________________________
 eq shape OK
 eq PASSED
 ================================================================================
-ge    "ge(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is greater than or equal to the
-      one in Y; if X is less than Y the element of the answer is 0. Only
-      the REAL component of the numbers is tested.
+ge    If X(i) >= Y(i) output elements are 1; else 0.
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      "ge(X,Y)" is an elemental function that sets element values to 1
+      if the corresponding element in X is greater than or equal to the
+      one in Y; if X is less than Y the element of the answer is 0.
+
+      For further details see "help RELATIONAL".
 
 ________________________________________________________________________________
 ge shape OK
 ge PASSED
 ================================================================================
-gt    "gt(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is greater than to the one in Y;
-      if X is less than or equal to Y the returned element in the answer
-      is 0. Only the REAL component of the numbers is tested.
+gt    If X(i) > Y(i) output elements are 1; else 0.
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      "gt(X,Y)" is an elemental function that sets element values in the
+      answer to 1 if the corresponding element in X is greater than the
+      corresponding element in Y; or to zero (0) otherwise.
+
+      For further details see "help RELATIONAL".
 
 ________________________________________________________________________________
 gt shape OK
 gt PASSED
 ================================================================================
-ne    "ne(X,Y)" is an elemental function that sets element values to 1
-      if the elements are not equal, and to 0 if they are not equal.
+ne    If X(i) <> Y(i) output elements are 1; else 0.
 
-      X and Y must have the same number of elements but need not be the same
-      shape. The returned value has the shape of X unless X is scalar, in
-      which case the returned value has the shape of Y.
+      "ne(X,Y)" is an elemental function that sets element values to
+      1 if the elements are not equal, and to 0 if they are not equal.
+
+      For further details see "help RELATIONAL".
 
 ________________________________________________________________________________
 ne shape OK
@@ -5504,8 +3779,20 @@ help  topic|SECTION_NAME
          help manual // show all the help text
          help help   // obviously prints this message.
          help search factor // show all lines containing "factor".
+         help SUMMARY // shows a short crib sheet of basic features
 
-      Alternatively, To place all the documentation in a file, use
+      Placing help text in a file is most simply done using the command
+      line:
+
+            lala -topic manual # display user manual to stdout
+
+      or as a command on the command line:
+
+            lala 'help manual'
+            lala 'help search inverse'
+
+      Alternatively in interactive mode use the help "w" function.
+      For example, to place all the documentation in a file, use
       "help manual" and enter "w help.txt" at the "help:" prompt.
 help PASSED
 ================================================================================
@@ -5589,6 +3876,7 @@ inv   "inv(X)" is the inverse of the square matrix X . A warning
       message is printed if X is badly scaled or nearly
       singular.
 
+inv OK
 inv PASSED
 ================================================================================
 kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It
@@ -6310,7 +4598,7 @@ general char PASSED
       either is a scalar.
 
       An exception is made if X or Y is scalar; in that case the scalar is
-      expanded to an array of the size of the other argument.  That is,
+      expanded to an array of the size of the other argument. That is,
       a scalar X is treated as ones(Y)*X and a scalar Y is treated as
       ones(X)*Y.
 
@@ -6508,11 +4796,11 @@ order%orderloc     Return fractile location (INDEX of Nth ordered
 
 
  expected  =
-    31.    2.   17.   24.  681.
+     1.   71.    1.  937.  681.
 
  got  =
-    71.  937.  681.
-order%orderloc FAILED
+     1.   71.    1.  937.  681.
+order%orderloc OK
 ================================================================================
 order%orderval     Return fractile (VALUE of Nth ordered element
                    of array)
@@ -6534,7 +4822,7 @@ order%median       Calculates median VALUE. If number of elements
                    specified dimension, where 1 <= dim <= 2.
 
                    "median(X)" or "median(X,0)" calculates the median
-                   value of the array X().  It is different from
+                   value of the array X(). It is different from
                    "medianval(X)" in that the average of the two
                    middle values is returned when the size of X
                    is even.
@@ -6643,10 +4931,10 @@ order%rank_unique  ranks an array, with removal of duplicate entries.
 
 order%rank_unique OK
 ================================================================================
-order FAILED
+order PASSED
 +
- TOTAL TESTS:         251
- TOTAL FAILED:           1
+ TOTAL TESTS:         252
+ TOTAL FAILED:           0
 + echo '>>>> GPF_fman'
 >>>> GPF_fman
 + '[' -d doc/ ']'
@@ -6679,9 +4967,9 @@ order FAILED
 ++ TOCHARACTER
 ++ :
 ++ cat -s get_from_lala.3m_matrix.man
-++ sed -e 's/^/'\''/'
-++ sed -e 's/$/'\'', \&/'
 ++ sed -e 's/'\''/'\'''\''/g'
+++ sed -e 's/$/'\'', \&/'
+++ sed -e 's/^/'\''/'
 ++ cat
 + read NAME
 + SHORTNAME=ifin_lala
@@ -6690,10 +4978,10 @@ order FAILED
 ++ TOCHARACTER
 ++ :
 ++ cat -s ifin_lala.3m_matrix.man
-++ sed -e 's/^/'\''/'
-++ sed -e 's/$/'\'', \&/'
 ++ sed -e 's/'\''/'\'''\''/g'
+++ sed -e 's/$/'\'', \&/'
 ++ cat
+++ sed -e 's/^/'\''/'
 + read NAME
 + SHORTNAME=lala
 + COUNT=3
@@ -6702,8 +4990,8 @@ order FAILED
 ++ :
 ++ cat -s lala.3m_matrix.man
 ++ sed -e 's/'\''/'\'''\''/g'
-++ cat
 ++ sed -e 's/$/'\'', \&/'
+++ cat
 ++ sed -e 's/^/'\''/'
 + read NAME
 + SHORTNAME=M_matrix
@@ -6712,10 +5000,10 @@ order FAILED
 ++ TOCHARACTER
 ++ :
 ++ cat -s M_matrix.3m_matrix.man
-++ sed -e 's/^/'\''/'
 ++ sed -e 's/'\''/'\'''\''/g'
-++ sed -e 's/$/'\'', \&/'
 ++ cat
+++ sed -e 's/$/'\'', \&/'
+++ sed -e 's/^/'\''/'
 + read NAME
 + SHORTNAME=put_into_lala
 + COUNT=5
@@ -6723,16 +5011,16 @@ order FAILED
 ++ TOCHARACTER
 ++ :
 ++ cat -s put_into_lala.3m_matrix.man
+++ sed -e 's/'\''/'\'''\''/g'
 ++ cat
 ++ sed -e 's/$/'\'', \&/'
 ++ sed -e 's/^/'\''/'
-++ sed -e 's/'\''/'\'''\''/g'
 + read NAME
 + END_MODULE
 + cat
 + cat
 + ls -ld /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
--rw-rw-r-- 1 urbanjs urbanjs 45879 May 10 13:04 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
+-rw-rw-r-- 1 urbanjs urbanjs 45879 May 11 21:00 /home/urbanjs/venus/V600/github/PLUGINS/fpm-docs/src/m_matrix_docs.f90
 + cat
 + '[' -d /home/urbanjs/venus/V600/LIBRARY/libGPF/download/doc ']'
 + cp doc/get_from_lala.3m_matrix.man doc/ifin_lala.3m_matrix.man doc/lala.1.man doc/lala.3m_matrix.man doc/M_matrix.3m_matrix.man doc/put_into_lala.3m_matrix.man /home/urbanjs/venus/V600/LIBRARY/libGPF/download/doc/
@@ -6747,9 +5035,9 @@ error [../../docs/manpages.zip]:  start of central directory not found;
   (please check that you have transferred or created the zipfile in the
   appropriate BINARY mode and that you have compiled UnZip properly)
 + tar tvfz ../../docs/manpages.tgz
--rw-rw-r-- urbanjs/urbanjs 1762 2025-05-10 13:03 man1/lala.1.gz
--rwxrwxrwx urbanjs/urbanjs 1717 2025-05-10 13:03 man3/get_from_lala.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs  556 2025-05-10 13:03 man3/ifin_lala.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs 7121 2025-05-10 13:03 man3/lala.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs 1479 2025-05-10 13:03 man3/M_matrix.3m_matrix.gz
--rwxrwxrwx urbanjs/urbanjs  960 2025-05-10 13:03 man3/put_into_lala.3m_matrix.gz
+-rw-rw-r-- urbanjs/urbanjs 1807 2025-05-11 21:00 man1/lala.1.gz
+-rwxrwxrwx urbanjs/urbanjs 1717 2025-05-11 21:00 man3/get_from_lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs  556 2025-05-11 21:00 man3/ifin_lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs 7121 2025-05-11 21:00 man3/lala.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs 1479 2025-05-11 21:00 man3/M_matrix.3m_matrix.gz
+-rwxrwxrwx urbanjs/urbanjs  960 2025-05-11 21:00 man3/put_into_lala.3m_matrix.gz

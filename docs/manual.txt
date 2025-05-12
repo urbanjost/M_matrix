@@ -10,7 +10,7 @@ NAME
   lala(1f) - interpret matrix expressions using a shell-like interface
 
 SYNOPSIS
-  lala [expression(s)] [--storage values]| [ --help| --version]
+  lala [expression(s)] [--storage values]|--topic TOPIC|[--help|--version]
 
 DESCRIPTION
   lala(1) is an interactive computer program that serves as a convenient
@@ -28,6 +28,9 @@ OPTIONS
   -s,--storage NNN
     number of 64-bit words to use for storage. Defaults to 400000.
 
+  -t,--topic TOPIC
+    display help for specified topic and exit
+
   -h,--help
     display this help and exit
 
@@ -40,6 +43,8 @@ AUTHOR
 
 EXAMPLES
   Sample commands
+
+      lala --topic manual # display manual and exit
 
       # Example 1: introductory usage:
       lala
@@ -142,7 +147,7 @@ EXAMPLES
       q
       quit
 
-				 May 10, 2025		 lala.1.man(1m_matrix)
+				 May 11, 2025		 lala.1.man(1m_matrix)
 ifin_lala(3m_matrix)					  ifin_lala(3m_matrix)
 
 NAME
@@ -176,7 +181,7 @@ EXAMPLES
       eps  T
       unknown  F
 
-				 May 10, 2025		  ifin_lala(3m_matrix)
+				 May 11, 2025		  ifin_lala(3m_matrix)
 M_matrix(3m_matrix)					   M_matrix(3m_matrix)
 
 NAME
@@ -262,7 +267,7 @@ EXAMPLES
 
       end program demo_M_matrix
 
-				 May 10, 2025		   M_matrix(3m_matrix)
+				 May 11, 2025		   M_matrix(3m_matrix)
 put_into_lala(3m_matrix)			      put_into_lala(3m_matrix)
 
 NAME
@@ -325,7 +330,7 @@ EXAMPLES
        >    1.1000    2.2000	3.3000
        >This is my title
 
-				 May 10, 2025	      put_into_lala(3m_matrix)
+				 May 11, 2025	      put_into_lala(3m_matrix)
 lala(3m_matrix) 					       lala(3m_matrix)
 
 NAME
@@ -953,7 +958,7 @@ EXAMPLES
        >       024.	0.	0.	0.     -4.
        >      ]
 
-				 May 10, 2025		       lala(3m_matrix)
+				 May 11, 2025		       lala(3m_matrix)
 get_from_lala(3m_matrix)			      get_from_lala(3m_matrix)
 
 NAME
@@ -1059,4 +1064,4 @@ EXAMPLES
      >in calling program ivec= 20
      > 2 8 0 3 7 7 9 7 9 1 6 7 8 2 6 2 2 2 9 7
 
-				 May 10, 2025	      get_from_lala(3m_matrix)
+				 May 11, 2025	      get_from_lala(3m_matrix)

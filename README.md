@@ -58,9 +58,7 @@ and using modern Fortran features to make it more maintainable.
 My primary interest is in making it into a tool for interacting with
 Fortran programs.
 
-lala(1) is not intrinsically hierarchial nor does it directly support
-compound types
- -->
+lala(1) is not intrinsically hierarchical nor does it directly support
 ## Simple Configuration File Example
 
 Given a simple configuration file similar to a NAMELIST, YAML, JSON,

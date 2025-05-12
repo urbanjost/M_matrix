@@ -73,7 +73,7 @@ lala(1f) - interpret matrix expressions using a shell-like interface
 
 </A>
 <BLOCKQUOTE>
-lala [expression(s)] [-<B>-storage</B> values]| [ <B>--help</B>| <B>--version</B>]
+lala [expression(s)] [-<B>-storage</B> values]|<B>--topic</B> TOPIC|[-<B>-help</B>|<B>--version</B>]
 </BLOCKQUOTE>
 <A name=2>
 
@@ -107,6 +107,10 @@ number of 64-bit words to use for storage. Defaults
 to 400000.
 </TD></TR>
 <TR valign=top><TD colspan=2>
+<B></B><B>-t</B>,<B>--topic</B> TOPIC </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
+display help for specified topic and exit
+</TD></TR>
+<TR valign=top><TD colspan=2>
 <B></B><B>-h</B>,<B>--help</B> </TD></TR><TR valign=top><TD width=6%>&nbsp;</TD><TD>
 display this help and exit
 </TD></TR>
@@ -133,6 +137,8 @@ Science, University of New Mexico, by Cleve Moler.
 Sample commands
 <P>
 <PRE>
+    lala --topic manual # display manual and exit
+<P>
     # Example 1: introductory usage:
     lala
     A=&lt;1 2 3;5 4 6;7 8 9&gt;
