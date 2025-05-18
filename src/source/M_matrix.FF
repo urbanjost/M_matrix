@@ -1,3 +1,4 @@
+!M_matrix.FF
 $BLOCK NULL
 
   range of values for display
@@ -524,7 +525,6 @@ out of programs?
    226  adjustr (3fortran)   - [FORTRAN:INTRINSIC:CHARACTER] Right adjust a string
    227  scan (3fortran)      - [FORTRAN:INTRINSIC:CHARACTER] Scan a string for the presence of a set of characters
    228  verify (3fortran)    - [FORTRAN:INTRINSIC:CHARACTER] Scan a string for the absence of a set of characters
-   252  log10 (3fortran)     - [FORTRAN:INTRINSIC:MATHEMATICS] Base 10 logarithm function
    253  bessel_j0 (3fortran) - [FORTRAN:INTRINSIC:MATHEMATICS] Bessel function of the first kind of order 0
    254  bessel_j1 (3fortran) - [FORTRAN:INTRINSIC:MATHEMATICS] Bessel function of the first kind of order 1
    255  bessel_jn (3fortran) - [FORTRAN:INTRINSIC:MATHEMATICS] Bessel function of the first kind
@@ -540,16 +540,6 @@ out of programs?
    267  log_gamma (3fortran) - [FORTRAN:INTRINSIC:MATHEMATICS] Logarithm of the Gamma function
    269  random_seed (3fortran) - [FORTRAN:INTRINSIC:MATHEMATICS:RANDOM] Initialize a pseudo-random number sequence
    270  random_number (3fortran) - [FORTRAN:INTRINSIC:MATHEMATICS:RANDOM] Pseudo-random number
-   271  acos (3fortran)      - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] arccosine function
-   272  asin (3fortran)      - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] Arcsine function
-   274  atan2 (3fortran)     - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] Arctangent function
-   276  cosh (3fortran)      - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] Hyperbolic cosine function
-   277  sinh (3fortran)      - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] Hyperbolic sine function
-   278  tanh (3fortran)      - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] Hyperbolic tangent function
-   279  acosh (3fortran)     - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] Inverse hyperbolic cosine function
-   280  asinh (3fortran)     - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] Inverse hyperbolic sine function
-   281  atanh (3fortran)     - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] Inverse hyperbolic tangent function
-   283  tan (3fortran)       - [FORTRAN:INTRINSIC:MATHEMATICS:TRIGONOMETRIC] Tangent function
    284  exponent (3fortran)  - [FORTRAN:INTRINSIC:MODEL_COMPONENTS] Exponent function
    285  fraction (3fortran)  - [FORTRAN:INTRINSIC:MODEL_COMPONENTS] Fractional part of the model representation
    286  nearest (3fortran)   - [FORTRAN:INTRINSIC:MODEL_COMPONENTS] Nearest representable number
@@ -1530,7 +1520,7 @@ EXAMPLES
      > F = F/sqrt(n);
      > alpha = r*pi;
      > rho = exp(i*alpha);
-     > S = log(rho*F)/i - alpha*eye;
+     > S = la%log(rho*F)/i - alpha*eye;
      > serr = norm(imag(S),1);
      > S = real(S);
      > serr = serr + norm(S-S',1)
@@ -1650,7 +1640,7 @@ EXAMPLES
      > for i=1:n, for j=2:m, k=c(i,j); if k>0, a(i,k)=1;
      > check = norm(A-A',1), if check > 0, quit
      > [X,D] = eig(A+eye);
-     > D = diag(D);  D = D(n:-1:1)
+     > D = diag(D);  D = D(n:1:-1)
      > X = X(:,n:1:-1);
      > [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
 
@@ -2157,7 +2147,7 @@ character(len=255)   :: msg
     case(29); msg='Not positive definite'
     case(30); msg='Improper exponent'
     case(31); msg='Improper string'
-    case(32); msg='Singularity of LOG or ATAN'
+    case(32); msg='Singularity of la%LOG or ATAN'
     case(33); msg='Too many colons'
     case(34); msg='Improper FOR clause'
     case(35); msg='Improper WHILE or IF clause'
@@ -3212,6 +3202,129 @@ character(len=80) :: message
       GM_IMAGS(location) = 0.0D0
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
+!===================================================================================================================================
+   case(34:47) 
+      ELEMENTAL: block
+      integer          :: rowsX, colsX, startX 
+      complex(kind=dp) :: canswer 
+      real(kind=dp)    :: ranswer
+      integer          :: i, sz 
+      select case(G_RHS)
+      case(1)  ! one parameter
+         startX = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         colsX  = G_VAR_COLS(G_ARGUMENT_POINTER)
+         rowsX  = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         sz=colsX*rowsX
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+      !  Fortran has strong support for complex values, including many intrinsics
+      !  that take or produce complex values in addition to algebraic and logical
+      !  expressions:
+
+      associate( AR=>gm_reals( startX:startX+sz-1 ) , AI=>gm_imags( startX:startX+sz-1 ) )
+      select case(G_FIN)
+      case(34) ! COMMAND::fortran%LOG
+         do i=1,sz
+            canswer=log(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(35) ! COMMAND::fortran%LOG10
+            ar=log10(AR)
+            ai=0.0d0
+      case(36) ! command::fortran%ACOSH 
+         do i=1,sz
+            canswer=acosh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(37) ! command::fortran%ACOS
+         do i=1,sz
+            canswer=acos(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(38) ! command::fortran%ASINH
+         do i=1,sz
+            canswer=asinh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(39) ! command::fortran%ASIN
+         do i=1,sz
+            canswer=sin(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(41) ! command::fortran%ATANH
+         do i=1,sz
+            canswer=atanh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(42) ! command::fortran%ATAN
+         do i=1,sz
+            canswer=atan(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(43) ! command::fortran%COSH
+         do i=1,sz
+            canswer=cosh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(44) ! command::fortran%COS
+         do i=1,sz
+            canswer=cos(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(45) ! command::fortran%SINH
+         do i=1,sz
+            canswer=sinh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(46) ! command::fortran%SIN
+         do i=1,sz
+            canswer=sin(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(47) ! command::fortran%TANH
+         do i=1,sz
+            canswer=tanh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(40) ! command::fortran%TAN
+         do i=1,sz
+            canswer=tan(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+     
+     !case(NN) ! command::fortran%atan2
+
+     !case(NN) ! command::fortran%ABS
+     !case(NN) ! command::fortran%DOT_PRODUCT
+     !case(NN) ! command::fortran%EXP
+     !case(NN) ! command::fortran%INT
+     !case(NN) ! command::fortran%MATMUL
+     !case(NN) ! command::fortran%PRECISION
+     !case(NN) ! command::fortran%PRODUCT
+     !case(NN) ! command::fortran%RANGE
+     !case(NN) ! command::fortran%RANK
+     !case(NN) ! command::fortran%SQRT
+     !case(NN) ! command::fortran%STORAGE_SIZE
+     !case(NN) ! command::fortran%SUM
+     !case(NN) ! command::fortran%UNPACK
+      end select
+      end associate
+      endblock ELEMENTAL
 !==================================================================================================================================!
    end select FUN6
 !==================================================================================================================================!
@@ -3227,12 +3340,7 @@ $@(#) M_matrix::mat_matsets(3f): evaluate set theory functions
       G_RHS=0
       return
    endif
-   ! set%intersect  701  ! find the value common to both sets A and B
-   ! set%ismember   702  ! create a mask of A marking elements also in B
    ! set%issorted   703  ! report if A is sorted in ascending order or not.
-   ! set%setdiff    704  ! find the values in A that are not in B
-   ! set%setxor     705  ! find values of A and B not in both arrays
-   ! set%union      706  ! join two sets and removes duplicates of values
    ! set%unique     707  ! return unique values in array A
    ! set%isequal    708  ! report if A is equal to B within a tolerance
 !===================================================================================================================================
@@ -3333,10 +3441,10 @@ $@(#) M_matrix::mat_matsets(3f): evaluate set theory functions
 !===================================================================================================================================
    case(8) ! COMMAND::SET%isequal report if A is equal to B within a tolerance
       SET_ISEQUAL: block
-      integer       :: rowsD, colsD, startD 
-      integer       :: rowsX, colsX, startX 
-      integer       :: rowsY, colsY, startY 
-      real(kind=dp) :: delta 
+      integer       :: rowsD, colsD, startD
+      integer       :: rowsX, colsX, startX
+      integer       :: rowsY, colsY, startY
+      real(kind=dp) :: delta
       delta=0.0d0
       ! check arguments
       select case(G_RHS)
@@ -3784,12 +3892,14 @@ integer                           :: i
    case('chol');            selector=106
    case('rref');            selector=107
 
-   case('sin');             selector=201
-   case('cos');             selector=202
-   case('atan');            selector=203
-   case('exp');             selector=204
-   case('sqrt');            selector=205
-   case('log');             selector=206
+   case('la%sin');             selector=201
+   case('la%cos');             selector=202
+   case('la%atan');            selector=203
+   case('la%exp');             selector=204
+   case('la%sqrt');            selector=205
+   case('la%log');             selector=206
+   case('la%pow','pow','power');     selector=306
+
    case('eig');             selector=211
    case('schur');           selector=212
    case('hess');            selector=213
@@ -3808,7 +3918,6 @@ integer                           :: i
    case('cond');            selector=303
    case('norm');            selector=304
    case('la%rank','rank');  selector=305
-   case('pow','power');     selector=306
    case('reshape');         selector=307
    case('lt');              selector=308
    case('le');              selector=309
@@ -3836,37 +3945,53 @@ integer                           :: i
    case('show');            selector=513
    case('delete');          selector=514
 
-   case('magic');           selector=601
-   case('diag');            selector=602
-    case('sum');             selector=603
-   case('prod','product');  selector=604
-   case('user');            selector=605
-   case('eye');             selector=606
-   case('rand','random');   selector=607
-   case('ones');            selector=608
-   case('chop');            selector=609
-   case('shape');           selector=610
-   case('kron');            selector=611
-   case('tril');            selector=614
-   case('triu');            selector=615
-   case('zeros');           selector=616
-   case('getenv');          selector=617
-   case('date_and_time');   selector=618
-   case('all');             selector=619
-   case('any');             selector=620
-   case('fmtc');            selector=621
-   case('fmti');            selector=622
-   case('fmtr');            selector=623
-    case('maxval');          selector=624
-    case('minval');          selector=625
+   case('magic');                 selector=601
+   case('diag');                  selector=602
+   case('sum');                   selector=603
+   case('prod','product');        selector=604
+   case('user');                  selector=605
+   case('eye');                   selector=606
+   case('rand','random');         selector=607
+   case('ones');                  selector=608
+   case('chop');                  selector=609
+   case('shape');                 selector=610
+   case('kron');                  selector=611
+   case('tril');                  selector=614
+   case('triu');                  selector=615
+   case('zeros');                 selector=616
+   case('getenv');                selector=617
+   case('date_and_time');         selector=618
+   case('all');                   selector=619
+   case('any');                   selector=620
+   case('fmtc');                  selector=621
+   case('fmti');                  selector=622
+   case('fmtr');                  selector=623
+   case('maxval');                selector=624
+   case('minval');                selector=625
    case('randu','rand%uniform');  selector=626
    case('randn','rand%normal');   selector=627
-   case('randseed');       selector=628
-   case('qsort');          selector=629
-   case('maxloc');         selector=630
-   case('minloc');         selector=631
-   case('randi','rand%integer');  selector=632
-   case('fortran%size','size');        selector=633
+   case('randseed');              selector=628
+   case('qsort');                 selector=629
+   case('maxloc');                selector=630
+   case('minloc');                selector=631
+
+   case('randi','rand%integer');   selector=632
+   case('fortran%size','size');    selector=633
+   case('fortran%log','log');      selector=634
+   case('fortran%log10','log10');  selector=635
+   case('fortran%acosh','acosh');  selector=636
+   case('fortran%acos','acos');    selector=637
+   case('fortran%asinh','asinh');  selector=638
+   case('fortran%asin','asin');    selector=639
+   case('fortran%tan','tan');      selector=640
+   case('fortran%atanh','atanh');  selector=641
+   case('fortran%atan','atan');    selector=642
+   case('fortran%cosh','cosh');    selector=643
+   case('fortran%cos','cos');      selector=644
+   case('fortran%sinh','sinh');    selector=645
+   case('fortran%sin','sin');      selector=646
+   case('fortran%tanh','tanh');    selector=647
+
    case('set%intersect','intersect');  selector=701 ! find the value common to both sets A and B
    case('set%ismember','ismember');   selector=702 ! create a mask of A marking elements also in B
    case('set%issorted','issorted');   selector=703 ! report if A is sorted in ascending order or not.
@@ -5066,7 +5191,7 @@ FINISHED: block
            case default
               cycle
            end select
-           call source_file(-1,0,filename)       ! if file can be opened
+           call source_file(-1,0,filename)       ! name becomes command if file can be opened
            if(G_ERR.ne.0)cycle
            G_PTZ=0
            call mat_getsym()
@@ -5086,8 +5211,8 @@ FINISHED: block
 
         if (id.eq.'help')then                    ! special case where anything after the help could be a topic
            exit
-        elseif(id.eq.'fhelp')then
-           exit
+        elseif(id.eq.'fhelp')then 
+           exit                   
         else
            call mat_err(16)                      ! improper command
            return
@@ -5133,13 +5258,12 @@ FINISHED: block
             G_SYN=blank
             call mat_getsym()
             call mat_buf2str(name,G_SYN,len(name))             ! convert ADE array to string
-            write(*,*)'GOT HERE A:INCLUDE:NAME:',name
             if(name.eq.'')exit
             G_ARGUMENT_POINTER = G_ARGUMENT_POINTER+1
             G_VAR_ROWS(G_ARGUMENT_POINTER) = 0   ! if m*n=0 flags to delete instead of replace or create variable
             G_VAR_COLS(G_ARGUMENT_POINTER) = 0
             G_RHS = 0
-            call source_file(-1,0,name)       ! if file can be opened
+            call source_file(-1,0,name)       ! include file if file can be opened
             if (G_ERR .gt. 0) return
             if(G_CHRA.eq.GG_EOL)exit
          enddo
@@ -5245,7 +5369,7 @@ FINISHED: block
 !===================================================================================================================================
    case('help','fhelp') ! command::help
                         ! command::fhelp
-      HELP_ : block
+      HELP_ : block    
       character(len=GG_LINELEN) :: topic_name
       integer                   :: position(2)
          G_BUF=blank
@@ -5757,7 +5881,7 @@ integer          :: nn
       logical herm,schur,vect,hess
 !
 !     functions/G_FIN
-!     **   SIN  COS ATAN  EXP  SQRT LOG
+!     **   la%SIN  la%COS la%ATAN  la%EXP  la%SQRT la%LOG
 !      0    1    2    3    4     5    6
 !    EIG  SCHU HESS POLY ROOT
 !     11   12   13   14   15
@@ -5925,18 +6049,18 @@ integer          :: nn
            return
         endif
         select case(G_FIN)
-        case( 1)                                        ! COMMAND::sin
+        case( 1)                                        ! COMMAND::la%sin
             tr(1) = dsin(sr)*dcosh(si)
             ti(1) = dcos(sr)*dsinh(si)
-        case( 2)                                        ! COMMAND::cos
+        case( 2)                                        ! COMMAND::la%cos
                  tr(1) = dcos(sr)*dcosh(si)
                  ti(1) = (-dsin(sr))*dsinh(si)
-        case( 3); call mat_watan(sr,si,tr(1),ti(1))     ! COMMAND::atan
-        case( 4)                                        ! COMMAND::exp
+        case( 3); call mat_watan(sr,si,tr(1),ti(1))     ! COMMAND::la%atan
+        case( 4)                                        ! COMMAND::la%exp
                  tr(1) = dexp(sr)*dcos(si)
                  ti(1) = dexp(sr)*dsin(si)
-        case( 5);  call mat_wsqrt(sr,si,tr(1),ti(1))    ! COMMAND::sqrt
-        case( 6);  call mat_wlog(sr,si,tr(1),ti(1))     ! COMMAND::log
+        case( 5);  call mat_wsqrt(sr,si,tr(1),ti(1))    ! COMMAND::la&sqrt
+        case( 6);  call mat_wlog(sr,si,tr(1),ti(1))     ! COMMAND::la%log
         case( 21); tr(1) = mat_pythag(sr,si)            ! COMMAND::abs
         case( 22); tr(1) = mat_round(sr)                ! COMMAND::ROUND
         case( 23); tr(1) = sr                           ! COMMAND::REAL
@@ -6895,7 +7019,7 @@ integer                   :: mn
       FUN5 : select case(G_FIN)
 !===================================================================================================================================
       case(1) ! COMMAND::EXEC
-      call source_file(lun,flag)
+      call source_file(lun,flag) ! exec command
 !===================================================================================================================================
       case(2) ! COMMAND::SAVE
       save_cmd: block
@@ -7225,9 +7349,9 @@ character(len=:),allocatable         :: filename
       G_LUN_READING_FROM = G_LUN_READING_FROM + 1
 
       if(present(name))then
-         filename=name
+         filename=find_exec_file(name)
       else
-         filename=find_exec_file(ade2str(G_BUF))
+         filename=find_exec_file(trim(ade2str(G_BUF)))
       endif
       call mat_str2buf(filename,G_BUF,GG_LINELEN)    ! convert input line to ADE buffer
       call mat_files(G_LUN_READING_FROM,G_BUF,status='old')
@@ -8279,6 +8403,7 @@ integer :: n
 17 continue
    ln = location+n
    if (G_CHRA .eq. GG_EOL) then
+      write(*,*)'GOT HERE A:IMPROPER STRING',G_CHRA
       call mat_err(31) ! Improper string
       return
    endif
@@ -8294,6 +8419,7 @@ integer :: n
 !==================================
 
    if (n .le. 0) then
+      write(*,*)'GOT HERE B:IMPROPER STRING',N
       call mat_err(31) ! Improper string
       return
    endif
@@ -10047,7 +10173,7 @@ ELEMENTARY OPERATIONS
 
         -1.3000   0.8000   3.1416
 
-   The elementary functions available include sqrt, log, exp, sin, cos,
+   The elementary functions available include sqrt, la%log, exp, sin, cos,
    atan, abs, round, real, imag, pow, and conjg.
 
    Large matrices can be spread across several input lines, with the
@@ -10343,13 +10469,13 @@ FUNCTIONS
       qr(A)            - Factors from Householder orthogonalization.
       rref(A)          - Reduced row echelon form.
       orth(A)          - Orthogonal vectors spanning range of A.
-      exp(A)           - e to the A.
-      log(A)           - Natural logarithm.
-      sqrt(A)          - Square root.
+      la%exp(A)        - e to the A.
+      la%log(A)        - Natural logarithm.
+      la%sqrt(A)       - Square root.
       pow(A)           - raise the elements by a power
-      sin(A)           - Trigonometric sine.
-      cos(A)           - Cosine.
-      atan(A)          - Arctangent.
+      la%sin(A)        - Trigonometric sine.
+      la%cos(A)        - Cosine.
+      la%atan(A)       - Arctangent.
       round(A)         - Round the elements to nearest integers.
       abs(A)           - Absolute value of the elements.
       real(A)          - Real parts of the elements.
@@ -10439,7 +10565,7 @@ ROWS COLUMNS AND SUBMATRICES
    use arbitrary real scalars as well. Thus
 
       1:4  is the same as  <1, 2, 3, 4>
-      0: 0.1: 0.5 is the same as <0.0, 0.1, 0.2, 0.3, 0.4, 0.5>
+      0: 0.5: 0.1 is the same as <0.0, 0.1, 0.2, 0.3, 0.4, 0.5>
 
    In general, a subscript can be a vector. If X and V are vectors,
    then X(V) is <X(V(1)), X(V(2)), ..., X(V(n))> . This can also be
@@ -10691,17 +10817,17 @@ NUMERICAL ALGORITHMS
    but this approach has the crucial advantage that it does not require
    very much additional code.
 
-   The elementary functions "exp", "log", "sqrt", "sin", "cos" and "atan"
-   are applied to square matrices by diagonalizing the matrix, applying
-   the functions to the individual eigenvalues and then transforming
-   back. For example, "exp(A)" is computed by
+   The elementary functions "la%exp", "la%log", "la%sqrt", "la%sin",
+   "la%cos" and "la%atan" are applied to square matrices by diagonalizing
+   the matrix, applying the functions to the individual eigenvalues and
+   then transforming back. For example, "la&exp(A)" is computed by
 
          <X,D> = eig(A);
-         for j = 1:n, D(j,j) = exp(D(j,j));
+         for j = 1:n, D(j,j) = la&exp(D(j,j));
          X*D/X
 
    This is essentially method number 14 out of the 19 'dubious'
-   possibilities described in [8]. It is dubious because it doesn't always
+   possibilities described in [8]. It is dubious because it does not always
    work. The matrix of eigenvectors X can be arbitrarily badly conditioned
    and all accuracy lost in the computation of X*D/X. A warning message
    is printed if "rcond(X)" is very small, but this only catches the
@@ -10710,16 +10836,16 @@ NUMERICAL ALGORITHMS
    associated with it. The computed eigenvalues will be separated by
    something on the order of the square root of the roundoff level. This
    separation will be reflected in "rcond(X)" which will probably not
-   be small enough to trigger the error message. The computed "exp(A)"
+   be small enough to trigger the error message. The computed "la&exp(A)"
    will be accurate to only half precision. Better methods are known for
-   computing "exp(A)", but they do not easily extend to the other five
+   computing "la&exp(A)", but they do not easily extend to the other five
    functions and would require a considerable amount of additional code.
 
    The expression A**p is evaluated by repeated multiplication if p is
    an integer greater than 1. Otherwise it is evaluated by
 
          <X,D> = eig(A);
-         for j = 1:n, D(j,j) = exp(p*log(D(j,j)))
+         for j = 1:n, D(j,j) = la%exp(p*la%log(D(j,j)))
          X*D/X
 
    This suffers from the same potential loss of accuracy if X is
@@ -10939,7 +11065,7 @@ CENSUS EXAMPLE
 
    or in a fancier, but perhaps clearer, way with
 
-      t = 1900:10:1970;   t = (t - 1940*ones(t))/40
+      t = 1900:1970;10   t = (t - 1940*ones(t))/40
 
    Either of these is equivalent to
 
@@ -11122,7 +11248,7 @@ CENSUS EXAMPLE
    vector is the function applied to the individual components.
 
       X = A(:,1:2);
-      c = X\log(y)
+      c = X\la%log(y)
       p = exp(sum(c))
       e = norm(exp(X*c)-y,'inf')
 
@@ -11151,7 +11277,7 @@ CENSUS EXAMPLE
 
       X = A(:,1:7);
       c = X\y;
-      c = c(7:-1:1);  //reverse the order of the coefficients
+      c = c(7:1:-1);  //reverse the order of the coefficients
       z = roots(c)
 
    produce
@@ -11281,7 +11407,7 @@ PARTIAL DIFFERENTIAL EQUATION EXAMPLE
       //initialize variables
          m1 = round(m/3);   //number of points on each straight edge
          m2 = m - m1;       //number of points with Dirichlet conditions
-         pi = 4*atan(1);
+         pi = 4*la%atan(1);
       //generate points in Cartesian coordinates
          //right hand edge
          for i = 1:m1, x(i) = 1; y(i) = (1-rho)*(i-1)/(m1-1);
@@ -11291,7 +11417,7 @@ PARTIAL DIFFERENTIAL EQUATION EXAMPLE
          for i = m1+1:m2, t = pi/2*(i-m1)/(m2-m1+1); ...
             x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);
       //convert to polar coordinates
-         for i = 1:m-1, th(i) = atan(y(i)/x(i));  ...
+         for i = 1:m-1, th(i) = la%atan(y(i)/x(i));  ...
             r(i) = sqrt(x(i)**2+y(i)**2);
          th(m) = pi/2;  r(m) = 1;
       //generate matrix
@@ -11307,7 +11433,7 @@ PARTIAL DIFFERENTIAL EQUATION EXAMPLE
       //solve for coefficients
          c = A\b
       //compute effective conductivity
-         c(2:2:n) = -c(2:2:n);
+         c(2:n:2) = -c(2:n:2);
          sigma = sum(c)
       //output total operation count
          ops = flop(2)
@@ -11858,8 +11984,11 @@ SUMMARY    A list of basic (case-sensitive) section and topic names
    |______________._________________________________________________________|
    |VARIABLES     | ans    clear who                                        |
    |______________._________________________________________________________|
-   |BASIC         | atan  cos  exp  log  pow  sin  sqrt                     |
-   |______________._________________________________________________________|
+   |COMPLEX ELEMENTAL | acosh acos asinh asin atanh atan cosh cos sinh sin  |
+   |                  | tanh tan log                                        |  
+   |__________________._____________________________________________________|
+   |REAL ELEMENTAL    | log10                                               |  
+   |______________.___._____________________________________________________|
    |RELATIONAL    | lt le eq ge gt ne                                       |
    |_______.________________________________________________________________|
    |INTEROGATE    | all any maxloc maxval minloc minval shape sum           |
@@ -11883,7 +12012,8 @@ SUMMARY    A list of basic (case-sensitive) section and topic names
    |______________._________________________________________________________|
    |MISCELLANEOUS | eps    debug  flops sh     MACROS   EDIT   CHARS        |
    |______________._________________________________________________________|
-   |PACKAGES      | "SET THEORY", "ORDERING"                                |
+   |PACKAGES      | "SET THEORY", "ORDERING", "LINEAR ALGEBRA"              |
+   |              | atan  cos  exp  log  pow  sin  sqrt                     |
    |______________._________________________________________________________|
 ================================================================================
 SAMPLE
@@ -11903,55 +12033,55 @@ SAMPLE
         w help.txt
         q
 ================================================================================
-DOCUMENTATION
-fhelp topic|SECTION_NAME
-
-      "fhelp" is identical in usage to "help" except that it searches a
-      collection of descriptions of Fortran intrinsics.
-
-        fhelp verify
-        fhelp pack
-
-      See "help"
-
-help  topic|SECTION_NAME
-
-      "help" gives assistance. It is equivalent to "help SUMMARY"
-      by default.
-
-      o  "help" with no options lists common topic and section names.
-      o  The special topic "topics" shows all topic lines.
-      o  The special topic "manual" displays all the help text.
-      o  The special topic "search" shows lines from the manual
-         containing the subsequent string
-
-         Enter "h" at the "help:" prompt for additional options.
-
-      For example:
-
-         help        // a list of common topics and section names
-         help topics // a list of topics including the first line of
-                     // the topic.
-         help abs    // are_any_trueuces help on the function "abs".
-         help FLOW   // the entire section on flow control is displayed.
-         help manual // show all the help text
-         help help   // obviously prints this message.
-         help search factor // show all lines containing "factor".
-         help SUMMARY // shows a short crib sheet of basic features
-
-      Placing help text in a file is most simply done using the command
-      line:
-             
-            lala -topic manual # display user manual to stdout
-
-      or as a command on the command line:
-
-            lala 'help manual'
-            lala 'help search inverse'
-
-      Alternatively in interactive mode use the help "w" function. 
-      For example, to place all the documentation in a file, use
-      "help manual" and enter "w help.txt" at the "help:" prompt.
+DOCUMENTATION                                                                   
+fhelp topic|SECTION_NAME                                                        
+                                                                                
+      "fhelp" is identical in usage to "help" except that it searches a         
+      collection of descriptions of Fortran intrinsics.                         
+                                                                                
+        fhelp verify                                                            
+        fhelp pack                                                              
+                                                                                
+      See "help"                                                                
+                                                                                
+help  topic|SECTION_NAME                                                        
+                                                                                
+      "help" gives assistance. It is equivalent to "help SUMMARY"               
+      by default.                                                               
+                                                                                
+      o  "help" with no options lists common topic and section names.           
+      o  The special topic "topics" shows all topic lines.                      
+      o  The special topic "manual" displays all the help text.                 
+      o  The special topic "search" shows lines from the manual                 
+         containing the subsequent string                                       
+                                                                                
+         Enter "h" at the "help:" prompt for additional options.                
+                                                                                
+      For example:                                                              
+                                                                                
+         help        // a list of common topics and section names               
+         help topics // a list of topics including the first line of            
+                     // the topic.                                              
+         help abs    // are_any_trueuces help on the function "abs".            
+         help FLOW   // the entire section on flow control is displayed.        
+         help manual // show all the help text                                  
+         help help   // obviously prints this message.                          
+         help search factor // show all lines containing "factor".              
+         help SUMMARY // shows a short crib sheet of basic features             
+                                                                                
+      Placing help text in a file is most simply done using the command         
+      line:                                                                     
+                                                                                
+            lala -topic manual # display user manual to stdout                  
+                                                                                
+      or as a command on the command line:                                      
+                                                                                
+            lala 'help manual'                                                
+            lala 'help search inverse'                                        
+                                                                                
+      Alternatively in interactive mode use the help "w" function.              
+      For example, to place all the documentation in a file, use                
+      "help manual" and enter "w help.txt" at the "help:" prompt.               
 NEWS
       May, 1981.
 
@@ -11995,8 +12125,8 @@ NEWS
 
       Differences
 
-       * the original tertiary operator start:step:end was changed to be
-         start:end:step.
+       * the original tertiary operator start:step:end was changed to be   
+'        start:end:step.                                                 
 
        * added randu(), randn(), and randseed() and eliminated overloading
          of the word "rank", which was error-prone and had improbable but
@@ -12064,7 +12194,7 @@ SYNTAX
          X(3) is the third element of X .
          X([1 2 3]) is the first three elements of X. So is
          X([sqrt(2), sqrt(3), 4*atan(1)]) .
-         If X has N components, X(N:-1:1) reverses them.
+         If X has N components, X(N:1:-1) reverses them.
 
       The same indirect subscripting is used in matrices. If V has
       M components and W has N components, then A(V,W) is the M by N
@@ -12162,7 +12292,7 @@ SYNTAX
       either is a scalar.
 
       An exception is made if X or Y is scalar; in that case the scalar is
-      expanded to an array of the size of the other argument. That is,
+      expanded to an array of the size of the other argument.  That is,
       a scalar X is treated as ones(Y)*X and a scalar Y is treated as
       ones(X)*Y.
 
@@ -12170,7 +12300,7 @@ SYNTAX
       either is scalar.
 
       An exception is made if X or Y is scalar; in that case the scalar is
-      expanded to an array of the size of the other argument. That is,
+      expanded to an array of the size of the other argument.  That is,
       a scalar X is treated as ones(Y)*X and a scalar Y is treated as
       ones(X)*Y.
 
@@ -12285,613 +12415,639 @@ MACROS
     It is necessary that the strings making up the "rows" of
     the "matrix" S have the same lengths.
 ================================================================================
-BASIC FUNCTIONS
+COMPLEX ELEMENTAL 
+
+These elemental procedures are direct calls to their Fortran namesakes. They
+are described under the "fhelp" command in greater detail. These members can
+all take complex arguments.
+
+acos   arccosine function
+asin   Arcsine function
+atan2  Arctangent function
+cosh   Hyperbolic cosine function
+sinh   Hyperbolic sine function
+tanh   Hyperbolic tangent function
+acosh  Inverse hyperbolic cosine function
+asinh  Inverse hyperbolic sine function
+atanh  Inverse hyperbolic tangent function
+tan    Tangent function
+log    Natural logarith
+================================================================================
+REAL ELEMENTAL 
+
+These elemental procedures are direct calls to their Fortran namesakes. They
+are described under the "fhelp" command in greater detail. These members can
+all take real arguments and hence in lala(1) the imaginary components of input
+values are ignored.
+
+log10  Base 10 (ie "common") logarithm.
+================================================================================
+LINEAR ALGEBRA 
 
    For vector arguments, the function is applied to each component.
 
-   For matrix arguments X, the functions "sin", "cos", "atan", "sqrt",
-   "log", "exp" and X**p are computed using eigenvalues D and eigenvectors
-   V . If <V,D> = eig(X) then f(X) = V*f(D)/V . This method may give
-   inaccurate results if V is badly conditioned. Some idea of the accuracy
-   can be obtained by comparing X**1 with X .
+   For matrix arguments X, the functions "la%sin", "la%cos", "la%atan",
+   "la%sqrt", "la%log", "la%exp" and X**p are computed using eigenvalues
+   D and eigenvectors V . If <V,D> = eig(X) then f(X) = V*f(D)/V . This
+   method may give inaccurate results if V is badly conditioned. Some
+   idea of the accuracy can be obtained by comparing X**1 with X .
 
-atan  atan(X) is the arctangent of X. See "BASIC".
+la%atan  la%atan(X) is the arctangent of X. See "LINEAR ALGEBRA".
 
-cos   cos(X) is the cosine of X. See "BASIC".
+la%cos   la%cos(X) is the cosine of X. See "LINEAR ALGEBRA".
 
-exp   exp(X) is the exponential of X, e to the X. See "BASIC".
+la%exp   la%exp(X) is the exponential of X, e to the X. 
+         See "LINEAR ALGEBRA".
 
-log   log(X) is the natural logarithm of X.
+la%log   la%log(X) is the natural logarithm of X.
 
-      Complex results are produced if X is not positive, or has
-      nonpositive eigenvalues.
+         Complex results are produced if X is not positive, or has
+         nonpositive eigenvalues.  See "LINEAR ALGEBRA".
 
-      See "BASIC".
+la%sin   la%sin(X) is the sine of X. See "LINEAR ALGEBRA".
 
-sin   sin(X) is the sine of X. See "BASIC".
-
-sqrt  sqrt(X) is the square root of X. See "BASIC". Complex
-      results are produced if X is not positive, or has
-      nonpositive eigenvalues.
+la%sqrt  la%sqrt(X) is the square root of X. See "LINEAR ALGEBRA". Complex
+         results are produced if X is not positive, or has
+         nonpositive eigenvalues.
 ================================================================================
-RELATIONAL
-
+RELATIONAL                                                                      
+                                                                                
    An alternative to using the scalar relational operators
    ("<=,<,=,<>,>,>=") in flow control commands like "for" are the
    elemental relational functions "le(X,Y)", "lt(X,Y)","eq(X,Y)",
    "ne(X,Y)", "gt(X,Y)", "ge(X,Y)" combined with "all(X)", "all(Y)",
    and "isequal(X,Y,TOLERANCE)". These all return boolean values.
-
-   At least one of X or Y may be scalar. Otherwise X and Y must have the
-   same number of elements but need not be the same shape. The returned
-   value has the shape of X unless X is scalar, in which case the returned
-   value has the shape of Y. If X or Y is scalar it is treated as if the
-   same size as the other argument but will all of its elements set to the
-   scalar value.
-
-   The return values are zeros (regarded as false), and ones (non-zero
-   values are to be considered true).
-
-   Note that only the REAL component of values is compared except for the
-   "eq","ne" and "isequal" operators, which consider the entire value
-   including imaginary components.
-
-   The "all(X)" and "any(X)" functions may then used to reduce the vectors
-   returned by the relational functions to a scalar value suitable for
-   use in "for" and "which".
-
-   The "isequal(X,Y)" function is equivalent to "all(eq(X,Y))" except
-   it also checks if the sizes of X and Y are conformant and reports
-   false (0) if not, and allows for a tolerance in determining if values
-   are equal.
-
-eq    "eq(X,Y)" sets output elements to 1 if X(i)=Y(i), 0 if not
-
-      "eq(X,Y)" is an elemental function that sets element values in the
-      answer to 1 if the corresponding element in X is equal to the
-      corresponding one in Y. Otherwise, the element is set to 0.
-
-          // return 1 if all elements are zero, else 0
-          allzero=all(eq(X,0))
-
-          T=1;F=0;         // mneumonics for TRUE and FALSE
-          a=magic(4);      // make some arrays
-          b=a;             // b is the same as a
-          c=b; c(4,4)=-10; // c is not the same as a
-          if all(eq(a,b))<>F,display('SAME'),else display('DIFFERENT')
-          if all(eq(a,c))<>F,display('SAME'),else display('DIFFERENT')
-
-          T=1;F=0;
-          T=1;F=0;
-
-      For further details see "help RELATIONAL".
-
-lt    "lt(X,Y)" sets output elements to 1 if X(i) < Y(i); else to 0.
-
-      "lt(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is less than the one in Y.
-      Otherwise, the element is set to 0.
-
-          count_of_true_results=sum(lt(X,Y))
-
-      For further details see "help RELATIONAL".
-
-le    If X(i) <= Y(i) output elements are 1; else 0.
-
-      "le(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is less than or equal to the one
-      in Y; otherwise the corresponding element in the answer is set to 0.
-
-      For further details see "help RELATIONAL".
-
-ge    If X(i) >= Y(i) output elements are 1; else 0.
-
-      "ge(X,Y)" is an elemental function that sets element values to 1
-      if the corresponding element in X is greater than or equal to the
-      one in Y; if X is less than Y the element of the answer is 0.
-
-      For further details see "help RELATIONAL".
-
-gt    If X(i) > Y(i) output elements are 1; else 0.
-
-      "gt(X,Y)" is an elemental function that sets element values in the
-      answer to 1 if the corresponding element in X is greater than the
-      corresponding element in Y; or to zero (0) otherwise.
-
-      For further details see "help RELATIONAL".
-
-ne    If X(i) <> Y(i) output elements are 1; else 0.
-
-      "ne(X,Y)" is an elemental function that sets element values to
-      1 if the elements are not equal, and to 0 if they are not equal.
-
-      For further details see "help RELATIONAL".
-
-all   all(X) returns FALSE(ie. 0) if any element value is FALSE(0).
-      Otherwise, it returns TRUE(ie. 1).
-
-      0 is regarded as false and "not 0" signifies true in general in
-      lala(1). so if F=0 and T=1
-
-          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)
-          all(T,F,T,F,T]) // produces 0 (which is a FALSE value)
-
-any   any(X) returns TRUE(ie. 1) if any element value is TRUE(non-zero).
-
-      0 is regarded as false and "not 0" signifies true in general in
-      lala(1).
-
-          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)
-          all(T,F,F,F,F]) // produces 1 (which is a TRUE value)
-          all(F,F,F,F,F]) // produces 0 (which is a FALSE value)
-
-isequal  "isequal(X,Y)" returns 0 (ie. "false") if X(i) <> Y(i) 
-
-         "isequal(X,Y)" returns a scalar 0 (ie. "false") if X and Y
-         are not the same size. If they are the same size it returns
-         1(ie. "true") if all elements of X have the same value as the
-         corresponding element in "Y".
+                                                                                
+   At least one of X or Y may be scalar. Otherwise X and Y must have the        
+   same number of elements but need not be the same shape. The returned         
+   value has the shape of X unless X is scalar, in which case the returned      
+   value has the shape of Y. If X or Y is scalar it is treated as if the        
+   same size as the other argument but will all of its elements set to the      
+   scalar value.                                                                
+                                                                                
+   The return values are zeros (regarded as false), and ones (non-zero          
+   values are to be considered true).                                           
+                                                                                
+   Note that only the REAL component of values is compared except for the       
+   "eq","ne" and "isequal" operators, which consider the entire value           
+   including imaginary components.                                              
+                                                                                
+   The "all(X)" and "any(X)" functions may then used to reduce the vectors      
+   returned by the relational functions to a scalar value suitable for          
+   use in "for" and "which".                                                    
+                                                                                
+   The "isequal(X,Y)" function is equivalent to "all(eq(X,Y))" except           
+   it also checks if the sizes of X and Y are conformant and reports            
+   false (0) if not, and allows for a tolerance in determining if values        
+   are equal.                                                                   
+                                                                                
+eq    "eq(X,Y)" sets output elements to 1 if X(i)=Y(i), 0 if not                
+                                                                                
+      "eq(X,Y)" is an elemental function that sets element values in the        
+      answer to 1 if the corresponding element in X is equal to the             
+      corresponding one in Y. Otherwise, the element is set to 0.               
+                                                                                
+          // return 1 if all elements are zero, else 0                          
+          allzero=all(eq(X,0))                                                  
+                                                                                
+          T=1;F=0;         // mneumonics for TRUE and FALSE                     
+          a=magic(4);      // make some arrays                                  
+          b=a;             // b is the same as a                                
+          c=b; c(4,4)=-10; // c is not the same as a                            
+          if all(eq(a,b))<>F,display('SAME'),else display('DIFFERENT')      
+          if all(eq(a,c))<>F,display('SAME'),else display('DIFFERENT')      
+                                                                                
+          T=1;F=0;                                                              
+          T=1;F=0;                                                              
+                                                                                
+      For further details see "help RELATIONAL".                                
+                                                                                
+lt    "lt(X,Y)" sets output elements to 1 if X(i) < Y(i); else to 0.            
+                                                                                
+      "lt(X,Y)" is an elemental function that sets element values to 1          
+      if the corresponding element in X is less than the one in Y.              
+      Otherwise, the element is set to 0.                                       
+                                                                                
+          count_of_true_results=sum(lt(X,Y))                                    
+                                                                                
+      For further details see "help RELATIONAL".                                
+                                                                                
+le    If X(i) <= Y(i) output elements are 1; else 0.                            
+                                                                                
+      "le(X,Y)" is an elemental function that sets element values to 1          
+      if the corresponding element in X is less than or equal to the one        
+      in Y; otherwise the corresponding element in the answer is set to 0.      
+                                                                                
+      For further details see "help RELATIONAL".                                
+                                                                                
+ge    If X(i) >= Y(i) output elements are 1; else 0.                            
+                                                                                
+      "ge(X,Y)" is an elemental function that sets element values to 1          
+      if the corresponding element in X is greater than or equal to the         
+      one in Y; if X is less than Y the element of the answer is 0.             
+                                                                                
+      For further details see "help RELATIONAL".                                
+                                                                                
+gt    If X(i) > Y(i) output elements are 1; else 0.                             
+                                                                                
+      "gt(X,Y)" is an elemental function that sets element values in the        
+      answer to 1 if the corresponding element in X is greater than the         
+      corresponding element in Y; or to zero (0) otherwise.                     
+                                                                                
+      For further details see "help RELATIONAL".                                
+                                                                                
+ne    If X(i) <> Y(i) output elements are 1; else 0.                            
+                                                                                
+      "ne(X,Y)" is an elemental function that sets element values to            
+      1 if the elements are not equal, and to 0 if they are not equal.          
+                                                                                
+      For further details see "help RELATIONAL".                                
+                                                                                
+all   all(X) returns FALSE(ie. 0) if any element value is FALSE(0).             
+      Otherwise, it returns TRUE(ie. 1).                                        
+                                                                                
+      0 is regarded as false and "not 0" signifies true in general in           
+      lala(1). so if F=0 and T=1                                                
+                                                                                
+          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)                 
+          all(T,F,T,F,T]) // produces 0 (which is a FALSE value)                
+                                                                                
+any   any(X) returns TRUE(ie. 1) if any element value is TRUE(non-zero).        
+                                                                                
+      0 is regarded as false and "not 0" signifies true in general in           
+      lala(1).                                                                  
+                                                                                
+          all(T,T,T,T,T]) // produces 1 (which is a TRUE value)                 
+          all(T,F,F,F,F]) // produces 1 (which is a TRUE value)                 
+          all(F,F,F,F,F]) // produces 0 (which is a FALSE value)                
+                                                                                
+isequal  "isequal(X,Y)" returns 0 (ie. "false") if X(i) <> Y(i)                 
+                                                                                
+         "isequal(X,Y)" returns a scalar 0 (ie. "false") if X and Y             
+         are not the same size. If they are the same size it returns            
+         1(ie. "true") if all elements of X have the same value as the          
+         corresponding element in "Y".                                          
 ================================================================================
-HIGH LEVEL FUNCTIONS
-
-abs   abs(X) is the absolute value, or complex modulus,
-      of the elements of X .
-
-base  base(X,B) is a vector containing the base B representation of X.
-      This is often used in conjunction with "display".
-      "display(X,B)" is the same as "display(base(X,B))". For example,
-      "display(4*atan(1),16)" prints the hexadecimal representation of pi.
-
-chol  Cholesky factorization. "chol(X)" uses only the diagonal
-      and upper triangle of X. The lower triangular is assumed to be
-      the (complex conjugate) transpose of the upper. If X is positive
-      definite, then "R = chol(X)" produces an upper triangular R so
-      that R'*R = X . If X is not positive definite, an error message
-      is printed.
-
-chop  Truncate arithmetic. "chop(P)" causes P places to be chopped
-      off after each arithmetic operation in subsequent computations. This
-      means P hexadecimal digits on some computers and P octal digits
-      on others. "chop(0)" restores full precision.
-
-cond  Condition number in 2-norm. "cond(X)" is the ratio of the
-      largest singular value of X to the smallest.
-
-conjg  "conjg(X)" is the complex conjugate of X .
-
-date_and_time  date_and_time(IDS)" where an array of IDs indicate
-               which values to return:
-
-               Id
-                1. The year, including the century.
-                2. The month of the year
-                3. The day of the month
-                4. Difference in minutes between the reported and UTC time.
-                5. The hour of the day, in the range 0 to 23.
-                6. The minutes of the hour, in the range 0 to 59
-                7. The seconds of the minute, in the range 0 to 60
-                8. The milliseconds of the second, in the range 0 to 999.
-                9. Unix epoch time
-               10. Julian time
-               11. Modified Julian time
-               12. Basename and Seconds (BAS) time
-               13. Ordinal day of the year
-               14. Day of week
-
-               dat=date_and_time(1:8)
-               YEAR=1;MONTH=2;DAY=3;
-               display(date_and_time(YEAR,MONTH,DAY))
-
-det   "det(X)" is the determinant of the square matrix X .
-
-diag  If V is a row or column vector with N components,
-      "diag(V,K)" is a square matrix of order "N+abs(K)" with the
-      elements of V on the K-th diagonal. K = 0 is the main diagonal,
-      K > 0 is above the main diagonal and K < 0 is below the main
-      diagonal. "diag(V)" simply puts V on the main diagonal. eg.
-
-         diag(-M:M) + diag(ones(2*M,1),1) + diag(ones(2*M,1),-1)
-
-      produces a tridiagonal matrix of order 2*M+1 .
-
-      If X is a matrix, "diag(X,K)" is a column vector formed from the
-      elements of the K-th diagonal of X. "diag(X)" is the main diagonal
-      of X. "diag(diag(X))" is a diagonal matrix .
-
-eig   Eigenvalues and eigenvectors.
-      "eig(X)" is a vector containing the eigenvalues of a square
-      matrix X.
-      "<V,D> = eig(X)" produces a diagonal matrix D of
-      eigenvalues and a full matrix V whose columns are the
-      corresponding eigenvectors so that X*V = V*D .
-
-eye   Identity matrix. "eye(N)" is the N by N identity matrix.
-      "eye(M,N)" is an M by N matrix with 1's on the diagonal and
-      zeros elsewhere. "eye(A)" is the same size as A. "eye"
-      with no arguments is an identity matrix of whatever order
-      is appropriate in the context. For example "A + 3*eye"
-      adds 3 to each diagonal element of A.
-
-fmtc  "fmtc(A,'format')" converts given numbers to strings representing
-       a complex number using the optional specified Fortran format. Note
-       the format is used repeatedly to output each string. It is not
-       used to print multiple values as once.
-
-         A=10+sqrt(-1)*20
-         display(fmtc(A))
-
-fmti  "fmti(A,'format')" converts given numbers to strings representing
-       the nearest integer values using the optional specified Fortran
-       format. Note the format is used repeatedly to output each string.
-       It is not used to print multiple values as once.
-
-         A=magic(3)
-         display(fmti(A,'i0,1x'))
-         8 3 4 1 5 9 6 7 2
-
-fmtr  "fmtr(A,'format')" converts given numbers to strings representing
-       real values using the optional specified Fortran format. Note
-       the format is used repeatedly to output each string. It is not
-       used to print multiple values as once.
-
-         display(fmtr(A,'g0,1x'))
-
-hess  Hessenberg form. The Hessenberg form of a matrix is zero
-      below the first subdiagonal. If the matrix is symmetric or
-      Hermitian, the form is tridiagonal. <P,H> = "hess(A)" produces a
-      unitary matrix P and a Hessenberg matrix H so that A = P*H*P'. By
-      itself, "hess(A)" returns H.
-
-invh  Inverse Hilbert matrix. "invh(N)" is the inverse of a N_by_N
-      Hilbert matrix (which is a famous example of a badly conditioned
-      matrix). The result is exact for N less than about 15, depending
-      upon the computer.
-
-         for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);
-
-      generates the NxN Hilbert matrix.
-
-      "invh" has an alias of "inverse_hilbert" and "invhilb".
-
-aimag  see "imag"
-imag  "imag(X)" is the imaginary part of X .
-
-inv   "inv(X)" is the inverse of the square matrix X . A warning
-      message is printed if X is badly scaled or nearly
-      singular.
-
-kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It
-      is also denoted by X .*. Y . The result is a large matrix
-      formed by taking all possible products between the elements
-      of X and those of Y . For example, if X is 2 by 3, then
-      X .*. Y is
-
-            < x(1,1)*Y  x(1,2)*Y  x(1,3)*Y
-              x(2,1)*Y  x(2,2)*Y  x(2,3)*Y >
-
-      The five-point discrete Laplacian for an n-by-n grid can be
-      generated by
-
-            T = diag(ones(n-1,1),1);  T = T + T';  I = eye(T);
-            A = T.*.I + I.*.T - 4*eye;
-
-      Just in case they might be useful, LALA includes
-      constructions called Kronecker tensor quotients, denoted by
-      X ./. Y and X .\. Y . They are obtained by replacing the
-      element-wise multiplications in X .*. Y with divisions.
-
-lu    Factors from Gaussian elimination. <L,U> = LU(X) stores a
-      upper triangular matrix in U and a 'psychologically lower
-      triangular matrix', i.e. a product of lower triangular and
-      permutation matrices, in L , so that X = L*U . By itself,
-      "lu(X)" returns the output from CGEFA .
-
-magic  Magic square. "magic(N)" is an N by N matrix constructed
-       from the integers 1 through N**2 with equal row, column and
-       diagonal sums. N must be a positive whole number not equal to two.
-
-maxloc  "maxloc(A)" returns the location of the maximum real component
-        found in the elements of A
-
-maxval  "maxval(A)" returns the maximum real component found in the
-        elements of A
-
-minloc  "minloc(A)" returns the location of the minimum real component
-        found in the elements of A
-
-minval  "minval(A)" returns the minimum real component found in the
-        elements of A
-
-norm  computes the norm or P-norm of X
-
-      norm(X,P) computes the P-norm of X. P=2 is the default, which defines
-      the standard norm.
-
-      For matrices..
-          norm(X,1)      is the 1-norm of X; ie. the largest column sum
-                         of X.
-
-          norm(X,2)      the largest singular value of X.
-          or norm(X)
-
-          norm(X,'inf')  is the infinity norm of X; ie. the largest row
-                         sum of X.
-
-          norm(X,'fro')  is the F-norm, i.e. "sqrt(sum(diag(X'*X)))" .
-
-      For vectors..
-          norm(V,P)      the same as sum(V(I)**P)**(1/P) .
+HIGH LEVEL FUNCTIONS                                                            
+                                                                                
+abs   abs(X) is the absolute value, or complex modulus,                         
+      of the elements of X .                                                    
+                                                                                
+base  base(X,B) is a vector containing the base B representation of X.          
+      This is often used in conjunction with "display".                         
+      "display(X,B)" is the same as "display(base(X,B))". For example,          
+      "display(4*atan(1),16)" prints the hexadecimal representation of pi.      
+                                                                                
+chol  Cholesky factorization. "chol(X)" uses only the diagonal                  
+      and upper triangle of X. The lower triangular is assumed to be            
+      the (complex conjugate) transpose of the upper. If X is positive          
+      definite, then "R = chol(X)" produces an upper triangular R so            
+      that R'*R = X . If X is not positive definite, an error message          
+      is printed.                                                               
+                                                                                
+chop  Truncate arithmetic. "chop(P)" causes P places to be chopped              
+      off after each arithmetic operation in subsequent computations. This      
+      means P hexadecimal digits on some computers and P octal digits           
+      on others. "chop(0)" restores full precision.                             
+                                                                                
+cond  Condition number in 2-norm. "cond(X)" is the ratio of the                 
+      largest singular value of X to the smallest.                              
+                                                                                
+conjg  "conjg(X)" is the complex conjugate of X .                               
+                                                                                
+date_and_time  date_and_time(IDS)" where an array of IDs indicate               
+               which values to return:                                          
+                                                                                
+               Id                                                               
+                1. The year, including the century.                             
+                2. The month of the year                                        
+                3. The day of the month                                         
+                4. Difference in minutes between the reported and UTC time.     
+                5. The hour of the day, in the range 0 to 23.                   
+                6. The minutes of the hour, in the range 0 to 59                
+                7. The seconds of the minute, in the range 0 to 60              
+                8. The milliseconds of the second, in the range 0 to 999.       
+                9. Unix epoch time                                              
+               10. Julian time                                                  
+               11. Modified Julian time                                         
+               12. Basename and Seconds (BAS) time                              
+               13. Ordinal day of the year                                      
+               14. Day of week                                                  
+                                                                                
+               dat=date_and_time(1:8)                                           
+               YEAR=1;MONTH=2;DAY=3;                                            
+               display(date_and_time(YEAR,MONTH,DAY))                           
+                                                                                
+det   "det(X)" is the determinant of the square matrix X .                      
+                                                                                
+diag  If V is a row or column vector with N components,                         
+      "diag(V,K)" is a square matrix of order "N+abs(K)" with the               
+      elements of V on the K-th diagonal. K = 0 is the main diagonal,           
+      K > 0 is above the main diagonal and K < 0 is below the main              
+      diagonal. "diag(V)" simply puts V on the main diagonal. eg.               
+                                                                                
+         diag(-M:M) + diag(ones(2*M,1),1) + diag(ones(2*M,1),-1)                
+                                                                                
+      produces a tridiagonal matrix of order 2*M+1 .                            
+                                                                                
+      If X is a matrix, "diag(X,K)" is a column vector formed from the          
+      elements of the K-th diagonal of X. "diag(X)" is the main diagonal        
+      of X. "diag(diag(X))" is a diagonal matrix .                              
+                                                                                
+eig   Eigenvalues and eigenvectors.                                             
+      "eig(X)" is a vector containing the eigenvalues of a square               
+      matrix X.                                                                 
+      "<V,D> = eig(X)" produces a diagonal matrix D of                          
+      eigenvalues and a full matrix V whose columns are the                     
+      corresponding eigenvectors so that X*V = V*D .                            
+                                                                                
+eye   Identity matrix. "eye(N)" is the N by N identity matrix.                  
+      "eye(M,N)" is an M by N matrix with 1's on the diagonal and              
+      zeros elsewhere. "eye(A)" is the same size as A. "eye"                    
+      with no arguments is an identity matrix of whatever order                 
+      is appropriate in the context. For example "A + 3*eye"                    
+      adds 3 to each diagonal element of A.                                     
+                                                                                
+fmtc  "fmtc(A,'format')" converts given numbers to strings representing       
+       a complex number using the optional specified Fortran format. Note       
+       the format is used repeatedly to output each string. It is not           
+       used to print multiple values as once.                                   
+                                                                                
+         A=10+sqrt(-1)*20                                                       
+         display(fmtc(A))                                                       
+                                                                                
+fmti  "fmti(A,'format')" converts given numbers to strings representing       
+       the nearest integer values using the optional specified Fortran          
+       format. Note the format is used repeatedly to output each string.        
+       It is not used to print multiple values as once.                         
+                                                                                
+         A=magic(3)                                                             
+         display(fmti(A,'i0,1x'))                                             
+         8 3 4 1 5 9 6 7 2                                                      
+                                                                                
+fmtr  "fmtr(A,'format')" converts given numbers to strings representing       
+       real values using the optional specified Fortran format. Note            
+       the format is used repeatedly to output each string. It is not           
+       used to print multiple values as once.                                   
+                                                                                
+         display(fmtr(A,'g0,1x'))                                             
+                                                                                
+hess  Hessenberg form. The Hessenberg form of a matrix is zero                  
+      below the first subdiagonal. If the matrix is symmetric or                
+      Hermitian, the form is tridiagonal. <P,H> = "hess(A)" produces a          
+      unitary matrix P and a Hessenberg matrix H so that A = P*H*P'. By        
+      itself, "hess(A)" returns H.                                              
+                                                                                
+invh  Inverse Hilbert matrix. "invh(N)" is the inverse of a N_by_N              
+      Hilbert matrix (which is a famous example of a badly conditioned          
+      matrix). The result is exact for N less than about 15, depending          
+      upon the computer.                                                        
+                                                                                
+         for i = 1:N, for j = 1:N, A(i,j) = 1/(i+j-1);                          
+                                                                                
+      generates the NxN Hilbert matrix.                                         
+                                                                                
+      "invh" has an alias of "inverse_hilbert" and "invhilb".                   
+                                                                                
+aimag  see "imag"                                                               
+imag  "imag(X)" is the imaginary part of X .                                    
+                                                                                
+inv   "inv(X)" is the inverse of the square matrix X . A warning                
+      message is printed if X is badly scaled or nearly                         
+      singular.                                                                 
+                                                                                
+kron  "kron(X,Y)" is the Kronecker tensor product of X and Y. It                
+      is also denoted by X .*. Y . The result is a large matrix                 
+      formed by taking all possible products between the elements               
+      of X and those of Y . For example, if X is 2 by 3, then                   
+      X .*. Y is                                                                
+                                                                                
+            < x(1,1)*Y  x(1,2)*Y  x(1,3)*Y                                      
+              x(2,1)*Y  x(2,2)*Y  x(2,3)*Y >                                    
+                                                                                
+      The five-point discrete Laplacian for an n-by-n grid can be               
+      generated by                                                              
+                                                                                
+            T = diag(ones(n-1,1),1);  T = T + T';  I = eye(T);                 
+            A = T.*.I + I.*.T - 4*eye;                                          
+                                                                                
+      Just in case they might be useful, LALA includes                          
+      constructions called Kronecker tensor quotients, denoted by               
+      X ./. Y and X .\. Y . They are obtained by replacing the                  
+      element-wise multiplications in X .*. Y with divisions.                   
+                                                                                
+lu    Factors from Gaussian elimination. <L,U> = LU(X) stores a                 
+      upper triangular matrix in U and a 'psychologically lower                
+      triangular matrix', i.e. a product of lower triangular and               
+      permutation matrices, in L , so that X = L*U . By itself,                 
+      "lu(X)" returns the output from CGEFA .                                   
+                                                                                
+magic  Magic square. "magic(N)" is an N by N matrix constructed                 
+       from the integers 1 through N**2 with equal row, column and              
+       diagonal sums. N must be a positive whole number not equal to two.       
+                                                                                
+maxloc  "maxloc(A)" returns the location of the maximum real component          
+        found in the elements of A                                              
+                                                                                
+maxval  "maxval(A)" returns the maximum real component found in the             
+        elements of A                                                           
+                                                                                
+minloc  "minloc(A)" returns the location of the minimum real component          
+        found in the elements of A                                              
+                                                                                
+minval  "minval(A)" returns the minimum real component found in the             
+        elements of A                                                           
+                                                                                
+norm  computes the norm or P-norm of X                                          
+                                                                                
+      norm(X,P) computes the P-norm of X. P=2 is the default, which defines     
+      the standard norm.                                                        
+                                                                                
+      For matrices..                                                            
+          norm(X,1)      is the 1-norm of X; ie. the largest column sum         
+                         of X.                                                  
+                                                                                
+          norm(X,2)      the largest singular value of X.                       
+          or norm(X)                                                            
+                                                                                
+          norm(X,'inf')  is the infinity norm of X; ie. the largest row       
+                         sum of X.                                              
+                                                                                
+          norm(X,'fro')  is the F-norm, i.e. "sqrt(sum(diag(X'*X)))" .       
+                                                                                
+      For vectors..                                                             
+          norm(V,P)      the same as sum(V(I)**P)**(1/P) .                      
                          ??? what about negative values of (I) and odd P? abs() or not
-
-          norm(V,2)      the square root of the sum of the squares of
-          or norm(V)     the entries of V.
-
-          norm(V,'inf')  the value is max(abs(V)) .
-<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-!!          If X is a vector, then
-!!
-!!            norm(x,p) = sum(abs(x) .^ p) ^ (1/p)
-!!            norm(x,1) is the sum of the absolute values of X.
-!!            norm(x)/sqrt(n) is the root-mean-square value.
-!!            norm(x,-inf)=min(abs(x))
-<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-ones  All ones. "ones(N)" is an N by N matrix of ones. "ones(M,N)"
-      is an M by N matrix of ones . "ones(A)" is the same size as A and
-      all ones .
-
-         a=magic(4)
-         a=a+ones(a)*3 // Add 3 to each element of "a"
-
-orth  Orthogonalization. "Q = orth(X)" is a matrix with
-      orthonormal columns, i.e. Q'*Q = eye, which span the same
-      space as the columns of X .
-
-pack  "pack(A,mask)" select the elements of an array whose corresponding
-      mask element is not zero into a vector. The logical mask must be
-      the same size as the array.
-
-          a=magic(10)
-          b=pack(a,ge(a,80)) // select elements >= 80
-
-      Note that A(:) used in an expression also converts a matrix to a
-      one-column vector (but used on the LHS of an assignment causes A
-      to retain its current shape).
-
-pinv  Pseudoinverse.
-
-      "X = pinv(A)" produces a matrix X of the same dimensions as A'
-      so that A*X*A = A , X*A*X = X and AX and XA are Hermitian . The
-      computation is based on "svd(A)" and any singular values less
-      than a tolerance are treated as zero. The default tolerance is
-      "norm(shape(A),'inf')*norM(A)*eps". This tolerance may be overridden
-      with "X = pinv(A,tol)". See "rank".
-
-poly  Characteristic polynomial.
-
-      If A is an N by N matrix, "poly(A)" is a column vector with
-      N+1 elements which are the coefficients of the characteristic
-      polynomial, "det(lambda*eye - A)" .
-
-      If V is a vector, "poly(V)" is a vector whose elements are the
-      coefficients of the polynomial whose roots are the elements of V.
-      For vectors, "roots" and "poly" are inverse functions of each other,
-      up to ordering, scaling, and roundoff error.
-
-      "roots(poly(1:20))" generates Wilkinson's famous example.
-
-pow   For a scalar exponent pow(X,exponent) raises each element of X to
-      the specified power. pow(X,Y) raise each element in X by the
-      corresponding element in Y. X and Y must have the same shape.
-
-          A=magic(3);
-          pow(A,3)
-
-      Alternatively FOR loops can be used to perform most elemental
-      operations:
-
-          a=ones(A)      // create output array same size as input
-          <m,n>=shape(A);for i=1:n, for j=1:m, a(i,j)=A(i,j)**3;
-
-      or for low whole number exponents elemental multiplication is
-      sufficient
-
-          b = A .* A .* A // elemental multiplication
-
-prod  "prod(X)" is the product of all the elements of X.
-
-           A=prod(1:10) // the factorial of 10
-           B=2*3*4*5*6*7*8*9*10
-
-qr    Orthogonal-triangular decomposition. "<Q,R> = qr(X)" produces an
-      upper triangular matrix R of the same
-      dimension as X and a unitary matrix Q so that X = Q*R .
-
-      "<Q,R,E> = qr(X)" produces a permutation matrix E, an upper
-      triangular R with decreasing diagonal elements and a unitary Q
-      so that X*E = Q*R . By itself, "qr(X)" returns the output of
-      "cqrdc". "triu(qr(X))" is R .
-
-qsort sort elements into a one-column vector
-
-rand  "rand" with no arguments is a scalar whose value changes each time
-      it is referenced. See "randn" and "randu" for generating random
-      matrices.
-
-randi  Uniformly distributed random integers in the interval 1 to size(A).
-       "randi(N)" is an N by N matrix. "randu(M,N)" is an M by N matrix.
-
-randn  randn(N) or randn(N,M) produces random numbers with a normal
-       distribution with mean 0.0 and variance 1.0. "randn(N)" is an N
-       by N matrix with random entries. "randn(M,N)" is an M by N matrix
-       with random entries.
-
-randu  Uniformly distributed random numbers and matrices in the interval
-       "(0.0,1.0). "randu(N)" is an N by N matrix with random
-       entries. "randu(M,N)" is an M by N matrix with random entries.
-
-randseed  "randseed()" returns the current value of the seed for the
-          generator. "randseed(n)" sets the seed to n.
-          "randseed(0)" resets the seed to 0, its value when LALA is
-          first entered.
-
-rank  Rank. "K = rank(X)" is the number of singular values of X that
-      are larger than "norm(shape(X),'inf')*norm(X)*eps".
-      "K = rank(X,tol)" is the number of singular values of X that
-      are larger than tol.
-
-rcond  "rcond(X)" is an estimate for the reciprocal of the
-       condition of X in the 1-norm obtained by the LINPACK
-       condition estimator. If X is well conditioned, rcond(X)
-       is near 1.0. If X is badly conditioned, rcond(X) is
-       near 0.0.
-       <R, Z> = rcond(A) sets R to rcond(A) and also produces a
-       vector Z so that
-
-                 norm(A*Z,1) = R*norm(A,1)*norm(Z,1)
-
-       So, if rcond(A) is small, then Z is an approximate null
-       vector.
-
-rat   An experimental function which attempts to remove the
-      roundoff error from results that should be "simple"
-      rational numbers.
-      "rat(X)" approximates each element of X by a continued
-      fraction of the form
-
-                a/b = d1 + 1/(d2 + 1/(d3 + ... + 1/dk))
-
-      with k <= len, integer di and abs(di) <= max . The default
-      values of the parameters are len = 5 and max = 100.
-      "rat(len,max)" changes the default values. Increasing either
-      len or max increases the number of possible fractions.
-      "<A,B> = rat(X)" produces integer matrices A and B so that
-
-                A ./ B  =  rat(X)
-
-      Some examples:
-
-            long
-            T = invh(6), X = inv(T)
-            <A,B> = rat(X)
-            H = A ./ B, S = inv(H)
-
-            short e
-            d = 1:8,  e = ones(d),  A = abs(d'*e - e'*d)
-            X = inv(A)
-            rat(X)
-            display(ans)
-
-real  "real(X)" is the real part of X.
-
-reshape  "reshape(A,[M,N])" reshapes the elements in array A to a
-         new configuration with M rows and N columns. The size of
-         A must match the value M*N.
-
-             A=reshape(1:100,[10,10])
-             B=reshape(A,[20,5])
-
-         "reshape(A)" reshapes the elements in array A to one column.
-
-         Alternatively note that using (:) on the LHS prevents the array
-         from being reshaped, allowing arbitrary shapes to be created
-         and filled as well, but incurring the overhead of copying the data.
-
-             C=zeros(25,4) // create array of desired shape
-             C(:)=A       // copy values from A into C ignoring shape of A
-
-         In contrast, A(:) used in an expression converts a matrix to a
-         one-column vector.
-
-             A=A(:)  // converts matrix A to a one-column vector
-
-rref  "rref(A)" is the reduced row echelon form of the rectangular
-      matrix. rref(A,B) is the same as rref(<A,B>) .
-
-roots  Find polynomial roots. "roots(C)" computes the roots of the
-       polynomial whose coefficients are the elements of the vector C.
-       If C has N+1 components, the polynomial is
-
-          C(1)*X**N + ... + C(N)*X + C(N+1)
-
-       See "poly".
-
-round  "round(X)" rounds the elements of X to the nearest integers.
-       "anint(X)" is a synonym for "round(X)".
-
-schur  Schur decomposition. "<U,T> = schur(X)" produces an upper
-       triangular matrix T , with the eigenvalues of X on the
-       diagonal, and a unitary matrix U so that X = U*T*U' and
-       U'*U = eye . By itself, "schur(X)" returns T .
-
-shape  If X is an M by N matrix, then shape(X) is <M, N> .
-       Can also be used with a multiple assignment,
-            <M, N> = shape(X) .
-
-size   "size(X)" returns the number of elements in X.
-
-           [[1,2,3],magic(4),random(3,8)]
-            ans
-             3 16 24
-
-sum   "sum(X)" is the sum of all the elements of X.
-      "sum(diag(X))" is the trace of X.
-
-      "sum(X,dim)" is the vector of sums of elements along the
-      specified dimension, where 1 <= dim <= 2.
-
-          matrix=[  1,   2,   3,   4
-                    10,  20,  30,  40
-                    100, 200, 300, 400  ];
-          s=sum(matrix)
-          sum_of_columns=sum(matrix,1)
-          sum_of_rows=sum(matrix,2)
-
-svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a
-      diagonal matrix S , of the same dimension as X and with
-      nonnegative diagonal elements in decreasing order, and
-      unitary matrices U and V so that X = U*S*V' .
-
-      By itself, "svd(X)" returns a vector containing the singular
-      values.
-
-      "<U,S,V> = svd(X,0)" produces the "economy size"
-      decomposition. If X is m by n with m > n, then only the
-      first n columns of U are computed and S is n by n .
-
-tril  Lower triangle. "tril(X)" is the lower triangular part of X.
-      "tril(X,K)" is the elements on and below the K-th diagonal of
-      X. K = 0 is the main diagonal, K > 0 is above the main
-      diagonal and K < 0 is below the main diagonal.
-
-triu  Upper triangle. "triu(X)" is the upper triangular part of X.
-      "triu(X,K)" is the elements on and above the K-th diagonal of X. K
-      = 0 is the main diagonal, K > 0 is above the main diagonal and K <
-      0 is below the main diagonal.
-
-user  Allows personal Fortran subroutines to be linked into
-      LALA. The subroutine should have the heading
-
-         SUBROUTINE USER(A,M,N,S,T)
-         REAL or DOUBLEPRECISION A(M,N),S,T
-
-      The LALA statement "Y = user(X,s,t)" results in a call to the
-      subroutine with a copy of the matrix X stored in the argument A,
-      its column and row dimensions in M and N, and the scalar parameters
-      s and t stored in S and T. If s and t are omitted, they are set
-      to 0.0. After the return, A is stored in Y. The dimensions M and
-      N may be reset within the subroutine. The statement Y = "user(K)"
-      results in a call with M = 1, N = 1 and A(1,1) = "float(K)". After
-      the subroutine has been written, it must be compiled and linked
-      to the LALA object code within the local operating system.
-
-what  does nothing for now
-
-zeros  Returns a matrix of all zeros.
-
-         zeros(N)    returns an N by N matrix of zeroes.
-         zeros(M,N)  returns an M by N matrix of zeroes.
-         zeros(X)    returns a matrix of zeroes of the same order as X.
+                                                                                      
+          norm(V,2)      the square root of the sum of the squares of                 
+          or norm(V)     the entries of V.                                            
+                                                                                      
+          norm(V,'inf')  the value is max(abs(V)) .                                 
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<      
+!!          If X is a vector, then                                                    
+!!                                                                                    
+!!            norm(x,p) = sum(abs(x) .^ p) ^ (1/p)                                    
+!!            norm(x,1) is the sum of the absolute values of X.                       
+!!            norm(x)/sqrt(n) is the root-mean-square value.                          
+!!            norm(x,-inf)=min(abs(x))                                                
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<      
+                                                                                      
+ones  All ones. "ones(N)" is an N by N matrix of ones. "ones(M,N)"                    
+      is an M by N matrix of ones . "ones(A)" is the same size as A and               
+      all ones .                                                                      
+                                                                                      
+         a=magic(4)                                                                   
+         a=a+ones(a)*3 // Add 3 to each element of "a"                                
+                                                                                      
+orth  Orthogonalization. "Q = orth(X)" is a matrix with                               
+      orthonormal columns, i.e. Q'*Q = eye, which span the same                      
+      space as the columns of X .                                                     
+                                                                                      
+pack  "pack(A,mask)" select the elements of an array whose corresponding              
+      mask element is not zero into a vector. The logical mask must be                
+      the same size as the array.                                                     
+                                                                                      
+          a=magic(10)                                                                 
+          b=pack(a,ge(a,80)) // select elements >= 80                                 
+                                                                                      
+      Note that A(:) used in an expression also converts a matrix to a                
+      one-column vector (but used on the LHS of an assignment causes A                
+      to retain its current shape).                                                   
+                                                                                      
+pinv  Pseudoinverse.                                                                  
+                                                                                      
+      "X = pinv(A)" produces a matrix X of the same dimensions as A'                 
+      so that A*X*A = A , X*A*X = X and AX and XA are Hermitian . The                 
+      computation is based on "svd(A)" and any singular values less                   
+      than a tolerance are treated as zero. The default tolerance is                  
+      "norm(shape(A),'inf')*norM(A)*eps". This tolerance may be overridden          
+      with "X = pinv(A,tol)". See "rank".                                             
+                                                                                      
+poly  Characteristic polynomial.                                                      
+                                                                                      
+      If A is an N by N matrix, "poly(A)" is a column vector with                     
+      N+1 elements which are the coefficients of the characteristic                   
+      polynomial, "det(lambda*eye - A)" .                                             
+                                                                                      
+      If V is a vector, "poly(V)" is a vector whose elements are the                  
+      coefficients of the polynomial whose roots are the elements of V.               
+      For vectors, "roots" and "poly" are inverse functions of each other,            
+      up to ordering, scaling, and roundoff error.                                    
+                                                                                      
+      "roots(poly(1:20))" generates Wilkinson's famous example.                      
+                                                                                      
+pow   For a scalar exponent pow(X,exponent) raises each element of X to               
+      the specified power. pow(X,Y) raise each element in X by the                    
+      corresponding element in Y. X and Y must have the same shape.                   
+                                                                                      
+          A=magic(3);                                                                 
+          pow(A,3)                                                                    
+                                                                                      
+      Alternatively FOR loops can be used to perform most elemental                   
+      operations:                                                                     
+                                                                                      
+          a=ones(A)      // create output array same size as input                    
+          <m,n>=shape(A);for i=1:n, for j=1:m, a(i,j)=A(i,j)**3;                      
+                                                                                      
+      or for low whole number exponents elemental multiplication is                   
+      sufficient                                                                      
+                                                                                      
+          b = A .* A .* A // elemental multiplication                                 
+                                                                                      
+prod  "prod(X)" is the product of all the elements of X.                              
+                                                                                      
+           A=prod(1:10) // the factorial of 10                                        
+           B=2*3*4*5*6*7*8*9*10                                                       
+                                                                                      
+qr    Orthogonal-triangular decomposition. "<Q,R> = qr(X)" produces an                
+      upper triangular matrix R of the same                                           
+      dimension as X and a unitary matrix Q so that X = Q*R .                         
+                                                                                      
+      "<Q,R,E> = qr(X)" produces a permutation matrix E, an upper                     
+      triangular R with decreasing diagonal elements and a unitary Q                  
+      so that X*E = Q*R . By itself, "qr(X)" returns the output of                    
+      "cqrdc". "triu(qr(X))" is R .                                                   
+                                                                                      
+qsort sort elements into a one-column vector                                          
+                                                                                      
+rand  "rand" with no arguments is a scalar whose value changes each time              
+      it is referenced. See "randn" and "randu" for generating random                 
+      matrices.                                                                       
+                                                                                      
+randi  Uniformly distributed random integers in the interval 1 to size(A).            
+       "randi(N)" is an N by N matrix. "randu(M,N)" is an M by N matrix.              
+                                                                                      
+randn  randn(N) or randn(N,M) produces random numbers with a normal                   
+       distribution with mean 0.0 and variance 1.0. "randn(N)" is an N                
+       by N matrix with random entries. "randn(M,N)" is an M by N matrix              
+       with random entries.                                                           
+                                                                                      
+randu  Uniformly distributed random numbers and matrices in the interval              
+       "(0.0,1.0). "randu(N)" is an N by N matrix with random                         
+       entries. "randu(M,N)" is an M by N matrix with random entries.                 
+                                                                                      
+randseed  "randseed()" returns the current value of the seed for the                  
+          generator. "randseed(n)" sets the seed to n.                                
+          "randseed(0)" resets the seed to 0, its value when LALA is                  
+          first entered.                                                              
+                                                                                      
+rank  Rank. "K = rank(X)" is the number of singular values of X that                  
+      are larger than "norm(shape(X),'inf')*norm(X)*eps".                           
+      "K = rank(X,tol)" is the number of singular values of X that                    
+      are larger than tol.                                                            
+                                                                                      
+rcond  "rcond(X)" is an estimate for the reciprocal of the                            
+       condition of X in the 1-norm obtained by the LINPACK                           
+       condition estimator. If X is well conditioned, rcond(X)                        
+       is near 1.0. If X is badly conditioned, rcond(X) is                            
+       near 0.0.                                                                      
+       <R, Z> = rcond(A) sets R to rcond(A) and also produces a                       
+       vector Z so that                                                               
+                                                                                      
+                 norm(A*Z,1) = R*norm(A,1)*norm(Z,1)                                  
+                                                                                      
+       So, if rcond(A) is small, then Z is an approximate null                        
+       vector.                                                                        
+                                                                                      
+rat   An experimental function which attempts to remove the                           
+      roundoff error from results that should be "simple"                             
+      rational numbers.                                                               
+      "rat(X)" approximates each element of X by a continued                          
+      fraction of the form                                                            
+                                                                                      
+                a/b = d1 + 1/(d2 + 1/(d3 + ... + 1/dk))                               
+                                                                                      
+      with k <= len, integer di and abs(di) <= max . The default                      
+      values of the parameters are len = 5 and max = 100.                             
+      "rat(len,max)" changes the default values. Increasing either                    
+      len or max increases the number of possible fractions.                          
+      "<A,B> = rat(X)" produces integer matrices A and B so that                      
+                                                                                      
+                A ./ B  =  rat(X)                                                     
+                                                                                      
+      Some examples:                                                                  
+                                                                                      
+            long                                                                      
+            T = invh(6), X = inv(T)                                                   
+            <A,B> = rat(X)                                                            
+            H = A ./ B, S = inv(H)                                                    
+                                                                                      
+            short e                                                                   
+            d = 1:8,  e = ones(d),  A = abs(d'*e - e'*d)                            
+            X = inv(A)                                                                
+            rat(X)                                                                    
+            display(ans)                                                              
+                                                                                      
+real  "real(X)" is the real part of X.                                                
+                                                                                      
+reshape  "reshape(A,[M,N])" reshapes the elements in array A to a                     
+         new configuration with M rows and N columns. The size of                     
+         A must match the value M*N.                                                  
+                                                                                      
+             A=reshape(1:100,[10,10])                                                 
+             B=reshape(A,[20,5])                                                      
+                                                                                      
+         "reshape(A)" reshapes the elements in array A to one column.                 
+                                                                                      
+         Alternatively note that using (:) on the LHS prevents the array              
+         from being reshaped, allowing arbitrary shapes to be created                 
+         and filled as well, but incurring the overhead of copying the data.          
+                                                                                      
+             C=zeros(25,4) // create array of desired shape                           
+             C(:)=A       // copy values from A into C ignoring shape of A            
+                                                                                      
+         In contrast, A(:) used in an expression converts a matrix to a               
+         one-column vector.                                                           
+                                                                                      
+             A=A(:)  // converts matrix A to a one-column vector                      
+                                                                                      
+rref  "rref(A)" is the reduced row echelon form of the rectangular                    
+      matrix. rref(A,B) is the same as rref(<A,B>) .                                  
+                                                                                      
+roots  Find polynomial roots. "roots(C)" computes the roots of the                    
+       polynomial whose coefficients are the elements of the vector C.                
+       If C has N+1 components, the polynomial is                                     
+                                                                                      
+          C(1)*X**N + ... + C(N)*X + C(N+1)                                           
+                                                                                      
+       See "poly".                                                                    
+                                                                                      
+round  "round(X)" rounds the elements of X to the nearest integers.                   
+       "anint(X)" is a synonym for "round(X)".                                        
+                                                                                      
+schur  Schur decomposition. "<U,T> = schur(X)" produces an upper                      
+       triangular matrix T , with the eigenvalues of X on the                         
+       diagonal, and a unitary matrix U so that X = U*T*U' and                       
+       U'*U = eye . By itself, "schur(X)" returns T .                                
+                                                                                      
+shape  If X is an M by N matrix, then shape(X) is <M, N> .                            
+       Can also be used with a multiple assignment,                                   
+            <M, N> = shape(X) .                                                       
+                                                                                      
+size   "size(X)" returns the number of elements in X.                                 
+                                                                                      
+           [[1,2,3],magic(4),random(3,8)]                                             
+            ans                                                                       
+             3 16 24                                                                  
+                                                                                      
+sum   "sum(X)" is the sum of all the elements of X.                                   
+      "sum(diag(X))" is the trace of X.                                               
+                                                                                      
+      "sum(X,dim)" is the vector of sums of elements along the                        
+      specified dimension, where 1 <= dim <= 2.                                       
+                                                                                      
+          matrix=[  1,   2,   3,   4                                                  
+                    10,  20,  30,  40                                                 
+                    100, 200, 300, 400  ];                                            
+          s=sum(matrix)                                                               
+          sum_of_columns=sum(matrix,1)                                                
+          sum_of_rows=sum(matrix,2)                                                   
+                                                                                      
+svd   Singular value decomposition. "<U,S,V> = svd(X)" produces a                     
+      diagonal matrix S , of the same dimension as X and with                         
+      nonnegative diagonal elements in decreasing order, and                          
+      unitary matrices U and V so that X = U*S*V' .                                  
+                                                                                      
+      By itself, "svd(X)" returns a vector containing the singular                    
+      values.                                                                         
+                                                                                      
+      "<U,S,V> = svd(X,0)" produces the "economy size"                                
+      decomposition. If X is m by n with m > n, then only the                         
+      first n columns of U are computed and S is n by n .                             
+                                                                                      
+tril  Lower triangle. "tril(X)" is the lower triangular part of X.                    
+      "tril(X,K)" is the elements on and below the K-th diagonal of                   
+      X. K = 0 is the main diagonal, K > 0 is above the main                          
+      diagonal and K < 0 is below the main diagonal.                                  
+                                                                                      
+triu  Upper triangle. "triu(X)" is the upper triangular part of X.                    
+      "triu(X,K)" is the elements on and above the K-th diagonal of X. K              
+      = 0 is the main diagonal, K > 0 is above the main diagonal and K <              
+      0 is below the main diagonal.                                                   
+                                                                                      
+user  Allows personal Fortran subroutines to be linked into                           
+      LALA. The subroutine should have the heading                                    
+                                                                                      
+         SUBROUTINE USER(A,M,N,S,T)                                                   
+         REAL or DOUBLEPRECISION A(M,N),S,T                                           
+                                                                                      
+      The LALA statement "Y = user(X,s,t)" results in a call to the                   
+      subroutine with a copy of the matrix X stored in the argument A,                
+      its column and row dimensions in M and N, and the scalar parameters             
+      s and t stored in S and T. If s and t are omitted, they are set                 
+      to 0.0. After the return, A is stored in Y. The dimensions M and                
+      N may be reset within the subroutine. The statement Y = "user(K)"               
+      results in a call with M = 1, N = 1 and A(1,1) = "float(K)". After              
+      the subroutine has been written, it must be compiled and linked                 
+      to the LALA object code within the local operating system.                      
+                                                                                      
+what  does nothing for now                                                            
+                                                                                      
+zeros  Returns a matrix of all zeros.                                                 
+                                                                                      
+         zeros(N)    returns an N by N matrix of zeroes.                              
+         zeros(M,N)  returns an M by N matrix of zeroes.                              
+         zeros(X)    returns a matrix of zeroes of the same order as X.               
 ================================================================================
 ORDERING
   + order%median(X)           Calculates median VALUE
@@ -12914,7 +13070,7 @@ order%median       Calculates median VALUE. If number of elements
                    specified dimension, where 1 <= dim <= 2.
 
                    "median(X)" or "median(X,0)" calculates the median
-                   value of the array X(). It is different from
+                   value of the array X().  It is different from
                    "medianval(X)" in that the average of the two
                    middle values is returned when the size of X
                    is even.
@@ -13049,7 +13205,7 @@ order%sort  Sorts array into ascending order.
 ================================================================================
 SET THEORY
    + set%intersect(A,B)  find the values common to both sets A and B
-   + set%isequal(A)      report if A is equal to B
+   + set%isequal(A)      report if A is equal to B within a tolerance
    + set%ismember(A,B)   create a mask of A marking elements also in B
    + set%issorted(A)     report if A is sorted in ascending order or not.
    + set%setdiff(A,B)    find the values in A that are not in B
@@ -13066,7 +13222,7 @@ set%intersect  "set%intersect(A,B)" finds the values that occur in both
                    ans =
                       7 4
 
-set%isequal   "set%isequal(A)," reports if A is equal to B.
+set%isequal   "set%isequal(A)," reports if A is equal to B within a tolerance
 
               Equality is defined as having the same size with the same
               element values in the same order. If equal the result is
@@ -13620,7 +13776,7 @@ $@(#) M_matrix::find_exec_file(3fp): look for "file" or "file.la" in currect dir
 character(len=*),intent(in)  :: filename
 character(len=:),allocatable :: returned
    returned=''
-   if(filename.eq.'')then
+   if(filename.ne.'')then
       if(exists(filename))then
          returned=filename
       elseif(exists(trim(filename)//'.la'))then
@@ -13759,7 +13915,7 @@ end subroutine mat_wdiv
 !==================================================================================================================================!
 subroutine mat_wlog(in_real,in_imag,out_real,out_imag)
 
-$@(#) M_matrix::mat_wlog(3fp): y = log(x)
+$@(#) M_matrix::mat_wlog(3fp): y = la%log(x)
 
 doubleprecision :: in_real, in_imag
 doubleprecision :: out_real, out_imag
@@ -13768,7 +13924,7 @@ doubleprecision :: r
    r = mat_pythag(in_real,in_imag)
 
    if (r .eq. 0.0d0) then
-      call mat_err(32) !  Singularity of LOG or ATAN
+      call mat_err(32) !  Singularity of la%LOG or la%ATAN
    else
       t = datan2(in_imag,in_real)
       if (in_imag.eq.0.0d0 .and. in_real.lt.0.0d0) t = dabs(t)
@@ -13782,7 +13938,7 @@ end subroutine mat_wlog
 !==================================================================================================================================!
 subroutine mat_watan(xr,xi,yr,yi)
 
-$@(#) M_LA::mat_watan(3fp): y = atan(x) = (i/2)*log((i+x)/(i-x))
+$@(#) M_LA::mat_watan(3fp): y = atan(x) = (i/2)*la%log((i+x)/(i-x))
 
 doubleprecision,intent(in)  :: xr, xi
 doubleprecision,intent(out) :: yr, yi
@@ -13797,7 +13953,7 @@ doubleprecision             :: tr, ti
       yr = -(ti/2.0d0)
       yi = tr/2.0d0
    else
-      call mat_err(32) ! Singularity of LOG or ATAN
+      call mat_err(32) ! Singularity of la%LOG or ATAN
    endif
 
 end subroutine mat_watan

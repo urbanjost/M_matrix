@@ -1846,7 +1846,7 @@ subroutine test_general_avg()
    call lala( [ character(len=256) :: &
    & 'tally=[0];                                                              ', &
    & 'a=magic(8); n=3;                                                        ', &
-   & 'for i = 2:n:2, for j=2:n:2,t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ', &
+   & 'for i = 2:2:n, for j=2:2:n,t = (a(i-1,j-1)+a(i-1,j)+a(i,j-1)+a(i,j))/4; ', &
    & 'if t = 32.5, tally=[tally, 0], else, tally=[tally, -1];                 ', &
    & 'if sum(tally) = 0,display(''avg PASSED''),else,display(''avg FAILED'');tally'])
   call wrapup()
@@ -2062,8 +2062,8 @@ subroutine test_set_theory ()
 'expected = 1;                                                                                             ',&
 'got = set%issorted(A);                                                                                    ',&
 "if all(eq(expected,got))=1,display('set%issorted OK'),tally=[tally,0];else,display('set%issorted FAILED');tally=[tally,1];end",&
-A=magic(8);
-A=A([A]);
+'A=magic(8); // even-sided magic square                                                                    ',&
+'A=A([A]);   // for algorithm currently used this should be a sorted vector                                ',&
 'got = set%issorted(A);                                                                                    ',&
 "if all(eq(expected,got))=1,display('set%issorted OK'),tally=[tally,0];else,display('set%issorted FAILED');tally=[tally,1];end",&
 '//--------------------------------------------------------------------------------                        ',&

@@ -6,6 +6,15 @@ list of notable changes including records of change such as bug fixes,
 new features, changes, and relevant notifications.
 <!-- ======================================================================== -->
 ---
+**2025-18-02**  John S. Urban  <https://github.com/urbanjost>
+### :red_circle: DIFF:
+  + Changing linear algebra basic functions to require prefix "la%" .
+    
+### :green_circle: ADD:
+  + Added many Fortran elemental intrinsic functions including all basic
+    trig functions.
+<!-- ======================================================================== -->
+---
 **2025-05-02**  John S. Urban  <https://github.com/urbanjost>
 ### :red_circle: DIFF:
   + START:END:STEP  Changed START:STEP:END syntax to START:END:STEP as is

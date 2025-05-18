@@ -1,6 +1,6 @@
 // Structure problem, Forsythe, Malcolm and Moler, p. 62
 
-s =  sqrt(2)/2;
+s =  la%sqr(2)/2;
 
 A = <
 -s  .  .  1  s	.  .  .  .  .  .  .  .	.  .  .  .

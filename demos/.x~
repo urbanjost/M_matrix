@@ -1,0 +1,7 @@
+#replace atan la%atan
+sed -i -e 's/\<cos\>/la%cos/g' *
+sed -i -e 's/\<exp\>/la%ex/g' *
+sed -i -e 's/\<log\>/la%lo/g' *
+sed -i -e 's/\<pow\>/la%po/g' *
+sed -i -e 's/\<sin\>/la%si/g' *
+sed -i -e 's/\<sqrt\>/la%sqr/g' *

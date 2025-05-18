@@ -331,7 +331,7 @@ Example inputs
      &gt; F = F/sqrt(n);
      &gt; alpha = r*pi;
      &gt; rho = exp(i*alpha);
-     &gt; S = log(rho*F)/i - alpha*eye;
+     &gt; S = la%log(rho*F)/i - alpha*eye;
      &gt; serr = norm(imag(S),1);
      &gt; S = real(S);
      &gt; serr = serr + norm(S-S&#146;,1)
@@ -451,7 +451,7 @@ Example inputs
      &gt; for i=1:n, for j=2:m, k=c(i,j); if k&gt;0, a(i,k)=1;
      &gt; check = norm(A-A&#146;,1), if check &gt; 0, quit
      &gt; [X,D] = eig(A+eye);
-     &gt; D = diag(D);  D = D(n:-1:1)
+     &gt; D = diag(D);  D = D(n:1:-1)
      &gt; X = X(:,n:1:-1);
      &gt; [x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)]
 <P>

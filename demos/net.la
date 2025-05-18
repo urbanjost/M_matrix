@@ -45,6 +45,6 @@ A = 0*ones(n,n);
 for i=1:n, for j=2:m, k=c(i,j); if k>0, a(i,k)=1;
 check = norm(A-A',1), if check > 0, quit
 <X,D> = eig(A+eye);
-D = diag(D);  D = D(n:-1:1)
+D = diag(D);  D = D(n:1-:1)
 X = X(:,n:1:-1);
 <x(:,1)/sum(x(:,1)) x(:,2) x(:,3) x(:,19)>

@@ -1,15 +1,15 @@
 n
-pi = 4*atan(1);
-i = sqrt(-1);
-w = exp(2*pi*i/n);
+pi = 4*la%atan(1);
+i = la%sqrt(-1);
+w = la%exp(2*pi*i/n);
 F = <>;
 for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
-F = F/sqrt(n);
+F = F/la%sqrt(n);
 alfa = r*pi;
-rho = exp(i*alfa);
-S = log(rho*F)/i - alfa*EYE;
+rho = la%exp(i*alfa);
+S = la%log(rho*F)/i - alfa*EYE;
 serr = norm(imag(S),1);
 S = real(S);
 serr = serr + norm(S-S',1)
 S = (S + S')/2;
-ferr = norm(F-exp(i*S),1)
+ferr = norm(F-la%exp(i*S),1)

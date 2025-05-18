@@ -26,7 +26,7 @@ short
 X = data; 
 <n,p> = shape(X)
 mu = ones(1,n)*X/n
-X = X - ones(n,1)*mu;  X = X/diag(sqrt(diag(X'*X)))
+X = X - ones(n,1)*mu;  X = X/diag(la%sqrt(diag(X'*X)))
 corr = X'*X
 y = data(:,p); X = <ones(y) data(:,1:p-1)>;
 long e

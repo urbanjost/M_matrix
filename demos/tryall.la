@@ -1,4 +1,4 @@
-diary('log.txt')
+diary('la%log.txt')
 a=magic(8)
 n=3
 exec('avg_adjacent')
@@ -6,7 +6,7 @@ b=random(8,8)
 
 names=< 
  'cdiv  ';
- 'exp   ';
+ 'la%exp   ';
  'four  ';
  'gs    ';
  'jacobi' >
