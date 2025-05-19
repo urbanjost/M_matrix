@@ -79,6 +79,7 @@ integer           :: tests=0
    call test_quit ()    ! quit  From the terminal, causes return to the operating system
    call test_randu ()   ! randu  uniform Random numbers and matrices. "randu(N)" is an N by N matrix
    call test_randn ()   ! randn  normal distribution of Random numbers and matrices. "randn(N)" is an N by N matrix
+   call test_randi ()   ! randi  normal distribution of Random integer values. 
    call test_rank ()    ! rank  Rank. "K = rank(X)" is the number of singular values of X
    call test_rat ()     ! rat   An experimental function which attempts to remove the
    call test_rcond ()   ! rcond  "rcond(X)" is an estimate for the reciprocal of the
@@ -482,17 +483,15 @@ subroutine test_any()
   if(logs)call lala( 'diary(''any.log'');')
   call lala( [ character(len=267) :: &
 
-'a=<0 0 0; 0 0 0; 0 0 0>;', &
-'b=any(a);', &
+'a=<0 0 0; 0 0 0; 0 0 0>;                                                                                        ', &
+'b=any(a);                                                                                                       ', &
 "if b = 0,display('any(''a'') OK'),tally=[tally,0];else,display('any(''a'') FAILED');shape(a),tally=[tally,1];end", &
-
-'a=<0 0 0; 0 0 0; 1 0 0>;', &
-'b=any(a);', &
+'a=<0 0 0; 0 0 0; 1 0 0>;                                                                                        ', &
+'b=any(a);                                                                                                       ', &
 "if b = 1,display('any(''a'') OK'),tally=[tally,0];else,display('any(''a'') FAILED');shape(a),tally=[tally,1];end", &
-
-'if all(eq(shape(a),[3,3]))=1 ,display(''any(a) shape OK'');tally=[tally,0];', &
-'if all(eq(shape(a),[3,3]))=0 ,display(''any(a) shape BAD'');shape(a),tally=[tally,1];', &
-'if any(tally) = 0,display(''any PASSED''),else,display(''any FAILED'');tally', &
+'if all(eq(shape(a),[3,3]))=1 ,display(''any(a) shape OK'');tally=[tally,0];                                     ', &
+'if all(eq(shape(a),[3,3]))=0 ,display(''any(a) shape BAD'');shape(a),tally=[tally,1];                           ', &
+'if any(tally) = 0,display(''any PASSED''),else,display(''any FAILED'');tally                                    ', &
 ''])
 
   call wrapup()
@@ -714,26 +713,26 @@ subroutine test_save ()
    call lala( 'display(ones(80,1)''*61)')
    call lala( 'help save')
    call lala( [ character(len=256) :: &
-'clear                                 // clear out user variables                                             ', &
-'A=magic(4); b=ones(3,4); c=12**2;     // define some variables                                                ', &
-'test_Variable=1234567890;                                                                                     ', &
-'save(''__saved'');                    // save user variables to a file                                        ', &
-'who; clear; who                       // list variables clear and they should be gone                         ', &
-'load(''__saved'')                     // load the variables back in                                           ', &
-'who                                   // should see them now                                                  ', &
-'tally=[0];                            // test they are expected values and sizes                              ', &
-'if all(eq(A,magic(4)))=1,  tally=[tally,0];display(''save of A PASSED'');else,tally=[tally,1];display(''save of A FAILED''); ', &
-'if all(eq(b,ones(3,4)))=1, tally=[tally,0];display(''save of b PASSED'');else,tally=[tally,1];display(''save of b FAILED''); ', &
-'if c=12**2,     tally=[tally,0];display(''save of c PASSED'');else,tally=[tally,1];display(''save of c FAILED''); ', &
-'if test_Variable=1234567890, ...                                                                              ', &
-'   tally=[tally,0];...                                                                                        ', &
-'   display(''save of test_variable PASSED'');...                                                              ', &
-'   else,...                                                                                                   ', &
-'   tally=[tally,1];...                                                                                        ', &
-'   display(''save of test_variable FAILED'');...                                                              ', &
-'end;                                                                                                          ', &
-'if sum(tally)=0,display(''save PASSED'');else,display(''save FAILED'');tally                                  ', &
-'delete(''__saved'')                     // delete the scratch file                                            ', &
+'clear                                 // clear out user variables                                             ',&
+'A=magic(4); b=ones(3,4); c=12**2;     // define some variables                                                ',&
+'test_Variable=1234567890;                                                                                     ',&
+'save(''__saved'');                    // save user variables to a file                                        ',&
+'who; clear; who                       // list variables clear and they should be gone                         ',&
+'load(''__saved'')                     // load the variables back in                                           ',&
+'who                                   // should see them now                                                  ',&
+'tally=[0];                            // test they are expected values and sizes                              ',&
+'if all(eq(A,magic(4)))=1, tally=[tally,0];display(''save of A PASSED'');else,tally=[tally,1];display(''save of A FAILED''); ',&
+'if all(eq(b,ones(3,4)))=1,tally=[tally,0];display(''save of b PASSED'');else,tally=[tally,1];display(''save of b FAILED''); ',&
+'if c=12**2,     tally=[tally,0];display(''save of c PASSED'');else,tally=[tally,1];display(''save of c FAILED''); ',&
+'if test_Variable=1234567890, ...                                                                              ',&
+'   tally=[tally,0];...                                                                                        ',&
+'   display(''save of test_variable PASSED'');...                                                              ',&
+'   else,...                                                                                                   ',&
+'   tally=[tally,1];...                                                                                        ',&
+'   display(''save of test_variable FAILED'');...                                                              ',&
+'end;                                                                                                          ',&
+'if sum(tally)=0,display(''save PASSED'');else,display(''save FAILED'');tally                                  ',&
+'delete(''__saved'')                     // delete the scratch file                                            ',&
 ''])
   call wrapup()
 end subroutine test_save
@@ -1403,6 +1402,74 @@ subroutine test_quit ()
   call wrapup()
 end subroutine test_quit
 !-----------------------------------------------------------------------------------------------------------------------------------
+subroutine test_randi ()
+   call lala( [ character(len=256) :: &
+"display(ones(80,1)'*61);                                                                                   ", &
+"clear;                                                                                                     ", &
+"help randi                                                                                                 ", &
+"tally=[0];                                                                                                 ", &
+"                                                                                                           ", &
+"// single scalar argument                                                                                  ", &
+"answer=randi(10);                                                                                          ", &
+"checks=[eq(size(answer),1),ge(answer,1),le(answer,10)];                                                    ", &
+"if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              ", &
+"                                                                                                           ", &
+"// single range argument                                                                                   ", &
+"answer=randi([11,21]);                                                                                     ", &
+"checks=[eq(size(answer),1),ge(answer,11),le(answer,21)];                                                   ", &
+"if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              ", &
+"                                                                                                           ", &
+"// range and N for square matrix                                                                           ", &
+"answer=randi([-5,5],100);                                                                                  ", &
+"checks=[eq(size(answer),10000),all(ge(answer,-5)),all(le(answer,5))];                                      ", &
+"if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              ", &
+"                                                                                                           ", &
+"// max and shape                                                                                           ", &
+"answer=randi(40,[123,100]);                                                                                ", &
+"checks=[eq(size(answer),12300),all(ge(answer,1)),all(le(answer,40))];                                      ", &
+"if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              ", &
+"                                                                                                           ", &
+"// range and shape                                                                                         ", &
+"answer=randi([30,40],[123,100]);                                                                           ", &
+"checks=[eq(size(answer),12300),all(ge(answer,30)),all(le(answer,40))];                                     ", &
+"if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              ", &
+"                                                                                                           ", &
+"// range and M and N                                                                                       ", &
+"answer=randi([30,40],123,100);                                                                             ", &
+"checks=[eq(size(answer),12300),all(ge(answer,30)),all(le(answer,40))];                                     ", &
+"if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              ", &
+"                                                                                                           ", &
+"// generate random whole numbers from 1 to 10. Average should be around 5.5                                ", &
+"                                                                                                           ", &
+"mn_avg=+999999999;                                                                                         ", &
+"mx_avg=-999999999;                                                                                         ", &
+"large=-999999999;                                                                                          ", &
+"small=+999999999;                                                                                          ", &
+"for i=1:100, ...                                                                                           ", &
+"   a=randi(10,[300,300]); ...                                                                              ", &
+"   av=sum(a)/size(a); ...                                                                                  ", &
+"   mn_avg=minval([mn_avg,av]); ...                                                                         ", &
+"   mx_avg=maxval([mx_avg,av]); ...                                                                         ", &
+"   answer=gt(av,5.45)+lt(av,5.55); ...                                                                     ", &
+"   large=maxval([reshape(a),large]); ...                                                                   ", &
+"   small=minval([reshape(a),small]); ...                                                                   ", &
+"   if answer=2,tally=[tally,0];else,tally=[tally,1]; ...                                                   ", &
+"end;                                                                                                       ", &
+"                                                                                                           ", &
+"if all(tally)=0, display(['randi:average PASSED ',fmti(size(tally)-1),' trials']);                         ", &
+"if any(tally)<>0,display(['randi:average FAILED ',fmti(sum(tally)),' trials out of ',fmti(size(tally)-1)]);", &
+"                                                                                                           ", &
+"display(['min_average=',fmtr(mn_avg),' max_average=',fmtr(mx_avg)]);                                       ", &
+"                                                                                                           ", &
+"if large=10,display('randi:maxval PASSED'),else,display(['randi:maxval FAILED, maxval=',fmti(large)]),end; ", &
+"if small=1 ,display('randi:minval PASSED'),else,display(['randi:minval FAILED, minval=',fmti(small)]),end; ", &
+"                                                                                                           ", &
+"if sum(tally)=0,display('randi PASSED');else,display('randi FAILED');tally(2:size(tally))                  ", &
+''])
+  call wrapup()
+end subroutine test_randi
+!-----------------------------------------------------------------------------------------------------------------------------------
+!-----------------------------------------------------------------------------------------------------------------------------------
 subroutine test_randn ()
    call lala( 'display(ones(80,1)''*61)')
    call lala( 'help randn')
@@ -1930,7 +1997,7 @@ subroutine test_order ()
 "for I=1:100, ...                                                                                                     ",&
 "   M=round(rand*10)+1; ...                     // select random number of rows                                       ",&
 "   N=round(rand*10)+1; ...                     // select random number of columns                                    ",&
-"   a=randi(M,N); ...                           // create an array of random numbers                                  ",&
+"   a=randi(M*N,M,N); ...                       // create an array of random numbers                                  ",&
 "   got=set%issorted(a([order%rank(a)])); ...                                                                         ",&
 "   if got<>1; ...                                                                                                    ",&
 "      answer= 0; ...                                                                                                 ",&

@@ -1,4 +1,3 @@
-!M_matrix.FF
 ! 
 ! NAME
 !    M_matrix(3f) - [M_matrix::INTRO] The Los Alamos-inspired Linear Algebra Fortran Facility (LALA)
@@ -452,7 +451,7 @@ integer                     :: G_TOP_OF_SAVED, G_ARGUMENT_POINTER
 !   bottom portion for saved variables. The figure shows the situation
 !   after the line
 !
-!      A = [11,12; 21,22],  x = [3.14, sqrt(-1)]'
+!      A = [11,12; 21,22],  x = [3.14, la%sqrt(-1)]'
 !
 !   has been processed. The four permanent names, "eps", "flop", "rand"
 !   and "eye", occupy the last four positions of the variable stacks.
@@ -903,7 +902,7 @@ end subroutine usersub_placeholder
 ! 
 !      >// ======================================================
 !      >// cdiv
-!      >a=sqrt(random(8))
+!      >a=la%sqrt(random(8))
 !      >ar = real(a); ai = imag(a); br = real(b); bi = imag(b);
 !      >p = bi/br;
 !      >t = (ai - p*ar)/(br + p*bi);
@@ -924,7 +923,7 @@ end subroutine usersub_placeholder
 !      >[cr ci; cr2 ci2; cr3 ci3]
 !      >// ======================================================
 ! 
-!      >:exp:
+!      >:la%exp:
 ! 
 !      >t = 0*x + eye; s = 0*eye(x); n = 1;
 !      >while abs(s+t-s) > 0, s = s+t, t = x*t/n, n = n + 1
@@ -932,19 +931,19 @@ end subroutine usersub_placeholder
 !      >:four:
 !      > n
 !      > pi = 4*atan(1);
-!      > i = sqrt(-1);
-!      > w = exp(2*pi*i/n);
+!      > i = la%sqrt(-1);
+!      > w = la%exp(2*pi*i/n);
 !      > F = [];
 !      > for k = 1:n, for j = 1:n, F(k,j) = w**((j-1)*(k-1));
-!      > F = F/sqrt(n);
+!      > F = F/la%sqrt(n);
 !      > alpha = r*pi;
-!      > rho = exp(i*alpha);
+!      > rho = la%exp(i*alpha);
 !      > S = la%log(rho*F)/i - alpha*eye;
 !      > serr = norm(imag(S),1);
 !      > S = real(S);
 !      > serr = serr + norm(S-S',1)
 !      > S = (S + S')/2;
-!      > ferr = norm(F-exp(i*S),1)
+!      > ferr = norm(F-la%exp(i*S),1)
 ! 
 !      > :gs:
 !      > for k = 1:n, for j = 1:k-1, d = x(k,:)*x(j,:)'; x(k,:) = x(k,:) - d*x(j,:); ...
@@ -971,9 +970,9 @@ end subroutine usersub_placeholder
 !      > :jacstep:
 ! 
 !      > d = (a(q,q)-a(p,p))*0.5/a(p,q);
-!      > t = 1/(abs(d)+sqrt(d*d+1));
+!      > t = 1/(abs(d)+la%sqrt(d*d+1));
 !      > if d < 0, t = -t; end;
-!      > c = 1/sqrt(1+t*t);  s = t*c;
+!      > c = 1/la%sqrt(1+t*t);  s = t*c;
 !      > R = eye(n); r(p,p)=c; r(q,q)=c; r(p,q)=s; r(q,p)=-s;
 !      > X = X*R;
 !      > A = R'*A*R;
@@ -1110,7 +1109,7 @@ end subroutine usersub_placeholder
 !      > sl = s(l)/scale; el = e(l)/scale;
 !      > b = ((smm1 + sm)*(smm1 - sm) + emm1**2)/2;
 !      > c = (sm*emm1)**2;
-!      > shift = sqrt(b**2+c); if b < 0, shift = -shift;
+!      > shift = la%sqrt(b**2+c); if b < 0, shift = -shift;
 !      > shift = c/(b + shift)
 !      > f = (sl + sm)*(sl-sm) - shift
 !      > g = sl*el
@@ -1155,7 +1154,7 @@ end subroutine usersub_placeholder
 !      >       x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);
 !      > //convert to polar coordinates
 !      >    for i = 1:m-1, th(i) = atan(y(i)/x(i));  ...
-!      >       r(i) = sqrt(x(i)**2+y(i)**2);
+!      >       r(i) = la%sqrt(x(i)**2+y(i)**2);
 !      >    th(m) = pi/2;  r(m) = 1;
 !      > //generate matrix
 !      >    //Dirichlet conditions
@@ -1182,7 +1181,7 @@ end subroutine usersub_placeholder
 !      > wv = ncen/sum(ncen);           // ncen contains population sizes
 !      > pbar = wv*p;                   // weighted average of p
 !      > p = p - ones(g,1)*pbar;        // deviations from mean
-!      > p = sqrt(diag(wv)) * p;        // weight rows of p by sqrt of pop size
+!      > p = la%sqrt(diag(wv)) * p;        // weight rows of p by sqrt of pop size
 !      > h = diag(pbar); h = h*(eye-h); // diagonal contains binomial variance: p*(1-p)
 !      > r = p*inv(h)*p'/k;             // normalized covariance matrix
 !      > eig(r)'
@@ -1233,7 +1232,7 @@ end subroutine usersub_placeholder
 !      > :strut.laf:
 ! 
 !      > // Structure problem, Forsythe, Malcolm and Moler, p. 62
-!      > s =  sqrt(2)/2;
+!      > s =  la%sqrt(2)/2;
 !      > A = [
 !      > -s  .  .  1  s   .  .  .  .  .  .  .  .  .  .  .  .
 !      > -s  . -1  . -s   .  .  .  .  .  .  .  .  .  .  .  .
@@ -1290,7 +1289,7 @@ end subroutine usersub_placeholder
 !      > X = data;
 !      > [n,p] = shape(X)
 !      > mu = ones(1,n)*X/n
-!      > X = X - ones(n,1)*mu;  X = X/diag(sqrt(diag(X'*X)))
+!      > X = X - ones(n,1)*mu;  X = X/diag(la%sqrt(diag(X'*X)))
 !      > corr = X'*X
 !      > y = data(:,p); X = [ones(y) data(:,1:p-1)];
 !      > long e
@@ -2466,9 +2465,8 @@ character(len=80) :: message
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 !===================================================================================================================================
-   case(26,27,32) ! COMMAND::RANDU
-                  ! COMMAND::RANDI
-                  ! COMMAND::RANDN
+   case(26,27) ! COMMAND::RANDU
+               ! COMMAND::RANDN
       rands: block
       integer :: rows
       integer :: cols
@@ -2522,9 +2520,6 @@ character(len=80) :: message
                  if (t .le. 1.0d0) exit
               enddo
               GM_REALS(ll) = mat_flop(sr*dsqrt((-(2.0d0*dlog(t)))/t))
-           case( 32)
-              GM_REALS(ll)=mat_flop(mat_urand(G_CURRENT_RANDOM_SEED))
-              GM_REALS(ll)= 1 + FLOOR((rows*cols)*GM_REALS(ll))  ! choose one from m-n+1 integers
            end select
            GM_IMAGS(ll) = 0.0d0          ! all of these functions set imaginary values to zero
          enddo
@@ -2534,6 +2529,128 @@ character(len=80) :: message
       G_VAR_COLS(G_ARGUMENT_POINTER) = cols
 
       endblock rands
+!===================================================================================================================================
+!===================================================================================================================================
+   case(32) ! COMMAND::RANDI
+      cmd_randi: block
+      real(kind=dp) :: low
+      real(kind=dp) :: high
+      real(kind=dp) :: temp
+      integer       :: rows
+      integer       :: cols
+
+      ! check arguments
+
+      select case(G_RHS)
+      case(1)    ! generate a scalar
+         if(m*n.eq.1)then    ! a scalar
+            low=1.0d0
+            high = int(GM_REALS(location))
+         elseif(m*n.eq.2)then
+            low = int(GM_REALS(location))
+            high = int(GM_REALS(location+1))
+         else
+            call mat_err(45) ! incorrect rank for argument
+            return
+         endif
+         rows=1
+         cols=1
+      case(2)
+         if(m*n.eq.1)then    ! a scalar
+            rows = int(GM_REALS(location))
+            cols = int(GM_REALS(location))
+         elseif(m*n.eq.2)then
+            rows = int(GM_REALS(location))
+            cols = int(GM_REALS(location+1))
+         else
+            call mat_err(45) ! incorrect rank for argument
+            return
+         endif
+
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m= G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n= G_VAR_COLS(G_ARGUMENT_POINTER)
+
+         if(m*n.eq.1)then    ! a scalar
+            low=1.0d0
+            high = int(GM_REALS(location))
+         elseif(m*n.eq.2)then
+            low = int(GM_REALS(location))
+            high = int(GM_REALS(location+1))
+         else
+            call mat_err(45) ! incorrect rank for argument
+            return
+         endif
+
+      case(3)
+         if(m*n.ne.1)then
+            call mat_err(45) ! incorrect rank for argument
+            return
+         endif
+         cols = int(GM_REALS(location))
+
+         ! go left to previous argument
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m= G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n= G_VAR_COLS(G_ARGUMENT_POINTER)
+
+         if(m*n.ne.1)then
+            call mat_err(45) ! incorrect rank for argument
+            return
+         endif
+         rows = int(GM_REALS(location))
+
+         ! go left to previous argument
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         location = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         m= G_VAR_ROWS(G_ARGUMENT_POINTER)
+         n= G_VAR_COLS(G_ARGUMENT_POINTER)
+
+         if(m*n.eq.1)then    ! a scalar
+            low=1.0d0
+            high = int(GM_REALS(location))
+         elseif(m*n.eq.2)then
+            low = int(GM_REALS(location))
+            high = int(GM_REALS(location+1))
+         else
+            call mat_err(45) ! incorrect rank for argument
+            return
+         endif
+
+      case default
+         call mat_err(39) ! Incorrect number of arguments
+         return
+      end select
+
+      if(rows.lt.1 .or. cols.lt.1)then
+         call mat_err(36) ! Argument out of range
+         return
+      endif
+
+      if(too_much_memory( location+rows*cols - G_VAR_DATALOC(G_TOP_OF_SAVED))) return
+
+      if(high.lt.low)then
+         temp=low
+         low=high
+         high=temp
+      endif
+
+      ! create random values
+      do j = 1, cols
+         do i = 1, rows
+           ll = location+i-1+(j-1)*rows                                  ! location to place value
+              GM_REALS(ll) = mat_flop(mat_urand(G_CURRENT_RANDOM_SEED))
+              GM_REALS(ll) = low + floor((high-low+1)*GM_REALS(ll))      ! use value to choose integer from low to high
+              GM_IMAGS(ll) = 0.0d0                                       ! set imaginary values to zero
+         enddo
+      enddo
+
+      G_VAR_ROWS(G_ARGUMENT_POINTER) = rows
+      G_VAR_COLS(G_ARGUMENT_POINTER) = cols
+
+      endblock cmd_randi
 !===================================================================================================================================
    case(28) ! COMMAND::RANDSEED
       select case(G_RHS)
@@ -2620,7 +2737,7 @@ character(len=80) :: message
       G_VAR_ROWS(G_ARGUMENT_POINTER) = 1
       G_VAR_COLS(G_ARGUMENT_POINTER) = 1
 !===================================================================================================================================
-   case(34:47)
+   case(34:49)
       ELEMENTAL: block
       integer          :: rowsX, colsX, startX
       complex(kind=dp) :: canswer
@@ -2642,110 +2759,120 @@ character(len=80) :: message
 
       associate( AR=>gm_reals( startX:startX+sz-1 ) , AI=>gm_imags( startX:startX+sz-1 ) )
       select case(G_FIN)
-      case(34) ! COMMAND::fortran%LOG
+      case(34) ! COMMAND::f%LOG
          do i=1,sz
             canswer=log(CMPLX(AR(i),AI(i),KIND=dp))
             ar(i)=canswer%re
             ai(i)=canswer%im
          enddo
-      case(35) ! COMMAND::fortran%LOG10
+      case(35) ! COMMAND::f%LOG10
             ar=log10(AR)
             ai=0.0d0
-      case(36) ! command::fortran%ACOSH
+      case(36) ! command::f%ACOSH
          do i=1,sz
             canswer=acosh(CMPLX(AR(i),AI(i),KIND=dp))
             ar(i)=canswer%re
             ai(i)=canswer%im
          enddo
-      case(37) ! command::fortran%ACOS
+      case(37) ! command::f%ACOS
          do i=1,sz
             canswer=acos(CMPLX(AR(i),AI(i),KIND=dp))
             ar(i)=canswer%re
             ai(i)=canswer%im
          enddo
-      case(38) ! command::fortran%ASINH
+      case(38) ! command::f%ASINH
          do i=1,sz
             canswer=asinh(CMPLX(AR(i),AI(i),KIND=dp))
             ar(i)=canswer%re
             ai(i)=canswer%im
          enddo
-      case(39) ! command::fortran%ASIN
+      case(39) ! command::f%ASIN
          do i=1,sz
             canswer=sin(CMPLX(AR(i),AI(i),KIND=dp))
             ar(i)=canswer%re
             ai(i)=canswer%im
          enddo
-      case(41) ! command::fortran%ATANH
-         do i=1,sz
-            canswer=atanh(CMPLX(AR(i),AI(i),KIND=dp))
-            write(*,*)'GOT HERE A:ATANH:',AR(I),AI(I),CANSWER
-            ar(i)=canswer%re
-            ai(i)=canswer%im
-         enddo
-      case(42) ! command::fortran%ATAN
-         do i=1,sz
-            canswer=atan(CMPLX(AR(i),AI(i),KIND=dp))
-            ar(i)=canswer%re
-            ai(i)=canswer%im
-         enddo
-      case(43) ! command::fortran%COSH
-         do i=1,sz
-            canswer=cosh(CMPLX(AR(i),AI(i),KIND=dp))
-            ar(i)=canswer%re
-            ai(i)=canswer%im
-         enddo
-      case(44) ! command::fortran%COS
-         do i=1,sz
-            canswer=cos(CMPLX(AR(i),AI(i),KIND=dp))
-            ar(i)=canswer%re
-            ai(i)=canswer%im
-         enddo
-      case(45) ! command::fortran%SINH
-         do i=1,sz
-            canswer=sinh(CMPLX(AR(i),AI(i),KIND=dp))
-            ar(i)=canswer%re
-            ai(i)=canswer%im
-         enddo
-      case(46) ! command::fortran%SIN
-         do i=1,sz
-            canswer=sin(CMPLX(AR(i),AI(i),KIND=dp))
-            ar(i)=canswer%re
-            ai(i)=canswer%im
-         enddo
-      case(47) ! command::fortran%TANH
-         do i=1,sz
-            canswer=tanh(CMPLX(AR(i),AI(i),KIND=dp))
-            ar(i)=canswer%re
-            ai(i)=canswer%im
-         enddo
-      case(40) ! command::fortran%TAN
+      case(40) ! command::f%TAN
          do i=1,sz
             canswer=tan(CMPLX(AR(i),AI(i),KIND=dp))
             ar(i)=canswer%re
             ai(i)=canswer%im
          enddo
+      case(41) ! command::f%ATANH
+         do i=1,sz
+            canswer=atanh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(42) ! command::f%ATAN
+         do i=1,sz
+            canswer=atan(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(43) ! command::f%COSH
+         do i=1,sz
+            canswer=cosh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(44) ! command::f%COS
+         do i=1,sz
+            canswer=cos(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(45) ! command::f%SINH
+         do i=1,sz
+            canswer=sinh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(46) ! command::f%SIN
+         do i=1,sz
+            canswer=sin(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(47) ! command::f%TANH
+         do i=1,sz
+            canswer=tanh(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(48) ! command::f%SQRT
+         do i=1,sz
+            canswer=sqrt(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
+      case(49) ! command::f%EXP
+         do i=1,sz
+            canswer=exp(CMPLX(AR(i),AI(i),KIND=dp))
+            ar(i)=canswer%re
+            ai(i)=canswer%im
+         enddo
 
-     !case(NN) ! command::fortran%atan2
+     !case(NN) ! command::f%atan2
 
-     !case(NN) ! command::fortran%ABS
-     !case(NN) ! command::fortran%DOT_PRODUCT
-     !case(NN) ! command::fortran%EXP
-     !case(NN) ! command::fortran%INT
-     !case(NN) ! command::fortran%MATMUL
-     !case(NN) ! command::fortran%PRECISION
-     !case(NN) ! command::fortran%PRODUCT
-     !case(NN) ! command::fortran%RANGE
-     !case(NN) ! command::fortran%RANK
-     !case(NN) ! command::fortran%SQRT
-     !case(NN) ! command::fortran%STORAGE_SIZE
-     !case(NN) ! command::fortran%SUM
-     !case(NN) ! command::fortran%UNPACK
+     !case(NN) ! command::f%ABS
+     !case(NN) ! command::f%DOT_PRODUCT
+     !case(NN) ! command::f%INT
+     !case(NN) ! command::f%MATMUL
+     !case(NN) ! command::f%PRECISION
+     !case(NN) ! command::f%PRODUCT
+     !case(NN) ! command::f%RANGE
+     !case(NN) ! command::f%RANK
+     !case(NN) ! command::f%STORAGE_SIZE
+     !case(NN) ! command::f%SUM
+     !case(NN) ! command::f%UNPACK
       end select
       end associate
       endblock ELEMENTAL
 !==================================================================================================================================!
    end select FUN6
 !==================================================================================================================================!
+
 end subroutine mat_matfn6
 !==================================================================================================================================!
 !()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()!
@@ -2758,12 +2885,7 @@ subroutine mat_matsets()
       G_RHS=0
       return
    endif
-   ! set%intersect  701  ! find the value common to both sets A and B
-   ! set%ismember   702  ! create a mask of A marking elements also in B
    ! set%issorted   703  ! report if A is sorted in ascending order or not.
-   ! set%setdiff    704  ! find the values in A that are not in B
-   ! set%setxor     705  ! find values of A and B not in both arrays
-   ! set%union      706  ! join two sets and removes duplicates of values
    ! set%unique     707  ! return unique values in array A
    ! set%isequal    708  ! report if A is equal to B within a tolerance
 !===================================================================================================================================
@@ -3333,7 +3455,7 @@ integer                           :: i
    case('real');            selector=223
    case('imag','aimag');    selector=224
    case('conjg');           selector=225
-   case('cmplx');           selector=226
+   case('abcde');           selector=226
    case('aint','int');      selector=227
 
    case('svd');             selector=301
@@ -3349,6 +3471,7 @@ integer                           :: i
    case('gt');              selector=312
    case('ne');              selector=313
    case('pack');            selector=314
+   case('cmplx');           selector=315
 
    case('qr');              selector=401
    case('orth');            selector=402
@@ -3398,22 +3521,24 @@ integer                           :: i
    case('maxloc');                selector=630
    case('minloc');                selector=631
 
-   case('randi','rand%integer');   selector=632
-   case('fortran%size','size');    selector=633
-   case('fortran%log','log');      selector=634
-   case('fortran%log10','log10');  selector=635
-   case('fortran%acosh','acosh');  selector=636
-   case('fortran%acos','acos');    selector=637
-   case('fortran%asinh','asinh');  selector=638
-   case('fortran%asin','asin');    selector=639
-   case('fortran%tan','tan');      selector=640
-   case('fortran%atanh','atanh');  selector=641
-   case('fortran%atan','atan');    selector=642
-   case('fortran%cosh','cosh');    selector=643
-   case('fortran%cos','cos');      selector=644
-   case('fortran%sinh','sinh');    selector=645
-   case('fortran%sin','sin');      selector=646
-   case('fortran%tanh','tanh');    selector=647
+   case('randi','rand%integer');  selector=632
+   case('f%size','size');         selector=633
+   case('f%log','log');           selector=634
+   case('f%log10','log10');       selector=635
+   case('f%acosh','acosh');       selector=636
+   case('f%acos','acos');         selector=637
+   case('f%asinh','asinh');       selector=638
+   case('f%asin','asin');         selector=639
+   case('f%tan','tan');           selector=640
+   case('f%atanh','atanh');       selector=641
+   case('f%atan','atan');         selector=642
+   case('f%cosh','cosh');         selector=643
+   case('f%cos','cos');           selector=644
+   case('f%sinh','sinh');         selector=645
+   case('f%sin','sin');           selector=646
+   case('f%tanh','tanh');         selector=647
+   case('f%sqrt','sqrt');         selector=648
+   case('f%exp','exp');           selector=649
 
    case('set%intersect','intersect');  selector=701 ! find the value common to both sets A and B
    case('set%ismember','ismember');   selector=702 ! create a mask of A marking elements also in B
@@ -3423,6 +3548,7 @@ integer                           :: i
    case('set%union','union');      selector=706 ! join two sets and removes duplicates of values
    case('set%unique','unique');     selector=707 ! return unique values in array A
    case('set%isequal','isequal');     selector=708 ! report if A equals B
+
    case('order%sort','sort');     selector=801 ! Sorts array into ascending order (Quick-sort)
    case('order%rank');     selector=802 ! produces an INDEX that sorts an input array (optimized merge-sort)
    case('order%orderloc','orderloc'); selector=803 ! [FRACTILE] Return INDEX of Nth ordered value of array (Quick-Sort-like)
@@ -5480,14 +5606,14 @@ integer          :: nn
         case( 4)                                        ! COMMAND::la%exp
                  tr(1) = dexp(sr)*dcos(si)
                  ti(1) = dexp(sr)*dsin(si)
-        case( 5);  call mat_wsqrt(sr,si,tr(1),ti(1))    ! COMMAND::la&sqrt
+        case( 5);  call mat_wsqrt(sr,si,tr(1),ti(1))    ! COMMAND::la%sqrt
         case( 6);  call mat_wlog(sr,si,tr(1),ti(1))     ! COMMAND::la%log
         case( 21); tr(1) = mat_pythag(sr,si)            ! COMMAND::abs
         case( 22); tr(1) = mat_round(sr)                ! COMMAND::ROUND
         case( 23); tr(1) = sr                           ! COMMAND::REAL
         case( 24); tr(1) = si                           ! COMMAND::IMAG
         case( 25); tr(1) = sr; ti(1) = -si              ! COMMAND::CONJG
-        case( 26); tr(1) = sr; ti(1) = si               ! COMMAND::CMPLX
+        case( 26); tr(1) = sr; ti(1) = si               ! COMMAND::abcde
         case( 27); tr(1) = aint(sr)                     ! COMMAND::AINT
 
         end select
@@ -6083,8 +6209,8 @@ doubleprecision :: p,s,t(1,1),tol,eps
 !===================================================================================================================================
        case(14) ! COMMAND::PACK
          pack_array: block
-         integer  :: right_rows,right_cols, left_rows,left_cols   ! shape of first array
-         integer  :: right_array_start,left_array_start           ! location of first array
+         integer  :: right_rows,right_cols, left_rows,left_cols   ! shape of arrays
+         integer  :: right_array_start,left_array_start           ! location of arrays
 
          IF (G_RHS .ne. 2) then
             call mat_err(39) ! Incorrect number of arguments
@@ -6125,6 +6251,51 @@ doubleprecision :: p,s,t(1,1),tol,eps
             endif
          endblock cmplex_values
       endblock pack_array
+!===================================================================================================================================
+       case(15) ! COMMAND::cmplx
+         cmd_cmplx: block
+         integer           :: right_rows,right_cols, left_rows,left_cols   ! shape of arrays
+         integer           :: right_array_start,left_array_start           ! location of arrays
+         real(kind=real64) :: constant
+
+         if (G_RHS .ne. 2) then
+            call mat_err(39) ! Incorrect number of arguments
+            return
+         endif
+
+         ! locate right_array
+         right_array_start=LOCATION
+         right_rows = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         right_cols = G_VAR_COLS(G_ARGUMENT_POINTER)
+
+         ! locate left_array
+         G_ARGUMENT_POINTER = G_ARGUMENT_POINTER-1
+         left_array_start = G_VAR_DATALOC(G_ARGUMENT_POINTER)
+         left_rows = G_VAR_ROWS(G_ARGUMENT_POINTER)
+         left_cols = G_VAR_COLS(G_ARGUMENT_POINTER)
+
+         if(too_much_memory(right_array_start+right_rows*left_cols+left_rows*left_cols+1-G_VAR_DATALOC(G_TOP_OF_SAVED)))return
+
+         if( right_rows*right_cols .eq. 1)then
+            mn=left_rows*left_cols
+            constant= GM_REALS(right_array_start)
+            GM_IMAGS(left_array_start:left_array_start+mn-1)= constant
+         elseif( left_rows*left_cols .eq. 1 )then
+            mn=right_rows*right_cols
+            constant= GM_REALS(left_array_start)
+            GM_IMAGS(left_array_start:left_array_start+mn-1)= GM_REALS(right_array_start:right_array_start+mn-1)
+            GM_REALS(left_array_start:left_array_start+mn-1)= constant
+            G_VAR_ROWS(G_ARGUMENT_POINTER) = right_rows
+            G_VAR_COLS(G_ARGUMENT_POINTER) = right_cols
+         elseif( right_rows*right_cols .eq. left_rows*left_cols )then
+            mn=right_rows*right_cols
+            GM_IMAGS(left_array_start:left_array_start+mn-1)= GM_REALS(right_array_start:right_array_start+mn-1)
+         else
+            call mat_err(43) ! shapes are not conformant
+            return
+         endif
+
+      endblock cmd_cmplx
 !===================================================================================================================================
    end select FUN3
 !
@@ -9546,7 +9717,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '        -1.3000   0.8000   3.1416                                               ',&
 '                                                                                ',&
-'   The elementary functions available include sqrt, la%log, exp, sin, cos,      ',&
+'   The elementary functions available include la%sqrt, la%log, la%exp, sin, cos,',&
 '   atan, abs, round, real, imag, pow, and conjg.                                ',&
 '                                                                                ',&
 '   Large matrices can be spread across several input lines, with the            ',&
@@ -10193,10 +10364,10 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   The elementary functions "la%exp", "la%log", "la%sqrt", "la%sin",            ',&
 '   "la%cos" and "la%atan" are applied to square matrices by diagonalizing       ',&
 '   the matrix, applying the functions to the individual eigenvalues and         ',&
-'   then transforming back. For example, "la&exp(A)" is computed by              ',&
+'   then transforming back. For example, "la%exp(A)" is computed by              ',&
 '                                                                                ',&
 '         <X,D> = eig(A);                                                        ',&
-'         for j = 1:n, D(j,j) = la&exp(D(j,j));                                  ',&
+'         for j = 1:n, D(j,j) = la%exp(D(j,j));                                  ',&
 '         X*D/X                                                                  ',&
 '                                                                                ',&
 '   This is essentially method number 14 out of the 19 ''dubious''               ',&
@@ -10209,9 +10380,9 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   associated with it. The computed eigenvalues will be separated by            ',&
 '   something on the order of the square root of the roundoff level. This        ',&
 '   separation will be reflected in "rcond(X)" which will probably not           ',&
-'   be small enough to trigger the error message. The computed "la&exp(A)"       ',&
+'   be small enough to trigger the error message. The computed "la%exp(A)"       ',&
 '   will be accurate to only half precision. Better methods are known for        ',&
-'   computing "la&exp(A)", but they do not easily extend to the other five       ',&
+'   computing "la%exp(A)", but they do not easily extend to the other five       ',&
 '   functions and would require a considerable amount of additional code.        ',&
 '                                                                                ',&
 '   The expression A**p is evaluated by repeated multiplication if p is          ',&
@@ -10256,7 +10427,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '   The computation of                                                           ',&
 '                                                                                ',&
-'         sqrt( a**2 + b**2 )                                                    ',&
+'         la%sqrt( a**2 + b**2 )                                                 ',&
 '                                                                                ',&
 '   is required in many matrix algorithms, particularly those involving          ',&
 '   complex arithmetic. A new approach to carrying out this operation is         ',&
@@ -10622,8 +10793,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '      X = A(:,1:2);                                                             ',&
 '      c = X\la%log(y)                                                           ',&
-'      p = exp(sum(c))                                                           ',&
-'      e = norm(exp(X*c)-y,''inf'')                                              ',&
+'      p = la%exp(sum(c))                                                        ',&
+'      e = norm(la%exp(X*c)-y,''inf'')                                           ',&
 '                                                                                ',&
 '   The resulting output is                                                      ',&
 '                                                                                ',&
@@ -10791,7 +10962,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '            x(i) = 1-rho*sin(t);  y(i) = 1-rho*cos(t);                          ',&
 '      //convert to polar coordinates                                            ',&
 '         for i = 1:m-1, th(i) = la%atan(y(i)/x(i));  ...                        ',&
-'            r(i) = sqrt(x(i)**2+y(i)**2);                                       ',&
+'            r(i) = la%sqrt(x(i)**2+y(i)**2);                                    ',&
 '         th(m) = pi/2;  r(m) = 1;                                               ',&
 '      //generate matrix                                                         ',&
 '         //Dirichlet conditions                                                 ',&
@@ -11358,7 +11529,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   |VARIABLES     | ans    clear who                                        |   ',&
 '   |______________._________________________________________________________|   ',&
 '   |COMPLEX ELEMENTAL | acosh acos asinh asin atanh atan cosh cos sinh sin  |   ',&
-'   |                  | tanh tan log                                        |   ',&
+'   |                  | tanh tan log sqrt exp cmplx                         |   ',&
 '   |__________________._____________________________________________________|   ',&
 '   |REAL ELEMENTAL    | log10                                               |   ',&
 '   |______________.___._____________________________________________________|   ',&
@@ -11386,7 +11557,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '   |MISCELLANEOUS | eps    debug  flops sh     MACROS   EDIT   CHARS        |   ',&
 '   |______________._________________________________________________________|   ',&
 '   |PACKAGES      | "SET THEORY", "ORDERING", "LINEAR ALGEBRA"              |   ',&
-'   |              | atan  cos  exp  log  pow  sin  sqrt                     |   ',&
+'   |              | atan  cos  la%exp  log  pow  sin  la%sqrt               |   ',&
 '   |______________._________________________________________________________|   ',&
 '================================================================================',&
 'SAMPLE                                                                          ',&
@@ -11507,7 +11678,8 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '         data.                                                                  ',&
 '                                                                                ',&
 '      May, 2025.                                                                ',&
-'       * randi   Added randi()                                                  ',&
+'       * Added randi(), and revised it to resemble the octave(1)                ',&
+'         and commercial Matlab functions of the same name.                      ',&
 '                                                                                ',&
 '       * allow a name on a line by itself to be equivalent to                   ',&
 '         "load(''name.la'')                                                     ',&
@@ -11529,7 +11701,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 ']     See "<"                                                                   ',&
 '>     See "<" . Also see MACROS.                                                ',&
 '<     < > or [ ] are brackets used in forming vectors and matrices.             ',&
-'      "<6.9 9.64 sqrt(-1)>" is a vector with three elements separated by        ',&
+'      "<6.9 9.64 la%sqrt(-1)>" is a vector with three elements separated by     ',&
 '      blanks. "[1+I 2-I 3]" and "[1 +I 2 -I 3]" are not the same. The           ',&
 '      first has three elements, the second has five. <11 12 13; 21 22           ',&
 '      23> is a 2 by 3 matrix. The semicolon ends the first row.                 ',&
@@ -11566,7 +11738,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '         X(3) is the third element of X .                                       ',&
 '         X([1 2 3]) is the first three elements of X. So is                     ',&
-'         X([sqrt(2), sqrt(3), 4*atan(1)]) .                                     ',&
+'         X([la%sqrt(2), la%sqrt(3), 4*atan(1)]) .                               ',&
 '         If X has N components, X(N:1:-1) reverses them.                        ',&
 '                                                                                ',&
 '      The same indirect subscripting is used in matrices. If V has              ',&
@@ -11722,7 +11894,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      p is an integer greater than 1. Otherwise it is evaluated by              ',&
 '                                                                                ',&
 '               <X,D> = eig(A);                                                  ',&
-'               for j = 1:n, D(j,j) = exp(p*log(D(j,j)))                         ',&
+'               for j = 1:n, D(j,j) = la%exp(p*log(D(j,j)))                      ',&
 '               X*D/X                                                            ',&
 '                                                                                ',&
 '      This suffers from a potential loss of accuracy if X is badly              ',&
@@ -11782,7 +11954,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 '          S = <''x = 3            ''                                            ',&
 '               ''y = 4            ''                                            ',&
-'               ''z = sqrt(x*x+y*y)''>                                           ',&
+'               ''z = la%sqrt(x*x+y*y)''>                                        ',&
 '          for k = 1:3, >S(k,:)<                                                 ',&
 '                                                                                ',&
 '    It is necessary that the strings making up the "rows" of                    ',&
@@ -11804,7 +11976,10 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 'asinh  Inverse hyperbolic sine function                                         ',&
 'atanh  Inverse hyperbolic tangent function                                      ',&
 'tan    Tangent function                                                         ',&
+'                                                                                ',&
 'log    Natural logarith                                                         ',&
+'sqrt   Square root                                                              ',&
+'exp    Base-e exponential function                                              ',&
 '================================================================================',&
 'REAL ELEMENTAL                                                                  ',&
 '                                                                                ',&
@@ -11988,6 +12163,16 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                                                                                ',&
 'conjg  "conjg(X)" is the complex conjugate of X .                               ',&
 '                                                                                ',&
+'cmplx  "cmplx(R,I)" takes the real components of R and uses them for the        ',&
+'       real components of the results, and takes the real component of I        ',&
+'       and uses it for the imaginary components of the result.                  ',&
+'                                                                                ',&
+'       If R or I is a scalar it is treated as if it is a vector of the          ',&
+'       same size as the over argument with all values set to the constant.      ',&
+'                                                                                ',&
+'       Otherwise, both arguments must conform in size.                          ',&
+'                                                                                ',&
+'                                                                                ',&
 'date_and_time  date_and_time(IDS)" where an array of IDs indicate               ',&
 '               which values to return:                                          ',&
 '                                                                                ',&
@@ -12046,7 +12231,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '       the format is used repeatedly to output each string. It is not           ',&
 '       used to print multiple values as once.                                   ',&
 '                                                                                ',&
-'         A=10+sqrt(-1)*20                                                       ',&
+'         A=10+la%sqrt(-1)*20                                                    ',&
 '         display(fmtc(A))                                                       ',&
 '                                                                                ',&
 'fmti  "fmti(A,''format'')" converts given numbers to strings representing       ',&
@@ -12146,7 +12331,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '          norm(X,''inf'')  is the infinity norm of X; ie. the largest row       ',&
 '                         sum of X.                                              ',&
 '                                                                                ',&
-'          norm(X,''fro'')  is the F-norm, i.e. "sqrt(sum(diag(X''*X)))" .       ',&
+'          norm(X,''fro'')  is the F-norm, i.e. "la%sqrt(sum(diag(X''*X)))" .    ',&
 '                                                                                ',&
 '      For vectors..                                                             ',&
 '          norm(V,P)      the same as sum(V(I)**P)**(1/P) .                      ',&
@@ -12161,7 +12346,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '!!                                                                                    ',&
 '!!            norm(x,p) = sum(abs(x) .^ p) ^ (1/p)                                    ',&
 '!!            norm(x,1) is the sum of the absolute values of X.                       ',&
-'!!            norm(x)/sqrt(n) is the root-mean-square value.                          ',&
+'!!            norm(x)/la%sqrt(n) is the root-mean-square value.                       ',&
 '!!            norm(x,-inf)=min(abs(x))                                                ',&
 '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<      ',&
 '                                                                                      ',&
@@ -12247,8 +12432,26 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '      it is referenced. See "randn" and "randu" for generating random                 ',&
 '      matrices.                                                                       ',&
 '                                                                                      ',&
-'randi  Uniformly distributed random integers in the interval 1 to size(A).            ',&
-'       "randi(N)" is an N by N matrix. "randu(M,N)" is an M by N matrix.              ',&
+'randi  "randi([L,H],[R,C]) Uniformly distributed random integers                      ',&
+'       in the interval (L)ow to (H)igh of shape [(Rows),(Columns)]                    ',&
+'                                                                                      ',&
+'       If [L,H] is a scalar it is assumed to be [1,H].                                ',&
+'       If [R,C] is a scalar it is assumed to be a square matrix [N,N].                ',&
+'                                                                                      ',&
+'           scalar=randi(10) // number between 1 and 10                                ',&
+'           square=randi([-5,5],9) // square matrix                                    ',&
+'           row=randi([0,1],[1,9]) // row vector                                       ',&
+'           column=randi([100,199],[40,1]) // row vector                               ',&
+'                                                                                      ',&
+'       Currently "randi()" calls "randu" and uses the following formula               ',&
+'       using 64-bit floating-point values so very high upper limits                   ',&
+'       conform to the spacing between representable numbers so values that            ',&
+'       would be spaced more than one unit apart will not be uniformly                 ',&
+'       spaced across all whole numbers in that range. So range maximums               ',&
+'       should best be restricted to the range of integers on the current              ',&
+'       platform at most if strict uniformity is required.                             ',&
+'                                                                                      ',&
+'           value = low + floor((high-low+1)*randu)                                    ',&
 '                                                                                      ',&
 'randn  randn(N) or randn(N,M) produces random numbers with a normal                   ',&
 '       distribution with mean 0.0 and variance 1.0. "randn(N)" is an N                ',&
@@ -12555,7 +12758,7 @@ G_HELP_TEXT=[ CHARACTER(LEN=128) :: &
 '                   values in the array with the values pointed to                     ',&
 '                   sorted in ascending order.                                         ',&
 '                                                                                      ',&
-'                     X=randi(10,10); // generate some numbers                         ',&
+'                     X=randi(100,[10,10]); // generate some numbers                   ',&
 '                     U=order%rank_unique(X);                                          ',&
 '                     size(U) // how many unique values                                ',&
 '                     Y=X(U) // the unique values in ascending order                   ',&
@@ -13360,7 +13563,7 @@ logical                     :: wait
 integer                     :: exitstat
 integer                     :: cmdstat
 character(len=256)          :: cmdmsg
-   wait=.false.
+   wait=.true.
    exitstat=0
    cmdstat=0
    call execute_command_line(command=command,wait=wait, &
