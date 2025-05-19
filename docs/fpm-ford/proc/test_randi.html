@@ -1,0 +1,283 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="embeddable command-line matrix utility">
+    <meta name="author" content="John S. Urban" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>test_randi &ndash; M_matrix</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">M_matrix </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>test_randi
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.1% of total for procedures.">4 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/test_suite_M_matrix.f90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/test_suite_m_matrix.f90.html'>test_suite_M_matrix.f90</a></li>
+                <li class="breadcrumb-item"><a href='../program/testit.html'>testit</a></li>
+            <li class="breadcrumb-item active" aria-current="page">test_randi</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/test_randi.html#src">test_randi</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2> subroutine test_randi()  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+    <em>None</em>
+    <br>
+    <br>
+
+
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">test_randi</span><span class="w"> </span><span class="p">()</span>
+<span class="w">   </span><span class="k">call </span><span class="n">lala</span><span class="p">(</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="kt">character</span><span class="p">(</span><span class="nb">len</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;display(ones(80,1)&#39;*61);                                                                                   &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;clear;                                                                                                     &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;help randi                                                                                                 &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;tally=[0];                                                                                                 &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;// single scalar argument                                                                                  &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;answer=randi(10);                                                                                          &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;checks=[eq(size(answer),1),ge(answer,1),le(answer,10)];                                                    &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;// single range argument                                                                                   &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;answer=randi([11,21]);                                                                                     &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;checks=[eq(size(answer),1),ge(answer,11),le(answer,21)];                                                   &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;// range and N for square matrix                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;answer=randi([-5,5],100);                                                                                  &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;checks=[eq(size(answer),10000),all(ge(answer,-5)),all(le(answer,5))];                                      &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;// max and shape                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;answer=randi(40,[123,100]);                                                                                &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;checks=[eq(size(answer),12300),all(ge(answer,1)),all(le(answer,40))];                                      &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;// range and shape                                                                                         &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;answer=randi([30,40],[123,100]);                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;checks=[eq(size(answer),12300),all(ge(answer,30)),all(le(answer,40))];                                     &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;// range and M and N                                                                                       &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;answer=randi([30,40],123,100);                                                                             &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;checks=[eq(size(answer),12300),all(ge(answer,30)),all(le(answer,40))];                                     &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if all(eq(checks,1))=1, tally=[tally,0];else,tally=[tally,1];                                              &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;// generate random whole numbers from 1 to 10. Average should be around 5.5                                &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;mn_avg=+999999999;                                                                                         &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;mx_avg=-999999999;                                                                                         &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;large=-999999999;                                                                                          &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;small=+999999999;                                                                                          &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;for i=1:100, ...                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;   a=randi(10,[300,300]); ...                                                                              &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;   av=sum(a)/size(a); ...                                                                                  &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;   mn_avg=minval([mn_avg,av]); ...                                                                         &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;   mx_avg=maxval([mx_avg,av]); ...                                                                         &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;   answer=gt(av,5.45)+lt(av,5.55); ...                                                                     &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;   large=maxval([reshape(a),large]); ...                                                                   &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;   small=minval([reshape(a),small]); ...                                                                   &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;   if answer=2,tally=[tally,0];else,tally=[tally,1]; ...                                                   &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;end;                                                                                                       &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if all(tally)=0, display([&#39;randi:average PASSED &#39;,fmti(size(tally)-1),&#39; trials&#39;]);                         &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if any(tally)&lt;&gt;0,display([&#39;randi:average FAILED &#39;,fmti(sum(tally)),&#39; trials out of &#39;,fmti(size(tally)-1)]);&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;display([&#39;min_average=&#39;,fmtr(mn_avg),&#39; max_average=&#39;,fmtr(mx_avg)]);                                       &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if large=10,display(&#39;randi:maxval PASSED&#39;),else,display([&#39;randi:maxval FAILED, maxval=&#39;,fmti(large)]),end; &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if small=1 ,display(&#39;randi:minval PASSED&#39;),else,display([&#39;randi:minval FAILED, minval=&#39;,fmti(small)]),end; &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;                                                                                                           &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s2">&quot;if sum(tally)=0,display(&#39;randi PASSED&#39;);else,display(&#39;randi FAILED&#39;);tally(2:size(tally))                  &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="s1">&#39;&#39;</span><span class="p">])</span>
+<span class="w">  </span><span class="k">call </span><span class="n">wrapup</span><span class="p">()</span>
+<span class="k">end subroutine </span><span class="n">test_randi</span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              M_matrix
+ was developed by John S. Urban<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-05-19 05:44 +0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
