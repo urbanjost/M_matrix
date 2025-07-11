@@ -1,0 +1,508 @@
+<!-- -*- mode: jinja2 -*- -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="embeddable command-line matrix utility">
+    <meta name="author" content="John S. Urban" >
+    <link rel="icon" href="../favicon.png">
+
+    <title>LALA_init &ndash; M_matrix</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Font Awesome -->
+    <link href="../css/fontawesome.min.css" rel="stylesheet">
+    <link href="../css/brands.min.css" rel="stylesheet">
+    <link href="../css/regular.min.css" rel="stylesheet">
+    <link href="../css/solid.min.css" rel="stylesheet">
+    <link href="../css/v4-font-face.min.css" rel="stylesheet">
+    <link href="../css/v4-shims.min.css" rel="stylesheet">
+    <!-- MathJax -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async
+            integrity="sha256-DViIOMYdwlM/axqoGDPeUyf0urLoHMN4QACBKyB58Uw=" crossorigin="anonymous"></script>
+    <!-- Other scripts and stylesheets -->
+    <link href="../css/local.css" rel="stylesheet">
+    <link href="../css/pygments.css" rel="stylesheet">
+    <script src="../js/svg-pan-zoom.min.js"></script>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <div class="container-fluid mb-sm-4 mb-xl-2">
+      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="../index.html">M_matrix </a>
+          <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar"
+                  aria-expanded="false" aria-controls="navbar" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+          </button>
+
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../lists/files.html">Source Files</a>
+                  </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/modules.html">Modules</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/procedures.html">Procedures</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/absint.html">Abstract Interfaces</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/types.html">Derived Types</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="../lists/programs.html">Programs</a>
+                </li>
+            </ul>
+              <div class="d-flex align-items-end flex-grow-1">
+                <form action="../search.html" role="search" class="ms-auto">
+                  <input type="text" class="form-control" aria-label="Search" placeholder="Search" name="q" id="tipue_search_input" autocomplete="off" required>
+                </form>
+              </div>
+          </div><!--/.nav-collapse -->
+        </div>
+      </nav>
+    </div>
+
+    <div class="container">
+  <div class="row">
+    <h1>LALA_init
+      <small>Subroutine</small>
+      
+    </h1>
+      <div class="container p-2 mb-4 bg-light border rounded-3">
+    <div class="row align-items-center justify-content-between" id="info-bar">
+      <div class="col">
+        <ul class="list-inline" style="margin-bottom:0px;display:inline">
+
+            <li class="list-inline-item" id="statements"><i class="fa fa-list-ol"></i>
+              <a data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true"
+                 title=" 0.8% of total for procedures.">66 statements</a>
+            </li>
+
+            <li class="list-inline-item" id="source-file">
+              <i class="fa fa-code"></i>
+              <a href="../src/M_matrix.F90"> Source File</a>
+            </li>
+        </ul>
+      </div>
+      <div class="col">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb justify-content-end mb-0">
+                <li class="breadcrumb-item"><a href='../sourcefile/m_matrix.f90.html'>M_matrix.F90</a></li>
+                <li class="breadcrumb-item"><a href='../module/m_matrix.html'>M_matrix</a></li>
+            <li class="breadcrumb-item active" aria-current="page">LALA_init</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Enable Bootstrap tooltips
+    (function () {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+      const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    })();
+  </script>
+
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3 hidden-xs hidden-sm visible-md visible-lg">
+      <div id="sidebar">
+      <h3>Contents</h3>
+  
+      <div class="card mb-4">
+      <a data-bs-toggle="collapse" href="#vars-0"
+         aria-expanded="false" aria-controls="vars-0">
+         <h4 class="card-header bg-primary text-white">Variables</h4>
+      </a>
+      <div id="vars-0" class="collapse">
+        <div class="list-group list-group-flush">
+            <a class="list-group-item" href="../proc/lala_init.html#variable-eps">EPS</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-eye">EYE</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-flops">FLOPS</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-rand">RAND</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-i~6">i</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-s~4">s</a>
+            <a class="list-group-item" href="../proc/lala_init.html#variable-t~5">t</a>
+        </div>
+      </div>
+    </div>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    <div class="card card-primary">
+      <div class="card-header text-left"><h3 class="card-title">Source Code</h3></div>
+      <div class="list-group">
+        <a class="list-group-item" href="../proc/lala_init.html#src">LALA_init</a>
+      </div>
+    </div>
+
+
+  </div>
+
+    </div>
+    
+    <div class="col-md-9" id='text'>
+    <h2>public  subroutine LALA_init(init, echo)  
+</h2>
+    
+
+
+
+    <h3>Arguments</h3>
+        <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Intent</th><th scope="col">Optional</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-init"></span>
+              integer,
+            </td>
+<td>intent(in)</td>
+              <td></td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>init</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-echo"></span>
+              logical,
+            </td>
+<td>intent(in),</td>
+              <td>optional</td>            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>echo</strong></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    <br>
+
+
+    <section>    
+      <h2>Variables</h2>
+      <table class="table table-striped varlist">
+    <thead>
+      <tr>
+        <th scope="col">Type</th>
+<th scope="col">Visibility</th>        <th scope="col">Attributes</th>
+        <th scope="col"></th>
+        <th scope="col">Name</th>
+<th></th><th scope="col">Initial</th>        <th scope="col"></th>
+    </thead>
+    <tbody>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eps"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>EPS</strong>(GG_MAX_NAME_LENGTH)</td>
+<td> =</td>
+                <td>[iachar([&#39;e&#39;, &#39;p&#39;, &#39;s&#39;, &#39; &#39;, &#39; &#39;]), GG_PAD(6:)]</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-eye"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>EYE</strong>(GG_MAX_NAME_LENGTH)</td>
+<td> =</td>
+                <td>[iachar([&#39;e&#39;, &#39;y&#39;, &#39;e&#39;, &#39; &#39;, &#39; &#39;]), GG_PAD(6:)]</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-flops"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>FLOPS</strong>(GG_MAX_NAME_LENGTH)</td>
+<td> =</td>
+                <td>[iachar([&#39;f&#39;, &#39;l&#39;, &#39;o&#39;, &#39;p&#39;, &#39;s&#39;]), GG_PAD(6:)]</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-rand"></span>
+              integer,
+            </td>
+              <td>public,</td>
+            <td>
+parameter               
+            </td>
+            <td>::</td>
+            <td><strong>RAND</strong>(GG_MAX_NAME_LENGTH)</td>
+<td> =</td>
+                <td>[iachar([&#39;r&#39;, &#39;a&#39;, &#39;n&#39;, &#39;d&#39;, &#39; &#39;]), GG_PAD(6:)]</td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-i~6"></span>
+              integer,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>i</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-s~4"></span>
+              doubleprecision,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>s</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <span class="anchor" id="variable-t~5"></span>
+              doubleprecision,
+            </td>
+              <td>public</td>
+            <td>
+              
+            </td>
+            <td>::</td>
+            <td><strong>t</strong></td>
+                <td></td>
+                <td></td>
+            <td>
+                
+            </td>
+        </tr>
+    </tbody>
+  </table>
+
+    </section>
+    <br>
+    
+    
+
+    
+    
+
+
+
+    
+    <section>
+    <h2><span class="anchor" id="src"></span>Source Code</h2>
+    <div class="hl codehilite"><pre><span></span><span class="k">subroutine </span><span class="n">LALA_init</span><span class="p">(</span><span class="n">init</span><span class="p">,</span><span class="n">echo</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">! ident_1=&quot;@(#) M_matrix lala(3f) initialize and/or pass commands to matrix laboratory interpreter&quot;</span>
+
+<span class="kt">integer</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w">          </span><span class="kd">::</span><span class="w"> </span><span class="n">init</span><span class="w"></span>
+<span class="kt">logical</span><span class="p">,</span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">),</span><span class="k">optional</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">echo</span><span class="w"></span>
+<span class="n">doubleprecision</span><span class="w">             </span><span class="kd">::</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="n">t</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">EPS</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span><span class="w">   </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;s&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">FLOPS</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;f&#39;</span><span class="p">,</span><span class="s1">&#39;l&#39;</span><span class="p">,</span><span class="s1">&#39;o&#39;</span><span class="p">,</span><span class="s1">&#39;p&#39;</span><span class="p">,</span><span class="s1">&#39;s&#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="n">EYE</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span><span class="w">   </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;e&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span><span class="w"></span>
+<span class="kt">integer</span><span class="p">,</span><span class="k">parameter</span><span class="w">           </span><span class="kd">::</span><span class="w"> </span><span class="nb">RAND</span><span class="p">(</span><span class="n">GG_MAX_NAME_LENGTH</span><span class="p">)</span><span class="o">=</span><span class="w">  </span><span class="p">[</span><span class="nb">iachar</span><span class="p">([</span><span class="s1">&#39;r&#39;</span><span class="p">,</span><span class="s1">&#39;a&#39;</span><span class="p">,</span><span class="s1">&#39;n&#39;</span><span class="p">,</span><span class="s1">&#39;d&#39;</span><span class="p">,</span><span class="s1">&#39; &#39;</span><span class="p">]),</span><span class="n">GG_PAD</span><span class="p">(</span><span class="mi">6</span><span class="p">:)]</span><span class="w"></span>
+<span class="kt">integer</span><span class="w">                     </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">present</span><span class="p">(</span><span class="n">echo</span><span class="p">))</span><span class="w"> </span><span class="n">G_ECHO</span><span class="o">=</span><span class="n">echo</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">G_PROMPT</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_ERR</span><span class="o">=</span><span class="mi">0</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">))</span><span class="k">deallocate</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">G_PSEUDO_FILE</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">G_LIN</span><span class="o">=</span><span class="n">blank</span><span class="w"> </span><span class="c">! should set everyone</span>
+<span class="w">   </span><span class="n">G_VAR_IDS</span><span class="o">=</span><span class="n">blank</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">GM_BIGMEM</span><span class="o">=</span><span class="n">INIT</span><span class="w"></span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="n">GM_BIGMEM</span><span class="o">=</span><span class="mi">400000</span><span class="w"></span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">deallocate</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">if</span><span class="p">(</span><span class="nb">allocated</span><span class="p">(</span><span class="n">GM_IMAGS</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">deallocate</span><span class="p">(</span><span class="n">GM_IMAGS</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="k">allocate</span><span class="p">(</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="p">))</span><span class="w">                      </span><span class="c">! set to size of GM_BIGMEM</span>
+
+<span class="w">   </span><span class="n">G_INPUT_LUN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">STDIN</span><span class="w">                                                    </span><span class="c">! unit number for terminal input</span>
+<span class="w">   </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">G_INPUT_LUN</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_LUN_READING_FROM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_INPUT_LUN</span><span class="w">                                       </span><span class="c">! current file to read commands from</span>
+<span class="w">   </span><span class="k">call </span><span class="n">mat_files</span><span class="p">(</span><span class="n">STDOUT</span><span class="p">,</span><span class="n">G_BUF</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">if</span><span class="p">(.</span><span class="nb">not</span><span class="p">.</span><span class="nb">allocated</span><span class="p">(</span><span class="n">G_HELP_TEXT</span><span class="p">))</span><span class="w"> </span><span class="k">call </span><span class="n">mat_help_text</span><span class="p">()</span><span class="w">                   </span><span class="c">! initialize help text</span>
+<span class="w">   </span><span class="n">G_CURRENT_RANDOM_SEED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w">                                              </span><span class="c">! random number seed</span>
+<span class="w">   </span><span class="n">G_LINECOUNT</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">23</span><span class="w">                                                    </span><span class="c">! initial line limit for paging output</span>
+
+<span class="w">   </span><span class="n">G_TOP_OF_SAVED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="w">  </span><span class="c">! move up to allow room for the built-in values eps, flops, eye, rand</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">mat_wset</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mf">0.0D0</span><span class="p">,</span><span class="mf">0.0d0</span><span class="p">,</span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">),</span><span class="n">GM_IMAGS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">),</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;eps&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">),</span><span class="n">EPS</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+
+<span class="w">   </span><span class="c">! interesting way to calculate the epsilon value of a machine</span>
+<span class="w">   </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0d0</span><span class="w"></span>
+<span class="w">   </span><span class="n">SET_ST</span><span class="p">:</span><span class="w"> </span><span class="k">do</span>
+<span class="k">      </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="o">/</span><span class="mf">2.0D0</span><span class="w"></span>
+<span class="w">      </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0d0</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="p">.</span><span class="n">LE</span><span class="p">.</span><span class="w"> </span><span class="mf">1.0d0</span><span class="p">)</span><span class="w"> </span><span class="k">exit</span>
+<span class="k">   enddo </span><span class="n">SET_ST</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0d0</span><span class="o">*</span><span class="n">s</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;flops&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">3</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span><span class="n">flops</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">3</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;eye&#39;</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">eye</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+
+<span class="w">   </span><span class="n">GM_REALS</span><span class="p">(</span><span class="n">GM_BIGMEM</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0D0</span><span class="w"></span>
+
+<span class="w">   </span><span class="k">call </span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;rand&#39;</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">GM_BIGMEM</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+<span class="w">      </span><span class="k">call </span><span class="n">mat_copyid</span><span class="p">(</span><span class="n">G_VAR_IDS</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">),</span><span class="w"> </span><span class="nb">rand</span><span class="p">)</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_DATALOC</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GM_BIGMEM</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_ROWS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">G_VAR_COLS</span><span class="p">(</span><span class="n">GG_MAX_NUMBER_OF_NAMES</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="c">!=============================================================</span>
+
+<span class="w">   </span><span class="n">G_FMT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_FLOP_COUNTER</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_FLOP_COUNTER</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_DEBUG_LEVEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_PTZ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">   </span><span class="n">G_PT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">G_PTZ</span><span class="w"></span>
+
+<span class="w">   </span><span class="n">G_FORTRAN_TEXT</span><span class="o">=</span><span class="n">help_intrinsics</span><span class="p">(</span><span class="s1">&#39;manual&#39;</span><span class="p">,</span><span class="n">m_help</span><span class="o">=</span><span class="p">.</span><span class="n">true</span><span class="p">.)</span><span class="w">  </span><span class="c">! load Fortran documentation</span>
+
+<span class="k">end subroutine </span><span class="n">LALA_init</span><span class="w"></span>
+</pre></div>
+
+    </section>
+    <br>
+    
+    </div>
+  </div>
+
+      <hr>
+    </div> <!-- /container -->
+    <footer>
+      <div class="container">
+        <div class="row justify-content-between">
+          <div class="col">
+            <p>
+              M_matrix
+ was developed by John S. Urban<br>              &copy; 2025 
+</p>
+          </div>
+          <div class="col">
+            <p class="text-end">
+              Documentation generated by
+              <a href="https://github.com/Fortran-FOSS-Programmers/ford">FORD</a>
+ on 2025-07-11 00:10 +0000             </p>
+          </div>
+        </div>
+        <br>
+      </div> <!-- /container -->
+    </footer>
+  </body>
+</html>
